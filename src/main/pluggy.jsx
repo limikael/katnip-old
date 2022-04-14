@@ -1,7 +1,23 @@
-import {useContext,createContext} from "preact/compat";
+import {useContext,createContext,useRef,useState} from "preact/compat";
 import {useForceUpdate} from "../utils/react-util.jsx";
 
 export const PluggyContext=createContext();
+
+export function useApi(funcName, query={}) {
+	let ref=useRef();
+	let [value,setValue]=useState(null);
+
+	if (!ref.current) {
+		ref.current=true;
+		fetch("/api/"+funcName).then(async(response)=>{
+			let data=await response.json();
+			setValue(data);
+	//		console.log(data);
+		});
+	}
+
+	return value;
+}
 
 export function A({children, ...props}) {
 	let ctx=useContext(PluggyContext);
@@ -76,5 +92,6 @@ export default {
 	applyFilters,
 	getCurrentRequest,
 	A,
-	PluggyContext
+	PluggyContext,
+	useApi
 }

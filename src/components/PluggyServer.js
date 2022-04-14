@@ -18,6 +18,13 @@ export default class PluggyServer {
 		});
 	}
 
+	getDirectories(source) {
+		return fs.readdirSync(source, { withFileTypes: true })
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => dirent.name)
+	}
+
+
 	getPluginPaths() {
 		let pkg=JSON.parse(fs.readFileSync("package.json"));
 		let pluginsNames=pkg.plugins||[];
@@ -26,7 +33,7 @@ export default class PluggyServer {
 		for (let pluginName of pluginsNames)
 			pluginPaths[pluginName]=`${process.cwd()}/node_modules/${pluginName}`;
 
-		let defaultPlugins=["pluggy-admin","pluggy-theme-bootswatch"];
+		let defaultPlugins=this.getDirectories(`${process.cwd()}/node_modules/pluggy/default_plugins/`);
 		for (let defaultPlugin of defaultPlugins)
 			pluginPaths[defaultPlugin]=`${process.cwd()}/node_modules/pluggy/default_plugins/${defaultPlugin}`
 
@@ -86,11 +93,52 @@ export default class PluggyServer {
 		res.end("Not found...");
 	}
 
+	handleApi=async (req, res)=>{
+		let l=new URL(req.url,"http://example.com");
+		let query=Object.fromEntries(new URLSearchParams(l.search));
+		let params=l.pathname.split("/").filter(s=>s.length>0);
+		let path="/"+params.join("/");
+
+		if (params.length!=2) {
+			res.writeHead(404);
+			res.end("Malformed...");
+			return;
+		}
+
+		let apiFunctionName=params[1];
+		let plugins=this.pluggy.getPlugins();
+		for (let pluginName in plugins) {
+			if (plugins[pluginName].api) {
+				let func=plugins[pluginName].api[apiFunctionName];
+				if (func) {
+					try {
+						let data=await func(query);
+						res.writeHead(200);
+						res.end(JSON.stringify(data));
+						return;
+					}
+
+					catch (e) {
+						res.writeHead(500);
+						res.end("Error...");
+						return;
+					}
+				}
+			}
+		}
+
+		res.writeHead(404);
+		res.end("Not found...");
+	}
+
 	handleRequest=(req, res)=>{
 		if (req.url=="/pluggy-bundle.js") {
 			res.writeHead(200);
 			res.end(this.clientBundle);
 		}
+
+		else if (req.url.startsWith("/api/"))
+			this.handleApi(req,res);
 
 		else if (req.url.startsWith("/public/"))
 			this.handlePublic(req,res);
