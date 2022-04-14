@@ -1,0 +1,12 @@
+{
+  "name": "pluggy",
+  "bin": {
+    "pluggy": "src/main/pluggy-cli.js"
+  },
+  "main": "src/main/pluggy.jsx",
+  "type": "module",
+  "dependencies": {
+    "esbuild": "^0.14.34",
+    "preact": "^10.7.1"
+  }
+}
