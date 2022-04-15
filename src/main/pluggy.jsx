@@ -1,5 +1,12 @@
 import {useContext,createContext,useRef,useState} from "preact/compat";
 import {useForceUpdate} from "../utils/react-util.jsx";
+import AdminListTable from "../components/AdminListTable.jsx";
+import {buildUrl} from "../utils/react-util.jsx";
+
+export {
+	AdminListTable as AdminListTable,
+	buildUrl as buildUrl
+};
 
 export const PluggyContext=createContext();
 
@@ -12,23 +19,23 @@ export function useApi(funcName, query={}) {
 		fetch("/api/"+funcName).then(async(response)=>{
 			let data=await response.json();
 			setValue(data);
-	//		console.log(data);
 		});
 	}
 
 	return value;
 }
 
-export function A({children, ...props}) {
-	let ctx=useContext(PluggyContext);
+export function setLocation(url, ctx) {
+	let state={url: url};
+	history.pushState(state,"",url);
 
+	window.forcePluggyUpdate();
+}
+
+export function A({children, ...props}) {
 	function onClick(ev) {
 		ev.preventDefault();
-
-		let state={url: props.href};
-		history.pushState(state,"",props.href);
-
-		ctx.forceUpdate();
+		setLocation(props.href);
 	}
 
 	return (
@@ -93,5 +100,8 @@ export default {
 	getCurrentRequest,
 	A,
 	PluggyContext,
-	useApi
+	useApi,
+	AdminListTable,
+	setLocation,
+	buildUrl
 }

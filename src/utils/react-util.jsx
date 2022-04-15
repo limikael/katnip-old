@@ -5,3 +5,8 @@ export function useForceUpdate() {
 
 	return forceUpdate;
 }
+
+export function buildUrl(base, key, value) {
+	let sep = (base.indexOf('?') > -1) ? '&' : '?';
+	return base + sep + key + '=' + encodeURIComponent(value);
+}

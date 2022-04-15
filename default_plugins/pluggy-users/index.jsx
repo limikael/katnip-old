@@ -10,19 +10,21 @@ export function getAdminMenu(items) {
 }
 
 export function getPageComponent(v, request) {
-	if (request.path=="/login")
-		return LoginPage;
+	switch (request.path) {
+		case "/login":
+			return LoginPage;
 
-	if (request.path=="/admin/users")
-		return UserAdmin;
+		case "/admin/users":
+			return UserAdmin;
+	}
 }
 
 export const api={};
 
 api.getAllUsers=async ()=>{
 	return [
-		{"email": "li.mikael@gmail.com","role": "admin","name": "Micke"},
-		{"email": "li.mikael+1@gmail.com","role": "subscriber","name": "Micke2"},
-		{"email": "li.mikael+2@gmail.com","role": "subscriber","name": "Micke3"}
+		{"id": 1, "email": "li.mikael@gmail.com","role": "admin","name": "Micke"},
+		{"id": 2, "email": "li.mikael+1@gmail.com","role": "subscriber","name": "Micke2"},
+		{"id": 3, "email": "li.mikael+2@gmail.com","role": "subscriber","name": "Micke3"}
 	]
 }
