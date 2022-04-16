@@ -1,4 +1,4 @@
-import pluggy, {A,AdminListTable} from "pluggy";
+import pluggy, {A,AdminListTable,useApiForm} from "pluggy";
 
 function ListUsers() {
 	let users=pluggy.useApi("getAllUsers");
@@ -20,18 +20,38 @@ function ListUsers() {
 	);
 }
 
-function EditUser() {
+function EditUser({request}) {
+	let form=useApiForm({
+		fetchUrl: "getUser",
+		saveUrl: "saveUser"
+	});
+
 	return (
 		<>
-			<h1 class="d-inline-block">Edit User</h1>
+			<h1 class="mb-4">{form.isUpdate()?"Edit":"Add New"} User</h1>
+			<form {...form.formProps()} style="max-width: 40rem">
+				<div class="container border rounded p-3">
+					<div class="mb-3">
+						<label class="form-label">Email</label>
+						<input type="text" class="form-control" {...form.inputProps("email")}/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Password</label>
+						<input type="text" class="form-control" {...form.inputProps("password")}/>
+					</div>
+					<button type="submit" class="btn btn-primary">
+						Update User
+					</button>
+				</div>
+			</form>
 		</>
 	);
 }
 
 export default function UserAdmin({request}) {
 	if (request.query.id)
-		return <EditUser/>
+		return <EditUser request={request}/>
 
 	else
-		return <ListUsers/>
+		return <ListUsers request={request}/>
 }

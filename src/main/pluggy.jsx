@@ -2,10 +2,12 @@ import {useContext,createContext,useRef,useState} from "preact/compat";
 import {useForceUpdate} from "../utils/react-util.jsx";
 import AdminListTable from "../components/AdminListTable.jsx";
 import {buildUrl} from "../utils/react-util.jsx";
+import {useApiForm} from "../components/ApiForm.jsx";
 
 export {
 	AdminListTable as AdminListTable,
-	buildUrl as buildUrl
+	buildUrl as buildUrl,
+	useApiForm as useApiForm
 };
 
 export const PluggyContext=createContext();

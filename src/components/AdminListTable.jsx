@@ -6,7 +6,9 @@ export default function AdminListTable({columns, items, href}) {
 
 	function onRowClick(e) {
 		let tr=e.target.closest("tr");
-		let newHref=buildUrl(href,"id",tr.dataset.id);
+		let newHref=buildUrl(href,{
+			id: tr.dataset.id
+		});
 		setLocation(newHref);
 	}
 
