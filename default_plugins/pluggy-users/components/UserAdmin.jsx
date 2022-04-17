@@ -1,6 +1,6 @@
 import pluggy, {A,AdminListTable,useApiForm} from "pluggy";
 
-function ListUsers() {
+export function ListUsers() {
 	let users=pluggy.useApi("getAllUsers");
 
 	let columns={
@@ -11,16 +11,19 @@ function ListUsers() {
 	return (
 		<>
 			<h1 class="d-inline-block">Users</h1>
-			<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm">Add User</A>
+			<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm"
+					href="/admin/user">
+				Add User
+			</A>
 			<AdminListTable
 					items={users} 
 					columns={columns}
-					href="/admin/users"/>
+					href="/admin/user"/>
 		</>
 	);
 }
 
-function EditUser({request}) {
+export function EditUser({request}) {
 	let form=useApiForm({
 		fetchUrl: "getUser",
 		saveUrl: "saveUser"
@@ -29,6 +32,7 @@ function EditUser({request}) {
 	return (
 		<>
 			<h1 class="mb-4">{form.isUpdate()?"Edit":"Add New"} User</h1>
+			<div>Id is: {request.query.id}</div>
 			<form {...form.formProps()} style="max-width: 40rem">
 				<div class="container border rounded p-3">
 					<div class="mb-3">
@@ -46,12 +50,4 @@ function EditUser({request}) {
 			</form>
 		</>
 	);
-}
-
-export default function UserAdmin({request}) {
-	if (request.query.id)
-		return <EditUser request={request}/>
-
-	else
-		return <ListUsers request={request}/>
 }

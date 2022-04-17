@@ -1,10 +1,11 @@
 import LoginPage from "./components/LoginPage.jsx";
-import UserAdmin from "./components/UserAdmin.jsx";
+import {ListUsers, EditUser} from "./components/UserAdmin.jsx";
 
 export function getAdminMenu(items) {
 	items.push({
 		title: "Users",
 		href: "/admin/users",
+		routes: ["/admin/user"],
 		priority: 30
 	});
 }
@@ -15,7 +16,10 @@ export function getPageComponent(v, request) {
 			return LoginPage;
 
 		case "/admin/users":
-			return UserAdmin;
+			return ListUsers;
+
+		case "/admin/user":
+			return EditUser;
 	}
 }
 

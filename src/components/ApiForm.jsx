@@ -1,6 +1,7 @@
 import {useApi} from "pluggy";
 import {useRef} from "preact/compat";
 import {useForceUpdate, buildUrl} from "../utils/react-util.jsx";
+import pluggy from "pluggy";
 
 class ApiForm {
 	constructor(options) {
@@ -23,6 +24,7 @@ class ApiForm {
 
 		fetch("/api/"+submitUrl).then(async(response)=>{
 			let responseData=await response.json();
+			pluggy.setLocation("/admin/user?id=5",{replace: true});
 		});
 	}
 
@@ -60,21 +62,3 @@ export function useApiForm(options) {
 	return ref.current;
 }
 
-/*export function useApiForm(populateUrl, saveUrl) {
-	let data=useApi(populateUrl);
-
-	function onChange(e) {
-	}
-
-	function onSubmit(e) {
-	}
-
-	return {
-		formProps: ()=>{},
-		submitProps: ()=>{
-			return {
-				onclick: onSubmit
-			}
-		},
-	}
-}*/

@@ -3,6 +3,10 @@ import pluggy from "pluggy";
 import PluggyView from "../components/PluggyView.jsx";
 
 function main() {
+	window.addEventListener("popstate",()=>{
+		window.forcePluggyUpdate();
+	});
+
 	pluggy.doAction("start");
 	pluggy.doAction("clientStart");
 

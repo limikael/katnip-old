@@ -21,7 +21,8 @@ function Sidebar({request}) {
 	for (let item of items) {
 		let cls="nav-link";
 
-		if (item.href==request.path)
+		if (item.href==request.path ||
+				(item.routes && item.routes.includes(request.path)))
 			cls+=" active";
 
 		else

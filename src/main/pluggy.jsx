@@ -27,9 +27,12 @@ export function useApi(funcName, query={}) {
 	return value;
 }
 
-export function setLocation(url, ctx) {
-	let state={url: url};
-	history.pushState(state,"",url);
+export function setLocation(url, options={}) {
+	if (options.replace)
+		history.replaceState(null,null,url);
+
+	else
+		history.pushState(null,null,url);
 
 	window.forcePluggyUpdate();
 }
