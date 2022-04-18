@@ -41,19 +41,22 @@ export async function apiFetch(url, query={}) {
 	return data;
 }
 
-export function useApi(funcName, query={}) {
+export function useApiFetch(url, query={}) {
 	let ref=useRef();
-	let [value,setValue]=useState(null);
+	let [data,setData]=useState(null);
 
-	if (!ref.current) {
-		ref.current=true;
-		fetch("/api/"+funcName).then(async(response)=>{
-			let data=await response.json();
-			setValue(data);
+	function invalidate() {
+		fetch(url).then(async(response)=>{
+			setData(await response.json());
 		});
 	}
 
-	return value;
+	if (!ref.current) {
+		ref.current=true;
+		invalidate();
+	}
+
+	return {data, invalidate};
 }
 
 export function getAdminMessages() {
@@ -159,7 +162,7 @@ export default {
 	getCurrentRequest,
 	A,
 	PluggyContext,
-	useApi,
+	useApiFetch,
 	AdminListTable,
 	setLocation,
 	buildUrl,

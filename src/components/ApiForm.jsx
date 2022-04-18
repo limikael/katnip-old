@@ -1,4 +1,3 @@
-import {useApi} from "pluggy";
 import {useRef} from "preact/compat";
 import {useForceUpdate, buildUrl} from "../utils/react-util.jsx";
 import pluggy from "pluggy";

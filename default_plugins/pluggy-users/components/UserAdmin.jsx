@@ -1,7 +1,7 @@
-import pluggy, {A,AdminListTable,useApiForm,AdminMessages} from "pluggy";
+import pluggy, {A,AdminListTable,useApiForm,AdminMessages,useApiFetch} from "pluggy";
 
 export function ListUsers() {
-	let users=pluggy.useApi("getAllUsers");
+	let {data,invalidate}=useApiFetch("/api/getAllUsers");
 	let columns={
 		email: {label: "E-Mail"},
 		role: {label: "Role"}
@@ -9,7 +9,7 @@ export function ListUsers() {
 
 	async function onDelete(id) {
 		await pluggy.apiFetch("/api/deleteUser",{id: id});
-		window.forcePluggyUpdate();
+		invalidate();
 	}
 
 	return (
@@ -20,7 +20,7 @@ export function ListUsers() {
 				Add User
 			</A>
 			<AdminListTable
-					items={users} 
+					items={data} 
 					columns={columns}
 					href="/admin/user"
 					ondelete={onDelete}/>
