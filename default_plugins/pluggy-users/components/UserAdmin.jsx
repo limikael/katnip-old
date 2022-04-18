@@ -1,4 +1,4 @@
-import pluggy, {A,AdminListTable,useApiForm} from "pluggy";
+import pluggy, {A,AdminListTable,useApiForm,AdminMessages} from "pluggy";
 
 export function ListUsers() {
 	let users=pluggy.useApi("getAllUsers");
@@ -32,8 +32,8 @@ export function EditUser({request}) {
 	return (
 		<>
 			<h1 class="mb-4">{form.isUpdate()?"Edit User":"Add New User"}</h1>
-
-			<form {...form.formProps()} style="max-width: 40rem">
+			<AdminMessages />
+			<form {...form.formProps()} style="max-width: 40rem" disabled>
 				<div class="container border rounded p-3">
 					<div class="mb-3">
 						<label class="form-label">Email</label>
@@ -43,7 +43,7 @@ export function EditUser({request}) {
 						<label class="form-label">Password</label>
 						<input type="text" class="form-control" {...form.inputProps("password")}/>
 					</div>
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn btn-primary" {...form.submitProps()}>
 						{form.isUpdate()?"Update User":"Create New User"}
 					</button>
 				</div>

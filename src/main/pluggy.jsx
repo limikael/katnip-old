@@ -6,6 +6,7 @@ import {useApiForm} from "../components/ApiForm.jsx";
 import Db, {Model} from "../utils/Db.js";
 
 let db=new Db("mysql://mysql:mysql@localhost/pluggy");
+let adminMessages=[];
 
 export {
 	AdminListTable as AdminListTable,
@@ -15,11 +16,30 @@ export {
 	db as db
 };
 
+export function AdminMessages() {
+	return adminMessages.map(({message, alertClass})=>(
+		<div class={`alert alert-dismissible ${alertClass}`}>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"
+					onclick={dismissAdminMessages}></button>
+			{message}
+		</div>
+	));
+}
+
 export function addModel(model) {
 	db.addModel(model);
 }
 
 export const PluggyContext=createContext();
+
+export async function apiFetch(url, query={}) {
+	url=buildUrl(url,query);
+
+	let response=await fetch(url);
+	let data=await response.json();
+
+	return data;
+}
 
 export function useApi(funcName, query={}) {
 	let ref=useRef();
@@ -36,7 +56,32 @@ export function useApi(funcName, query={}) {
 	return value;
 }
 
+export function getAdminMessages() {
+	return adminMessages;
+}
+
+export function dismissAdminMessages() {
+	adminMessages=[];
+	window.forcePluggyUpdate;
+}
+
+export function showAdminMessage(message, options={}) {
+	if (message instanceof Error) {
+		message=message.message;
+		options.variant="danger";
+	}
+
+	if (!options.variant)
+		options.variant="success";
+
+	options.alertClass=`alert-${options.variant}`;
+	adminMessages.push({message,...options});
+	window.forcePluggyUpdate();
+}
+
 export function setLocation(url, options={}) {
+	adminMessages=[];
+
 	if (options.replace)
 		history.replaceState(null,null,url);
 
@@ -120,5 +165,9 @@ export default {
 	buildUrl,
 	db,
 	Model,
-	addModel
+	addModel,
+	showAdminMessage,
+	getAdminMessages,
+	apiFetch,
+	dismissAdminMessages
 }

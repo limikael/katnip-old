@@ -11,12 +11,15 @@ class ApiForm {
 		if (this.id) {
 			let o={};
 			o[this.options.idField]=this.id;
-			let url=pluggy.buildUrl("/api/"+this.options.fetchUrl,o);
 
-			fetch(url).then(async(response)=>{
-				this.data=await response.json();
-				this.options.forceUpdate();
-			});
+			pluggy.apiFetch("/api/"+this.options.fetchUrl,o)
+				.then(response=>{
+					this.data=response;
+					this.options.forceUpdate();
+				})
+				.catch(err=>{
+					pluggy.showAdminMessage(err,{variant: "danger"});
+				});
 		}
 
 		else {
@@ -29,7 +32,9 @@ class ApiForm {
 	}
 
 	onChange=(e)=>{
+		this.modified=true;
 		this.data[e.target.dataset.field]=e.target.value;
+		this.options.forceUpdate();
 	}
 
 	onSubmit=(e)=>{
@@ -37,17 +42,27 @@ class ApiForm {
 
 		let submitUrl=buildUrl(this.options.saveUrl,this.data);
 
-		fetch("/api/"+submitUrl).then(async(response)=>{
-			let responseData=await response.json();
-			let request=pluggy.getCurrentRequest();
+		pluggy.dismissAdminMessages();
 
-			let o={};
-			o[this.options.idField]=responseData[this.options.idField];
-			let u=buildUrl(request.path,o);
-			pluggy.setLocation(u,{replace: true});
+		pluggy.apiFetch("/api/"+this.options.saveUrl,this.data)
+			.then(responseData=>{
+				let request=pluggy.getCurrentRequest();
 
-			//pluggy.showAdminMessage();
-		});
+				let o={};
+				o[this.options.idField]=responseData[this.options.idField];
+				let u=buildUrl(request.path,o);
+				pluggy.setLocation(u,{replace: true});
+
+				this.modified=false;
+				if (this.id)
+					pluggy.showAdminMessage("User updated.");
+
+				else
+					pluggy.showAdminMessage("User created.");
+			})
+			.catch(err=>{
+				pluggy.showAdminMessage(err,{variant: "danger"});
+			});
 	}
 
 	inputProps(field) {
@@ -65,6 +80,11 @@ class ApiForm {
 		return {
 			onsubmit: this.onSubmit
 		}
+	}
+
+	submitProps() {
+		if (!this.modified)
+			return {disabled: true};
 	}
 }
 
