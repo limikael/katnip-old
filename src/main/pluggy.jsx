@@ -3,12 +3,21 @@ import {useForceUpdate} from "../utils/react-util.jsx";
 import AdminListTable from "../components/AdminListTable.jsx";
 import {buildUrl} from "../utils/react-util.jsx";
 import {useApiForm} from "../components/ApiForm.jsx";
+import Db, {Model} from "../utils/Db.js";
+
+let db=new Db("mysql://mysql:mysql@localhost/pluggy");
 
 export {
 	AdminListTable as AdminListTable,
 	buildUrl as buildUrl,
-	useApiForm as useApiForm
+	useApiForm as useApiForm,
+	Model as Model,
+	db as db
 };
+
+export function addModel(model) {
+	db.addModel(model);
+}
 
 export const PluggyContext=createContext();
 
@@ -108,5 +117,8 @@ export default {
 	useApi,
 	AdminListTable,
 	setLocation,
-	buildUrl
+	buildUrl,
+	db,
+	Model,
+	addModel
 }

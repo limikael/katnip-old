@@ -52,14 +52,14 @@ export default function AdminTemplate({request, children}) {
 	return (
 		<>
 			<link rel="stylesheet" 
-				href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"/>
+				href="/public/bootstrap.min.css"/>
 			<style global jsx>{`
 				html, body, .page {
 					height: 100%;
 				}
 			`}</style>
 			<script
-				src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"/>
+				src="/public/bootstrap.bundle.min.js"/>
 			<div class="page d-flex flex-column">
 				<Nav/>
 				<div className="d-flex flex-row flex-grow-1">

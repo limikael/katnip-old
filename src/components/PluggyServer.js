@@ -24,7 +24,6 @@ export default class PluggyServer {
 			.map(dirent => dirent.name)
 	}
 
-
 	getPluginPaths() {
 		let pkg=JSON.parse(fs.readFileSync("package.json"));
 		let pluginsNames=pkg.plugins||[];
@@ -119,6 +118,7 @@ export default class PluggyServer {
 					}
 
 					catch (e) {
+						console.log(e);
 						res.writeHead(500);
 						res.end("Error...");
 						return;
@@ -155,7 +155,8 @@ export default class PluggyServer {
 
 		await this.buildPluginBundle({
 			bundle: true,
-			outfile: this.outDir+"/server-pluggy-bundle.js"
+			outfile: this.outDir+"/server-pluggy-bundle.js",
+			external: ["mysql"]
 		});
 
 		await import(this.outDir+"/server-pluggy-bundle.js");
@@ -167,11 +168,16 @@ export default class PluggyServer {
 			includeClient: true,
 			jsxFactory: "h",
 			jsxFragment: "Fragment",
-			minify: true
+			minify: true,
+			external: ["mysql"]
 		});
 
 		this.clientBundle=fs.readFileSync(this.outDir+"/pluggy-bundle.js");
 		this.clientPage=`<body><html><div id="pluggy-root"></div><script src="/pluggy-bundle.js"></script></html></body>`;
+
+		this.pluggy.db.connection.MySql=await import("mysql");
+		await this.pluggy.db.install();
+//		console.log(this.pluggy.db);
 
 		this.pluggy.doAction("start");
 		this.pluggy.doAction("serverStart");

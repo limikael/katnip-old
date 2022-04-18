@@ -1,5 +1,7 @@
 import LoginPage from "./components/LoginPage.jsx";
 import {ListUsers, EditUser} from "./components/UserAdmin.jsx";
+import pluggy from "pluggy";
+import User from "./model/User.js";
 
 export function getAdminMenu(items) {
 	items.push({
@@ -26,22 +28,31 @@ export function getPageComponent(v, request) {
 export const api={};
 
 api.getAllUsers=async ()=>{
-//	return pluggy.db.User.findMany();
-	return [
-		{"id": 1, "email": "li.mikael@gmail.com","role": "admin","name": "Micke"},
-		{"id": 2, "email": "li.mikael+1@gmail.com","role": "subscriber","name": "Micke2"},
-		{"id": 3, "email": "li.mikael+2@gmail.com","role": "subscriber","name": "Micke3"}
-	]
+	return pluggy.db.User.findMany();
 }
 
-api.getUser=()=>{
-	return {
-		"email": "li.mikael@gmail.com",
-		"password": "hello"
-	}
+api.getUser=async ({id})=>{
+//	console.log("getting user: "+id);
+	let u=await pluggy.db.User.findOne({id: id});
+
+	return u;
 }
 
-api.saveUser=(data)=>{
-	console.log(data);
-	return {};
+api.saveUser=async ({id, email, password})=>{
+	let u;
+
+	if (id)
+		u=await pluggy.db.User.findOne({id: id});
+
+	else
+		u=new pluggy.db.User();
+
+	u.role="subscriber";
+	u.email=email;
+	u.password=password;
+	await u.save();
+
+	return {id: u.id};
 }
+
+pluggy.addModel(User);

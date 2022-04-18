@@ -3,10 +3,17 @@
   "bin": {
     "pluggy": "src/main/pluggy-cli.js"
   },
+  "scripts": {
+    "test": "jasmine"
+  },
   "main": "src/main/pluggy.jsx",
   "type": "module",
   "dependencies": {
     "esbuild": "^0.14.34",
     "preact": "^10.7.1"
+  },
+  "devDependencies": {
+    "jasmine": "^4.1.0",
+    "mysql": "^2.18.1"
   }
 }

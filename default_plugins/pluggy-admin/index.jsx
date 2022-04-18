@@ -13,3 +13,7 @@ export function getPageTemplate(val, request) {
 	if (request.params[0]=="admin")
 		return AdminTemplate;
 }
+
+export function showAdminMessage(message, options) {
+	console.log("showing..");
+}

@@ -26,13 +26,13 @@ export function ListUsers() {
 export function EditUser({request}) {
 	let form=useApiForm({
 		fetchUrl: "getUser",
-		saveUrl: "saveUser"
+		saveUrl: "saveUser",
 	});
 
 	return (
 		<>
-			<h1 class="mb-4">{form.isUpdate()?"Edit":"Add New"} User</h1>
-			<div>Id is: {request.query.id}</div>
+			<h1 class="mb-4">{form.isUpdate()?"Edit User":"Add New User"}</h1>
+
 			<form {...form.formProps()} style="max-width: 40rem">
 				<div class="container border rounded p-3">
 					<div class="mb-3">
@@ -44,7 +44,7 @@ export function EditUser({request}) {
 						<input type="text" class="form-control" {...form.inputProps("password")}/>
 					</div>
 					<button type="submit" class="btn btn-primary">
-						Update User
+						{form.isUpdate()?"Update User":"Create New User"}
 					</button>
 				</div>
 			</form>
