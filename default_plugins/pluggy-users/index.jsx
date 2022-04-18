@@ -55,4 +55,9 @@ api.saveUser=async ({id, email, password})=>{
 	return {id: u.id};
 }
 
+api.deleteUser=async ({id})=>{
+	let u=await pluggy.db.User.findOne({id: id});
+	await u.delete();
+}
+
 pluggy.addModel(User);

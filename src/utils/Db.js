@@ -105,6 +105,15 @@ export class Model {
 			await this.insert();
 	}
 
+	async delete() {
+		let id=this.getPrimaryKeyValue();
+		if (!id)
+			throw new Error("No PK value.");
+
+		let cls=this.constructor;
+		await cls.db.query(`DELETE FROM ${cls.name} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
+	}
+
 	getPrimaryKeyValue() {
 		return this[this.constructor.getPrimaryKeyField()];
 	}

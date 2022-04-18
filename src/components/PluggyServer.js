@@ -113,6 +113,8 @@ export default class PluggyServer {
 					try {
 						let data=await func(query);
 						res.writeHead(200);
+						if (!data)
+							data=null;
 						res.end(JSON.stringify(data));
 						return;
 					}

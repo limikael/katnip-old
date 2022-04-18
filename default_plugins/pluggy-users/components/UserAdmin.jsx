@@ -2,11 +2,15 @@ import pluggy, {A,AdminListTable,useApiForm,AdminMessages} from "pluggy";
 
 export function ListUsers() {
 	let users=pluggy.useApi("getAllUsers");
-
 	let columns={
 		email: {label: "E-Mail"},
 		role: {label: "Role"}
 	};
+
+	async function onDelete(id) {
+		await pluggy.apiFetch("/api/deleteUser",{id: id});
+		window.forcePluggyUpdate();
+	}
 
 	return (
 		<>
@@ -18,7 +22,8 @@ export function ListUsers() {
 			<AdminListTable
 					items={users} 
 					columns={columns}
-					href="/admin/user"/>
+					href="/admin/user"
+					ondelete={onDelete}/>
 		</>
 	);
 }
