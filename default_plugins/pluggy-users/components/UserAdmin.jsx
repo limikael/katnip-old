@@ -9,6 +9,8 @@ export function ListUsers() {
 
 	async function onDelete(id) {
 		await pluggy.apiFetch("/api/deleteUser",{id: id});
+		pluggy.dismissAdminMessages();
+		pluggy.showAdminMessage("User deleted");
 		invalidate();
 	}
 
@@ -19,6 +21,7 @@ export function ListUsers() {
 					href="/admin/user">
 				Add User
 			</A>
+			<AdminMessages />
 			<AdminListTable
 					items={data} 
 					columns={columns}
@@ -36,7 +39,7 @@ export function EditUser({request}) {
 
 	return (
 		<>
-			<h1 class="mb-4">{form.isUpdate()?"Edit User":"Add New User"}</h1>
+			<h1 class="d-inline-block">{form.isUpdate()?"Edit User":"Add New User"}</h1>
 			<AdminMessages />
 			<form {...form.formProps()} style="max-width: 40rem" disabled>
 				<div class="container border rounded p-3">

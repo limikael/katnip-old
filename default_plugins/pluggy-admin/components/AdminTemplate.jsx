@@ -38,7 +38,7 @@ function Sidebar({request}) {
 	}
 
 	return (
-		<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark pt-0" style="width: 280px;">
+		<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark pt-0" style="width: 12rem;">
 			<hr class="mt-1"/>
 			<ul class="nav nav-pills flex-column mb-auto">
 				{menuItems}

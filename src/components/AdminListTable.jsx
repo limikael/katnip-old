@@ -101,7 +101,7 @@ export default function AdminListTable({columns, items, href, ondelete}) {
 
 	return (<>
 		{dialog}
-		<table class="table mt-3 table-hover align-middle" style={{"table-layout":"fixed"}}>
+		<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
 			<thead>
 				<tr class="table-light">
 					{tableHeaders}

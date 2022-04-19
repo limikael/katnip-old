@@ -17,13 +17,19 @@ export {
 };
 
 export function AdminMessages() {
-	return adminMessages.map(({message, alertClass})=>(
-		<div class={`alert alert-dismissible ${alertClass}`}>
-			<button type="button" class="btn-close" data-bs-dismiss="alert"
-					onclick={dismissAdminMessages}></button>
-			{message}
+	let m=[...adminMessages];
+
+	return (
+		<div class="mb-2">
+			{m.map(({message, alertClass})=>(
+				<div class={`alert alert-dismissible ${alertClass}`}>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"
+							onclick={dismissAdminMessages}></button>
+					{message}
+				</div>
+			))}
 		</div>
-	));
+	);
 }
 
 export function addModel(model) {
