@@ -13,7 +13,8 @@ function Nav() {
 }
 
 function Sidebar({request}) {
-	let items=pluggy.applyFilters("getAdminMenu",[]);
+	let items=[];
+	pluggy.doAction("getAdminMenu",items);
 
 	items.sort((a,b)=>a.priority-b.priority);
 

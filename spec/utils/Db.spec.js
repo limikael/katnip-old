@@ -34,18 +34,6 @@ describe("db",()=>{
 		//console.log(await client.query("SELECT * FROM Employee"));
 
 //		console.log(await Employee.findOne({name:"Micke2",salary:1234}));
-		console.log(await Employee.findMany({salary:1234}));
+//		console.log(await Employee.findMany({salary:1234}));
 	});
-})
-
-/*describe("db",()=>{
-	it("works",async ()=>{
-		let db=new Db("mysql://mysql:mysql@localhost/pluggy");
-
-
-		await db.connect();
-
-		let res=await db.query("SELECT * FROM test where id=?",[1]);
-		console.log(res);
-	});
-});*/
+});

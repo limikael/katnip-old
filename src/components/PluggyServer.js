@@ -1,5 +1,5 @@
 import http from "http";
-import esbuild from "esbuild";
+import {build} from "../utils/esbuild-extra.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -34,45 +34,9 @@ export default class PluggyServer {
 
 		let defaultPlugins=this.getDirectories(`${process.cwd()}/node_modules/pluggy/default_plugins/`);
 		for (let defaultPlugin of defaultPlugins)
-			pluginPaths[defaultPlugin]=`${process.cwd()}/node_modules/pluggy/default_plugins/${defaultPlugin}`
+			pluginPaths[defaultPlugin]=`${process.cwd()}/node_modules/pluggy/default_plugins/${defaultPlugin}`;
 
 		return pluginPaths;		
-	}
-
-	async buildPluginBundle(options) {
-		let pluginPaths=this.getPluginPaths();
-		let imp="";
-		let exp="";
-
-		let i=0;
-		for (let pluginName in pluginPaths) {
-			imp+=`import * as plugin_${i} from "${pluginPaths[pluginName]}";\n`;
-			exp+=`"${pluginName}": plugin_${i},\n`;
-			i++;
-		}
-
-		let s=`${imp}\nlet pluggyPlugins={\n${exp}};\n`;
-		s+="if (typeof window!=='undefined') window.pluggyPlugins=pluggyPlugins; \n";
-		s+="if (typeof global!=='undefined') global.pluggyPlugins=pluggyPlugins; \n";
-
-		s+=`import pluggy from "${process.cwd()}/node_modules/pluggy";\n`;
-		s+="if (typeof window!=='undefined') window.pluggy=pluggy; \n";
-		s+="if (typeof global!=='undefined') global.pluggy=pluggy; \n";
-
-		if (options.includeClient) {
-			s+=`import "${process.cwd()}/node_modules/pluggy/src/main/pluggy-client.jsx"\n`;
-			delete options.includeClient;
-
-			options.inject=[
-				`${process.cwd()}/node_modules/pluggy/src/utils/preact-shim.js`
-			];
-		}
-
-		fs.writeFileSync(this.outDir+"/plugins.js",s);
-
-		options.entryPoints=[this.outDir+"/plugins.js"]
-
-		await esbuild.build(options);
 	}
 
 	handlePublic(req, res) {
@@ -105,27 +69,22 @@ export default class PluggyServer {
 		}
 
 		let apiFunctionName=params[1];
-		let plugins=this.pluggy.getPlugins();
-		for (let pluginName in plugins) {
-			if (plugins[pluginName].api) {
-				let func=plugins[pluginName].api[apiFunctionName];
-				if (func) {
-					try {
-						let data=await func(query);
-						res.writeHead(200);
-						if (!data)
-							data=null;
-						res.end(JSON.stringify(data));
-						return;
-					}
+		let func=this.pluggy.apis[path];
+		if (func) {
+			try {
+				let data=await func(query);
+				res.writeHead(200);
+				if (!data)
+					data=null;
+				res.end(JSON.stringify(data));
+				return;
+			}
 
-					catch (e) {
-						console.log(e);
-						res.writeHead(500);
-						res.end("Error...");
-						return;
-					}
-				}
+			catch (e) {
+				console.log(e);
+				res.writeHead(500);
+				res.end("Error...");
+				return;
 			}
 		}
 
@@ -155,34 +114,27 @@ export default class PluggyServer {
 		this.outDir=await this.createOutDir();
 		console.log("Building in: "+this.outDir);
 
-		await this.buildPluginBundle({
-			bundle: true,
-			outfile: this.outDir+"/server-pluggy-bundle.js",
-			external: ["mysql"]
-		});
-
-		await import(this.outDir+"/server-pluggy-bundle.js");
-		this.pluggy=global.pluggy;
-
-		await this.buildPluginBundle({
-			bundle: true,
-			outfile: this.outDir+"/pluggy-bundle.js",
-			includeClient: true,
+		await build({
+			multiBundle: true,
+			include: Object.values(this.getPluginPaths()),
+			expose: {
+				pluggy: `${process.cwd()}/node_modules/pluggy`
+			},
+			inject: [`${process.cwd()}/node_modules/pluggy/src/utils/preact-shim.js`],
+			external: ["mysql"],
 			jsxFactory: "h",
 			jsxFragment: "Fragment",
-			minify: true,
-			external: ["mysql"]
+			//minify: true,
+			outfile: this.outDir+"/pluggy-bundle.js",
 		});
 
-		this.clientBundle=fs.readFileSync(this.outDir+"/pluggy-bundle.js");
-		this.clientPage=`<body><html><div id="pluggy-root"></div><script src="/pluggy-bundle.js"></script></html></body>`;
-
+		await import(this.outDir+"/pluggy-bundle.js");
+		this.pluggy=global.pluggy;
 		this.pluggy.db.connection.MySql=await import("mysql");
-		await this.pluggy.db.install();
-//		console.log(this.pluggy.db);
+		this.pluggy.serverMain();
 
-		this.pluggy.doAction("start");
-		this.pluggy.doAction("serverStart");
+		this.clientBundle=fs.readFileSync(this.outDir+"/pluggy-bundle.js")+"window.pluggy.clientMain();";
+		this.clientPage=`<body><html><div id="pluggy-root"></div><script src="/pluggy-bundle.js"></script></html></body>`;
 
 		let server=http.createServer(this.handleRequest);
 		server.listen(3000,"localhost",()=>{

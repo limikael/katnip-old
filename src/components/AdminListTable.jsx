@@ -1,4 +1,4 @@
-import {buildUrl, setLocation} from "pluggy";
+import {pluggy, buildUrl} from "pluggy";
 import {useState} from "preact/compat";
 
 function DeleteConfirmation({onclose, onconfirm}) {
@@ -31,7 +31,7 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export default function AdminListTable({columns, items, href, ondelete}) {
+export function AdminListTable({columns, items, href, ondelete}) {
 	let [deleteId, setDeleteId]=useState();
 
 	if (!items)
@@ -48,7 +48,7 @@ export default function AdminListTable({columns, items, href, ondelete}) {
 			let newHref=buildUrl(href,{
 				id: tr.dataset.id
 			});
-			setLocation(newHref);
+			pluggy.setLocation(newHref);
 		}
 	}
 

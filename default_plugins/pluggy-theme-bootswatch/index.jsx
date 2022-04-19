@@ -1,24 +1,22 @@
 import PageTemplate from "./components/PageTemplate.jsx";
 import BootswatchAdmin from "./components/BootswatchAdmin.jsx";
 import NotFound from "./components/NotFound.jsx";
+import pluggy from "pluggy";
 
-export function getAdminMenu(items) {
+pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Bootswatch",
 		href: "/admin/bootswatch",
 		priority: 20
 	});
-}
+})
 
-export function getPageComponent(v, request) {
+pluggy.addAction("getPageComponent",(request)=>{
 	if (request.path=="/admin/bootswatch")
 		return BootswatchAdmin;
+});
 
-	if (!v)
-		return NotFound;
-}
-
-export function getPageTemplate(v, request) {
+pluggy.addAction("getPageTemplate",(request)=>{
 	if (request.params[0]!="admin")
 		return PageTemplate;
-}
+});

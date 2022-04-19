@@ -1,182 +1,133 @@
-import {useContext,createContext,useRef,useState} from "preact/compat";
-import {useForceUpdate} from "../utils/react-util.jsx";
-import AdminListTable from "../components/AdminListTable.jsx";
-import {buildUrl} from "../utils/react-util.jsx";
-import {useApiForm} from "../components/ApiForm.jsx";
-import Db, {Model} from "../utils/Db.js";
+import {PluggyView} from "../components/pluggy-components.jsx";
+import Db from "../utils/Db.js";
 
-let db=new Db("mysql://mysql:mysql@localhost/pluggy");
-let adminMessages=[];
+class Pluggy {
+	constructor() {
+		this.actions={};
+		this.adminMessages=[];
 
-export {
-	AdminListTable as AdminListTable,
-	buildUrl as buildUrl,
-	useApiForm as useApiForm,
-	Model as Model,
-	db as db
-};
-
-export function AdminMessages() {
-	let m=[...adminMessages];
-
-	return (
-		<div class="mb-2">
-			{m.map(({message, alertClass})=>(
-				<div class={`alert alert-dismissible ${alertClass}`}>
-					<button type="button" class="btn-close" data-bs-dismiss="alert"
-							onclick={dismissAdminMessages}></button>
-					{message}
-				</div>
-			))}
-		</div>
-	);
-}
-
-export function addModel(model) {
-	db.addModel(model);
-}
-
-export const PluggyContext=createContext();
-
-export async function apiFetch(url, query={}) {
-	url=buildUrl(url,query);
-
-	let response=await fetch(url);
-	let data=await response.json();
-
-	return data;
-}
-
-export function useApiFetch(url, query={}) {
-	let ref=useRef();
-	let [data,setData]=useState(null);
-
-	function invalidate() {
-		fetch(url).then(async(response)=>{
-			setData(await response.json());
-		});
-	}
-
-	if (!ref.current) {
-		ref.current=true;
-		invalidate();
-	}
-
-	return {data, invalidate};
-}
-
-export function getAdminMessages() {
-	return adminMessages;
-}
-
-export function dismissAdminMessages() {
-	adminMessages=[];
-	window.forcePluggyUpdate;
-}
-
-export function showAdminMessage(message, options={}) {
-	if (message instanceof Error) {
-		message=message.message;
-		options.variant="danger";
-	}
-
-	if (!options.variant)
-		options.variant="success";
-
-	options.alertClass=`alert-${options.variant}`;
-	adminMessages.push({message,...options});
-	window.forcePluggyUpdate();
-}
-
-export function setLocation(url, options={}) {
-	adminMessages=[];
-
-	if (options.replace)
-		history.replaceState(null,null,url);
-
-	else
-		history.pushState(null,null,url);
-
-	window.forcePluggyUpdate();
-}
-
-export function A({children, ...props}) {
-	function onClick(ev) {
-		ev.preventDefault();
-		setLocation(props.href);
-	}
-
-	return (
-		<a {...props} onclick={onClick}>
-			{children}
-		</a>
-	);
-}
-
-export function doAction(action, ...params) {
-	let plugins=getPlugins();
-
-	for (let pluginName in plugins) {
-		let plugin=plugins[pluginName];
-
-		if (plugin[action])
-			plugin[action](...params);
-	}
-}
-
-export function applyFilters(action, val, ...params) {
-	let plugins=getPlugins();
-
-	for (let pluginName in getPlugins()) {
-		let plugin=plugins[pluginName];
-
-		if (plugin[action]) {
-			let newVal=plugin[action](val,...params);
-			if (newVal!==undefined)
-				val=newVal;
+		if (this.isServer()) {
+			this.db=new Db("mysql://mysql:mysql@localhost/pluggy");
+			this.apis={};
 		}
 	}
 
-	return val;
+	addModel=(model)=>{
+		if (!this.isServer())
+			return;
+
+		this.db.addModel(model);
+	}
+
+	addAction=(action, fn)=>{
+		if (!this.actions[action])
+			this.actions[action]=[];
+
+		this.actions[action].push(fn);
+	}
+
+	addApi=(path, fn)=>{
+		if (!this.isServer())
+			return;
+
+		this.apis[path]=fn;
+	}
+
+	doAction=(action, ...params)=>{
+		if (!this.actions[action])
+			return;
+
+		let ret;
+		for (let fn of this.actions[action]) {
+			let v=fn(...params);
+			if (v!==undefined)
+				ret=v;
+		}
+
+		return ret;
+	}
+
+	refreshClient=()=>{
+		this.refreshFunction();
+	}
+
+	setRefreshFunction=(refreshFunction)=>{
+		this.refreshFunction=refreshFunction;
+	}
+
+	dismissAdminMessages=()=>{
+		this.adminMessages=[];
+		this.refreshClient();
+	}
+
+	getAdminMessages=()=>{
+		return this.adminMessages;
+	}
+
+	showAdminMessage=(message, options={})=>{
+		if (message instanceof Error) {
+			message=message.message;
+			options.variant="danger";
+		}
+
+		if (!options.variant)
+			options.variant="success";
+
+		options.alertClass=`alert-${options.variant}`;
+		this.adminMessages.push({message,...options});
+		this.refreshClient();
+	}
+
+	setLocation=(url, options={})=>{
+		this.adminMessages=[];
+
+		if (options.replace)
+			history.replaceState(null,null,url);
+
+		else
+			history.pushState(null,null,url);
+
+		this.refreshClient();
+	}
+
+	getCurrentRequest=()=>{
+		let l=window.location;
+		let query=Object.fromEntries(new URLSearchParams(l.search));
+		let params=l.pathname.split("/").filter(s=>s.length>0);
+		let path="/"+params.join("/");
+
+		return {
+			params,
+			path,
+			query
+		};
+	}
+
+	isServer=()=>{
+		return (typeof global!=="undefined");
+	}
+
+	isClient=()=>{
+		return (typeof window!=="undefined");
+	}
+
+	clientMain=()=>{
+		let el=document.getElementById("pluggy-root");
+		render(<PluggyView />,el);
+	}
+
+	serverMain=async ()=>{
+		await this.db.install();
+	}
 }
 
-export function getPlugins() {
-	if (typeof window!=="undefined")
-		return window.pluggyPlugins;
+export * from "../components/pluggy-components.jsx";
+export * from "../components/AdminListTable.jsx";
+export * from "../components/ApiForm.jsx";
+export * from "../utils/Db.js";
+export * from "../utils/react-util.jsx";
 
-	if (typeof global!=="undefined")
-		return global.pluggyPlugins;
-}
+export const pluggy=new Pluggy();
+export default pluggy;
 
-export function getCurrentRequest() {
-	let l=window.location;
-	let query=Object.fromEntries(new URLSearchParams(l.search));
-	let params=l.pathname.split("/").filter(s=>s.length>0);
-	let path="/"+params.join("/");
-
-	return {
-		params,
-		path,
-		query
-	};
-}
-
-export default {
-	getPlugins,
-	doAction,
-	applyFilters,
-	getCurrentRequest,
-	A,
-	PluggyContext,
-	useApiFetch,
-	AdminListTable,
-	setLocation,
-	buildUrl,
-	db,
-	Model,
-	addModel,
-	showAdminMessage,
-	getAdminMessages,
-	apiFetch,
-	dismissAdminMessages
-}
+//export const addModel=pluggy.addModel;

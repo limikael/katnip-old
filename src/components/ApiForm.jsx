@@ -1,6 +1,6 @@
 import {useRef} from "preact/compat";
 import {useForceUpdate, buildUrl} from "../utils/react-util.jsx";
-import pluggy from "pluggy";
+import pluggy, {apiFetch} from "pluggy";
 
 class ApiForm {
 	constructor(options={}) {
@@ -11,7 +11,7 @@ class ApiForm {
 			let o={};
 			o[this.options.idField]=this.id;
 
-			pluggy.apiFetch("/api/"+this.options.fetchUrl,o)
+			apiFetch("/api/"+this.options.fetchUrl,o)
 				.then(response=>{
 					this.data=response;
 					this.options.forceUpdate();
@@ -43,7 +43,7 @@ class ApiForm {
 
 		pluggy.dismissAdminMessages();
 
-		pluggy.apiFetch("/api/"+this.options.saveUrl,this.data)
+		apiFetch("/api/"+this.options.saveUrl,this.data)
 			.then(responseData=>{
 				let request=pluggy.getCurrentRequest();
 

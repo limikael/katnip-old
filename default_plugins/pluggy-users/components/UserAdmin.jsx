@@ -1,4 +1,4 @@
-import pluggy, {A,AdminListTable,useApiForm,AdminMessages,useApiFetch} from "pluggy";
+import pluggy, {A,AdminListTable,useApiForm,AdminMessages,useApiFetch,apiFetch} from "pluggy";
 
 export function ListUsers() {
 	let {data,invalidate}=useApiFetch("/api/getAllUsers");
@@ -8,7 +8,7 @@ export function ListUsers() {
 	};
 
 	async function onDelete(id) {
-		await pluggy.apiFetch("/api/deleteUser",{id: id});
+		await apiFetch("/api/deleteUser",{id: id});
 		pluggy.dismissAdminMessages();
 		pluggy.showAdminMessage("User deleted");
 		invalidate();

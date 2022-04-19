@@ -16,3 +16,30 @@ export function buildUrl(base, vars) {
 	return base
 
 }
+
+export async function apiFetch(url, query={}) {
+	url=buildUrl(url,query);
+
+	let response=await fetch(url);
+	let data=await response.json();
+
+	return data;
+}
+
+export function useApiFetch(url, query={}) {
+	let ref=useRef();
+	let [data,setData]=useState(null);
+
+	function invalidate() {
+		fetch(url).then(async(response)=>{
+			setData(await response.json());
+		});
+	}
+
+	if (!ref.current) {
+		ref.current=true;
+		invalidate();
+	}
+
+	return {data, invalidate};
+}
