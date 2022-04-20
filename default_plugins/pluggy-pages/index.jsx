@@ -62,3 +62,16 @@ pluggy.addApi("/api/deletePage",async ({id})=>{
 	let p=await pluggy.db.Page.findOne({id: id});
 	await p.delete();
 });
+
+pluggy.addElement("PluggyEcho",({text,children})=>{
+	console.log("called..");
+
+	return (
+		<>
+			<div>This is pluggy echo...{text}</div>
+			<div class="card">
+				{children}
+			</div>
+		</>
+	);
+});

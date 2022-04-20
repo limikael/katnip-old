@@ -13,6 +13,12 @@ class Pluggy {
 			this.apis={};
 			this.sessions={};
 		}
+
+		this.elements={};
+	}
+
+	addElement(tag, func) {
+		this.elements[tag]=func;
 	}
 
 	setActiveSessionId(id) {
@@ -142,6 +148,9 @@ class Pluggy {
 export const pluggy=new Pluggy();
 export default pluggy;
 
+export const elements=pluggy.elements;
+export const db=pluggy.db;
+
 export const addModel=pluggy.addModel;
 export const addAction=pluggy.addAction;
 export const addApi=pluggy.addApi;
@@ -158,3 +167,4 @@ export const clientMain=pluggy.clientMain;
 export const serverMain=pluggy.serverMain;
 export const setActiveSessionId=pluggy.setActiveSessionId;
 export const useSession=pluggy.useSession;
+export const addElement=pluggy.addElement;

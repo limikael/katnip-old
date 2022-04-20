@@ -1,4 +1,7 @@
 import {pluggy, A, AdminListTable, useApiForm, AdminMessages, useApiFetch, apiFetch} from "pluggy";
+import XMLToReactModule from 'xml-to-react';
+
+const XMLToReact=XMLToReactModule.default;
 
 export function ListPages({request}) {
 	let {data,invalidate}=useApiFetch("/api/getAllPages");
@@ -68,8 +71,24 @@ export function PageView({request}) {
 	if (!page)
 		return;
 
+	let tags=["h1","h2","h3","h4","h5","div","span","b","a","p","hr"];
+	let options={};
+
+	for (let tag of tags)
+		options[tag]=(attrs)=>({type: tag, props: attrs});
+
+	options["Fragment"]=(attrs)=>({type: Fragment, props: attrs});
+
+	for (elementName in pluggy.elements) {
+		let elementFunc=pluggy.elements[elementName];
+		options[elementName]=(attrs)=>({type: elementFunc, props: attrs});
+	}
+
+	const xmlToReact=new XMLToReact(options);
+	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
+
 	return (<>
 		<h1>{page.title}</h1>
-		{page.content}
+		{reactTree}
 	</>);
 }
