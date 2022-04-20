@@ -2,8 +2,6 @@ import {pluggy} from "pluggy";
 import {useForceUpdate} from "../utils/react-util.jsx";
 
 export function PluggyView() {
-	pluggy.setRefreshFunction(useForceUpdate());
-
 	let request=pluggy.getCurrentRequest();
 	let Layout=pluggy.doAction("getPageTemplate",request);
 	let Page=pluggy.doAction("getPageComponent",request);

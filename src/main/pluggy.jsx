@@ -50,11 +50,7 @@ class Pluggy {
 	}
 
 	refreshClient=()=>{
-		this.refreshFunction();
-	}
-
-	setRefreshFunction=(refreshFunction)=>{
-		this.refreshFunction=refreshFunction;
+		this.clientMain();
 	}
 
 	dismissAdminMessages=()=>{
