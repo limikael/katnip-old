@@ -3,6 +3,7 @@ import {build} from "../utils/esbuild-extra.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { v4 as uuidv4 } from 'uuid';
 
 export default class PluggyServer {
 	createOutDir() {
@@ -83,31 +84,52 @@ export default class PluggyServer {
 			catch (e) {
 				console.log(e);
 				res.writeHead(500);
-				res.end("Error...");
+				res.end(JSON.stringify({
+					message: e.message
+				}));
 				return;
 			}
 		}
 
 		res.writeHead(404);
-		res.end("Not found...");
+		res.end(JSON.stringify({
+			message: "Not found......."
+		}));
 	}
 
 	handleRequest=(req, res)=>{
-		if (req.url=="/pluggy-bundle.js") {
-			res.writeHead(200);
-			res.end(this.clientBundle);
+		let cookies=this.pluggy.parseCookies(req);
+		if (!cookies.pluggy)
+			cookies.pluggy=uuidv4();
+
+		this.pluggy.setActiveSessionId(cookies.pluggy);
+		try {
+			if (req.url=="/pluggy-bundle.js") {
+				res.writeHead(200);
+				res.end(this.clientBundle);
+			}
+
+			else if (req.url.startsWith("/api/"))
+				this.handleApi(req,res);
+
+			else if (req.url.startsWith("/public/"))
+				this.handlePublic(req,res);
+
+			else {
+				res.writeHead(200,{
+					"Set-Cookie": `pluggy=${cookies.pluggy}`
+				});
+				res.end(this.clientPage);
+			}
 		}
 
-		else if (req.url.startsWith("/api/"))
-			this.handleApi(req,res);
-
-		else if (req.url.startsWith("/public/"))
-			this.handlePublic(req,res);
-
-		else {
-			res.writeHead(200);
-			res.end(this.clientPage);
+		catch (e) {
+			console.log(e);
+			res.writeHead(500);
+			res.end("");
 		}
+
+		this.pluggy.setActiveSessionId();
 	}
 
 	async run() {

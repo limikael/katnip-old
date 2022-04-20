@@ -11,7 +11,27 @@ class Pluggy {
 		if (this.isServer()) {
 			this.db=new this.Db("mysql://mysql:mysql@localhost/pluggy");
 			this.apis={};
+			this.sessions={};
 		}
+	}
+
+	setActiveSessionId(id) {
+		if (!id) {
+			this.activeSessionId=null;
+			return;
+		}
+
+		this.activeSessionId=id;
+
+		if (!this.sessions[this.activeSessionId])
+			this.sessions[this.activeSessionId]={};
+	}
+
+	useSession() {
+		if (!this.activeSessionId)
+			throw new Error("No session");
+
+		return this.sessions[this.activeSessionId];
 	}
 
 	addModel=(model)=>{
@@ -132,7 +152,9 @@ export const dismissAdminMessages=pluggy.dismissAdminMessages;
 export const getAdminMessages=pluggy.getAdminMessages;
 export const setLocation=pluggy.setLocation;
 export const getCurrentRequest=pluggy.getCurrentRequest;
-export const isServer=isServer;
-export const isClient=isClient;
-export const clientMain=clientMain;
-export const serverMain=serverMain;
+export const isServer=pluggy.isServer;
+export const isClient=pluggy.isClient;
+export const clientMain=pluggy.clientMain;
+export const serverMain=pluggy.serverMain;
+export const setActiveSessionId=pluggy.setActiveSessionId;
+export const useSession=pluggy.useSession;

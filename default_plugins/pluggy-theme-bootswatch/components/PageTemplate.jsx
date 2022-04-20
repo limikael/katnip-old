@@ -13,15 +13,20 @@ export default function PageTemplate({children}) {
 		<>
 			<link 
 				rel="stylesheet" 
-				href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/minty/bootstrap.min.css"
+				href="/public/bootstrap-minty.min.css"
 			/>
 			<script
-				src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+				src="/public/bootstrap.bundle.min.js"
 				async
 			/>
-			<div>
+			<style global jsx>{`
+				html, body, .page {
+					height: 100%;
+				}
+			`}</style>
+			<div class="page d-flex flex-column">
 				<Nav/>
-				<div class="container mt-3">
+				<div class="container mt-3 flex-grow-1">
 					{children}
 				</div>
 			</div>

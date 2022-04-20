@@ -25,7 +25,13 @@ pluggy.addAction("getPageComponent",(request)=>{
 	}
 });
 
+pluggy.addModel(User);
+
 pluggy.addApi("/api/getAllUsers",async ()=>{
+	let session=pluggy.useSession();
+	if (!session.uid)
+		throw new Error("not logged in...");
+
 	return pluggy.db.User.findMany();
 });
 
@@ -57,4 +63,16 @@ pluggy.addApi("/api/deleteUser",async ({id})=>{
 	await u.delete();
 });
 
-pluggy.addModel(User);
+pluggy.addApi("/api/login",async({login, password})=>{
+	let session=pluggy.useSession();
+
+	let u=await pluggy.db.User.findOne({
+		email: login,
+		password: password
+	});
+
+	if (!u)
+		throw new Error("Bad credentials.");
+
+	session.uid=u.id;
+});

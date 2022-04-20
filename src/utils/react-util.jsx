@@ -21,7 +21,15 @@ export async function apiFetch(url, query={}) {
 	url=buildUrl(url,query);
 
 	let response=await fetch(url);
-	let data=await response.json();
+	let text=await response.text();
+	let data=JSON.parse(text);
+
+	if (response.status!=200) {
+		if (data && data.message)
+			throw new Error(data.message);
+
+		throw new Error(text);
+	}
 
 	return data;
 }
