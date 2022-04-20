@@ -39,9 +39,10 @@ export function useApiFetch(url, query={}) {
 	let [data,setData]=useState(null);
 
 	function invalidate() {
-		fetch(url).then(async(response)=>{
-			setData(await response.json());
-		});
+		apiFetch(url,query)
+			.then((d)=>{
+				setData(d)
+			});
 	}
 
 	if (!ref.current) {
