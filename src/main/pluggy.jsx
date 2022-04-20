@@ -1,13 +1,15 @@
-import {PluggyView} from "../components/pluggy-components.jsx";
-import Db from "../utils/Db.js";
+export * from "./pluggy-imports.js";
+import * as imports from "./pluggy-imports.js";
 
 class Pluggy {
 	constructor() {
+		Object.assign(this,imports);
+
 		this.actions={};
 		this.adminMessages=[];
 
 		if (this.isServer()) {
-			this.db=new Db("mysql://mysql:mysql@localhost/pluggy");
+			this.db=new this.Db("mysql://mysql:mysql@localhost/pluggy");
 			this.apis={};
 		}
 	}
@@ -113,7 +115,7 @@ class Pluggy {
 
 	clientMain=()=>{
 		let el=document.getElementById("pluggy-root");
-		render(<PluggyView />,el);
+		render(<this.PluggyView />,el);
 	}
 
 	serverMain=async ()=>{
@@ -121,13 +123,20 @@ class Pluggy {
 	}
 }
 
-export * from "../components/pluggy-components.jsx";
-export * from "../components/AdminListTable.jsx";
-export * from "../components/ApiForm.jsx";
-export * from "../utils/Db.js";
-export * from "../utils/react-util.jsx";
-
 export const pluggy=new Pluggy();
 export default pluggy;
 
-//export const addModel=pluggy.addModel;
+export const addModel=pluggy.addModel;
+export const addAction=pluggy.addAction;
+export const addApi=pluggy.addApi;
+export const doAction=pluggy.doAction;
+export const refreshClient=pluggy.refreshClient;
+export const setRefreshFunction=pluggy.setRefreshFunction;
+export const dismissAdminMessages=pluggy.dismissAdminMessages;
+export const getAdminMessages=pluggy.getAdminMessages;
+export const setLocation=pluggy.setLocation;
+export const getCurrentRequest=pluggy.getCurrentRequest;
+export const isServer=isServer;
+export const isClient=isClient;
+export const clientMain=clientMain;
+export const serverMain=serverMain;
