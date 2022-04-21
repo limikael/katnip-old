@@ -14,6 +14,16 @@ class Pluggy {
 			this.sessions={};
 		}
 
+		if (this.isClient()) {
+			let sessionTag=window.document.currentScript.dataset.session;
+
+			if (sessionTag)
+				this.session=JSON.parse(sessionTag);
+
+			else
+				this.session={};
+		}
+
 		this.elements={};
 	}
 
@@ -33,11 +43,34 @@ class Pluggy {
 			this.sessions[this.activeSessionId]={};
 	}
 
-	useSession() {
-		if (!this.activeSessionId)
-			throw new Error("No session");
+	getActiveSessionId() {
+		return this.activeSessionId;
+	}
 
-		return this.sessions[this.activeSessionId];
+	useSession() {
+		if (this.isClient()) {
+			return [
+				this.session,
+				(newSession)=>{
+					Object.assign(this.session,newSession);
+					this.refreshClient()
+				}
+			]
+		}
+
+		if (this.isServer()) {
+			if (!this.activeSessionId)
+				throw new Error("No session");
+
+			let sessionId=this.activeSessionId;
+
+			return [
+				this.sessions[sessionId],
+				(newSession)=>{
+					Object.assign(this.sessions[sessionId],newSession);
+				}
+			];
+		}
 	}
 
 	addModel=(model)=>{
@@ -75,8 +108,25 @@ class Pluggy {
 		return ret;
 	}
 
+	doActionAsync=async (action, ...params)=>{
+		if (!this.actions[action])
+			return;
+
+		let sessionId=this.getActiveSessionId();
+
+		let ret;
+		for (let fn of this.actions[action]) {
+			this.setActiveSessionId(sessionId);
+			let v=await fn(...params);
+			if (v!==undefined)
+				ret=v;
+		}
+
+		return ret;
+	}
+
 	refreshClient=()=>{
-		this.clientMain();
+		this.refreshFunction();
 	}
 
 	dismissAdminMessages=()=>{
@@ -140,6 +190,10 @@ class Pluggy {
 		render(<this.PluggyView />,el);
 	}
 
+	setRefreshFunction=(func)=>{
+		this.refreshFunction=func;
+	}
+
 	serverMain=async ()=>{
 		await this.db.install();
 	}
@@ -155,6 +209,7 @@ export const addModel=pluggy.addModel;
 export const addAction=pluggy.addAction;
 export const addApi=pluggy.addApi;
 export const doAction=pluggy.doAction;
+export const doActionAsync=pluggy.doActionAsync;
 export const refreshClient=pluggy.refreshClient;
 export const setRefreshFunction=pluggy.setRefreshFunction;
 export const dismissAdminMessages=pluggy.dismissAdminMessages;
@@ -166,5 +221,6 @@ export const isClient=pluggy.isClient;
 export const clientMain=pluggy.clientMain;
 export const serverMain=pluggy.serverMain;
 export const setActiveSessionId=pluggy.setActiveSessionId;
+export const getActiveSessionId=pluggy.getActiveSessionId;
 export const useSession=pluggy.useSession;
 export const addElement=pluggy.addElement;

@@ -5,16 +5,18 @@ export default function LoginPage() {
 	const loginRef=useRef();
 	const passwordRef=useRef();
 	let [message, setMessage]=useState();
+	let [session, setSession]=pluggy.useSession();
 
 	async function onLoginClick() {
 		setMessage();
 
 		try {
-			await pluggy.apiFetch("/api/login",{
+			let u=await pluggy.apiFetch("/api/login",{
 				login: loginRef.current.value,
 				password: passwordRef.current.value
 			});
 
+			setSession(u);
 			pluggy.setLocation("/admin");
 		}
 

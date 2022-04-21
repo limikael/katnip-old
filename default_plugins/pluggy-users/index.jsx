@@ -25,10 +25,22 @@ pluggy.addAction("getPageComponent",(request)=>{
 	}
 });
 
+pluggy.addAction("getClientSession",async (clientSession)=>{
+	let [serverSession]=pluggy.useSession();
+
+	if (serverSession.uid) {
+		let u=await pluggy.db.User.findOne({id: serverSession.uid});
+		clientSession.user={
+			id: u.id,
+			email: u.email
+		};
+	}
+});
+
 pluggy.addModel(User);
 
 pluggy.addApi("/api/getAllUsers",async ()=>{
-	let session=pluggy.useSession();
+	let [session]=pluggy.useSession();
 	if (!session.uid)
 		throw new Error("not logged in...");
 
@@ -64,7 +76,7 @@ pluggy.addApi("/api/deleteUser",async ({id})=>{
 });
 
 pluggy.addApi("/api/login",async({login, password})=>{
-	let session=pluggy.useSession();
+	let [session,setSession]=pluggy.useSession();
 
 	let u=await pluggy.db.User.findOne({
 		email: login,
@@ -74,5 +86,22 @@ pluggy.addApi("/api/login",async({login, password})=>{
 	if (!u)
 		throw new Error("Bad credentials.");
 
-	session.uid=u.id;
+	setSession({
+		uid: u.id
+	});
+
+	return {
+		user: {
+			id: u.id,
+			email: u.email
+		}
+	}
+});
+
+pluggy.addApi("/api/logout",async({})=>{
+	let [session,setSession]=pluggy.useSession();
+
+	setSession({
+		uid: null
+	});
 });

@@ -1,12 +1,35 @@
-import pluggy, {A} from "pluggy";
+import {pluggy, A} from "pluggy";
 
 // sidebars: https://getbootstrap.com/docs/5.0/examples/sidebars/#
 
 function Nav() {
+	let [session,setSession]=pluggy.useSession();
+
+	if (!session.user) {
+		pluggy.setLocation("/login");
+		return;
+	}
+
+	async function onLogoutClick(ev) {
+		let [session,setSession]=pluggy.useSession();
+		ev.preventDefault();
+
+		await pluggy.apiFetch("/api/logout");
+		setSession({user: null});
+		pluggy.setLocation("/login");
+	}
+
 	return (
 		<nav className="navbar navbar-expand-lg navbar-dark bg-dark py-0">
 			<div className="container-fluid">
-				<A className="navbar-brand ps-1" href="http://localhost:3000/">Admin</A>
+				<A className="navbar-brand ps-1" href="http://localhost:3000/">Admin...</A>
+				<span class="text-white">
+					<b>{session.user.email}</b>&nbsp;
+					<a class="text-white" href="#"
+							onclick={onLogoutClick}>
+						Logout
+					</a>
+				</span>
 			</div>
 		</nav>
 	);
