@@ -37,26 +37,21 @@ export default class PluggySessionManager {
 
 			return [
 				this.sessions[sessionId],
-				(newSession)=>{
+				async (newSession)=>{
 					Object.assign(this.sessions[sessionId],newSession);
 				}
 			];
 		}
 	}
 
-	setActiveSessionId=(id)=>{
-		if (!id) {
-			this.activeSessionId=null;
-			return;
-		}
+	withSession=async (sessionId, func)=>{
+		if (!this.sessions[sessionId])
+			this.sessions[sessionId]={};
 
-		this.activeSessionId=id;
+		this.activeSessionId=sessionId;
+		let ret=func();
+		this.activeSessionId=null;
 
-		if (!this.sessions[this.activeSessionId])
-			this.sessions[this.activeSessionId]={};
-	}
-
-	getActiveSessionId=()=>{
-		return this.activeSessionId;
+		await ret;
 	}
 }

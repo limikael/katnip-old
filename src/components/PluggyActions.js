@@ -33,6 +33,7 @@ export default class PluggyActions {
 			promises.push(fn(...params));
 
 		let results=await Promise.all(promises);
+
 		let ret;
 		for (let result of results)
 			if (result!==undefined)

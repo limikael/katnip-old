@@ -98,20 +98,22 @@ export default class PluggyServer {
 		}));
 	}
 
-	handleRequest=(req, res)=>{
+	handleRequest=async (req, res)=>{
 		let cookies=this.pluggy.parseCookies(req);
 		if (!cookies.pluggy)
 			cookies.pluggy=uuidv4();
 
-		this.pluggy.setActiveSessionId(cookies.pluggy);
 		try {
 			if (req.url=="/pluggy-bundle.js") {
 				res.writeHead(200);
 				res.end(this.clientBundle);
 			}
 
-			else if (req.url.startsWith("/api/"))
-				this.handleApi(req,res);
+			else if (req.url.startsWith("/api/")) {
+				await this.pluggy.withSession(cookies.pluggy,async ()=>{
+					await this.handleApi(req,res);
+				});
+			}
 
 			else if (req.url.startsWith("/public/"))
 				this.handlePublic(req,res);
@@ -119,7 +121,9 @@ export default class PluggyServer {
 			else {
 				(async()=>{
 					let clientSession={};
-					await this.pluggy.doActionAsync("getClientSession",clientSession);
+					await this.pluggy.withSession(cookies.pluggy,async ()=>{
+						await this.pluggy.doActionAsync("getClientSession",clientSession);
+					});
 
 					res.writeHead(200,{
 						"Set-Cookie": `pluggy=${cookies.pluggy}`
@@ -142,8 +146,6 @@ export default class PluggyServer {
 			res.writeHead(500);
 			res.end("");
 		}
-
-		this.pluggy.setActiveSessionId();
 	}
 
 	async run() {
