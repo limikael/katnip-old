@@ -12,7 +12,7 @@ function createWhereClause(spec) {
 				qs+=spec.$op;
 
 			first=false;
-			qs+=` ${k}=? `
+			qs+=` \`${k}\`=? `
 			vals.push(spec[k]);
 		}
 	}
@@ -63,7 +63,7 @@ export class Model {
 					qs+=`,`;
 
 				let fieldSpec=cls.fields[fieldName];
-				qs+=`${fieldName}`;
+				qs+=`\`${fieldName}\``;
 				vals.push(this[fieldName]);
 			}
 		}
@@ -85,7 +85,7 @@ export class Model {
 					qs+=`,`;
 
 				let fieldSpec=cls.fields[fieldName];
-				qs+=`${fieldName}=?`;
+				qs+=`\`${fieldName}\`=?`;
 				vals.push(this[fieldName]);
 			}
 		}
@@ -129,7 +129,7 @@ export class Model {
 		// Create if it doesn't exist.
 		for (let fieldName in cls.fields) {
 			let fieldSpec=cls.fields[fieldName];
-			qs+=`${fieldName} ${fieldSpec},`;
+			qs+=`\`${fieldName}\` ${fieldSpec},`;
 		}
 
 		qs+=`PRIMARY KEY (${this.getPrimaryKeyField()}))`;
@@ -150,10 +150,10 @@ export class Model {
 			let q;
 
 			if (Object.keys(existing).includes(fieldName))
-				q=`ALTER TABLE ${cls.name} MODIFY ${fieldName} ${fieldDeclaration}`;
+				q=`ALTER TABLE ${cls.name} MODIFY \`${fieldName}\` ${fieldDeclaration}`;
 
 			else
-				q=`ALTER TABLE ${cls.name} ADD ${fieldName} ${fieldDeclaration}`;
+				q=`ALTER TABLE ${cls.name} ADD \`${fieldName}\` ${fieldDeclaration}`;
 
 			await this.db.query(q);
 		}

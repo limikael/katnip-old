@@ -169,7 +169,9 @@ export default class PluggyServer {
 		await import(this.outDir+"/pluggy-bundle.js");
 		this.pluggy=global.pluggy;
 		this.pluggy.db.connection.MySql=await import("mysql");
-		this.pluggy.serverMain();
+
+		console.log("Starting...");
+		await this.pluggy.serverMain();
 
 		this.clientBundle=fs.readFileSync(this.outDir+"/pluggy-bundle.js")+"window.pluggy.clientMain();";
 

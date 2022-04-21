@@ -98,6 +98,7 @@ class Pluggy {
 
 	serverMain=async ()=>{
 		await this.db.install();
+		await this.sessionManager.load();
 	}
 }
 
