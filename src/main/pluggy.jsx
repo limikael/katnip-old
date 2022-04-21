@@ -3,34 +3,42 @@ import * as imports from "./pluggy-imports.js";
 
 import PluggyActions from "../components/PluggyActions.js";
 import PluggySessionManager from "../components/PluggySessionManager.js";
+import Db from "../utils/Db.js";
+import {isClient, isServer} from "../utils/web-util.js";
 
 class Pluggy {
 	constructor() {
-		this.composeFunctions(imports);
-
 		this.actions=new PluggyActions();
 		this.composeFunctions(this.actions);
 
-		if (this.isServer()) {
-			this.db=new this.Db("mysql://mysql:mysql@localhost/pluggy");
+		if (isServer()) {
+			this.db=new Db("mysql://mysql:mysql@localhost/pluggy");
 			this.apis={};
 		}
 
 		this.sessionManager=new PluggySessionManager(this.db);
 		this.composeFunctions(this.sessionManager);
 
+		/*for (let k in this)
+			if (typeof this[k]=='function' &&
+					k!="composeFunctions" &&
+					k!="load")
+				console.log(`export const ${k}=pluggy.${k};`);*/
+
 		this.adminMessages=[];
 
 		this.elements={};
+
+		this.composeFunctions(imports);
 	}
 
-	composeFunctions(o) {
+	composeFunctions=(o)=>{
 		for (let k in o)
 			if (typeof o[k]=='function')
 				this[k]=o[k];
 	}
 
-	addElement(tag, func) {
+	addElement=(tag, func)=> {
 		this.elements[tag]=func;
 	}
 
@@ -88,6 +96,10 @@ class Pluggy {
 	}
 
 	clientMain=()=>{
+		window.addEventListener("popstate",(ev)=>{
+			this.refreshClient();
+		});
+
 		let el=document.getElementById("pluggy-root");
 		render(<this.PluggyView />,el);
 	}
@@ -108,18 +120,20 @@ export default pluggy;
 export const elements=pluggy.elements;
 export const db=pluggy.db;
 
+export const addElement=pluggy.addElement;
 export const addModel=pluggy.addModel;
-export const addAction=pluggy.addAction;
 export const addApi=pluggy.addApi;
-export const doAction=pluggy.doAction;
-export const doActionAsync=pluggy.doActionAsync;
 export const refreshClient=pluggy.refreshClient;
-export const setRefreshFunction=pluggy.setRefreshFunction;
 export const dismissAdminMessages=pluggy.dismissAdminMessages;
 export const getAdminMessages=pluggy.getAdminMessages;
+export const showAdminMessage=pluggy.showAdminMessage;
 export const setLocation=pluggy.setLocation;
 export const clientMain=pluggy.clientMain;
+export const setRefreshFunction=pluggy.setRefreshFunction;
 export const serverMain=pluggy.serverMain;
-export const withSession=pluggy.withSession;
+export const addAction=pluggy.addAction;
+export const doAction=pluggy.doAction;
+export const doActionAsync=pluggy.doActionAsync;
 export const useSession=pluggy.useSession;
-export const addElement=pluggy.addElement;
+export const withSession=pluggy.withSession;
+
