@@ -1,76 +1,37 @@
 export * from "./pluggy-imports.js";
 import * as imports from "./pluggy-imports.js";
 
+import PluggyActions from "../components/PluggyActions.js";
+import PluggySessionManager from "../components/PluggySessionManager.js";
+
 class Pluggy {
 	constructor() {
-		Object.assign(this,imports);
+		this.composeFunctions(imports);
 
-		this.actions={};
-		this.adminMessages=[];
+		this.actions=new PluggyActions();
+		this.composeFunctions(this.actions);
 
 		if (this.isServer()) {
 			this.db=new this.Db("mysql://mysql:mysql@localhost/pluggy");
 			this.apis={};
-			this.sessions={};
 		}
 
-		if (this.isClient()) {
-			let sessionTag=window.document.currentScript.dataset.session;
+		this.sessionManager=new PluggySessionManager(this.db);
+		this.composeFunctions(this.sessionManager);
 
-			if (sessionTag)
-				this.session=JSON.parse(sessionTag);
-
-			else
-				this.session={};
-		}
+		this.adminMessages=[];
 
 		this.elements={};
 	}
 
+	composeFunctions(o) {
+		for (let k in o)
+			if (typeof o[k]=='function')
+				this[k]=o[k];
+	}
+
 	addElement(tag, func) {
 		this.elements[tag]=func;
-	}
-
-	setActiveSessionId(id) {
-		if (!id) {
-			this.activeSessionId=null;
-			return;
-		}
-
-		this.activeSessionId=id;
-
-		if (!this.sessions[this.activeSessionId])
-			this.sessions[this.activeSessionId]={};
-	}
-
-	getActiveSessionId() {
-		return this.activeSessionId;
-	}
-
-	useSession() {
-		if (this.isClient()) {
-			return [
-				this.session,
-				(newSession)=>{
-					Object.assign(this.session,newSession);
-					this.refreshClient()
-				}
-			]
-		}
-
-		if (this.isServer()) {
-			if (!this.activeSessionId)
-				throw new Error("No session");
-
-			let sessionId=this.activeSessionId;
-
-			return [
-				this.sessions[sessionId],
-				(newSession)=>{
-					Object.assign(this.sessions[sessionId],newSession);
-				}
-			];
-		}
 	}
 
 	addModel=(model)=>{
@@ -80,49 +41,11 @@ class Pluggy {
 		this.db.addModel(model);
 	}
 
-	addAction=(action, fn)=>{
-		if (!this.actions[action])
-			this.actions[action]=[];
-
-		this.actions[action].push(fn);
-	}
-
 	addApi=(path, fn)=>{
 		if (!this.isServer())
 			return;
 
 		this.apis[path]=fn;
-	}
-
-	doAction=(action, ...params)=>{
-		if (!this.actions[action])
-			return;
-
-		let ret;
-		for (let fn of this.actions[action]) {
-			let v=fn(...params);
-			if (v!==undefined)
-				ret=v;
-		}
-
-		return ret;
-	}
-
-	doActionAsync=async (action, ...params)=>{
-		if (!this.actions[action])
-			return;
-
-		let sessionId=this.getActiveSessionId();
-
-		let ret;
-		for (let fn of this.actions[action]) {
-			this.setActiveSessionId(sessionId);
-			let v=await fn(...params);
-			if (v!==undefined)
-				ret=v;
-		}
-
-		return ret;
 	}
 
 	refreshClient=()=>{
@@ -164,27 +87,6 @@ class Pluggy {
 		this.refreshClient();
 	}
 
-	getCurrentRequest=()=>{
-		let l=window.location;
-		let query=Object.fromEntries(new URLSearchParams(l.search));
-		let params=l.pathname.split("/").filter(s=>s.length>0);
-		let path="/"+params.join("/");
-
-		return {
-			params,
-			path,
-			query
-		};
-	}
-
-	isServer=()=>{
-		return (typeof global!=="undefined");
-	}
-
-	isClient=()=>{
-		return (typeof window!=="undefined");
-	}
-
 	clientMain=()=>{
 		let el=document.getElementById("pluggy-root");
 		render(<this.PluggyView />,el);
@@ -215,9 +117,6 @@ export const setRefreshFunction=pluggy.setRefreshFunction;
 export const dismissAdminMessages=pluggy.dismissAdminMessages;
 export const getAdminMessages=pluggy.getAdminMessages;
 export const setLocation=pluggy.setLocation;
-export const getCurrentRequest=pluggy.getCurrentRequest;
-export const isServer=pluggy.isServer;
-export const isClient=pluggy.isClient;
 export const clientMain=pluggy.clientMain;
 export const serverMain=pluggy.serverMain;
 export const setActiveSessionId=pluggy.setActiveSessionId;

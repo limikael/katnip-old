@@ -4,24 +4,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
-
-function quoteattr(s, preserveCR) {
-    preserveCR = preserveCR ? '&#13;' : '\n';
-    return ('' + s) /* Forces the conversion to string. */
-        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        /*
-        You may add other replacements here for HTML only 
-        (but it's not necessary).
-        Or for XML, only if the named entities are defined in its DTD.
-        */ 
-        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-        .replace(/[\r\n]/g, preserveCR);
-        ;
-}
+import {quoteAttr} from "../utils/web-util.js";
 
 export default class PluggyServer {
 	createOutDir() {
@@ -142,7 +125,7 @@ export default class PluggyServer {
 						"Set-Cookie": `pluggy=${cookies.pluggy}`
 					});
 
-					let quotedSession=quoteattr(JSON.stringify(clientSession));
+					let quotedSession=quoteAttr(JSON.stringify(clientSession));
 
 					let clientPage=`<body><html>`;
 					clientPage+=`<div id="pluggy-root"></div>`;
