@@ -4,24 +4,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
-
-function quoteattr(s, preserveCR) {
-    preserveCR = preserveCR ? '&#13;' : '\n';
-    return ('' + s) /* Forces the conversion to string. */
-        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        /*
-        You may add other replacements here for HTML only 
-        (but it's not necessary).
-        Or for XML, only if the named entities are defined in its DTD.
-        */ 
-        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-        .replace(/[\r\n]/g, preserveCR);
-        ;
-}
+import {quoteAttr} from "../utils/web-util.js";
 
 export default class PluggyServer {
 	createOutDir() {
@@ -115,20 +98,22 @@ export default class PluggyServer {
 		}));
 	}
 
-	handleRequest=(req, res)=>{
+	handleRequest=async (req, res)=>{
 		let cookies=this.pluggy.parseCookies(req);
 		if (!cookies.pluggy)
 			cookies.pluggy=uuidv4();
 
-		this.pluggy.setActiveSessionId(cookies.pluggy);
 		try {
 			if (req.url=="/pluggy-bundle.js") {
 				res.writeHead(200);
 				res.end(this.clientBundle);
 			}
 
-			else if (req.url.startsWith("/api/"))
-				this.handleApi(req,res);
+			else if (req.url.startsWith("/api/")) {
+				await this.pluggy.withSession(cookies.pluggy,async ()=>{
+					await this.handleApi(req,res);
+				});
+			}
 
 			else if (req.url.startsWith("/public/"))
 				this.handlePublic(req,res);
@@ -136,13 +121,15 @@ export default class PluggyServer {
 			else {
 				(async()=>{
 					let clientSession={};
-					await this.pluggy.doActionAsync("getClientSession",clientSession);
+					await this.pluggy.withSession(cookies.pluggy,async ()=>{
+						await this.pluggy.doActionAsync("getClientSession",clientSession);
+					});
 
 					res.writeHead(200,{
 						"Set-Cookie": `pluggy=${cookies.pluggy}`
 					});
 
-					let quotedSession=quoteattr(JSON.stringify(clientSession));
+					let quotedSession=quoteAttr(JSON.stringify(clientSession));
 
 					let clientPage=`<body><html>`;
 					clientPage+=`<div id="pluggy-root"></div>`;
@@ -159,8 +146,6 @@ export default class PluggyServer {
 			res.writeHead(500);
 			res.end("");
 		}
-
-		this.pluggy.setActiveSessionId();
 	}
 
 	async run() {
@@ -184,7 +169,9 @@ export default class PluggyServer {
 		await import(this.outDir+"/pluggy-bundle.js");
 		this.pluggy=global.pluggy;
 		this.pluggy.db.connection.MySql=await import("mysql");
-		this.pluggy.serverMain();
+
+		console.log("Starting...");
+		await this.pluggy.serverMain();
 
 		this.clientBundle=fs.readFileSync(this.outDir+"/pluggy-bundle.js")+"window.pluggy.clientMain();";
 

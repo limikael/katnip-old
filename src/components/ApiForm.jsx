@@ -1,6 +1,7 @@
 import {useRef} from "preact/compat";
-import {useForceUpdate, buildUrl} from "../utils/react-util.jsx";
-import pluggy, {apiFetch} from "pluggy";
+import {useForceUpdate} from "../utils/react-util.jsx";
+import {buildUrl} from "../utils/web-util.js";
+import {pluggy, apiFetch} from "pluggy";
 
 class ApiForm {
 	constructor(options={}) {

@@ -75,7 +75,7 @@ pluggy.addApi("/api/deleteUser",async ({id})=>{
 	await u.delete();
 });
 
-pluggy.addApi("/api/login",async({login, password})=>{
+pluggy.addApi("/api/login",async ({login, password})=>{
 	let [session,setSession]=pluggy.useSession();
 
 	let u=await pluggy.db.User.findOne({
@@ -86,7 +86,7 @@ pluggy.addApi("/api/login",async({login, password})=>{
 	if (!u)
 		throw new Error("Bad credentials.");
 
-	setSession({
+	await setSession({
 		uid: u.id
 	});
 
@@ -98,10 +98,10 @@ pluggy.addApi("/api/login",async({login, password})=>{
 	}
 });
 
-pluggy.addApi("/api/logout",async({})=>{
+pluggy.addApi("/api/logout",async ({})=>{
 	let [session,setSession]=pluggy.useSession();
 
-	setSession({
+	await setSession({
 		uid: null
 	});
 });
