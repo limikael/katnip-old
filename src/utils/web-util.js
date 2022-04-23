@@ -81,3 +81,9 @@ export function quoteAttr(s, preserveCR) {
         .replace(/[\r\n]/g, preserveCR);
         ;
 }
+
+export function delay(millis) {
+	return new Promise((resolve,reject)=>{
+		setTimeout(resolve,millis);
+	});
+}

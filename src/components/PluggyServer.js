@@ -59,6 +59,8 @@ export default class PluggyServer {
 	}
 
 	handleApi=async (req, res)=>{
+		await this.pluggy.delay(1000);
+
 		let l=new URL(req.url,"http://example.com");
 		let query=Object.fromEntries(new URLSearchParams(l.search));
 		let params=l.pathname.split("/").filter(s=>s.length>0);

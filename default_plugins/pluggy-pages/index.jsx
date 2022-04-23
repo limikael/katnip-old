@@ -1,5 +1,5 @@
 import pluggy from "pluggy";
-import {ListPages, EditPage, PageView} from "./components.jsx";
+import {PageView, PageAdmin} from "./components.jsx";
 
 class Page extends pluggy.Model {
 	static fields={
@@ -15,18 +15,14 @@ pluggy.addModel(Page);
 pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Pages",
-		href: "/admin/pages",
-		routes: ["/admin/page"],
+		href: "/admin/page",
 		priority: 40
 	});
 });
 
 pluggy.addAction("getPageComponent",(request)=>{
 	if (request.path=="/admin/page")
-		return EditPage;
-
-	if (request.path=="/admin/pages")
-		return ListPages;
+		return PageAdmin;
 
 	if (request.params[0]=="page")
 		return PageView;
@@ -37,6 +33,7 @@ pluggy.addApi("/api/getAllPages",async ()=>{
 });
 
 pluggy.addApi("/api/getPage",async ({id})=>{
+	//console.log("geting page: "+id);
 	return pluggy.db.Page.findOne({id: id});
 });
 
@@ -64,7 +61,7 @@ pluggy.addApi("/api/deletePage",async ({id})=>{
 });
 
 pluggy.addElement("PluggyEcho",({text,children})=>{
-	console.log("called..");
+	//console.log("called..");
 
 	return (
 		<>
