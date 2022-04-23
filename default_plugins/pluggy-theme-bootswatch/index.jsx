@@ -11,6 +11,18 @@ pluggy.addAction("getAdminMenu",(items)=>{
 	});
 })
 
+pluggy.addAction("getMenuLocations",(items)=>{
+	items.push({
+		title: "Header Menu",
+		setting: "menuHeader"
+	});
+
+	items.push({
+		title: "Footer Menu",
+		setting: "menuFooter"
+	});
+})
+
 pluggy.addAction("getPageComponent",(request)=>{
 	if (request.path=="/admin/bootswatch")
 		return BootswatchAdmin;

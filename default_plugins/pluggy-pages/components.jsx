@@ -64,7 +64,9 @@ export function EditPage({request}) {
 
 export function PageView({request}) {
 	let {data,invalidate}=useApiFetch("/api/getPage",{
-		id: request.params[1]
+		query: {
+			id: request.params[1]
+		}
 	});
 
 	let page=data;

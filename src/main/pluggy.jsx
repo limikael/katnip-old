@@ -3,6 +3,7 @@ import * as imports from "./pluggy-imports.js";
 
 import PluggyActions from "../components/PluggyActions.js";
 import PluggySessionManager from "../components/PluggySessionManager.js";
+import PluggySettings from "../components/PluggySettings.js";
 import Db from "../utils/Db.js";
 import {isClient, isServer} from "../utils/web-util.js";
 
@@ -18,6 +19,9 @@ class Pluggy {
 
 		this.sessionManager=new PluggySessionManager(this.db);
 		this.composeFunctions(this.sessionManager);
+
+		this.settings=new PluggySettings(this.db);
+		this.composeFunctions(this.settings);
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -111,6 +115,7 @@ class Pluggy {
 	serverMain=async ()=>{
 		await this.db.install();
 		await this.sessionManager.load();
+		await this.settings.load();
 	}
 }
 
@@ -136,4 +141,5 @@ export const doAction=pluggy.doAction;
 export const doActionAsync=pluggy.doActionAsync;
 export const useSession=pluggy.useSession;
 export const withSession=pluggy.withSession;
-
+export const getSetting=pluggy.getSetting;
+export const setSetting=pluggy.setSetting;

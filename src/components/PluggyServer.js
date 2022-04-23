@@ -164,6 +164,7 @@ export default class PluggyServer {
 			jsxFragment: "Fragment",
 			//minify: true,
 			outfile: this.outDir+"/pluggy-bundle.js",
+			loader: {".svg": "dataurl"}
 		});
 
 		await import(this.outDir+"/pluggy-bundle.js");

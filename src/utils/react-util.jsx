@@ -7,19 +7,29 @@ export function useForceUpdate() {
 	return forceUpdate;
 }
 
-export function useApiFetch(url, query={}) {
+export function useApiFetch(url, options={}) {
 	let ref=useRef();
 	let [data,setData]=useState(null);
 
+	if (!options.query)
+		options.query={};
+
 	function invalidate() {
-		apiFetch(url,query)
+		if (!url) {
+			setData(null);
+			return;
+		}
+
+		apiFetch(url,options.query)
 			.then((d)=>{
+				if (options.complete)
+					options.complete(d);
 				setData(d)
 			});
 	}
 
-	if (!ref.current) {
-		ref.current=true;
+	if (!ref.current || ref.current!=url) {
+		ref.current=url;
 		invalidate();
 	}
 
