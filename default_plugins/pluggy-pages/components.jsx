@@ -15,6 +15,9 @@ function PageEdit({request}) {
 	let loading=(pageId && !initial);
 	let [saving,setSaving]=useState();
 
+	if (initial instanceof Error && !pluggy.getAdminMessages().length)
+		pluggy.showAdminMessage(initial);
+
 	async function onSubmitClick(ev) {
 		ev.preventDefault();
 		setSaving(true);
@@ -41,7 +44,7 @@ function PageEdit({request}) {
 			<h1 class="d-inline-block">{isUpdate?"Edit Page":"Add New Page"}</h1>
 			<AdminMessages />
 			{loading && <div class="spinner-border m-3"/>}
-			{!loading &&
+			{!loading && !(initial instanceof Error) &&
 				<form>
 					<div class="container-fluid border rounded p-3">
 						<div class="mb-3">

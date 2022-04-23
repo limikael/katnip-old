@@ -33,8 +33,13 @@ pluggy.addApi("/api/getAllPages",async ()=>{
 });
 
 pluggy.addApi("/api/getPage",async ({id})=>{
+	let page=await pluggy.db.Page.findOne({id: id});
+	//console.log(page);
+	if (!page)
+		throw new Error("Page not found");
+
 	//console.log("geting page: "+id);
-	return pluggy.db.Page.findOne({id: id});
+	return page;
 });
 
 pluggy.addApi("/api/savePage",async ({id, title, content})=>{

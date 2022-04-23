@@ -25,9 +25,13 @@ export function useApiFetch(url, query={}, deps=[]) {
 		if (!url)
 			return null;
 
-		//console.log("fetch: "+url+" "+JSON.stringify(query));
+		try {
+			return await apiFetch(url,query);
+		}
 
-		return await apiFetch(url,query);
+		catch (e) {
+			return e;
+		}
 	},deps);
 
 	return result;
