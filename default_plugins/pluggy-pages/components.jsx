@@ -1,5 +1,5 @@
 import {pluggy, A, AdminListTable, AdminMessages} from "pluggy";
-import {useApiFetch, apiFetch, useForm, useCounter} from "pluggy";
+import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "pluggy";
 import {useState} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
 
@@ -9,14 +9,15 @@ function PageEdit({request}) {
 	let pageId=request.query.id;
 	let url=pageId?"/api/getPage":null;
 	let [counter,invalidate]=useCounter();
-	let initial=useApiFetch(url,{id: pageId},[url,pageId,counter]);
-	let [current,field,modified]=useForm(initial,[initial,url]);
+	let fetchResult=useApiFetch(url,{id: pageId},[url,pageId,counter]);
+	let [current,field,modified]=useForm(fetchResult,[fetchResult,url]);
 	let isUpdate=!!request.query.id;
-	let loading=(pageId && !initial);
+	let loading=(pageId && !fetchResult);
 	let [saving,setSaving]=useState();
+	let isFetchChanged=useValueChanged(fetchResult);
 
-	if (initial instanceof Error && !pluggy.getAdminMessages().length)
-		pluggy.showAdminMessage(initial);
+	if (fetchResult instanceof Error && isFetchChanged)
+		pluggy.showAdminMessage(fetchResult);
 
 	async function onSubmitClick(ev) {
 		ev.preventDefault();
@@ -44,7 +45,7 @@ function PageEdit({request}) {
 			<h1 class="d-inline-block">{isUpdate?"Edit Page":"Add New Page"}</h1>
 			<AdminMessages />
 			{loading && <div class="spinner-border m-3"/>}
-			{!loading && !(initial instanceof Error) &&
+			{!loading && !(fetchResult instanceof Error) &&
 				<form>
 					<div class="container-fluid border rounded p-3">
 						<div class="mb-3">
@@ -75,8 +76,8 @@ function PageList({request}) {
 	};
 
 	async function onDelete(id) {
-		await apiFetch("/api/deletePage",{id: id});
 		pluggy.dismissAdminMessages();
+		await apiFetch("/api/deletePage",{id: id});
 		pluggy.showAdminMessage("Page deleted");
 		invalidate();
 	}

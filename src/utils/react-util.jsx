@@ -76,3 +76,14 @@ export function useCounter() {
 
 	return res;
 }
+
+export function useValueChanged(value) {
+	let [state,setState]=useState(value);
+
+	if (value!=state) {
+		setState(value);
+		return true;
+	}
+
+	return false;
+}
