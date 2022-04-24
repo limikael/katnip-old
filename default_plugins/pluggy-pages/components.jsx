@@ -1,4 +1,4 @@
-import {pluggy, A, AdminListTable, AdminMessages} from "pluggy";
+import {pluggy, A, AdminListTable, AdminMessages, ItemForm, setLocation, buildUrl} from "pluggy";
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "pluggy";
 import {useState} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
@@ -7,64 +7,48 @@ const XMLToReact=XMLToReactModule.default;
 
 function PageEdit({request}) {
 	let pageId=request.query.id;
-	let url=pageId?"/api/getPage":null;
-	let [counter,invalidate]=useCounter();
-	let fetchResult=useApiFetch(url,{id: pageId},[url,pageId,counter]);
-	let [current,field,modified]=useForm(fetchResult,[fetchResult,url]);
-	let isUpdate=!!request.query.id;
-	let loading=(pageId && !fetchResult);
-	let [saving,setSaving]=useState();
-	let isFetchChanged=useValueChanged(fetchResult);
 
-	if (fetchResult instanceof Error && isFetchChanged)
-		pluggy.showAdminMessage(fetchResult);
+	async function read() {
+		if (!pageId)
+			return {};
 
-	async function onSubmitClick(ev) {
-		ev.preventDefault();
-		setSaving(true);
-
-		try {
-			let successMessage=isUpdate?"Page updated":"Page created";
-			pluggy.dismissAdminMessages();
-			let res=await apiFetch("/api/savePage",current);
-			let url=pluggy.buildUrl("/admin/page",{id: res.id});
-			pluggy.setLocation(url,{replace: true});
-			pluggy.showAdminMessage(successMessage);
-			invalidate();
-		}
-
-		catch (e) {
-			pluggy.showAdminMessage(e);
-		}
-
-		setSaving(false);
+		return await apiFetch("/api/getPage",{id: pageId});
 	}
 
-	return (
-		<>
-			<h1 class="d-inline-block">{isUpdate?"Edit Page":"Add New Page"}</h1>
-			<AdminMessages />
-			{loading && <div class="spinner-border m-3"/>}
-			{!loading && !(fetchResult instanceof Error) &&
-				<form>
-					<div class="container-fluid border rounded p-3">
-						<div class="mb-3">
-							<input type="text" class="form-control" {...field("title")}
-									placeholder="Page Title"/>
-						</div>
-						<div class="mb-3">
-							<textarea rows={10} class="form-control font-monospace" {...field("content")}/>
-						</div>
-						<button type="submit" class="btn btn-primary" onclick={onSubmitClick}
-								disabled={!modified || saving}>
-							{saving && <span class="spinner-border spinner-border-sm me-2"/>}
-							{isUpdate?"Update Page":"Create New Page"}
-						</button>
-					</div>
-				</form>
-			}
-		</>
-	);
+	async function write(data) {
+		let saved=await apiFetch("/api/savePage",data);
+		setLocation(buildUrl("/admin/page",{id: saved.id}));
+
+		return "Saved...";
+	}
+
+	return (<>
+		<h1>{pageId?"Edit Page":"Add New Page"}</h1>
+		<ItemForm
+				item={read}
+				save={write}
+				deps={[pageId]}>
+			<div class="container-fluid border rounded p-3">
+				<div class="mb-3">
+					<ItemForm.Input
+							name="title"
+							type="text"
+							class="form-control"
+							placeholder="Page Title"/>
+				</div>
+				<div class="mb-3">
+					<ItemForm.Input
+							name="content"
+							input="textarea"
+							rows={10}
+							class="form-control font-monospace"/>
+				</div>
+				<ItemForm.Submit class="btn btn-primary">
+					{pageId?"Update Page":"Create New Page"}
+				</ItemForm.Submit>
+			</div>
+		</ItemForm>
+	</>);
 }
 
 function PageList({request}) {

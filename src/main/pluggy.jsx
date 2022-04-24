@@ -113,7 +113,7 @@ class Pluggy {
 	}
 
 	serverMain=async ()=>{
-		await this.db.install();
+		//await this.db.install();
 		await this.sessionManager.load();
 		await this.settings.load();
 	}
