@@ -1,13 +1,21 @@
-import LoginPage from "./components/LoginPage.jsx";
-import {ListUsers, EditUser} from "./components/UserAdmin.jsx";
-import pluggy from "pluggy";
-import User from "./model/User.js";
+import {LoginPage, UserAdmin} from "./components.jsx";
+import {pluggy, Model} from "pluggy";
+
+class User extends Model {
+	static fields={
+		id: "INTEGER NOT NULL AUTO_INCREMENT",
+		email: "VARCHAR(255) NOT NULL",
+		password: "VARCHAR(255) NOT NULL",
+		role: "VARCHAR(64) NOT NULL",
+	};
+}
+
+pluggy.addModel(User);
 
 pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Users",
-		href: "/admin/users",
-		routes: ["/admin/user"],
+		href: "/admin/user",
 		priority: 30
 	});
 });
@@ -17,11 +25,8 @@ pluggy.addAction("getPageComponent",(request)=>{
 		case "/login":
 			return LoginPage;
 
-		case "/admin/users":
-			return ListUsers;
-
 		case "/admin/user":
-			return EditUser;
+			return UserAdmin;
 	}
 });
 
@@ -36,8 +41,6 @@ pluggy.addAction("getClientSession",async (clientSession)=>{
 		};
 	}
 });
-
-pluggy.addModel(User);
 
 pluggy.addApi("/api/getAllUsers",async ()=>{
 	let [session]=pluggy.useSession();

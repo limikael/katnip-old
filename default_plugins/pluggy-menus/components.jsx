@@ -1,4 +1,4 @@
-import {pluggy, AdminMessages, A} from "pluggy";
+import {pluggy, AdminMessages, A, useApiFetch, useRevertibleState} from "pluggy";
 import {useState} from "preact/compat";
 import TRASH_ICON from "bootstrap-icons/icons/x-lg.svg";
 import ARROW_UP from "bootstrap-icons/icons/caret-up-fill.svg";
@@ -7,18 +7,7 @@ import ARROW_DOWN from "bootstrap-icons/icons/caret-down-fill.svg";
 const filterDanger="filter: invert(26%) sepia(100%) saturate(1559%) hue-rotate(331deg) brightness(91%) contrast(93%); ";
 const filterPrimay="filter: invert(26%) sepia(100%) saturate(1970%) hue-rotate(208deg) brightness(100%) contrast(99%); ";
 
-export function MenuEditor({request}) {
-	let [activeIndex,setActiveIndex]=useState(-1);
-	let [menus,setMenus]=useState([]);
-
-	let url;
-	if (request.query.setting)
-		url=pluggy.buildUrl("/api/getMenu",{setting: request.query.setting});
-
-	pluggy.useApiFetch(url,{
-		complete: setMenus
-	});
-
+function MenuTabs({request}) {
 	let tabs=[];
 	let menuLocations=[];
 	pluggy.doAction("getMenuLocations",menuLocations);
@@ -46,6 +35,24 @@ export function MenuEditor({request}) {
 		}));
 		return;
 	}
+
+	return (
+		<ul class="nav nav-tabs mb-3">
+			{menuTabs}
+		</ul>
+	);
+}
+
+export function MenuEditor({request}) {
+	let menuSetting=request.query.setting;
+	let url=menuSetting?"/api/getMenu":undefined;
+	let serverState=useApiFetch(url,{setting: menuSetting},[url,menuSetting]);
+	let [menus,setMenus,modified]=useRevertibleState(serverState,[serverState,url,menuSetting]);
+	let [activeIndex,setActiveIndex]=useRevertibleState(-1,[serverState,url,menuSetting]);
+	let [saving,setSaving]=useState();
+
+	if (!menus)
+		menus=[];
 
 	let emptyIndex=-1;
 	for (let index in menus) {
@@ -123,10 +130,12 @@ export function MenuEditor({request}) {
 	}
 
 	async function onSaveClick() {
+		setSaving(true);
 		await pluggy.apiFetch("/api/saveMenu",{
-			setting: request.setting,
+			setting: menuSetting,
 			value: menus
 		});
+		setSaving(false);
 	}
 
 	let menuViews=[];
@@ -201,17 +210,23 @@ export function MenuEditor({request}) {
 		<>
 			<h1 class="d-inline-block">Menus</h1>
 			<AdminMessages />
-			<ul class="nav nav-tabs mb-3">
-				{menuTabs}
-			</ul>
-			<div style="max-width: 40rem">
-				{menuViews}
-				<button class="btn btn-light btn-lg mb-3 shadow-sm border" style="width: 100%"
-						onclick={onAddMenuClick}>
-					+
-				</button>
-			</div>
-			<button class="btn btn-primary" onclick={onSaveClick}>Save Menu</button>
+			<MenuTabs request={request}/>
+			{serverState===undefined && <div class="spinner-border m-3"/>}
+			{serverState!==undefined &&
+				<>
+					<div style="max-width: 40rem">
+						{menuViews}
+						<button class="btn btn-light btn-lg mb-3 shadow-sm border" style="width: 100%"
+								onclick={onAddMenuClick}>
+							+
+						</button>
+					</div>
+					<button class="btn btn-primary" onclick={onSaveClick} disabled={saving}>
+						{saving && <span class="spinner-border spinner-border-sm me-2"/>}
+						Save Menu
+					</button>
+				</>
+			}
 		</>
 	);
 }

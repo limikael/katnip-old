@@ -35,9 +35,16 @@ export function buildUrl(base, vars) {
 }
 
 export async function apiFetch(url, query={}) {
-	url=buildUrl(url,query);
+//	url=buildUrl(url,query);
 
-	let response=await fetch(url);
+	let response=await fetch(url,{
+		method: "POST",
+		cache: "no-cache",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(query)
+	});
 	let text=await response.text();
 	let data=JSON.parse(text);
 
@@ -80,4 +87,10 @@ export function quoteAttr(s, preserveCR) {
         .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
         .replace(/[\r\n]/g, preserveCR);
         ;
+}
+
+export function delay(millis) {
+	return new Promise((resolve,reject)=>{
+		setTimeout(resolve,millis);
+	});
 }

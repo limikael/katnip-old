@@ -19,7 +19,5 @@ pluggy.addApi("/api/getMenu",async ({setting})=>{
 });
 
 pluggy.addApi("/api/saveMenu",async ({setting, value})=>{
-	console.log(value);
-
-//	return await pluggy.setSetting(setting, value);
+	return await pluggy.setSetting(setting,value);
 });

@@ -3,8 +3,9 @@ import {build} from "../utils/esbuild-extra.js";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {quoteAttr} from "../utils/web-util.js";
+import {delay} from "../utils/js-util.js";
 
 export default class PluggyServer {
 	createOutDir() {
@@ -58,9 +59,18 @@ export default class PluggyServer {
 		res.end("Not found...");
 	}
 
-	handleApi=async (req, res)=>{
+	handleApi=async (req, res, sessionId)=>{
+		//await delay(1000);
+
+		const buffers = [];
+		for await (const chunk of req)
+			buffers.push(chunk);
+
+		const bodyQuery=JSON.parse(Buffer.concat(buffers));
+
 		let l=new URL(req.url,"http://example.com");
 		let query=Object.fromEntries(new URLSearchParams(l.search));
+		Object.assign(query,bodyQuery);
 		let params=l.pathname.split("/").filter(s=>s.length>0);
 		let path="/"+params.join("/");
 
@@ -74,7 +84,10 @@ export default class PluggyServer {
 		let func=this.pluggy.apis[path];
 		if (func) {
 			try {
-				let data=await func(query);
+				let data;
+				await this.pluggy.withSession(sessionId,async ()=>{
+					data=await func(query);
+				});
 				res.writeHead(200);
 				if (!data)
 					data=null;
@@ -110,9 +123,7 @@ export default class PluggyServer {
 			}
 
 			else if (req.url.startsWith("/api/")) {
-				await this.pluggy.withSession(cookies.pluggy,async ()=>{
-					await this.handleApi(req,res);
-				});
+				await this.handleApi(req,res,cookies.pluggy);
 			}
 
 			else if (req.url.startsWith("/public/"))
