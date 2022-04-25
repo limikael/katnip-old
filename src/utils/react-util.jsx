@@ -12,7 +12,15 @@ export function usePromise(fn, deps) {
 
 	useMemo(async ()=>{
 		setResult(undefined);
-		setResult(await fn());
+
+		try {
+			setResult(await fn());
+		}
+
+		catch (e){
+			console.log(e);
+			setResult(e);
+		}		
 	},deps);
 
 	return result;

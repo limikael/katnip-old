@@ -12,11 +12,11 @@ function PageEdit({request}) {
 		if (!pageId)
 			return {};
 
-		return await apiFetch("/api/getPage",{id: pageId});
+		return await apiFetch("/api/page/get",{id: pageId});
 	}
 
 	async function write(data) {
-		let saved=await apiFetch("/api/savePage",data);
+		let saved=await apiFetch("/api/page/save",data);
 		setLocation(buildUrl("/admin/page",{id: saved.id}));
 
 		return "Saved...";
@@ -55,7 +55,7 @@ function PageList({request}) {
 	let [counter,invalidate]=useCounter();
 
 	async function getPages() {
-		return await apiFetch("/api/getAllPages");
+		return await apiFetch("/api/page/list");
 	}
 
 	let columns={
@@ -65,7 +65,7 @@ function PageList({request}) {
 
 	async function onDelete(id) {
 		pluggy.dismissAdminMessages();
-		await apiFetch("/api/deletePage",{id: id});
+		await apiFetch("/api/page/delete",{id: id});
 		pluggy.showAdminMessage("Page deleted");
 		invalidate();
 	}

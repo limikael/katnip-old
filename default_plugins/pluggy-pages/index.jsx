@@ -11,6 +11,11 @@ class Page extends pluggy.Model {
 }
 
 pluggy.addModel(Page);
+pluggy.createCrudApi(Page,{
+	onsave: (item)=>{
+		item.stamp=Date.now()/1000;
+	}
+});
 
 pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
@@ -26,43 +31,6 @@ pluggy.addAction("getPageComponent",(request)=>{
 
 	if (request.params[0]=="page")
 		return PageView;
-});
-
-pluggy.addApi("/api/getAllPages",async ()=>{
-	return pluggy.db.Page.findMany();
-});
-
-pluggy.addApi("/api/getPage",async ({id})=>{
-	let page=await pluggy.db.Page.findOne({id: id});
-	//console.log(page);
-	if (!page)
-		throw new Error("Page not found");
-
-	//console.log("geting page: "+id);
-	return page;
-});
-
-pluggy.addApi("/api/savePage",async ({id, title, content})=>{
-	let p;
-
-	if (id)
-		p=await pluggy.db.Page.findOne({id: id});
-
-	else
-		p=new pluggy.db.Page();
-
-	p.title=title;
-	p.content=content;
-	p.stamp=Date.now()/1000;
-
-	await p.save();
-
-	return {id: p.id};
-});
-
-pluggy.addApi("/api/deletePage",async ({id})=>{
-	let p=await pluggy.db.Page.findOne({id: id});
-	await p.delete();
 });
 
 pluggy.addElement("PluggyEcho",({text,children})=>{

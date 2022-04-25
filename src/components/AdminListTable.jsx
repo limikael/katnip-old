@@ -73,7 +73,21 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 	tableHeaders.push(<th style={{"width":"3rem"}}></th>);
 
 	let tableContent;
-	if (resolvedItems!==undefined) {
+	if (resolvedItems instanceof Error) {
+		tableContent=(
+			<div class={`alert alert-dismissible alert-danger`}>
+				{/*<button type="button" class="btn-close" data-bs-dismiss="alert"
+						onclick={dismissMessage}></button>*/}
+				{resolvedItems.message}
+			</div>
+		);
+	}
+
+	else if (resolvedItems===undefined) {
+		tableContent=(<div class="spinner-border m-3"/>);
+	}
+
+	else {
 		let tableRows=[];
 		for (let item of resolvedItems) {
 			let tableItem=[];
@@ -106,10 +120,6 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 				</tbody>
 			</table>
 		);
-	}
-
-	else {
-		tableContent=(<div class="spinner-border m-3"/>);
 	}
 
 	let dialog;

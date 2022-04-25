@@ -66,7 +66,9 @@ export default class PluggyServer {
 		for await (const chunk of req)
 			buffers.push(chunk);
 
-		const bodyQuery=JSON.parse(Buffer.concat(buffers));
+		let bodyQuery={};
+		if (Buffer.concat(buffers).length)
+			bodyQuery=JSON.parse(Buffer.concat(buffers));
 
 		let l=new URL(req.url,"http://example.com");
 		let query=Object.fromEntries(new URLSearchParams(l.search));
@@ -74,13 +76,12 @@ export default class PluggyServer {
 		let params=l.pathname.split("/").filter(s=>s.length>0);
 		let path="/"+params.join("/");
 
-		if (params.length!=2) {
+		/*if (params.length!=2) {
 			res.writeHead(404);
 			res.end("Malformed...");
 			return;
-		}
+		}*/
 
-		let apiFunctionName=params[1];
 		let func=this.pluggy.apis[path];
 		if (func) {
 			try {

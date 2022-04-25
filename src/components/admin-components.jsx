@@ -34,6 +34,13 @@ export function ItemForm(props) {
 		setSaving(false);
 	}
 
+	if (baseItem instanceof Error)
+		return (
+			<div class={`alert alert-dismissible alert-danger`}>
+				{baseItem.message}
+			</div>
+		);
+
 	let content=props.children;
 	if (baseItem===undefined)
 		content=<div class="spinner-border m-3"/>;
