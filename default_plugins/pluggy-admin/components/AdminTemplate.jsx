@@ -90,19 +90,25 @@ function Sidebar({request}) {
 	);
 }
 
+export function AdminHead() {
+	return (<>
+		<link rel="stylesheet" 
+			href="/public/bootstrap-admin.css"/>
+		<style>{`
+			html, body, .page {
+				height: 100%;
+				width: 100%;
+			}
+		`}</style>
+		<script
+			src="/public/bootstrap.bundle.min.js"/>
+	</>);
+}
+
 export default function AdminTemplate({request, children}) {
 	return (
 		<>
-			<link rel="stylesheet" 
-				href="/public/bootstrap-admin.css"/>
-			<style global jsx>{`
-				html, body, .page {
-					height: 100%;
-					width: 100%;
-				}
-			`}</style>
-			<script
-				src="/public/bootstrap.bundle.min.js"/>
+			<AdminHead />
 			<div class="bootstrap-admin">
 				<div class="page d-flex flex-row">
 					<Sidebar request={request}/>

@@ -2,6 +2,7 @@ import {pluggy, A, buildUrl, ItemForm, optionsFromObject, useSession, apiFetch} 
 import {useState} from "preact/compat";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
+import {AdminHead} from "./AdminTemplate.jsx";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
@@ -98,16 +99,7 @@ function Sidebar({request}) {
 export default function Customizer({request, children}) {
 	return (
 		<>
-			<link rel="stylesheet" 
-				href="/public/bootstrap-admin.css"/>
-			<style global jsx>{`
-				html, body, .page {
-					height: 100%;
-					width: 100%;
-				}
-			`}</style>
-			<script
-				src="/public/bootstrap.bundle.min.js"/>
+			<AdminHead />
 			<div class="page d-flex flex-row">
 				<div class="bootstrap-admin d-flex" style="height: 100%">
 					<Sidebar request={request}/>
