@@ -1,4 +1,4 @@
-import {pluggy, A, AdminListTable, AdminMessages, apiFetch} from "pluggy";
+import {pluggy, A, AdminListTable, AdminMessages, apiFetch, ItemForm, setLocation, buildUrl} from "pluggy";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "pluggy";
 import {useRef, useState} from "preact/compat";
 
@@ -58,11 +58,16 @@ export function LoginPage() {
 }
 
 export function UserList() {
-	let users=useApiFetch("/api/getAllUsers");
+	let [counter,invalidate]=useCounter();
+
 	let columns={
 		email: {label: "E-Mail"},
 		role: {label: "Role"}
 	};
+
+	async function getUsers() {
+		return await apiFetch("/api/getAllUsers");
+	}
 
 	async function onDelete(id) {
 		await apiFetch("/api/deleteUser",{id: id});
@@ -73,81 +78,68 @@ export function UserList() {
 
 	return (
 		<>
-			<h1 class="d-inline-block">Users</h1>
-			<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm"
-					href="/admin/user">
-				Add User
-			</A>
-			<AdminMessages />
-			{users==undefined && <div class="spinner-border m-3"/>}
+			<div>
+				<h1 class="d-inline-block mb-3">Users</h1>
+				<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm"
+						href="/admin/user?new=1">
+					Add User
+				</A>
+			</div>
 			<AdminListTable
-					items={users} 
+					items={getUsers} 
 					columns={columns}
 					href="/admin/user"
-					ondelete={onDelete}/>
+					ondelete={onDelete}
+					deps={[]}/>
 		</>
 	);
 }
 
 export function UserEdit({request}) {
 	let userId=request.query.id;
-	let url=userId?"/api/getUser":null;
-	let [counter,invalidate]=useCounter();
-	let fetchResult=useApiFetch(url,{id: userId},[url,userId,counter]);
-	let [current,field,modified]=useForm(fetchResult,[fetchResult,url]);
-	let isUpdate=!!request.query.id;
-	let loading=(userId && !fetchResult);
-	let [saving,setSaving]=useState();
-	let isFetchChanged=useValueChanged(fetchResult);
 
-	if (fetchResult instanceof Error && isFetchChanged)
-		pluggy.showAdminMessage(fetchResult);
+	async function read() {
+		if (!userId)
+			return {};
 
-	async function onSubmitClick(ev) {
-		ev.preventDefault();
-		setSaving(true);
+		return await apiFetch("/api/getUser",{id: userId});
+	}
 
-		try {
-			let successMessage=isUpdate?"User updated":"User created";
-			pluggy.dismissAdminMessages();
-			let res=await apiFetch("/api/saveUser",current);
-			let url=pluggy.buildUrl("/admin/user",{id: res.id});
-			pluggy.setLocation(url,{replace: true});
-			pluggy.showAdminMessage(successMessage);
-			invalidate();
-		}
+	async function write(data) {
+		let saved=await apiFetch("/api/saveUser",data);
+		setLocation(buildUrl("/admin/user",{id: saved.id}));
 
-		catch (e) {
-			pluggy.showAdminMessage(e);
-		}
-
-		setSaving(false);
+		return "Saved...";
 	}
 
 	return (
 		<>
-			<h1 class="d-inline-block">{isUpdate?"Edit User":"Add New User"}</h1>
-			<AdminMessages />
-			{loading && <div class="spinner-border m-3"/>}
-			{!loading && !(fetchResult instanceof Error) &&
-				<form style="max-width: 40rem" disabled>
-					<div class="container border rounded p-3">
-						<div class="mb-3">
-							<label class="form-label">Email</label>
-							<input type="text" class="form-control" {...field("email")}/>
-						</div>
-						<div class="mb-3">
-							<label class="form-label">Password</label>
-							<input type="text" class="form-control" {...field("password")}/>
-						</div>
-						<button type="submit" class="btn btn-primary" onclick={onSubmitClick}
-								disabled={!modified || saving}>
-							{saving && <span class="spinner-border spinner-border-sm me-2"/>}
-							{isUpdate?"Update User":"Create New User"}
-						</button>
+			<h1 class="mb-3">{userId?"Edit User":"Add New User"}</h1>
+			<ItemForm
+					style="max-width: 40rem"
+					item={read}
+					save={write}
+					deps={[userId]}>
+				<div class="container border rounded p-3 bg-light">
+					<div class="mb-3">
+						<label class="form-label">Email</label>
+						<ItemForm.Input
+								name="email"
+								type="text"
+								class="form-control"/>
 					</div>
-				</form>
-			}
+					<div class="mb-3">
+						<label class="form-label">Password</label>
+						<ItemForm.Input
+								name="password"
+								type="text"
+								class="form-control"/>
+					</div>
+					<ItemForm.Submit class="btn btn-primary">
+						{userId?"Update User":"Create New User"}
+					</ItemForm.Submit>
+				</div>
+			</ItemForm>
 		</>
 	);
 }

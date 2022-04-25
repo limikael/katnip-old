@@ -1,4 +1,4 @@
-import {pluggy, buildUrl} from "pluggy";
+import {pluggy, buildUrl, usePromise} from "pluggy";
 import {useState} from "preact/compat";
 
 function DeleteConfirmation({onclose, onconfirm}) {
@@ -31,11 +31,9 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export function AdminListTable({columns, items, href, ondelete}) {
+export function AdminListTable({columns, items, href, ondelete, deps}) {
+	let resolvedItems=usePromise(items,deps);
 	let [deleteId, setDeleteId]=useState();
-
-	if (!items)
-		return null;
 
 	function onRowClick(e) {
 		let tr=e.target.closest("tr");
@@ -74,42 +72,52 @@ export function AdminListTable({columns, items, href, ondelete}) {
 	}
 	tableHeaders.push(<th style={{"width":"3rem"}}></th>);
 
-	let tableRows=[];
-	for (let item of items) {
-		let tableItem=[];
-		for (let k in columns) {
-			column=columns[k];
-			tableItem.push(
-				<td scope="col" key={k} class="cursor-pointer">
-					{item[k]}
-				</td>
+	let tableContent;
+	if (resolvedItems!==undefined) {
+		let tableRows=[];
+		for (let item of resolvedItems) {
+			let tableItem=[];
+			for (let k in columns) {
+				column=columns[k];
+				tableItem.push(
+					<td scope="col" key={k} class="cursor-pointer">
+						{item[k]}
+					</td>
+				);
+			}
+			tableItem.push(<td class="text-end"><button class="btn btn-danger btn-sm">X</button></td>);
+
+			tableRows.push(
+				<tr onclick={onRowClick} data-id={item.id} style={{cursor: "pointer"}}>
+					{tableItem}
+				</tr>
 			);
 		}
-		tableItem.push(<td class="text-end"><button class="btn btn-danger btn-sm">X</button></td>);
 
-		tableRows.push(
-			<tr onclick={onRowClick} data-id={item.id} style={{cursor: "pointer"}}>
-				{tableItem}
-			</tr>
+		tableContent=(
+			<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
+				<thead>
+					<tr class="table-light">
+						{tableHeaders}
+					</tr>
+				</thead>
+				<tbody>
+					{tableRows}
+				</tbody>
+			</table>
 		);
+	}
+
+	else {
+		tableContent=(<div class="spinner-border m-3"/>);
 	}
 
 	let dialog;
 	if (deleteId)
 		dialog=<DeleteConfirmation onclose={onDialogClose} onconfirm={onDialogConfirm} />
 
-
 	return (<>
 		{dialog}
-		<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
-			<thead>
-				<tr class="table-light">
-					{tableHeaders}
-				</tr>
-			</thead>
-			<tbody>
-				{tableRows}
-			</tbody>
-		</table>
+		{tableContent}
 	</>);
 }

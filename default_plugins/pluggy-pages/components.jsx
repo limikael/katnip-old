@@ -23,12 +23,12 @@ function PageEdit({request}) {
 	}
 
 	return (<>
-		<h1>{pageId?"Edit Page":"Add New Page"}</h1>
+		<h1 class="mb-3">{pageId?"Edit Page":"Add New Page"}</h1>
 		<ItemForm
 				item={read}
 				save={write}
 				deps={[pageId]}>
-			<div class="container-fluid border rounded p-3">
+			<div class="container-fluid border rounded p-3 bg-light">
 				<div class="mb-3">
 					<ItemForm.Input
 							name="title"
@@ -53,7 +53,11 @@ function PageEdit({request}) {
 
 function PageList({request}) {
 	let [counter,invalidate]=useCounter();
-	let pages=useApiFetch("/api/getAllPages",{},[counter]);
+
+	async function getPages() {
+		return await apiFetch("/api/getAllPages");
+	}
+
 	let columns={
 		title: {label: "Title"},
 		stamp: {label: "Date"}
@@ -68,18 +72,19 @@ function PageList({request}) {
 
 	return (
 		<>
-			<h1 class="d-inline-block">Pages</h1>
-			<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm"
-					href="/admin/page?new=1">
-				Add Page
-			</A>
-			<AdminMessages />
-			{pages==undefined && <div class="spinner-border m-3"/>}
+			<div>
+				<h1 class="d-inline-block mb-3">Pages</h1>
+				<A class="btn btn-outline-primary align-text-bottom ms-2 btn-sm"
+						href="/admin/page?new=1">
+					Add Page
+				</A>
+			</div>
 			<AdminListTable
-					items={pages} 
+					items={getPages} 
 					columns={columns}
 					href="/admin/page"
-					ondelete={onDelete}/>
+					ondelete={onDelete}
+					deps={[counter]}/>
 		</>
 	);
 }
