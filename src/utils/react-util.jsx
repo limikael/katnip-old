@@ -54,7 +54,7 @@ export function useRevertibleState(initial, deps=[]) {
 	return [state,setState,state!=initial];
 }
 
-export function useForm(initial, deps=[]) {
+export function useForm(initial, deps=[], options={}) {
 	let [current,setCurrent,modified]=useRevertibleState(initial,deps);
 
 	function onFieldChange(ev) {
@@ -63,6 +63,9 @@ export function useForm(initial, deps=[]) {
 
 		current[ev.target.dataset.field]=ev.target.value;
 		setCurrent({...current});
+
+		if (options.onchange)
+			options.onchange(current);
 	}
 
 	function field(name) {
@@ -94,4 +97,15 @@ export function useValueChanged(value) {
 	}
 
 	return false;
+}
+
+export function optionsFromObject(o) {
+	let options=[];
+
+	for (let k in o)
+		options.push(
+			<option value={k}>{o[k]}</option>
+		);
+
+	return options;
 }

@@ -98,7 +98,7 @@ export function PageAdmin({request}) {
 
 export function PageView({request}) {
 	let pageId=request.params[1];
-	let page=useApiFetch("/api/getPage",{id: pageId},[pageId]);
+	let page=useApiFetch("/api/page/get",{id: pageId},[pageId]);
 	if (!page)
 		return;
 

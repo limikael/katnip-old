@@ -1,4 +1,4 @@
-import {A, pluggy} from "pluggy";
+import {A, pluggy, useSession} from "pluggy";
 
 function Nav({request}) {
 	let [session, setSession]=pluggy.useSession();
@@ -35,12 +35,16 @@ function Nav({request}) {
 }
 
 export function PageTemplate({request,children}) {
+	let [session]=useSession();
+
+	let cssUrl="/public/bootstrap.min.css";
+	if (session.bootswatchTheme)
+		cssUrl=`/public/bootstrap-${session.bootswatchTheme}.min.css`;
+
+
 	return (
 		<>
-			<link 
-				rel="stylesheet" 
-				href="/public/bootstrap-minty.min.css"
-			/>
+			<link rel="stylesheet" href={cssUrl}/>
 			<script
 				src="/public/bootstrap.bundle.min.js"
 				async

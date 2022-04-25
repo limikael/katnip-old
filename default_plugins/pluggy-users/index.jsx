@@ -1,5 +1,6 @@
 import {LoginPage, UserAdmin} from "./components.jsx";
 import {pluggy, Model} from "pluggy";
+import PEOPLE from "bootstrap-icons/icons/people.svg";
 
 class User extends Model {
 	static fields={
@@ -16,7 +17,8 @@ pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Users",
 		href: "/admin/user",
-		priority: 30
+		priority: 30,
+		icon: PEOPLE
 	});
 });
 

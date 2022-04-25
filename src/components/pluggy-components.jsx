@@ -5,20 +5,34 @@ export function PluggyView() {
 	pluggy.setRefreshFunction(pluggy.useForceUpdate());
 
 	let request=pluggy.getCurrentRequest();
+	request.wrappers=[];
+
 	let Layout=pluggy.doAction("getPageTemplate",request);
 	let Page=pluggy.doAction("getPageComponent",request);
 
-	return (
+	let res=(
 		<Layout request={request}>
 			<Page request={request}/>
 		</Layout>
 	);
+
+	for (let Wrapper of request.wrappers) {
+		res=<Wrapper request={request}>{res}</Wrapper>
+	}
+
+	return res;
 }
 
 export function A({children, ...props}) {
 	function onClick(ev) {
 		ev.preventDefault();
-		pluggy.setLocation(props.href);
+		let request=pluggy.getCurrentRequest();
+
+		let href=props.href;
+		if (request.query._customizer && href!="/admin")
+			href=pluggy.buildUrl(href,{_customizer: true});
+
+		pluggy.setLocation(href);
 	}
 
 	return (

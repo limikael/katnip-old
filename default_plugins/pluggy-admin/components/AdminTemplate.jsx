@@ -1,6 +1,8 @@
-import {pluggy, A} from "pluggy";
+import {pluggy, A, buildUrl} from "pluggy";
+import FLOWER from "bootstrap-icons/icons/flower1.svg";
+import GEAR from "bootstrap-icons/icons/gear.svg";
 
-// sidebars: https://getbootstrap.com/docs/5.0/examples/sidebars/#
+const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
 function Nav() {
 	let [session,setSession]=pluggy.useSession();
@@ -19,17 +21,24 @@ function Nav() {
 		pluggy.setLocation("/login");
 	}
 
+	let userLink=buildUrl("/admin/user",{id: session.user.id});
+
 	return (
-		<nav className="navbar navbar-expand-lg navbar-dark bg-dark py-0">
+		<nav className="navbar navbar-expand navbar-dark bg-dark py-0">
 			<div className="container-fluid">
-				<A className="navbar-brand ps-1" href="http://localhost:3000/">Admin...</A>
-				<span class="text-white">
-					<b>{session.user.email}</b>&nbsp;
-					<a class="text-white" href="#"
-							onclick={onLogoutClick}>
-						Logout
-					</a>
-				</span>
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<A class="nav-link" href={userLink}>
+							<b>{session.user.email}</b>
+						</A>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#"
+								onclick={onLogoutClick}>
+							Logout
+						</a>
+					</li>
+				</ul>
 			</div>
 		</nav>
 	);
@@ -52,17 +61,26 @@ function Sidebar({request}) {
 		else
 			cls+=" text-white";
 
+		let icon=GEAR;
+		if (item.icon)
+			icon=item.icon;
+
 		menuItems.push(
 			<li class="nav-item">
 				<A href={item.href} class={cls}	>
-					{item.title}
+					<img src={icon} class="me-2 align-middle" style={`height: 1em; ${whiteFilter}`}/>
+					<span class="align-middle">{item.title}</span>
 				</A>
 			</li>
 		);
 	}
 
 	return (
-		<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark pt-0" style="width: 12rem;">
+		<div class="d-flex flex-column flex-shrink-0 text-white bg-dark p-2" style="width: 12rem;">
+			<h4 class="opacity-50 mb-1 mt-0">
+				<img src={FLOWER} style={`width: 1.5rem; ${whiteFilter}`} class="align-middle ms-3 me-2"/>
+				<span class="align-middle">Admin</span>
+			</h4>
 			<hr class="mt-1"/>
 			<ul class="nav nav-pills flex-column mb-auto">
 				{menuItems}
@@ -76,20 +94,23 @@ export default function AdminTemplate({request, children}) {
 	return (
 		<>
 			<link rel="stylesheet" 
-				href="/public/bootstrap.min.css"/>
+				href="/public/bootstrap-admin.css"/>
 			<style global jsx>{`
 				html, body, .page {
 					height: 100%;
+					width: 100%;
 				}
 			`}</style>
 			<script
 				src="/public/bootstrap.bundle.min.js"/>
-			<div class="page d-flex flex-column">
-				<Nav/>
-				<div className="d-flex flex-row flex-grow-1">
+			<div class="bootstrap-admin">
+				<div class="page d-flex flex-row">
 					<Sidebar request={request}/>
-					<div className="flex-grow-1 m-3">
-						{children}
+					<div style="width: 100%">
+						<Nav/>
+						<div className="flex-grow-1 m-3">
+							{children}
+						</div>
 					</div>
 				</div>
 			</div>

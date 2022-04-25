@@ -1,11 +1,13 @@
 import {pluggy} from "pluggy";
 import {MenuEditor} from "./components.jsx";
+import MENU_DOWN from "bootstrap-icons/icons/menu-down.svg";
 
 pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Menus",
 		href: "/admin/menus",
-		priority: 40
+		priority: 40,
+		icon: MENU_DOWN
 	});
 });
 

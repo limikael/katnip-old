@@ -5,12 +5,20 @@ const ItemContext=createContext();
 
 export function ItemForm(props) {
 	let baseItem=usePromise(props.item,[props.deps]);
-	let [item,field,modified]=useForm(baseItem,[baseItem,props.deps]);
+	let [item,field,modified]=useForm(baseItem,[baseItem,props.deps],{
+		onchange: (item)=>{
+			if (props.onchange)
+				props.onchange(item);
+		}
+	});
 	let [saving,setSaving]=useState();
 	let [message,setMessage]=useState();
 
 	if (!item)
 		item={};
+
+	/*if (modified && props.onchange)
+		props.onchange(item);*/
 
 	let context={item, field, saving, modified};
 
@@ -72,6 +80,11 @@ ItemForm.Input=(props)=>{
 		);
 
 	props.value=context.item[props.name];
+
+	if (props.input=="select")
+		return (
+			<select {...props}>{props.children}</select>
+		);
 
 	return (
 		<input {...props} />

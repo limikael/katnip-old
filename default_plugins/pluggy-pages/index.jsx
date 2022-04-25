@@ -1,5 +1,6 @@
 import pluggy from "pluggy";
 import {PageView, PageAdmin} from "./components.jsx";
+import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
 class Page extends pluggy.Model {
 	static fields={
@@ -21,7 +22,8 @@ pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Pages",
 		href: "/admin/page",
-		priority: 40
+		priority: 40,
+		icon: FILE_EARMARK_TEXT
 	});
 });
 
