@@ -3,10 +3,13 @@ import {useForceUpdate} from "../utils/react-util.jsx";
 import {forwardRef} from "preact/compat";
 
 export function PluggyView() {
+	let [session]=pluggy.useSession();
 	pluggy.setRefreshFunction(pluggy.useForceUpdate());
 
 	let request=pluggy.getCurrentRequest();
-	request.wrappers=[];
+
+	if (request.path=="/")
+		request=pluggy.parseRequest(session.homepath);
 
 	let Layout=pluggy.doAction("getPageTemplate",request);
 	let Page=pluggy.doAction("getPageComponent",request);
@@ -17,23 +20,13 @@ export function PluggyView() {
 		</Layout>
 	);
 
-	for (let Wrapper of request.wrappers) {
-		res=<Wrapper request={request}>{res}</Wrapper>
-	}
-
 	return res;
 }
 
 export const A=forwardRef(({children, ...props}, ref)=>{
 	function onClick(ev) {
 		ev.preventDefault();
-		let request=pluggy.getCurrentRequest();
-
-		let href=props.href;
-		if (request.query._customizer && href!="/admin")
-			href=pluggy.buildUrl(href,{_customizer: true});
-
-		pluggy.setLocation(href);
+		pluggy.setLocation(props.href);
 	}
 
 	return (

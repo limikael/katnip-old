@@ -1,7 +1,9 @@
 import pluggy from "pluggy";
 import AdminTemplate from "./components/AdminTemplate.jsx";
+import Settings from "./components/Settings.jsx";
 import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
+import GEAR from "bootstrap-icons/icons/gear.svg";
 
 pluggy.addAction("getPageTemplate",(request)=>{
 	if (request.params[0]=="admin")
@@ -24,6 +26,13 @@ pluggy.addAction("getAdminMenu",(items)=>{
 		icon: EYEGLASSES
 	});
 
+	items.push({
+		title: "Settings",
+		href: "/admin/settings",
+		priority: 100,
+		icon: GEAR
+	});
+
 });
 
 function Hello({request}) {
@@ -33,6 +42,9 @@ function Hello({request}) {
 pluggy.addAction("getPageComponent",(request)=>{
 	if (request.path=="/admin")
 		return Hello;
+
+	if (request.path=="/admin/settings")
+		return Settings;
 });
 
 pluggy.addApi("/api/saveSettings",async (settings)=>{
@@ -47,11 +59,12 @@ pluggy.addAction("getClientSession",async (clientSession)=>{
 	for (let k of menuLocations)
 		clientSession[k.setting]=pluggy.getSetting(k.setting);
 
-
 	let customizerOptions=[];
 	pluggy.doAction("getCustomizerOptions",customizerOptions);
 
 	for (let k of customizerOptions)
 		clientSession[k.setting]=pluggy.getSetting(k.setting);
 
+	clientSession["sitename"]=pluggy.getSetting("sitename");
+	clientSession["homepath"]=pluggy.getSetting("homepath");
 });

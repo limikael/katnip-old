@@ -55,7 +55,7 @@ export function ItemForm(props) {
 
 	return (
 		<ItemContext.Provider value={context}>
-			<form>
+			<form {...props}>
 				{message &&
 					<div class={`alert alert-dismissible alert-${message.class}`}>
 						<button type="button" class="btn-close" data-bs-dismiss="alert"

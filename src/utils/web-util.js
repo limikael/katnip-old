@@ -58,8 +58,8 @@ export async function apiFetch(url, query={}) {
 	return data;
 }
 
-export function	getCurrentRequest() {
-	let l=window.location;
+export function parseRequest(url) {
+	let l=new URL(url,window.location.origin);
 	let query=Object.fromEntries(new URLSearchParams(l.search));
 	let params=l.pathname.split("/").filter(s=>s.length>0);
 	let path="/"+params.join("/");
@@ -70,6 +70,10 @@ export function	getCurrentRequest() {
 		query,
 		href: l.href
 	};
+}
+
+export function	getCurrentRequest() {
+	return parseRequest(window.location);
 }
 
 export function quoteAttr(s, preserveCR) {

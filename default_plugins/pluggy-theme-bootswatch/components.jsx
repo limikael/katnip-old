@@ -46,7 +46,7 @@ function Nav({request, onsize}) {
 	return (
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
 			<div class="container">
-				<A class="navbar-brand" href="/" ref={brandRef}>My Site</A>
+				<A class="navbar-brand" href="/" ref={brandRef}>{session.sitename}</A>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -104,7 +104,18 @@ function Footer({request}) {
 	return (
 		<footer class={`container-fluid ${cls}`}>
 			<div class="container pt-4 pb-4">
-				Hello
+				<h4>{session.sitename}</h4>
+				<ul>
+					{session.menuFooter.map(item=>{
+						return (
+							<li>
+								<A href={item.href}>
+									{item.label}
+								</A>
+							</li>
+						);
+					})}
+				</ul>
 			</div>
 		</footer>
 	);
