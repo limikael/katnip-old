@@ -104,6 +104,19 @@ class Pluggy {
 			this.refreshClient();
 		});
 
+		window.addEventListener("message",(ev)=>{
+			switch (ev.data.type) {
+				case "setSession":
+					Object.assign(this.sessionManager.clientSession,ev.data.values);
+					this.refreshClient();
+					break;
+
+				default:
+					console.log("got unknown message in iframe...");
+					console.log(ev);
+			}
+		});
+
 		let el=document.getElementById("pluggy-root");
 		render(<this.PluggyView />,el);
 	}

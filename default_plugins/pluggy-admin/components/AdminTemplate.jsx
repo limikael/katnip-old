@@ -1,6 +1,7 @@
 import {pluggy, A, buildUrl} from "pluggy";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
+import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
@@ -93,7 +94,7 @@ function Sidebar({request}) {
 export function AdminHead() {
 	return (<>
 		<link rel="stylesheet" 
-			href="/public/bootstrap-admin.css"/>
+			href="/public/bootstrap.min.css"/>
 		<style>{`
 			html, body, .page {
 				height: 100%;
@@ -106,19 +107,26 @@ export function AdminHead() {
 }
 
 export default function AdminTemplate({request, children}) {
+	let content;
+	if (request.path=="/admin/customize")
+		content=<Customizer request={request}/>;
+
+	else
+		content=(<>
+			<Sidebar request={request}/>
+			<div style="width: 100%">
+				<Nav/>
+				<div className="flex-grow-1 m-3">
+					{children}
+				</div>
+			</div>
+		</>);
+
 	return (
 		<>
 			<AdminHead />
-			<div class="bootstrap-admin">
-				<div class="page d-flex flex-row">
-					<Sidebar request={request}/>
-					<div style="width: 100%">
-						<Nav/>
-						<div className="flex-grow-1 m-3">
-							{children}
-						</div>
-					</div>
-				</div>
+			<div class="page d-flex flex-row">
+				{content}
 			</div>
 		</>
 	);

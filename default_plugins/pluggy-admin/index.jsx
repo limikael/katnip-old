@@ -1,13 +1,9 @@
 import pluggy from "pluggy";
 import AdminTemplate from "./components/AdminTemplate.jsx";
-import Customizer from "./components/Customizer.jsx";
 import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
 
 pluggy.addAction("getPageTemplate",(request)=>{
-	if (request.query._customizer)
-		request.wrappers.push(Customizer)
-
 	if (request.params[0]=="admin")
 		return AdminTemplate;
 });
@@ -23,7 +19,7 @@ pluggy.addAction("getAdminMenu",(items)=>{
 
 	items.push({
 		title: "Customize",
-		href: "/?_customizer=true",
+		href: "/admin/customize",
 		priority: 15,
 		icon: EYEGLASSES
 	});
@@ -31,7 +27,7 @@ pluggy.addAction("getAdminMenu",(items)=>{
 });
 
 function Hello({request}) {
-	return "Hello...";
+	return (<>Hello</>)
 }
 
 pluggy.addAction("getPageComponent",(request)=>{

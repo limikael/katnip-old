@@ -1,59 +1,75 @@
 import {pluggy, A, buildUrl, ItemForm, optionsFromObject, useSession, apiFetch} from "pluggy";
-import {useState} from "preact/compat";
+import {useState, useRef, useEffect} from "preact/compat";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {AdminHead} from "./AdminTemplate.jsx";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
-function Sidebar({request}) {
-	function getThemeOptionKeys() {
-		let keys=[];
+function getThemeOptionKeys() {
+	let keys=[];
 
-		let customizerOptions=[];
-		pluggy.doAction("getCustomizerOptions",customizerOptions);
+	let customizerOptions=[];
+	pluggy.doAction("getCustomizerOptions",customizerOptions);
 
-		let customizerControls=[];
-		for (let customizerOption of customizerOptions)
-			keys.push(customizerOption.setting);
+	let customizerControls=[];
+	for (let customizerOption of customizerOptions)
+		keys.push(customizerOption.setting);
 
-		return keys;
+	return keys;
+}
+
+function getThemeOptionsFromSession(session) {
+	let values={};
+	for (let k of getThemeOptionKeys())
+		values[k]=session[k];
+
+	return values;
+}
+
+export function CustomizerSidebar({request, iframeRef}) {
+	let [session, setSession]=useSession();
+	let [viewSettings, setViewSettings]=useState(getThemeOptionsFromSession(session));
+	let items=[];
+
+	function postValues(values) {
+		iframeRef.current.contentWindow.postMessage({
+			type: "setSession",
+			values: values
+		});
 	}
 
-	let [session, setSession]=useSession();
+	function onLoad() {
+		postValues(viewSettings);
+	}
 
-	let def={}
-	for (let k of getThemeOptionKeys())
-		def[k]=session[k];
+	useEffect(()=>{
+		let el=iframeRef.current.contentWindow;
+		el.addEventListener("load",onLoad);
 
-	let [actual, setActual]=useState(def);
-	let items=[];
+		return (()=>{
+			el.removeEventListener("load",onLoad)
+		});
+	},[]);
 
 	function onBackClick(ev) {
 		ev.preventDefault();
-		setSession(actual);
 		pluggy.setLocation("/admin");
 	}
 
 	function read() {
-		let o={};
-
-		for (let k of getThemeOptionKeys())
-			o[k]=session[k];
-
-		return o;
+		return getThemeOptionsFromSession(session);
 	}
 
 	async function write(values) {
 		await apiFetch("/api/saveSettings",values);
-
-		setActual(values);
-
+		setSession(values);
 		return "Saved.";
 	}
 
 	function onChange(values) {
-		setSession(values);
+		setViewSettings(values);
+		postValues(values);
 	}
 
 	let customizerOptions=[];
@@ -64,7 +80,7 @@ function Sidebar({request}) {
 		customizerControls.push(
 			<div class="form-group mb-3">
 				<label class="form-label">{customizerOption.title}</label>
-				<ItemForm.Input class="form-control" input="select"
+				<ItemForm.Input class="form-select bg-light" input="select"
 						name={customizerOption.setting}>
 					{optionsFromObject(customizerOption.options)}
 				</ItemForm.Input>
@@ -73,7 +89,7 @@ function Sidebar({request}) {
 	}
 
 	return (
-		<div class="d-flex flex-column text-white bg-dark p-2" style="width: 12rem; height: 100%">
+		<div class="d-flex flex-column flex-shrink-0 text-white bg-dark p-2" style="width: 12rem;">
 			<h4 class="opacity-50 mb-1 mt-0">
 				<img src={FLOWER} style={`width: 1.5rem; ${whiteFilter}`} class="align-middle ms-3 me-2"/>
 				<span class="align-middle text-white">Admin</span>
@@ -86,7 +102,6 @@ function Sidebar({request}) {
 						item={read}
 						save={write}
 						onchange={onChange}>
-
 					{customizerControls}
 					<ItemForm.Submit class="btn btn-primary mt-3">Save</ItemForm.Submit>
 				</ItemForm>
@@ -96,19 +111,14 @@ function Sidebar({request}) {
 	);
 }
 
-export default function Customizer({request, children}) {
+export function Customizer({request, children}) {
+	iframeRef=useRef();
+
 	return (
 		<>
-			<AdminHead />
-			<div class="page d-flex flex-row">
-				<div class="bootstrap-admin d-flex" style="height: 100%">
-					<Sidebar request={request}/>
-				</div>
-				<div style="width: 100%">
-					<div className="flex-grow-1">
-						{children}
-					</div>
-				</div>
+			<CustomizerSidebar request={request} iframeRef={iframeRef}/>
+			<div style="width: 100%">
+				<iframe src="/" width="100%" height="100%" style="width: 100%" ref={iframeRef}/>
 			</div>
 		</>
 	);
