@@ -1,5 +1,6 @@
 import {pluggy} from "pluggy";
 import {useForceUpdate} from "../utils/react-util.jsx";
+import {forwardRef} from "preact/compat";
 
 export function PluggyView() {
 	pluggy.setRefreshFunction(pluggy.useForceUpdate());
@@ -23,7 +24,7 @@ export function PluggyView() {
 	return res;
 }
 
-export function A({children, ...props}) {
+export const A=forwardRef(({children, ...props}, ref)=>{
 	function onClick(ev) {
 		ev.preventDefault();
 		let request=pluggy.getCurrentRequest();
@@ -36,11 +37,11 @@ export function A({children, ...props}) {
 	}
 
 	return (
-		<a {...props} onclick={onClick}>
+		<a {...props} onclick={onClick} ref={ref}>
 			{children}
 		</a>
 	);
-}
+});
 
 export function AdminMessages() {
 	let m=[...pluggy.getAdminMessages()];

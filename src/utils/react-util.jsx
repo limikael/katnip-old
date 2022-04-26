@@ -109,3 +109,16 @@ export function optionsFromObject(o) {
 
 	return options;
 }
+
+export function useResizeObserver(ref, fn) {
+	useEffect(()=>{
+		let resizeObserver=new ResizeObserver(()=>{
+			fn();
+		});
+
+		resizeObserver.observe(ref.current);
+		return (()=>{
+			resizeObserver.disconnect();
+		});
+	},[ref,ref.current]);
+}

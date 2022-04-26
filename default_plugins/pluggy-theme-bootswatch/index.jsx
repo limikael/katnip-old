@@ -33,10 +33,41 @@ pluggy.addAction("getCustomizerOptions",(items)=>{
 		options: themeOptions
 	});
 
-/*	items.push({
-		title: "Hello",
-		setting: "hello"
-	});*/
+	items.push({
+		title: "Nav Color",
+		setting: "bootswatchNavColor",
+		type: "select",
+		options: {
+			primary: "Primary",
+			secondary: "Secondary",
+			light: "Light",
+			dark: "Dark"
+		}
+	});
+
+	items.push({
+		title: "Nav Style",
+		setting: "bootswatchNavStyle",
+		type: "select",
+		options: {
+			static: "Static",
+			fixed: "Fixed"
+		}
+	});
+
+	items.push({
+		title: "Footer",
+		setting: "bootswatchFooter",
+		type: "select",
+		options: {
+			dark: "Dark",
+			light: "Light",
+			black: "Black",
+			transparent: "Transparent",
+			none: "None"
+		}
+	});
+
 });
 
 pluggy.addAction("getPageTemplate",(request)=>{

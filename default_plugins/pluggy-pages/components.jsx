@@ -121,7 +121,7 @@ export function PageView({request}) {
 	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
 
 	return (<>
-		<h1>{page.title}</h1>
+		<h1 class="mt-5 pb-2 border-bottom mb-4">{page.title}</h1>
 		{reactTree}
 	</>);
 }

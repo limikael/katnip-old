@@ -67,7 +67,8 @@ export function	getCurrentRequest() {
 	return {
 		params,
 		path,
-		query
+		query,
+		href: l.href
 	};
 }
 
