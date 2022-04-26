@@ -80,7 +80,7 @@ function Sidebar({request}) {
 		<div class="d-flex flex-column flex-shrink-0 text-white bg-dark p-2" style="width: 12rem;">
 			<h4 class="opacity-50 mb-1 mt-0">
 				<img src={FLOWER} style={`width: 1.5rem; ${whiteFilter}`} class="align-middle ms-3 me-2"/>
-				<span class="align-middle">Admin</span>
+				<span class="align-middle">Catnip</span>
 			</h4>
 			<hr class="mt-1"/>
 			<ul class="nav nav-pills flex-column mb-auto">

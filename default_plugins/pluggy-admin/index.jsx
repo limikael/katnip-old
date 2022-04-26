@@ -1,5 +1,6 @@
 import pluggy from "pluggy";
 import AdminTemplate from "./components/AdminTemplate.jsx";
+import Dashboard from "./components/Dashboard.jsx";
 import Settings from "./components/Settings.jsx";
 import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
@@ -9,7 +10,6 @@ pluggy.addAction("getPageTemplate",(request)=>{
 	if (request.params[0]=="admin")
 		return AdminTemplate;
 });
-
 
 pluggy.addAction("getAdminMenu",(items)=>{
 	items.push({
@@ -41,7 +41,7 @@ function Hello({request}) {
 
 pluggy.addAction("getPageComponent",(request)=>{
 	if (request.path=="/admin")
-		return Hello;
+		return Dashboard;
 
 	if (request.path=="/admin/settings")
 		return Settings;
