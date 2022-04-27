@@ -156,7 +156,7 @@ export function PageTemplate({request,children}) {
 			<div class="page d-flex flex-column">
 				<Nav request={request} onsize={setNavSize}/>
 				<div class="container mb-5 flex-grow-1" style={containerStyle}>
-					<div class="row">
+					<div class="row" style="height: 100%">
 						<div class="d-none d-lg-block" style="width: 12.5%"></div>
 						<div class="col-lg-9">
 							{children}

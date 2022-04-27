@@ -34,8 +34,8 @@ export function LoginPage() {
 
 	return (
 		<div class="d-flex flex-row align-items-center" style="width: 100%; height: 100%">
-			<div class="d-flex align-items-center flex-column pb-5" style="width: 100%">
-				<div class="card border shadow mb-3">
+			<div class="d-flex align-items-center flex-column" style="width: 100%">
+				<div class="card border shadow">
 					<div class="card-body">
 						<h3 class="text-center mb-4">Login</h3>
 
