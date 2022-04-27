@@ -34,7 +34,7 @@ export function createCrudApi(model, options={}) {
 
 		await item.save();
 
-		return {id: item.id};
+		return item;
 	});
 
 	pluggy.addApi(`/api/${name}/delete`,async ({id})=>{
@@ -44,4 +44,13 @@ export function createCrudApi(model, options={}) {
 
 		await item.delete();
 	});
+}
+
+export function convertToSlug(text) {
+	return text.toLowerCase()
+		.replace(/[^\w ]+/g, '')
+		.replace(/\d/g,'')
+		.replace(/^ +/g,'')
+		.replace(/ +$/g,'')
+		.replace(/ +/g, '-');
 }

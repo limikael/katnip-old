@@ -1,25 +1,41 @@
-import {pluggy, A, AdminListTable, ItemForm, setLocation, buildUrl} from "pluggy";
+import {pluggy, A, AdminListTable, ItemForm, setLocation, buildUrl, ItemContext, BootstrapAlert} from "pluggy";
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "pluggy";
-import {useState} from "preact/compat";
+import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
 
 const XMLToReact=XMLToReactModule.default;
 
 function PageEdit({request}) {
 	let pageId=request.query.id;
+	let [page,setPage]=useState();
+
+	console.log("here..");
 
 	async function read() {
 		if (!pageId)
 			return {};
 
-		return await apiFetch("/api/page/get",{id: pageId});
+		let fetchedPage=await apiFetch("/api/page/get",{id: pageId});
+		setPage(fetchedPage);
+
+		return fetchedPage;
 	}
 
 	async function write(data) {
 		let saved=await apiFetch("/api/page/save",data);
+
+		setPage(saved);
 		setLocation(buildUrl("/admin/page",{id: saved.id}));
 
 		return "Saved...";
+	}
+
+	let pageLink;
+	if (page && page.slug) {
+		let o=window.location.origin;
+		let url=o+"/page/"+page.slug;
+
+		pageLink=<div class="form-text mt-1"><b>Permalink:</b> <A href={url}>{url}</A></div>
 	}
 
 	return (<>
@@ -35,6 +51,7 @@ function PageEdit({request}) {
 							type="text"
 							class="form-control"
 							placeholder="Page Title"/>
+					{pageLink}
 				</div>
 				<div class="mb-3">
 					<ItemForm.Input
@@ -92,10 +109,13 @@ export function PageAdmin({request}) {
 }
 
 export function PageView({request}) {
-	let pageId=request.params[1];
-	let page=useApiFetch("/api/page/get",{id: pageId},[pageId]);
+	let pageQuery=request.params[1];
+	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 	if (!page)
 		return;
+
+	if (page instanceof Error)
+		return <div class="mt-5"><BootstrapAlert message={page}/></div>;
 
 	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr"];
 	let options={};

@@ -1,11 +1,14 @@
 import {usePromise, useForm} from "pluggy";
 import {createContext, useContext, useState} from "preact/compat";
 
-const ItemContext=createContext();
+export const ItemContext=createContext();
 
 export function ItemForm(props) {
-	let baseItem=usePromise(props.item,[props.deps]);
-	let [item,field,modified]=useForm(baseItem,[baseItem,props.deps],{
+	if (!props.deps)
+		props.deps=[];
+
+	let baseItem=usePromise(props.item,props.deps);
+	let [item,field,modified]=useForm(baseItem,[baseItem,...props.deps],{
 		onchange: (item)=>{
 			if (props.onchange)
 				props.onchange(item);
