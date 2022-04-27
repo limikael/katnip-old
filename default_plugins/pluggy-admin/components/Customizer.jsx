@@ -79,7 +79,7 @@ export function CustomizerSidebar({request, iframeRef}) {
 	for (let customizerOption of customizerOptions) {
 		customizerControls.push(
 			<div class="form-group mb-3">
-				<label class="form-label">{customizerOption.title}</label>
+				<label class="form-label mb-1">{customizerOption.title}</label>
 				<ItemForm.Input class="form-select bg-light" input="select"
 						name={customizerOption.setting}>
 					{optionsFromObject(customizerOption.options)}
