@@ -4,8 +4,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import {v4 as uuidv4} from 'uuid';
-import {quoteAttr} from "../utils/web-util.js";
-import {delay} from "../utils/js-util.js";
+import {quoteAttr} from "../utils/js-util.js";
 
 export default class PluggyServer {
 	createOutDir() {

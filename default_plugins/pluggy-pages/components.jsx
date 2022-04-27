@@ -1,4 +1,4 @@
-import {pluggy, A, AdminListTable, AdminMessages, ItemForm, setLocation, buildUrl} from "pluggy";
+import {pluggy, A, AdminListTable, ItemForm, setLocation, buildUrl} from "pluggy";
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "pluggy";
 import {useState} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
@@ -52,22 +52,18 @@ function PageEdit({request}) {
 }
 
 function PageList({request}) {
-	let [counter,invalidate]=useCounter();
-
-	async function getPages() {
-		return await apiFetch("/api/page/list");
-	}
-
 	let columns={
 		title: {label: "Title"},
 		stamp: {label: "Date"}
 	};
 
+	async function getPages() {
+		return await apiFetch("/api/page/list");
+	}
+
 	async function onDelete(id) {
-		pluggy.dismissAdminMessages();
 		await apiFetch("/api/page/delete",{id: id});
-		pluggy.showAdminMessage("Page deleted");
-		invalidate();
+		return "Page deleted.";
 	}
 
 	return (
@@ -83,8 +79,7 @@ function PageList({request}) {
 					items={getPages} 
 					columns={columns}
 					href="/admin/page"
-					ondelete={onDelete}
-					deps={[counter]}/>
+					ondelete={onDelete}/>
 		</>
 	);
 }

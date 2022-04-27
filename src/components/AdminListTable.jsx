@@ -1,4 +1,4 @@
-import {pluggy, buildUrl, usePromise} from "pluggy";
+import {pluggy, buildUrl, usePromise, useCounter, BootstrapAlert, bindArgs} from "pluggy";
 import {useState} from "preact/compat";
 
 function DeleteConfirmation({onclose, onconfirm}) {
@@ -31,16 +31,20 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export function AdminListTable({columns, items, href, ondelete, deps}) {
-	let resolvedItems=usePromise(items,deps);
+export function AdminListTable({columns, items, href, ondelete}) {
+	let [counter,invalidate]=useCounter();
+	let resolvedItems=usePromise(items,[counter]);
 	let [deleteId, setDeleteId]=useState();
+	let [message, setMessage]=useState();
 
 	function onRowClick(e) {
 		let tr=e.target.closest("tr");
 		let id=tr.dataset.id;
 
-		if (e.target.tagName=="BUTTON")
+		if (e.target.tagName=="BUTTON") {
+			setMessage(null);
 			setDeleteId(id);
+		}
 
 		else {
 			let newHref=buildUrl(href,{
@@ -54,11 +58,20 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 		setDeleteId(null);
 	}
 
-	function onDialogConfirm() {
+	async function onDialogConfirm() {
 		let id=deleteId;
 		setDeleteId(null);
 
-		ondelete(id);
+		try {
+			let message=await ondelete(id);
+			setMessage(message);
+		}
+
+		catch (e) {
+			setMessage(e);
+		}
+
+		invalidate();
 	}
 
 	let tableHeaders=[];
@@ -84,7 +97,10 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 	}
 
 	else if (resolvedItems===undefined) {
-		tableContent=(<div class="spinner-border m-3"/>);
+		tableContent=(<>
+			<BootstrapAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
+			<div class="spinner-border m-3"/>
+		</>);
 	}
 
 	else {
@@ -108,7 +124,8 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 			);
 		}
 
-		tableContent=(
+		tableContent=(<>
+			<BootstrapAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
 			<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
 				<thead>
 					<tr class="table-light">
@@ -119,7 +136,7 @@ export function AdminListTable({columns, items, href, ondelete, deps}) {
 					{tableRows}
 				</tbody>
 			</table>
-		);
+		</>);
 	}
 
 	let dialog;

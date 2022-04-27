@@ -1,4 +1,4 @@
-import {isClient, isServer} from "../utils/web-util.js";
+import {isClient, isServer} from "../utils/js-util.js";
 import {pluggy, Model} from "pluggy";
 
 class Session extends Model {

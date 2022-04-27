@@ -1,4 +1,4 @@
-import {pluggy, AdminMessages, A, useApiFetch, useRevertibleState} from "pluggy";
+import {pluggy, A, useApiFetch, useRevertibleState} from "pluggy";
 import {useState} from "preact/compat";
 import TRASH_ICON from "bootstrap-icons/icons/x-lg.svg";
 import ARROW_UP from "bootstrap-icons/icons/caret-up-fill.svg";
@@ -208,8 +208,7 @@ export function MenuEditor({request}) {
 
 	return (
 		<>
-			<h1 class="d-inline-block">Menus</h1>
-			<AdminMessages />
+			<h1 class="d-inline-block mb-3">Menus</h1>
 			<MenuTabs request={request}/>
 			{serverState===undefined && <div class="spinner-border m-3"/>}
 			{serverState!==undefined &&

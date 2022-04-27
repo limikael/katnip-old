@@ -35,19 +35,3 @@ export const A=forwardRef(({children, ...props}, ref)=>{
 		</a>
 	);
 });
-
-export function AdminMessages() {
-	let m=[...pluggy.getAdminMessages()];
-
-	return (
-		<div class="mb-2">
-			{m.map(({message, alertClass})=>(
-				<div class={`alert alert-dismissible ${alertClass}`}>
-					<button type="button" class="btn-close" data-bs-dismiss="alert"
-							onclick={pluggy.dismissAdminMessages}></button>
-					{message}
-				</div>
-			))}
-		</div>
-	);
-}

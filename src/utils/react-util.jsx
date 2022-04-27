@@ -1,5 +1,5 @@
 import {useRef, useReducer, useState, useEffect, useLayoutEffect, useMemo} from "preact/compat";
-import {apiFetch} from "./web-util.js";
+import {apiFetch} from "./js-util.js";
 
 export function useForceUpdate() {
 	const [_, forceUpdate] = useReducer((x) => x + 1, 1);

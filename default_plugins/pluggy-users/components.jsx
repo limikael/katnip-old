@@ -1,4 +1,4 @@
-import {pluggy, A, AdminListTable, AdminMessages, apiFetch, ItemForm, setLocation, buildUrl} from "pluggy";
+import {pluggy, A, AdminListTable, apiFetch, ItemForm, setLocation, buildUrl} from "pluggy";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "pluggy";
 import {useRef, useState} from "preact/compat";
 
@@ -58,8 +58,6 @@ export function LoginPage() {
 }
 
 export function UserList() {
-	let [counter,invalidate]=useCounter();
-
 	let columns={
 		email: {label: "E-Mail"},
 		role: {label: "Role"}
@@ -71,9 +69,7 @@ export function UserList() {
 
 	async function onDelete(id) {
 		await apiFetch("/api/deleteUser",{id: id});
-		pluggy.dismissAdminMessages();
-		pluggy.showAdminMessage("User deleted");
-		invalidate();
+		return "Deleted";
 	}
 
 	return (
@@ -89,8 +85,7 @@ export function UserList() {
 					items={getUsers} 
 					columns={columns}
 					href="/admin/user"
-					ondelete={onDelete}
-					deps={[]}/>
+					ondelete={onDelete}/>
 		</>
 	);
 }

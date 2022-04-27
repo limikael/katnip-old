@@ -5,5 +5,5 @@ export * from "../components/admin-components.jsx";
 export * from "../components/pluggy-util.js";
 export * from "../utils/Db.js";
 export * from "../utils/react-util.jsx";
-export * from "../utils/web-util.js";
 export * from "../utils/js-util.js";
+export * from "../utils/bs-util.jsx";

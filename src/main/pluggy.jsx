@@ -5,7 +5,7 @@ import PluggyActions from "../components/PluggyActions.js";
 import PluggySessionManager from "../components/PluggySessionManager.js";
 import PluggySettings from "../components/PluggySettings.js";
 import Db from "../utils/Db.js";
-import {isClient, isServer} from "../utils/web-util.js";
+import {isClient, isServer} from "../utils/js-util.js";
 
 class Pluggy {
 	constructor() {
@@ -29,11 +29,10 @@ class Pluggy {
 					k!="load")
 				console.log(`export const ${k}=pluggy.${k};`);*/
 
-		this.adminMessages=[];
-
 		this.elements={};
 
 		this.composeFunctions(imports);
+		//console.log(imports);
 	}
 
 	composeFunctions=(o)=>{
@@ -64,32 +63,7 @@ class Pluggy {
 		this.refreshFunction();
 	}
 
-	dismissAdminMessages=()=>{
-		this.adminMessages=[];
-		this.refreshClient();
-	}
-
-	getAdminMessages=()=>{
-		return this.adminMessages;
-	}
-
-	showAdminMessage=(message, options={})=>{
-		if (message instanceof Error) {
-			message=message.message;
-			options.variant="danger";
-		}
-
-		if (!options.variant)
-			options.variant="success";
-
-		options.alertClass=`alert-${options.variant}`;
-		this.adminMessages.push({message,...options});
-		this.refreshClient();
-	}
-
 	setLocation=(url, options={})=>{
-		this.adminMessages=[];
-
 		if (options.replace)
 			history.replaceState(null,null,url);
 
@@ -142,9 +116,6 @@ export const addElement=pluggy.addElement;
 export const addModel=pluggy.addModel;
 export const addApi=pluggy.addApi;
 export const refreshClient=pluggy.refreshClient;
-export const dismissAdminMessages=pluggy.dismissAdminMessages;
-export const getAdminMessages=pluggy.getAdminMessages;
-export const showAdminMessage=pluggy.showAdminMessage;
 export const setLocation=pluggy.setLocation;
 export const clientMain=pluggy.clientMain;
 export const setRefreshFunction=pluggy.setRefreshFunction;
