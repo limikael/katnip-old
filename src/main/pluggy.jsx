@@ -59,35 +59,7 @@ class Pluggy {
 		this.apis[path]=fn;
 	}
 
-	setLocation=(url, options={})=>{
-		if (!options.hasOwnProperty(event))
-			options.event="locationchange";
-
-		if (options.replace)
-			history.replaceState(null,null,url);
-
-		else
-			history.pushState(null,null,url);
-
-		if (options.event)
-			window.dispatchEvent(new Event(options.event));
-	}
-
 	clientMain=()=>{
-		/*window.addEventListener("message",(ev)=>{
-			switch (ev.data.type) {
-				case "setSession":
-					this.sessionManager.setSession(ev.data.values);
-					//Object.assign(this.sessionManager.clientSession,);
-					//this.refreshClient();
-					break;
-
-				default:
-					console.log("got unknown message in iframe...");
-					console.log(ev);
-			}
-		});*/
-
 		let el=document.getElementById("pluggy-root");
 		render(<this.PluggyView />,el);
 	}
@@ -108,10 +80,7 @@ export const db=pluggy.db;
 export const addElement=pluggy.addElement;
 export const addModel=pluggy.addModel;
 export const addApi=pluggy.addApi;
-export const refreshClient=pluggy.refreshClient;
-export const setLocation=pluggy.setLocation;
 export const clientMain=pluggy.clientMain;
-export const setRefreshFunction=pluggy.setRefreshFunction;
 export const serverMain=pluggy.serverMain;
 export const addAction=pluggy.addAction;
 export const doAction=pluggy.doAction;

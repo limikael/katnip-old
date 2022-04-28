@@ -1,4 +1,4 @@
-import {pluggy, A, buildUrl} from "pluggy";
+import {pluggy, A, buildUrl, useSession} from "pluggy";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
@@ -6,20 +6,19 @@ import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
 function Nav() {
-	let [session,setSession]=pluggy.useSession();
+	let [session,setSession]=useSession();
 
 	if (!session.user) {
+		console.log("no user, redirecting");
 		pluggy.setLocation("/login");
 		return;
 	}
 
 	async function onLogoutClick(ev) {
-		let [session,setSession]=pluggy.useSession();
 		ev.preventDefault();
 
 		await pluggy.apiFetch("/api/logout");
 		setSession({user: null});
-		pluggy.setLocation("/login");
 	}
 
 	let userLink=buildUrl("/admin/user",{id: session.user.id});
@@ -27,6 +26,13 @@ function Nav() {
 	return (
 		<nav className="navbar navbar-expand navbar-dark bg-dark py-0">
 			<div className="container-fluid">
+				<ul class="navbar-nav me-auto">
+					<li class="nav-item">
+						<A class="nav-link" href="/">
+							Visit Site
+						</A>
+					</li>
+				</ul>
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item">
 						<A class="nav-link" href={userLink}>

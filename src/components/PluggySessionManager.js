@@ -1,4 +1,5 @@
 import {isClient, isServer} from "../utils/js-util.js";
+import {useForceUpdate} from "../utils/react-util.jsx";
 import {pluggy, Model} from "pluggy";
 
 class Session extends Model {
@@ -30,12 +31,13 @@ export default class PluggySessionManager {
 
 	useSession=()=>{
 		if (isClient()) {
+			let forceUpdate=useForceUpdate();
+
 			return [
 				this.clientSession,
 				(newSession)=>{
 					Object.assign(this.clientSession,newSession);
-					//window.dispatc
-					//pluggy.refreshClient()
+					forceUpdate();
 				}
 			]
 		}

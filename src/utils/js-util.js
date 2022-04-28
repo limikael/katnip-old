@@ -109,3 +109,17 @@ export function arrayMove(array, initialIndex, finalIndex) {
 export function bindArgs(fn, ...args) {
 	return fn.bind(null,...args);
 }
+
+export function setLocation(url, options={}) {
+	if (!options.hasOwnProperty(event))
+		options.event="locationchange";
+
+	if (options.replace)
+		history.replaceState(null,null,url);
+
+	else
+		history.pushState(null,null,url);
+
+	if (options.event)
+		window.dispatchEvent(new Event(options.event));
+}

@@ -3,12 +3,20 @@ import {useEventUpdate, useEventListener} from "../utils/react-util.jsx";
 import {forwardRef} from "preact/compat";
 
 export function PluggyView() {
-/*	useEventUpdate("locationchange");
-	useEventUpdate("popstate");*/
 	let [session,setSession]=pluggy.useSession();
-	/*useEventListener("message",window,(ev)=>{
-		console.log("got window event...");
-	});*/
+	useEventUpdate("locationchange");
+	useEventUpdate("popstate");
+	useEventListener("message",window,(ev)=>{
+		switch (ev.data.type) {
+			case "setSession":
+				setSession(ev.data.values);
+				break;
+
+			default:
+				console.log("got unknown message in iframe...");
+				console.log(ev);
+		}
+	});
 
 	let request=pluggy.getCurrentRequest();
 	if (request.path=="/")

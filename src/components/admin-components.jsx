@@ -10,9 +10,6 @@ export function ItemForm(props) {
 	let baseItem=usePromise(props.item,props.deps);
 	let [item,field,modified]=useForm(baseItem,[baseItem,...props.deps],{
 		onchange: (item)=>{
-			console.log("on change here...");
-			console.log(item);
-
 			if (props.onchange)
 				props.onchange(item);
 		}
@@ -59,9 +56,12 @@ export function ItemForm(props) {
 	if (baseItem===undefined)
 		content=<div class="spinner-border m-3"/>;
 
+	let formProps={...props};
+	formProps.onchange=null;
+
 	return (
 		<ItemContext.Provider value={context}>
-			<form {...props}>
+			<form {...formProps}>
 				{message &&
 					<div class={`alert alert-dismissible alert-${message.class}`}>
 						<button type="button" class="btn-close" data-bs-dismiss="alert"

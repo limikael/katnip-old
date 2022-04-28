@@ -123,24 +123,53 @@ export function useResizeObserver(ref, fn) {
 	},[ref,ref.current]);
 }
 
+
+export default function useImmediateEffect(effect, deps) {
+	const cleanupRef = useRef();
+	const depsRef = useRef();
+
+	function depsDiff(deps1, deps2) {
+		return !((Array.isArray(deps1) && Array.isArray(deps2)) &&
+			deps1.length === deps2.length &&
+			deps1.every((dep, idx) => Object.is(dep, deps2[idx]))
+		);
+	}
+
+	if (!depsRef.current || depsDiff(depsRef.current, deps)) {
+		depsRef.current = deps;
+
+		if (cleanupRef.current) {
+			cleanupRef.current();
+		}
+
+		cleanupRef.current = effect();
+	}
+
+	useEffect(() => {
+		return () => {
+			if (cleanupRef.current) {
+				cleanupRef.current();
+			}
+		};
+	}, []);
+};
+
+export function useEventListener(event, target, func) {
+	useImmediateEffect(()=>{
+		function onEvent(...params) {
+			func(...params);
+		}
+
+		target.addEventListener(event,onEvent);
+		return (()=>{
+			target.removeEventListener(event,onEvent);
+		});
+	},[target,event]);
+}
+
 export function useEventUpdate(event, target=window) {
 	let forceUpdate=useForceUpdate();
-
-	useEffect(()=>{
-		let updater=forceUpdate;
-
-		target.addEventListener(event,updater);
-		return (()=>{
-			target.removeEventListener(event,updater);
-		});
-	},[target,event]);
+	useEventListener(event,target,forceUpdate);
 }
 
-export function useEventListener(event, target, updater) {
-	useEffect(()=>{
-		target.addEventListener(event,updater);
-		return (()=>{
-			target.removeEventListener(event,updater);
-		});
-	},[target,event]);
-}
+
