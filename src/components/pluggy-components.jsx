@@ -1,13 +1,16 @@
 import {pluggy} from "pluggy";
-import {useForceUpdate} from "../utils/react-util.jsx";
+import {useEventUpdate, useEventListener} from "../utils/react-util.jsx";
 import {forwardRef} from "preact/compat";
 
 export function PluggyView() {
-	let [session]=pluggy.useSession();
-	pluggy.setRefreshFunction(pluggy.useForceUpdate());
+/*	useEventUpdate("locationchange");
+	useEventUpdate("popstate");*/
+	let [session,setSession]=pluggy.useSession();
+	/*useEventListener("message",window,(ev)=>{
+		console.log("got window event...");
+	});*/
 
 	let request=pluggy.getCurrentRequest();
-
 	if (request.path=="/")
 		request=pluggy.parseRequest(session.homepath);
 

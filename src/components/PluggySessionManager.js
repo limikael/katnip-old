@@ -34,7 +34,8 @@ export default class PluggySessionManager {
 				this.clientSession,
 				(newSession)=>{
 					Object.assign(this.clientSession,newSession);
-					pluggy.refreshClient()
+					//window.dispatc
+					//pluggy.refreshClient()
 				}
 			]
 		}

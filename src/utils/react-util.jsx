@@ -122,3 +122,25 @@ export function useResizeObserver(ref, fn) {
 		});
 	},[ref,ref.current]);
 }
+
+export function useEventUpdate(event, target=window) {
+	let forceUpdate=useForceUpdate();
+
+	useEffect(()=>{
+		let updater=forceUpdate;
+
+		target.addEventListener(event,updater);
+		return (()=>{
+			target.removeEventListener(event,updater);
+		});
+	},[target,event]);
+}
+
+export function useEventListener(event, target, updater) {
+	useEffect(()=>{
+		target.addEventListener(event,updater);
+		return (()=>{
+			target.removeEventListener(event,updater);
+		});
+	},[target,event]);
+}

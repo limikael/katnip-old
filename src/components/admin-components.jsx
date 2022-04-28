@@ -10,6 +10,9 @@ export function ItemForm(props) {
 	let baseItem=usePromise(props.item,props.deps);
 	let [item,field,modified]=useForm(baseItem,[baseItem,...props.deps],{
 		onchange: (item)=>{
+			console.log("on change here...");
+			console.log(item);
+
 			if (props.onchange)
 				props.onchange(item);
 		}

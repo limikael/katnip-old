@@ -33,10 +33,12 @@ export function CustomizerSidebar({request, iframeRef}) {
 	let items=[];
 
 	function postValues(values) {
-		iframeRef.current.contentWindow.postMessage({
+		/*console.log("posing values");
+		console.log(values);*/
+		/*iframeRef.current.contentWindow.postMessage({
 			type: "setSession",
 			values: values
-		});
+		});*/
 	}
 
 	function onLoad() {
@@ -68,6 +70,8 @@ export function CustomizerSidebar({request, iframeRef}) {
 	}
 
 	function onChange(values) {
+		console.log("on change");
+		console.log(values);
 		setViewSettings(values);
 		postValues(values);
 	}
