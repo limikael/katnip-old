@@ -109,9 +109,14 @@ export function AdminListTable({columns, items, href, ondelete}) {
 			let tableItem=[];
 			for (let k in columns) {
 				column=columns[k];
+
+				let v=item[k];
+				if (column.cb)
+					v=column.cb(item);
+
 				tableItem.push(
 					<td scope="col" key={k} class="cursor-pointer">
-						{item[k]}
+						{v}
 					</td>
 				);
 			}

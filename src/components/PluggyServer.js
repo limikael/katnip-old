@@ -163,6 +163,13 @@ export default class PluggyServer {
 		this.outDir=await this.createOutDir();
 		console.log("Building in: "+this.outDir);
 
+		if (!fs.existsSync("node_modules/react"))
+			fs.symlinkSync("preact/compat","node_modules/react","dir");
+
+		let stat=fs.lstatSync("node_modules/react");
+		if (!stat.isSymbolicLink())
+			throw new Error("react is not a link");
+
 		await build({
 			multiBundle: true,
 			include: Object.values(this.getPluginPaths()),

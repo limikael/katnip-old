@@ -2,7 +2,10 @@ import {pluggy, A, AdminListTable, ItemForm, setLocation, buildUrl, ItemContext,
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "pluggy";
 import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime.js";
 
+dayjs.extend(relativeTime);
 const XMLToReact=XMLToReactModule.default;
 
 function PageEdit({request}) {
@@ -69,9 +72,13 @@ function PageEdit({request}) {
 }
 
 function PageList({request}) {
+	function formatStamp(item) {
+		return dayjs.unix(item.stamp).from(dayjs());
+	}
+
 	let columns={
 		title: {label: "Title"},
-		stamp: {label: "Date"}
+		stamp: {label: "Date", cb: formatStamp}
 	};
 
 	async function getPages() {
