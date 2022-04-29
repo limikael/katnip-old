@@ -1,0 +1,5 @@
+{
+  "name": "catnip-pages",
+  "type": "module",
+  "main": "index.jsx"
+}

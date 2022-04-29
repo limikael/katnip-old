@@ -1,12 +1,12 @@
 {
-  "name": "pluggy",
+  "name": "catnip",
   "bin": {
-    "pluggy": "src/main/pluggy-cli.js"
+    "catnip": "src/server/catnip-cli.js"
   },
   "scripts": {
     "test": "jasmine"
   },
-  "main": "src/main/pluggy.jsx",
+  "main": "src/lib/catnip.jsx",
   "type": "module",
   "dependencies": {
     "bootstrap-icons": "^1.8.1",

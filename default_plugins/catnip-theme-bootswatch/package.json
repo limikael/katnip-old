@@ -1,0 +1,5 @@
+{
+  "name": "catnip-theme-bootswatch",
+  "type": "module",
+  "main": "index.jsx"
+}

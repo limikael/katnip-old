@@ -12,7 +12,7 @@ class Employee extends Model {
 
 describe("db",()=>{
 	it("works",async ()=>{
-		let db=new Db("mysql://mysql:mysql@localhost/pluggy");
+		let db=new Db("mysql://mysql:mysql@localhost/catnip");
 
 		//await db.connect();
 
