@@ -3,6 +3,8 @@ import * as imports from "./catnip-imports.js";
 
 import CatnipActions from "./CatnipActions.js";
 import CatnipSessionManager from "./CatnipSessionManager.js";
+import CatnipClientChannels from "./CatnipClientChannels.js";
+import CatnipServerChannels from "./CatnipServerChannels.js";
 import CatnipSettings from "./CatnipSettings.js";
 import Db from "../utils/Db.js";
 import {isClient, isServer} from "../utils/js-util.js";
@@ -15,6 +17,9 @@ class Catnip {
 		if (isServer()) {
 			this.db=new Db();
 			this.apis={};
+
+			this.serverChannels=new CatnipServerChannels();
+			this.composeFunctions(this.serverChannels);
 		}
 
 		this.sessionManager=new CatnipSessionManager(this.db);
@@ -22,6 +27,11 @@ class Catnip {
 
 		this.settings=new CatnipSettings(this.db);
 		this.composeFunctions(this.settings);
+
+		if (isClient()) {
+			this.clientChannels=new CatnipClientChannels();
+			this.composeFunctions(this.clientChannels);
+		}
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -98,3 +108,5 @@ export const useSession=catnip.useSession;
 export const withSession=catnip.withSession;
 export const getSetting=catnip.getSetting;
 export const setSetting=catnip.setSetting;
+export const useChannel=catnip.useChannel;
+export const addChannel=catnip.addChannel;

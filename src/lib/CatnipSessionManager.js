@@ -77,6 +77,10 @@ export default class CatnipSessionManager {
 		await ret;
 	}
 
+	isSession=(sessionId)=>{
+		return !!this.sessions[sessionId];
+	}
+
 	load=async ()=>{
 		for (let session of await Session.findMany()) 
 			this.sessions[session.key]=JSON.parse(session.value);

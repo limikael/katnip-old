@@ -3,6 +3,7 @@ import {build} from "../utils/esbuild-extra.js";
 import fs from "fs";
 import {v4 as uuidv4} from 'uuid';
 import CatnipRequestHandler from "./CatnipRequestHandler.js";
+import CatnipChannelHandler from "./CatnipChannelHandler.js";
 import {createOutDir, getPluginPaths} from "./catnip-server-util.js";
 
 export default class CatnipServer {
@@ -56,6 +57,8 @@ export default class CatnipServer {
 		this.requestHandler.setClientBundle(clientBundle);
 
 		let server=http.createServer(this.requestHandler.handleRequest);
+		let channelHandler=new CatnipChannelHandler(this.catnip,server);
+
 		server.listen(3000,"localhost",()=>{
 			console.log("Running...");
 			console.log();

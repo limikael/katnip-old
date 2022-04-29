@@ -46,6 +46,19 @@ export class Model {
 		return res;
 	}
 
+	static async getCount(params={}) {
+		let cls=this;
+		let q=createWhereClause(params);
+		let wherePart="";
+		if (q.query)
+			wherePart=" WHERE "+q.query;
+
+		let qs=`SELECT COUNT(*) AS count FROM ${cls.name} ${wherePart}`;
+		let dbRows=await cls.db.query(qs,q.vals);
+
+		return dbRows[0].count;
+	}
+
 	static async findOne(params) {
 		let res=await this.findMany(params);
 

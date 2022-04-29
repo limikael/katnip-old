@@ -1,4 +1,4 @@
-import {catnip, convertToSlug} from "catnip";
+import {catnip, convertToSlug, useChannel} from "catnip";
 import {PageView, PageAdmin} from "./components.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
@@ -17,7 +17,8 @@ catnip.createCrudApi(Page,{
 	onsave: (item)=>{
 		item.stamp=Date.now()/1000;
 		item.slug=convertToSlug(item.title);
-	}
+	},
+	channel: "numPages"
 });
 
 catnip.addApi("/api/getPageView",async ({query})=>{
@@ -61,4 +62,16 @@ catnip.addElement("PluggyEcho",({text,children})=>{
 			</div>
 		</>
 	);
+});
+
+catnip.addElement("NumPages",()=>{
+	let info=useChannel("numPages");
+
+	return (<>
+		<span>Number of pages: {info}</span>
+	</>);
+});
+
+catnip.addChannel("numPages",async ()=>{
+	return await catnip.db.Page.getCount();
 });

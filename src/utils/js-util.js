@@ -123,3 +123,7 @@ export function setLocation(url, options={}) {
 	if (options.event)
 		window.dispatchEvent(new Event(options.event));
 }
+
+export function firstObjectKey(o) {
+	return Object.keys(o)[0];
+}
