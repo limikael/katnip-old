@@ -208,6 +208,9 @@ export default class CatnipServer {
 		let server=http.createServer(this.handleRequest);
 		server.listen(3000,"localhost",()=>{
 			console.log("Running...");
+			console.log();
+			console.log("    http://localhost:3000/");
+			console.log();
 		});
 	}
 }

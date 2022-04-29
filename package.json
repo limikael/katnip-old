@@ -13,6 +13,7 @@
     "dayjs": "^1.11.1",
     "dotenv": "^16.0.0",
     "esbuild": "^0.14.34",
+    "minimist": "^1.2.6",
     "preact": "^10.7.1",
     "uuid": "^8.3.2",
     "xml-to-react": "^1.0.10"
