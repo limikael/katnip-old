@@ -13,7 +13,7 @@ class Catnip {
 		this.composeFunctions(this.actions);
 
 		if (isServer()) {
-			this.db=new Db("mysql://mysql:mysql@localhost/pluggy");
+			this.db=new Db();
 			this.apis={};
 		}
 
@@ -64,7 +64,8 @@ class Catnip {
 		render(<this.CatnipView />,el);
 	}
 
-	serverMain=async ()=>{
+	serverMain=async (options)=>{
+		await this.db.connect(options.dsn);
 		//await this.db.install();
 		await this.sessionManager.load();
 		await this.settings.load();

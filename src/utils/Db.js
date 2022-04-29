@@ -170,7 +170,9 @@ export class Model {
 
 export class Db {
 	constructor(url) {
-		this.connection=new DbConnection(url);
+		if (url)
+			this.createConnection(url);
+
 		this.classes=[];
 	}
 
@@ -184,7 +186,23 @@ export class Db {
 		this[cls.name]=cls;
 	}
 
-	async connect() {
+	createConnection(url) {
+		this.connection=new DbConnection(url);
+		if (this.MySql)
+			this.connection.MySql=this.MySql;
+	}
+
+	async connect(url) {
+		if (url) {
+			if (this.connection)
+				throw new Error("URL already spec");
+
+			this.createConnection(url);
+		}
+
+		if (!this.connection)
+			throw new Error("Missing connection parameters");
+
 		await this.connection.connect();
 	}
 

@@ -7,6 +7,10 @@ import {v4 as uuidv4} from 'uuid';
 import {quoteAttr} from "../utils/js-util.js";
 
 export default class CatnipServer {
+	constructor(options) {
+		this.options=options;
+	}
+
 	createOutDir() {
 		return new Promise((resolve, reject)=>{
 			let tmpDir=os.tmpdir();
@@ -194,10 +198,10 @@ export default class CatnipServer {
 
 		await import(this.outDir+"/catnip-bundle.js");
 		this.catnip=global.catnip;
-		this.catnip.db.connection.MySql=await import("mysql");
+		this.catnip.db.MySql=await import("mysql");
 
 		console.log("Starting...");
-		await this.catnip.serverMain();
+		await this.catnip.serverMain(this.options);
 
 		this.clientBundle=fs.readFileSync(this.outDir+"/catnip-bundle.js")+"window.catnip.clientMain();";
 
