@@ -34,8 +34,8 @@ export function createCrudApi(model, options={}) {
 
 		await item.save();
 
-		if (options.channel)
-			catnip.notifyChannel(options.channel);
+		if (options.postsave)
+			options.postsave(item);
 
 		return item;
 	});
@@ -47,8 +47,8 @@ export function createCrudApi(model, options={}) {
 
 		await item.delete();
 
-		if (options.channel)
-			catnip.notifyChannel(options.channel);
+		if (options.postdelete)
+			options.postdelete(item);
 	});
 }
 

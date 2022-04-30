@@ -124,7 +124,7 @@ export function useResizeObserver(ref, fn) {
 }
 
 
-export default function useImmediateEffect(effect, deps) {
+export function useImmediateEffect(effect, deps) {
 	const cleanupRef = useRef();
 	const depsRef = useRef();
 

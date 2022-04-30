@@ -18,7 +18,14 @@ catnip.createCrudApi(Page,{
 		item.stamp=Date.now()/1000;
 		item.slug=convertToSlug(item.title);
 	},
-	channel: "numPages"
+	postsave: (item)=>{
+		catnip.notifyChannel("pageContent",{id: item.id});
+		catnip.notifyChannel("numPages");
+	},
+	postdelete: (item)=>{
+		catnip.notifyChannel("pageContent",{id: item.id});
+		catnip.notifyChannel("numPages");
+	},
 });
 
 catnip.addApi("/api/getPageView",async ({query})=>{
@@ -74,4 +81,8 @@ catnip.addElement("NumPages",()=>{
 
 catnip.addChannel("numPages",async ()=>{
 	return await catnip.db.Page.getCount();
+});
+
+catnip.addChannel("pageContent",async ({id})=>{
+	return await catnip.db.Page.findOne(id);
 });

@@ -8,5 +8,7 @@ describe("js-util",()=>{
 		let u="/hello?b=2&a=1";
 		//console.log(buildUrl(u,{a: 5, c:3}));
 		//console.log(buildUrl(u,{b: undefined}));
+
+		console.log(buildUrl(undefined,{}));
 	});
 });

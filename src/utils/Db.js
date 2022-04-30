@@ -31,8 +31,18 @@ export class Model {
 
 	static async findMany(params={}) {
 		let cls=this;
-		let q=createWhereClause(params);
 		let wherePart="";
+		let q;
+
+		if (typeof params=="object")
+			q=createWhereClause(params);
+
+		else {
+			let o={};
+			o[cls.getPrimaryKeyField()]=params;
+			q=createWhereClause(o);
+		}
+
 		if (q.query)
 			wherePart=" WHERE "+q.query;
 

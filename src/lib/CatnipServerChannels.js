@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import {buildUrl, decodeQueryString} from "../utils/js-util.js";
 
 export default class CatnipServerChannels extends EventEmitter {
 	constructor() {
@@ -10,11 +11,16 @@ export default class CatnipServerChannels extends EventEmitter {
 		this.channels[channelId]=func;
 	}
 
-	notifyChannel=(channelId)=>{
-		this.emit("notification",channelId);
+	notifyChannel=(channelId, params={})=>{
+		let channelUrl=buildUrl(channelId,params);
+
+		this.emit("notification",channelUrl);
 	}
 
-	getChannelData=async (channelId)=>{
-		return await this.channels[channelId]();
+	getChannelData=async (channelUrl)=>{
+		let [channelId,queryString]=channelUrl.split("?");
+		let query=decodeQueryString(queryString);
+
+		return await this.channels[channelId](query);
 	}
 }

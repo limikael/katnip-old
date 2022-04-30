@@ -3,6 +3,7 @@ import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
 	let [session]=catnip.useSession();
+	let webSocketStatus=catnip.useWebSocketStatus();
 	let brandRef=useRef();
 	let navRef=useRef();
 	let [reportedHeight,setReportedHeight]=useState(0);
@@ -50,9 +51,6 @@ function Nav({request, onsize}) {
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
 			<div class="container">
 				<A class="navbar-brand" href="/" ref={brandRef}>{session.sitename}</A>
-				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
 
 				<div class="collapse navbar-collapse" id="navbarColor01">
 					<ul class="navbar-nav me-auto">
@@ -72,6 +70,17 @@ function Nav({request, onsize}) {
 						})}
 					</ul>
 				</div>
+
+				{!webSocketStatus && (
+					<div class="ms-auto">
+						<div class="spinner-border text-light" />
+					</div>
+				)}
+				<button class="navbar-toggler ms-3" type="button" data-bs-toggle="collapse"
+						data-bs-target="#navbarColor01"
+						aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
 			</div>
 		</nav>
 	);

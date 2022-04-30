@@ -24,27 +24,37 @@ export function isClient() {
 }
 
 export function decodeQueryString(qs) {
-	let o={};
+	if (qs===undefined)
+		qs="";
 
+	let o={};
 	for (let component of qs.split("&")) {
 		let [key, value]=component.split("=");
-		o[key]=decodeURIComponent(value);
+
+		if (key)
+			o[key]=decodeURIComponent(value);
 	}
 
 	return o;
 }
 
-export function buildUrl(url, vars) {
+export function buildUrl(url, vars={}) {
+	if (!url)
+		url="";
+
 	let [base,queryString]=url.split("?");
 	let query=decodeQueryString(queryString);
 	Object.assign(query,vars);
 
+	//console.log("q: "+JSON.stringify(query));
 	const ordered=Object.keys(query).sort().reduce((obj, key)=>{
 		if (query[key]!==undefined)
 			obj[key]=query[key]; 
 
 		return obj;
 	},{});
+
+	//console.log("ordered: "+JSON.stringify(ordered));
 
 	for (let key in ordered) {
 		let sep=(base.indexOf('?')>-1)?'&':'?';
@@ -124,6 +134,14 @@ export function arrayMove(array, initialIndex, finalIndex) {
 	array.splice(finalIndex,0,array.splice(initialIndex,1)[0]);
 
 	return array;
+}
+
+export function arrayRemove(array, item) {
+	let idx=array.indexOf(item);
+	if (idx<0)
+		return;
+
+	array.splice(idx,1);
 }
 
 export function bindArgs(fn, ...args) {

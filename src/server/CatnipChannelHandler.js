@@ -1,5 +1,5 @@
 import {WebSocketServer} from "ws";
-import {bindArgs, firstObjectKey} from "../utils/js-util.js";
+import {bindArgs, firstObjectKey, arrayRemove} from "../utils/js-util.js";
 
 export default class CatnipChannelHandler {
 	constructor(catnip, server) {
@@ -24,13 +24,23 @@ export default class CatnipChannelHandler {
 		ws.on("message",bindArgs(this.onConnectionMessage,ws));
 
 		this.connections.push(ws);
-		//console.log("new connections, num="+this.connections.length);
 	}
 
 	onConnectionClose=(ws)=>{
+		console.log("close, subscriptions: "+JSON.stringify(ws.subscriptions));
+
 		ws.removeAllListeners();
-		let idx=this.connections.indexOf(ws);
-		this.connections.splice(idx,1);
+		arrayRemove(this.connections,ws);
+	}
+
+	sendChannelData=async (ws, channelId)=>{
+		await this.catnip.withSession(ws.sessionId,async ()=>{
+			let channelData=await this.catnip.getChannelData(channelId);
+			ws.send(JSON.stringify({
+				channel: channelId,
+				data: channelData
+			}));
+		});
 	}
 
 	onConnectionMessage=async (ws, msg)=>{
@@ -39,36 +49,24 @@ export default class CatnipChannelHandler {
 		switch (firstObjectKey(messageData)) {
 			case "subscribe":
 				ws.subscriptions.push(messageData.subscribe);
-				await this.catnip.withSession(ws.sessionId,async ()=>{
-					let channelData=await this.catnip.getChannelData(messageData.subscribe);
-					ws.send(JSON.stringify({
-						data: channelData,
-						channel: messageData.subscribe
-					}));
-				});
+				await this.sendChannelData(ws,messageData.subscribe);
+				break;
+
+			case "unsubscribe":
+				arrayRemove(ws.subscriptions,messageData.unsubscribe);
 				break;
 
 			default:
 				console.log("Unknown message: "+firstObjectKey(messageData));
 				break;
 		}
-
-		//console.log(messageData);
 	}
 
 	onNotification=async (channelId)=>{
 		console.log("notification... "+channelId);
 
-		for (let ws of this.connections) {
-			if (ws.subscriptions.includes(channelId)) {
-				await this.catnip.withSession(ws.sessionId,async ()=>{
-					let channelData=await this.catnip.getChannelData(channelId);
-					ws.send(JSON.stringify({
-						data: channelData,
-						channel: channelId
-					}));
-				});
-			}
-		}
+		for (let ws of this.connections)
+			if (ws.subscriptions.includes(channelId))
+				await this.sendChannelData(ws,channelId);
 	}
 }

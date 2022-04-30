@@ -1,7 +1,6 @@
 import http from "http";
 import {build} from "../utils/esbuild-extra.js";
 import fs from "fs";
-import {v4 as uuidv4} from 'uuid';
 import CatnipRequestHandler from "./CatnipRequestHandler.js";
 import CatnipChannelHandler from "./CatnipChannelHandler.js";
 import {createOutDir, getPluginPaths} from "./catnip-server-util.js";

@@ -1,5 +1,5 @@
 import {catnip, A, ItemList, ItemForm, setLocation, buildUrl, ItemContext, BootstrapAlert} from "catnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged} from "catnip";
+import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "catnip";
 import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
 import dayjs from "dayjs";
@@ -12,7 +12,7 @@ function PageEdit({request}) {
 	let pageId=request.query.id;
 	let [page,setPage]=useState();
 
-	console.log("here..");
+	//console.log("here..");
 
 	async function read() {
 		if (!pageId)
@@ -117,7 +117,9 @@ export function PageAdmin({request}) {
 
 export function PageView({request}) {
 	let pageQuery=request.params[1];
-	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
+	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
+	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
+
 	if (!page)
 		return;
 

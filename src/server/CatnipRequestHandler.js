@@ -1,3 +1,4 @@
+import {v4 as uuidv4} from 'uuid';
 import {quoteAttr} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";

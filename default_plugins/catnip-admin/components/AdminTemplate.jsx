@@ -6,6 +6,7 @@ import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
 function Nav() {
+	let webSocketStatus=catnip.useWebSocketStatus();
 	let [session,setSession]=useSession();
 
 	if (!session.user) {
@@ -26,7 +27,7 @@ function Nav() {
 	return (
 		<nav className="navbar navbar-expand navbar-dark bg-dark py-0">
 			<div className="container-fluid">
-				<ul class="navbar-nav me-auto">
+				<ul class="navbar-nav">
 					<li class="nav-item">
 						<A class="nav-link" href="/">
 							Visit Site
@@ -46,6 +47,11 @@ function Nav() {
 						</a>
 					</li>
 				</ul>
+				{!webSocketStatus && (
+					<div>
+						<div class="spinner-border text-muted spinner-border-sm" />
+					</div>
+				)}
 			</div>
 		</nav>
 	);
