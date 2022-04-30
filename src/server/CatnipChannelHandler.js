@@ -27,7 +27,7 @@ export default class CatnipChannelHandler {
 	}
 
 	onConnectionClose=(ws)=>{
-		console.log("close, subscriptions: "+JSON.stringify(ws.subscriptions));
+		//console.log("close, subscriptions: "+JSON.stringify(ws.subscriptions));
 
 		ws.removeAllListeners();
 		arrayRemove(this.connections,ws);
@@ -45,7 +45,7 @@ export default class CatnipChannelHandler {
 
 	onConnectionMessage=async (ws, msg)=>{
 		let messageData=JSON.parse(msg);
-		console.log(messageData);
+		//console.log(messageData);
 		switch (firstObjectKey(messageData)) {
 			case "subscribe":
 				ws.subscriptions.push(messageData.subscribe);
@@ -63,7 +63,7 @@ export default class CatnipChannelHandler {
 	}
 
 	onNotification=async (channelId)=>{
-		console.log("notification... "+channelId);
+		//console.log("notification... "+channelId);
 
 		for (let ws of this.connections)
 			if (ws.subscriptions.includes(channelId))
