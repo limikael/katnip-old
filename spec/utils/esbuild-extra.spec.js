@@ -1,6 +1,6 @@
 import {build} from "../../src/utils/esbuild-extra.js";
 
-describe("esbuild-extra",()=>{
+/*describe("esbuild-extra",()=>{
 	it("can build",async ()=>{
 		await build({
 			include: [
@@ -14,4 +14,4 @@ describe("esbuild-extra",()=>{
 			outfile: `${process.cwd()}/spec/utils/buildout/out.js`
 		});
 	});
-});
+});*/

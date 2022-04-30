@@ -10,7 +10,7 @@ class Employee extends Model {
 	};
 }
 
-describe("db",()=>{
+/*describe("db",()=>{
 	it("works",async ()=>{
 		let db=new Db("mysql://mysql:mysql@localhost/catnip");
 
@@ -36,4 +36,4 @@ describe("db",()=>{
 //		console.log(await Employee.findOne({name:"Micke2",salary:1234}));
 //		console.log(await Employee.findMany({salary:1234}));
 	});
-});
+});*/

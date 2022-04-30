@@ -23,15 +23,35 @@ export function isClient() {
 	return (typeof window!=="undefined");
 }
 
-export function buildUrl(base, vars) {
-	for (let key in vars) {
-		value=vars[key];
-		let sep = (base.indexOf('?') > -1) ? '&' : '?';
-		base=base+sep+key+'='+encodeURIComponent(value);
+export function decodeQueryString(qs) {
+	let o={};
+
+	for (let component of qs.split("&")) {
+		let [key, value]=component.split("=");
+		o[key]=decodeURIComponent(value);
 	}
 
-	return base
+	return o;
+}
 
+export function buildUrl(url, vars) {
+	let [base,queryString]=url.split("?");
+	let query=decodeQueryString(queryString);
+	Object.assign(query,vars);
+
+	const ordered=Object.keys(query).sort().reduce((obj, key)=>{
+		if (query[key]!==undefined)
+			obj[key]=query[key]; 
+
+		return obj;
+	},{});
+
+	for (let key in ordered) {
+		let sep=(base.indexOf('?')>-1)?'&':'?';
+		base=base+sep+key+'='+encodeURIComponent(ordered[key]);
+	}
+
+	return base;
 }
 
 export async function apiFetch(url, query={}) {
