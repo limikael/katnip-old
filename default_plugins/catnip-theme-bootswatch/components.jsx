@@ -52,6 +52,12 @@ function Nav({request, onsize}) {
 			<div class="container">
 				<A class="navbar-brand" href="/" ref={brandRef}>{session.sitename}</A>
 
+				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+						data-bs-target="#navbarColor01"
+						aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
 				<div class="collapse navbar-collapse" id="navbarColor01">
 					<ul class="navbar-nav me-auto">
 						{session.menuHeader.map(item=>{
@@ -72,15 +78,10 @@ function Nav({request, onsize}) {
 				</div>
 
 				{!webSocketStatus && (
-					<div class="ms-auto">
-						<div class="spinner-border text-light" />
+					<div class="ms-3">
+						<div class="spinner-border text-light spinner-border-sm" />
 					</div>
 				)}
-				<button class="navbar-toggler ms-3" type="button" data-bs-toggle="collapse"
-						data-bs-target="#navbarColor01"
-						aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
 			</div>
 		</nav>
 	);
