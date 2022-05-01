@@ -1,5 +1,6 @@
 {
   "name": "catnip",
+  "version": "0.0.1",
   "bin": {
     "catnip": "src/server/catnip-cli.js"
   },

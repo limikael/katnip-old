@@ -26,6 +26,9 @@ export function	getPluginPaths() {
 	let pluginsNames=pkg.plugins||[];
 	let pluginPaths={};
 
+	if (pkg.main)
+		pluginPaths[pkg.name]=`${process.cwd()}`;
+
 	for (let pluginName of pluginsNames)
 		pluginPaths[pluginName]=`${process.cwd()}/node_modules/${pluginName}`;
 
