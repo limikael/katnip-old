@@ -75,6 +75,8 @@ export function ItemForm(props) {
 	);
 }
 
+console.log("bla");
+
 ItemForm.Input=(props)=>{
 	let context=useContext(ItemContext);
 
@@ -87,9 +89,21 @@ ItemForm.Input=(props)=>{
 
 	props.value=context.item[props.name];
 
+	console.log(props);
+
 	if (props.input=="select")
+		console.log(props);
+		let options=null;
+		if (props.options)
+			options=optionsFromObject(props.options);
+
+		console.log(options);
+
 		return (
-			<select {...props}>{props.children}</select>
+			<select {...props}>
+				{options}
+				{props.children}
+			</select>
 		);
 
 	return (
