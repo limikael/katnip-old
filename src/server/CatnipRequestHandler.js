@@ -30,7 +30,7 @@ export default class CatnipRequestHandler {
 	}
 
 	handleApi=async (req, res, sessionId)=>{
-		await delay(1000);
+		//await delay(1000);
 
 		const buffers = [];
 		for await (const chunk of req)
