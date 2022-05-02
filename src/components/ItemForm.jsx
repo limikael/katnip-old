@@ -1,4 +1,4 @@
-import {usePromise, useForm} from "catnip";
+import {usePromise, useForm, optionsFromObject} from "catnip";
 import {createContext, useContext, useState} from "preact/compat";
 
 export const ItemContext=createContext();
@@ -86,9 +86,9 @@ ItemForm.Controls = ({ controls }) => {
 			cls="form-select";
 
 		elements.push(
-			<div class="mb-3">
+			<div class="mb-3" >
 				<label class="form-label">{control.title}</label>
-				<ItemForm.Input name={control.name} class={cls} {...control} />
+				<ItemForm.Input name={k} class={cls} {...control} />
 			</div>
 		);
 	}
