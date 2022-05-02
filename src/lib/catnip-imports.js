@@ -2,7 +2,7 @@ export * from "../components/A.jsx";
 export * from "../components/CatnipView.jsx";
 export * from "../components/ItemForm.jsx";
 export * from "../components/ItemList.jsx";
-export * from "../utils/Db.js";
+export * from "../orm/Db.js";
 export * from "../utils/react-util.jsx";
 export * from "../utils/js-util.js";
 export * from "../utils/bs-util.jsx";
