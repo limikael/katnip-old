@@ -1,4 +1,5 @@
-import {catnip, useSession, useEventUpdate, useEventListener} from "catnip";
+import {catnip, useSession, useEventUpdate, useEventListener, TemplateContext, useRevertibleState} from "catnip";
+import {useState} from "preact/compat";
 
 export function CatnipView() {
 	let [session,setSession]=useSession();
@@ -23,11 +24,16 @@ export function CatnipView() {
 	let Layout=catnip.doAction("getPageTemplate",request);
 	let Page=catnip.doAction("getPageComponent",request);
 
-	let res=(
-		<Layout request={request}>
-			<Page request={request}/>
-		</Layout>
-	);
+	let [title,setTitle]=useRevertibleState(null,[request.href]);
+	let tc={title,setTitle};
+
+	let res=(<>
+		<TemplateContext.Provider value={tc}>
+			<Layout request={request}>
+				<Page request={request}/>
+			</Layout>
+		</TemplateContext.Provider>
+	</>);
 
 	return res;
 }

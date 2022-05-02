@@ -1,4 +1,4 @@
-import {useRef, useReducer, useState, useEffect, useLayoutEffect, useMemo} from "preact/compat";
+import {useRef, useReducer, useState, useEffect, useLayoutEffect, useMemo, useCallback} from "preact/compat";
 import {apiFetch} from "./js-util.js";
 
 export function useForceUpdate() {
@@ -12,6 +12,7 @@ export function usePromise(fn, deps) {
 
 	useMemo(async ()=>{
 		setResult(undefined);
+		result=undefined;
 
 		try {
 			setResult(await fn());
@@ -47,6 +48,7 @@ export function useApiFetch(url, query={}, deps=[]) {
 
 export function useRevertibleState(initial, deps=[]) {
 	let [state,setState]=useState(initial);
+
 	useMemo(()=>{
 		setState(initial);
 	},deps);

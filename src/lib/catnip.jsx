@@ -8,6 +8,7 @@ import CatnipServerChannels from "./CatnipServerChannels.js";
 import CatnipSettings from "./CatnipSettings.js";
 import Db from "../orm/Db.js";
 import {isClient, isServer} from "../utils/js-util.js";
+import {createContext, useContext} from "preact/compat";
 
 class Catnip {
 	constructor() {
@@ -20,6 +21,10 @@ class Catnip {
 
 			this.serverChannels=new CatnipServerChannels();
 			this.composeFunctions(this.serverChannels);
+		}
+
+		if (isClient()) {
+			this.TemplateContext=createContext();
 		}
 
 		this.sessionManager=new CatnipSessionManager(this.db);
@@ -43,6 +48,10 @@ class Catnip {
 
 		this.composeFunctions(imports);
 		//console.log(imports);
+	}
+
+	useTemplateContext=()=>{
+		return useContext(this.TemplateContext);
 	}
 
 	composeFunctions=(o)=>{
@@ -110,3 +119,5 @@ export const getSetting=catnip.getSetting;
 export const setSetting=catnip.setSetting;
 export const useChannel=catnip.useChannel;
 export const addChannel=catnip.addChannel;
+export const TemplateContext=catnip.TemplateContext;
+export const useTemplateContext=catnip.useTemplateContext;

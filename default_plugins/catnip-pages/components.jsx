@@ -116,6 +116,7 @@ export function PageAdmin({request}) {
 }
 
 export function PageView({request}) {
+	let tc=catnip.useTemplateContext();
 	let pageQuery=request.params[1];
 	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
@@ -144,8 +145,9 @@ export function PageView({request}) {
 	const xmlToReact=new XMLToReact(options);
 	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
 
+	tc.setTitle(page.title);
+
 	return (<>
-		<h1 class="mt-5 pb-2 border-bottom mb-4">{page.title}</h1>
 		{reactTree}
 	</>);
 }

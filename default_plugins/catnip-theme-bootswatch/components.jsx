@@ -1,4 +1,4 @@
-import {A, catnip, useSession, useResizeObserver, useValueChanged} from "catnip";
+import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext} from "catnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
@@ -138,6 +138,7 @@ export function PageTemplate({request,children}) {
 	let [session]=useSession();
 	let [navSize,setNavSize]=useState();
 	let newPage=useValueChanged(request.href);
+	let tc=useTemplateContext();
 
 	if (newPage) {
 		setTimeout(()=>{
@@ -153,6 +154,8 @@ export function PageTemplate({request,children}) {
 	let containerStyle={};
 	if (session.bootswatchNavStyle=="fixed")
 		containerStyle["margin-top"]=navSize+"px";
+
+	//console.log(tc);
 
 	return (
 		<>
@@ -172,6 +175,10 @@ export function PageTemplate({request,children}) {
 					<div class="row" style="height: 100%">
 						<div class="d-none d-lg-block" style="width: 12.5%"></div>
 						<div class="col-lg-9">
+							{tc && tc.title &&
+								<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
+							}
+
 							{children}
 						</div>
 					</div>

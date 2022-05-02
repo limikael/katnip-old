@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {quoteAttr} from "../utils/js-util.js";
+import {quoteAttr, delay} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 
@@ -30,7 +30,7 @@ export default class CatnipRequestHandler {
 	}
 
 	handleApi=async (req, res, sessionId)=>{
-		//await delay(1000);
+		await delay(1000);
 
 		const buffers = [];
 		for await (const chunk of req)
