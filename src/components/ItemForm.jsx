@@ -11,7 +11,7 @@ export function ItemForm(props) {
 	let [item,field,modified]=useForm(baseItem,[baseItem,...props.deps],{
 		onchange: (item)=>{
 			if (props.onchange)
-				props.onchange(item);
+				props.onchange({...item});
 		}
 	});
 	let [saving,setSaving]=useState();
@@ -79,7 +79,7 @@ ItemForm.Controls = ({ controls }) => {
 	let elements=[];
 	for (let k in controls) {
 		let control=controls[k];
-		console.log(control);
+		//console.log(control);
 
 		let cls="form-control";
 		if (control.input=="select" || control.type=="select")
