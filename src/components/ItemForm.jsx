@@ -75,29 +75,44 @@ export function ItemForm(props) {
 	);
 }
 
-console.log("bla");
+ItemForm.Controls = ({ controls }) => {
+	let elements=[];
+	for (let k in controls) {
+		let control=controls[k];
+		console.log(control);
+
+		let cls="form-control";
+		if (control.input=="select" || control.type=="select")
+			cls="form-select";
+
+		elements.push(
+			<div class="mb-3">
+				<label class="form-label">{control.title}</label>
+				<ItemForm.Input name={control.name} class={cls} {...control} />
+			</div>
+		);
+	}
+
+	return elements;
+};
+
 
 ItemForm.Input=(props)=>{
 	let context=useContext(ItemContext);
 
 	props={...props, ...context.field(props.name)};
 
-	if (props.input=="textarea")
+	if (props.input=="textarea" || props.type=="textarea")
 		return (
 			<textarea {...props}>{context.item[props.name]}</textarea>
 		);
 
 	props.value=context.item[props.name];
 
-	console.log(props);
-
-	if (props.input=="select")
-		console.log(props);
+	if (props.input=="select" || props.type=="select") {
 		let options=null;
 		if (props.options)
 			options=optionsFromObject(props.options);
-
-		console.log(options);
 
 		return (
 			<select {...props}>
@@ -105,6 +120,7 @@ ItemForm.Input=(props)=>{
 				{props.children}
 			</select>
 		);
+	}
 
 	return (
 		<input {...props} />

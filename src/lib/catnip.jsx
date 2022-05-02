@@ -6,7 +6,7 @@ import CatnipSessionManager from "./CatnipSessionManager.js";
 import CatnipClientChannels from "./CatnipClientChannels.js";
 import CatnipServerChannels from "./CatnipServerChannels.js";
 import CatnipSettings from "./CatnipSettings.js";
-import Db from "../utils/Db.js";
+import Db from "../orm/Db.js";
 import {isClient, isServer} from "../utils/js-util.js";
 
 class Catnip {
