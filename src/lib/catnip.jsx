@@ -86,10 +86,10 @@ class Catnip {
 	serverMain=async (options)=>{
 		await this.db.connect(options.dsn);
 
-		if (!options.hasOwnProperty("db-install"))
-			options["db-install"]=true;
+		if (!options.hasOwnProperty("dbinstall"))
+			options["dbinstall"]=true;
 
-		if (options["db-install"]) {
+		if (options["dbinstall"]) {
 			console.log("Installing database schema...");
 			await this.db.install();
 		}

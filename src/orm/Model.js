@@ -23,7 +23,7 @@ export default class Model {
 		if (q.query)
 			wherePart=" WHERE "+q.query;
 
-		let qs=`SELECT * FROM ${cls.name} ${wherePart}`;
+		let qs=`SELECT * FROM ${cls.getTableName()} ${wherePart}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
 		let res=[];
@@ -44,7 +44,7 @@ export default class Model {
 		if (q.query)
 			wherePart=" WHERE "+q.query;
 
-		let qs=`SELECT COUNT(*) AS count FROM ${cls.name} ${wherePart}`;
+		let qs=`SELECT COUNT(*) AS count FROM ${cls.getTableName()} ${wherePart}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
 		return dbRows[0].count;
@@ -76,7 +76,7 @@ export default class Model {
 	async insert() {
 		let cls=this.constructor;
 		let upsert=this.getUpsertSql();
-		let qs=`INSERT INTO ${cls.name} SET ${upsert.qs}`;
+		let qs=`INSERT INTO ${cls.getTableName()} SET ${upsert.qs}`;
 		await cls.db.query(qs,upsert.vals);
 		this[cls.getPrimaryKeyField()]=cls.db.lastInsertId();
 	}
@@ -84,7 +84,7 @@ export default class Model {
 	async update() {
 		let cls=this.constructor;
 		let upsert=this.getUpsertSql();
-		let qs=`UPDATE ${cls.name} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
+		let qs=`UPDATE ${cls.getTableName()} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
 		upsert.vals.push(this.getPrimaryKeyValue());
 		await cls.db.query(qs,upsert.vals);
 	}
@@ -103,11 +103,18 @@ export default class Model {
 			throw new Error("No PK value.");
 
 		let cls=this.constructor;
-		await cls.db.query(`DELETE FROM ${cls.name} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
+		await cls.db.query(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
 	}
 
 	getPrimaryKeyValue() {
 		return this[this.constructor.getPrimaryKeyField()];
+	}
+
+	static getTableName() {
+		if (this.tableName)
+			return this.tableName;
+
+		return this.name;
 	}
 
 	static getPrimaryKeyField() {
@@ -120,7 +127,7 @@ export default class Model {
 
 	static async install() {
 		let cls=this;
-		let qs=`CREATE TABLE IF NOT EXISTS ${cls.name} (`;
+		let qs=`CREATE TABLE IF NOT EXISTS ${cls.getTableName()} (`;
 
 		// Create if it doesn't exist.
 		for (let fieldName in cls.fields) {
@@ -133,7 +140,7 @@ export default class Model {
 		await this.db.query(qs);
 
 		// Check current state of database.
-		let describeResult=await this.db.query("DESCRIBE ??",[cls.name]);
+		let describeResult=await this.db.query("DESCRIBE ??",[cls.getTableName()]);
 		//console.log(describeResult);
 
 		let existing={};
@@ -147,10 +154,10 @@ export default class Model {
 			let q;
 
 			if (Object.keys(existing).includes(fieldName))
-				q=`ALTER TABLE ${cls.name} MODIFY \`${fieldName}\` ${fieldSpec}`;
+				q=`ALTER TABLE ${cls.getTableName()} MODIFY \`${fieldName}\` ${fieldSpec}`;
 
 			else
-				q=`ALTER TABLE ${cls.name} ADD \`${fieldName}\` ${fieldSpec}`;
+				q=`ALTER TABLE ${cls.getTableName()} ADD \`${fieldName}\` ${fieldSpec}`;
 
 			await this.db.query(q);
 		}
@@ -159,7 +166,7 @@ export default class Model {
 		let currentFieldNames=Object.keys(cls.fields);
 		for (let existingField of Object.keys(existing)) {
 			if (!currentFieldNames.includes(existingField)) {
-				await this.db.query(`ALTER TABLE ${cls.name} DROP ${existingField}`);
+				await this.db.query(`ALTER TABLE ${cls.getTableName()} DROP ${existingField}`);
 			}
 		}
 	}

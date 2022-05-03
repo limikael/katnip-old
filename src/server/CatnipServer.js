@@ -50,7 +50,7 @@ export default class CatnipServer {
 		console.log("Starting...");
 		await this.catnip.serverMain(this.options);
 
-		this.requestHandler=new CatnipRequestHandler(this.catnip);
+		this.requestHandler=new CatnipRequestHandler(this.catnip,this.options);
 
 		let clientBundle=fs.readFileSync(this.outDir+"/catnip-bundle.js")+"window.catnip.clientMain();";
 		this.requestHandler.setClientBundle(clientBundle);

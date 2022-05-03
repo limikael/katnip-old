@@ -4,8 +4,9 @@ import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 
 export default class CatnipRequestHandler {
-	constructor(catnip) {
+	constructor(catnip, options) {
 		this.catnip=catnip;
+		this.options=options;
 	}
 
 	setClientBundle(bundle) {
@@ -30,7 +31,8 @@ export default class CatnipRequestHandler {
 	}
 
 	handleApi=async (req, res, sessionId)=>{
-		//await delay(1000);
+		if (this.options.apidelay)
+			await delay(1000);
 
 		const buffers = [];
 		for await (const chunk of req)
