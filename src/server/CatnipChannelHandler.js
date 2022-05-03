@@ -1,5 +1,5 @@
 import {WebSocketServer} from "ws";
-import {bindArgs, firstObjectKey, arrayRemove} from "../utils/js-util.js";
+import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
 
 export default class CatnipChannelHandler {
 	constructor(catnip, server) {
@@ -46,7 +46,7 @@ export default class CatnipChannelHandler {
 	onConnectionMessage=async (ws, msg)=>{
 		let messageData=JSON.parse(msg);
 		//console.log(messageData);
-		switch (firstObjectKey(messageData)) {
+		switch (objectFirstKey(messageData)) {
 			case "subscribe":
 				ws.subscriptions.push(messageData.subscribe);
 				await this.sendChannelData(ws,messageData.subscribe);
@@ -57,7 +57,7 @@ export default class CatnipChannelHandler {
 				break;
 
 			default:
-				console.log("Unknown message: "+firstObjectKey(messageData));
+				console.log("Unknown message: "+objectFirstKey(messageData));
 				break;
 		}
 	}

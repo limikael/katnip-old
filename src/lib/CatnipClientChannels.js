@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import {useEventUpdate, useImmediateEffect} from "../utils/react-util.jsx";
-import {firstObjectKey, buildUrl} from "../utils/js-util.js";
+import {objectFirstKey, buildUrl} from "../utils/js-util.js";
 
 export default class CatnipClientChannels extends EventEmitter {
 	constructor() {
@@ -36,7 +36,7 @@ export default class CatnipClientChannels extends EventEmitter {
 	onMessage=(ev)=>{
 		let messageData=JSON.parse(ev.data);
 
-		switch (firstObjectKey(messageData)) {
+		switch (objectFirstKey(messageData)) {
 			case "channel":
 				this.channelData[messageData.channel]=messageData.data;
 				this.emit("channel-"+messageData.channel);

@@ -162,6 +162,14 @@ export function setLocation(url, options={}) {
 		window.dispatchEvent(new Event(options.event));
 }
 
-export function firstObjectKey(o) {
+export function objectFirstKey(o) {
 	return Object.keys(o)[0];
+}
+
+export function objectMap(o, fn) {
+	let res=[];
+	for (let k in o)
+		res.push(fn(o[k],k))
+
+	return res;
 }
