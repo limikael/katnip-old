@@ -23,9 +23,24 @@ describe("db",()=>{
 
 		let e=new db.Employee({name: "Micke"});
 		e.meta={hello: "world"};
+		e.salary=5;
 		await e.save();
 
 		let f=await db.Employee.findOne({name: "Micke"});
 		expect(f.meta.hello).toEqual("world");
+
+		let g=new db.Employee({name: "Micke2"});
+		g.meta={hello: "world"};
+		g.salary=8;
+		await g.save();
+
+		let cnt=await db.Employee.getCount();
+		expect(cnt).toEqual(2);
+
+		let total=await db.Employee.getAggregate("SUM(salary)");
+		expect(total).toEqual(13);
+
+		/*let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
+		expect(total).toEqual([13,6.5]);*/
 	});
 });

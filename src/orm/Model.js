@@ -37,17 +37,22 @@ export default class Model {
 		return res;
 	}
 
-	static async getCount(params={}) {
+	static async getAggregate(sql, whereParams={}) {
 		let cls=this;
-		let q=createWhereClause(params);
+		let q=createWhereClause(whereParams);
 		let wherePart="";
 		if (q.query)
 			wherePart=" WHERE "+q.query;
 
-		let qs=`SELECT COUNT(*) AS count FROM ${cls.getTableName()} ${wherePart}`;
+		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${wherePart}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
-		return dbRows[0].count;
+		let firstKey=Object.keys(dbRows[0])[0];
+		return dbRows[0][firstKey];
+	}
+
+	static async getCount(params={}) {
+		return this.getAggregate("COUNT(*)",params);
 	}
 
 	static async findOne(params) {
