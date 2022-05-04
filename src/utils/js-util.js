@@ -183,3 +183,9 @@ export function objectMap(o, fn) {
 
 	return res;
 }
+
+export function withTargetValue(fn) {
+	return (ev)=>{
+		fn(ev.target.value);
+	}
+}
