@@ -46,6 +46,7 @@ export default class CatnipServer {
 		await import(this.outDir+"/catnip-bundle.js");
 		this.catnip=global.catnip;
 		this.catnip.db.MySql=await import("mysql");
+		global.fetch=await import("node-fetch");
 
 		console.log("Starting...");
 		await this.catnip.serverMain(this.options);

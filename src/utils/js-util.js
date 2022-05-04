@@ -64,19 +64,29 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
-export async function apiFetch(url, query={}) {
-//	url=buildUrl(url,query);
+export async function apiFetch(url, query={}, extraHeaders={}) {
+	let	headers={
+		"Content-Type": "application/json"
+	};
+
+	headers={...headers,...extraHeaders};
 
 	let response=await fetch(url,{
 		method: "POST",
+		headers: headers,
 		cache: "no-cache",
-		headers: {
-			"Content-Type": "application/json"
-		},
 		body: JSON.stringify(query)
 	});
 	let text=await response.text();
-	let data=JSON.parse(text);
+	let data;
+
+	try {
+		data=JSON.parse(text);
+	}
+
+	catch (e) {
+		throw new Error(text);
+	}
 
 	if (response.status!=200) {
 		if (data && data.message)
