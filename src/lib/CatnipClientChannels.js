@@ -101,8 +101,17 @@ export default class CatnipClientChannels extends EventEmitter {
 		}
 	}
 
-	useChannel=(channelId, params={})=>{
-		let channelUrl=buildUrl(channelId,params);
+	useChannel=(channelIdOrFunc, params={})=>{
+		let channelUrl;
+		if (typeof channelIdOrFunc=="function") {
+			let v=channelIdOrFunc();
+			if (v)
+				channelUrl=buildUrl(v[0],v[1]);
+		}
+
+		else {
+			channelUrl=buildUrl(channelIdOrFunc,params);
+		}
 
 		useEventUpdate("channel-"+channelUrl,this);
 		useImmediateEffect(()=>{
