@@ -40,6 +40,15 @@ describe("db",()=>{
 		let total=await db.Employee.getAggregate("SUM(salary)");
 		expect(total).toEqual(13);
 
+		let a=await db.Employee.findOne({name: "Micke"});
+		let b=await db.Employee.findOne({name: "Micke"});
+
+		a.salary=1234;
+		await a.save();
+		await b.refresh();
+
+		expect(a.salary).toEqual(b.salary);
+
 		/*let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
 		expect(total).toEqual([13,6.5]);*/
 	});

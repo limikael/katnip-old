@@ -84,6 +84,7 @@ class Catnip {
 	}
 
 	serverMain=async (options)=>{
+		//console.log(global);
 		await this.db.connect(options.dsn);
 
 		if (!options.hasOwnProperty("dbinstall"))

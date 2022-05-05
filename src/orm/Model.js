@@ -6,6 +6,24 @@ export default class Model {
 			this[k]=data[k];
 	}
 
+	async refresh() {
+		let cls=this.constructor;
+
+		if (!this.getPrimaryKeyValue())
+			throw new Error("Can't refresh, no PK value.");
+
+		let o={};
+		o[cls.getPrimaryKeyField()]=this.getPrimaryKeyValue();
+		let q=createWhereClause(o);
+
+		let qs=`SELECT * FROM ${cls.getTableName()} WHERE ${q.query}`;
+		let dbRows=await cls.db.query(qs,q.vals);
+		let dbRow=dbRows[0];
+
+		for (let fieldName in cls.fields)
+			this[fieldName]=hydrate(dbRow[fieldName],cls.fields[fieldName]);
+	}
+
 	static async findMany(params={}) {
 		let cls=this;
 		let wherePart="";
