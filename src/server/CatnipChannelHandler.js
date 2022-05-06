@@ -13,12 +13,7 @@ export default class CatnipChannelHandler {
 
 	onConnection=(ws, req)=>{
 		let cookies=this.catnip.parseCookies(req);
-		if (!this.catnip.isSession(cookies.catnip)) {
-			ws.close();
-			return;
-		}
-
-		ws.sessionId=cookies.catnip;
+		ws.cookie=cookies.catnip;
 		ws.subscriptions=[];
 		ws.on("close",bindArgs(this.onConnectionClose,ws));
 		ws.on("message",bindArgs(this.onConnectionMessage,ws));
@@ -34,13 +29,22 @@ export default class CatnipChannelHandler {
 	}
 
 	sendChannelData=async (ws, channelId)=>{
-		await this.catnip.withSession(ws.sessionId,async ()=>{
-			let channelData=await this.catnip.getChannelData(channelId);
+		let sessionRequest=await this.catnip.initSessionRequest(ws.cookie);
+		try {
+			let channelData=await this.catnip.getChannelData(channelId,sessionRequest);
 			ws.send(JSON.stringify({
 				channel: channelId,
 				data: channelData
 			}));
-		});
+		}
+
+		catch (e) {
+			console.log(e);
+			ws.send(JSON.stringify({
+				channel: channelId,
+				error: e.message
+			}));
+		}
 	}
 
 	onConnectionMessage=async (ws, msg)=>{

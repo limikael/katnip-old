@@ -47,7 +47,8 @@ catnip.addAction("getPageComponent",(request)=>{
 		return Settings;
 });
 
-catnip.addApi("/api/saveSettings",async (settings)=>{
+catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
+	sreq.assertCap("manage-settings");
 	for (let k in settings)
 		await catnip.setSetting(k,settings[k]);
 });

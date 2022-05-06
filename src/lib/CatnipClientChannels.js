@@ -38,7 +38,15 @@ export default class CatnipClientChannels extends EventEmitter {
 
 		switch (objectFirstKey(messageData)) {
 			case "channel":
-				this.channelData[messageData.channel]=messageData.data;
+				if (messageData.data)
+					this.channelData[messageData.channel]=messageData.data;
+
+				else if (messageData.error)
+					this.channelData[messageData.channel]=new Error(messageData.error);
+
+				else
+					this.channelData[messageData.channel]=undefined;
+
 				this.emit("channel-"+messageData.channel);
 				break;
 

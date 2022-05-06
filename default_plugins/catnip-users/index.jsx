@@ -1,6 +1,7 @@
 import {LoginPage, UserAdmin} from "./components.jsx";
 import {catnip, Model} from "catnip";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
+import {getCapsByRole} from "./rolecaps.js";
 
 class User extends Model {
 	static fields={
@@ -32,11 +33,20 @@ catnip.addAction("getPageComponent",(request)=>{
 	}
 });
 
-catnip.addAction("getClientSession",async (clientSession)=>{
-	let [serverSession]=catnip.useSession();
+catnip.addAction("initSessionRequest",async (sessionRequest)=>{
+	if (sessionRequest.getUserId())
+		sessionRequest.user=await User.findOne(sessionRequest.getUserId());
 
-	if (serverSession.uid) {
-		let u=await catnip.db.User.findOne({id: serverSession.uid});
+	sessionRequest.assertCap=(cap)=>{
+		let caps=getCapsByRole(sessionRequest.user.role);
+		if (!caps.includes(cap))
+			throw new Error("Not authorized.");
+	}
+});
+
+catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
+	if (sessionRequest.uid) {
+		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
 		clientSession.user={
 			id: u.id,
 			email: u.email
@@ -44,21 +54,21 @@ catnip.addAction("getClientSession",async (clientSession)=>{
 	}
 });
 
-catnip.addApi("/api/getAllUsers",async ()=>{
-	let [session]=catnip.useSession();
-	if (!session.uid)
-		throw new Error("not logged in...");
+catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
+	sess.assertCap("manage-users");
 
 	return catnip.db.User.findMany();
 });
 
-catnip.addApi("/api/getUser",async ({id})=>{
+catnip.addApi("/api/getUser",async ({id}, sess)=>{
+	sess.assertCap("manage-users");
 	let u=await catnip.db.User.findOne({id: id});
 
 	return u;
 });
 
-catnip.addApi("/api/saveUser",async ({id, email, password})=>{
+catnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
+	sess.assertCap("manage-users");
 	let u;
 
 	if (id)
@@ -67,7 +77,7 @@ catnip.addApi("/api/saveUser",async ({id, email, password})=>{
 	else
 		u=new catnip.db.User();
 
-	u.role="subscriber";
+	u.role=role;
 	u.email=email;
 	u.password=password;
 	await u.save();
@@ -75,14 +85,13 @@ catnip.addApi("/api/saveUser",async ({id, email, password})=>{
 	return {id: u.id};
 });
 
-catnip.addApi("/api/deleteUser",async ({id})=>{
+catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
+	sess.assertCap("manage-users");
 	let u=await catnip.db.User.findOne({id: id});
 	await u.delete();
 });
 
-catnip.addApi("/api/login",async ({login, password})=>{
-	let [session,setSession]=catnip.useSession();
-
+catnip.addApi("/api/login",async ({login, password}, sessionRequest)=>{
 	let u=await catnip.db.User.findOne({
 		email: login,
 		password: password
@@ -91,9 +100,7 @@ catnip.addApi("/api/login",async ({login, password})=>{
 	if (!u)
 		throw new Error("Bad credentials.");
 
-	await setSession({
-		uid: u.id
-	});
+	await sessionRequest.setUserId(u.id);
 
 	return {
 		user: {
@@ -103,10 +110,6 @@ catnip.addApi("/api/login",async ({login, password})=>{
 	}
 });
 
-catnip.addApi("/api/logout",async ({})=>{
-	let [session,setSession]=catnip.useSession();
-
-	await setSession({
-		uid: null
-	});
+catnip.addApi("/api/logout",async ({}, sessionRequest)=>{
+	await sessionRequest.setUserId();
 });

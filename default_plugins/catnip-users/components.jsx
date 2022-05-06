@@ -1,6 +1,7 @@
 import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl} from "catnip";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
 import {useRef, useState} from "preact/compat";
+import {getRoles} from "./rolecaps.js";
 
 export function LoginPage() {
 	const loginRef=useRef();
@@ -107,6 +108,11 @@ export function UserEdit({request}) {
 		return "Saved...";
 	}
 
+	let roleOptions={};
+	roleOptions[""]="";
+	for (let role of getRoles())
+		roleOptions[role]=role;
+
 	return (
 		<>
 			<h1 class="mb-3">{userId?"Edit User":"Add New User"}</h1>
@@ -122,6 +128,14 @@ export function UserEdit({request}) {
 								name="email"
 								type="text"
 								class="form-control"/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Role</label>
+						<ItemForm.Input
+								name="role"
+								type="select"
+								class="form-select"
+								options={roleOptions}/>
 					</div>
 					<div class="mb-3">
 						<label class="form-label">Password</label>

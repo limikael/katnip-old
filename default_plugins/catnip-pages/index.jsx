@@ -14,6 +14,7 @@ class Page extends catnip.Model {
 
 catnip.addModel(Page);
 catnip.createCrudApi(Page,{
+	cap: "manage-content",
 	onsave: (item)=>{
 		item.stamp=Date.now()/1000;
 		item.slug=convertToSlug(item.title);

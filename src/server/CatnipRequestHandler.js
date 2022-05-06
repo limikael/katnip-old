@@ -30,7 +30,7 @@ export default class CatnipRequestHandler {
 		res.end("Not found...");
 	}
 
-	handleApi=async (req, res, sessionId)=>{
+	handleApi=async (req, res, sessionCookie)=>{
 		if (this.options.apidelay)
 			await delay(1000);
 
@@ -57,10 +57,9 @@ export default class CatnipRequestHandler {
 		let func=this.catnip.apis[path];
 		if (func) {
 			try {
-				let data;
-				await this.catnip.withSession(sessionId,async ()=>{
-					data=await func(query);
-				});
+				let sessionRequest=await catnip.initSessionRequest(sessionCookie);
+				let data=await func(query,sessionRequest);
+
 				res.writeHead(200);
 				if (!data)
 					data=null;
@@ -105,9 +104,8 @@ export default class CatnipRequestHandler {
 			else {
 				(async()=>{
 					let clientSession={};
-					await this.catnip.withSession(cookies.catnip,async ()=>{
-						await this.catnip.doActionAsync("getClientSession",clientSession);
-					});
+					let sessionRequest=await catnip.initSessionRequest(cookies.catnip);
+					await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
 
 					res.writeHead(200,{
 						"Set-Cookie": `catnip=${cookies.catnip}`

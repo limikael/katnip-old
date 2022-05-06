@@ -5,6 +5,7 @@ import CatnipActions from "./CatnipActions.js";
 import CatnipSessionManager from "./CatnipSessionManager.js";
 import CatnipClientChannels from "./CatnipClientChannels.js";
 import CatnipServerChannels from "./CatnipServerChannels.js";
+import CatnipServerSessions from "./CatnipServerSessions.js";
 import CatnipSettings from "./CatnipSettings.js";
 import Db from "../orm/Db.js";
 import {isClient, isServer} from "../utils/js-util.js";
@@ -21,15 +22,19 @@ class Catnip {
 
 			this.serverChannels=new CatnipServerChannels();
 			this.composeFunctions(this.serverChannels);
+
+			this.serverSessions=new CatnipServerSessions(this.db);
+			this.composeFunctions(this.serverSessions);
 		}
 
 		if (isClient()) {
 			this.TemplateContext=createContext();
+
+			this.sessionManager=new CatnipSessionManager();
+			this.composeFunctions(this.sessionManager);
 		}
 
-		this.sessionManager=new CatnipSessionManager(this.db);
-		this.composeFunctions(this.sessionManager);
-
+		// move to server
 		this.settings=new CatnipSettings(this.db);
 		this.composeFunctions(this.settings);
 
@@ -95,7 +100,7 @@ class Catnip {
 			await this.db.install();
 		}
 
-		await this.sessionManager.load();
+		await this.serverSessions.loadSessions();
 		await this.settings.load();
 	}
 }

@@ -3,11 +3,16 @@ import {catnip} from "catnip";
 export function createCrudApi(model, options={}) {
 	let name=model.name.toLowerCase();
 
-	catnip.addApi(`/api/${name}/list`,async ()=>{
+	if (!options.cap)
+		options.cap="manage-settings";
+
+	catnip.addApi(`/api/${name}/list`,async ({}, sreq)=>{
+		sreq.assertCap(options.cap);
 		return model.findMany();
 	});
 
-	catnip.addApi(`/api/${name}/get`,async ({id})=>{
+	catnip.addApi(`/api/${name}/get`,async ({id}, sreq)=>{
+		sreq.assertCap(options.cap);
 		let item=await model.findOne({id: id});
 
 		if (!item)
@@ -16,7 +21,8 @@ export function createCrudApi(model, options={}) {
 		return item;
 	});
 
-	catnip.addApi(`/api/${name}/save`,async (query)=>{
+	catnip.addApi(`/api/${name}/save`,async (query, sreq)=>{
+		sreq.assertCap(options.cap);
 		let item;
 
 		if (query.id)
@@ -40,7 +46,9 @@ export function createCrudApi(model, options={}) {
 		return item;
 	});
 
-	catnip.addApi(`/api/${name}/delete`,async ({id})=>{
+	catnip.addApi(`/api/${name}/delete`,async ({id}, sreq)=>{
+		sreq.assertCap(options.cap);
+
 		let item=await model.findOne({id: id});
 		if (!item)
 			throw new Error("Not found");
