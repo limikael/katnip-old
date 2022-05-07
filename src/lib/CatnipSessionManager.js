@@ -1,6 +1,6 @@
 import {isClient, isServer} from "../utils/js-util.js";
 import {useForceUpdate} from "../utils/react-util.jsx";
-import {catnip, Model} from "catnip";
+import Model from "../orm/Model.js";
 
 export default class CatnipSessionManager {
 	constructor() {

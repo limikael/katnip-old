@@ -8,3 +8,4 @@ export * from "../utils/react-util.jsx";
 export * from "../utils/js-util.js";
 export * from "../utils/bs-util.jsx";
 export * from "./catnip-util.js";
+export * from "./catnip.jsx";

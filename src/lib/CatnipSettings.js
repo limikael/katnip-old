@@ -1,5 +1,5 @@
 import {isClient, isServer} from "../utils/js-util.js";
-import {catnip, Model} from "catnip";
+import Model from "../orm/Model.js";
 
 class Setting extends Model {
 	static fields={

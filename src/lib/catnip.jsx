@@ -1,6 +1,3 @@
-export * from "./catnip-imports.js";
-import * as imports from "./catnip-imports.js";
-
 import CatnipActions from "./CatnipActions.js";
 import CatnipSessionManager from "./CatnipSessionManager.js";
 import CatnipClientChannels from "./CatnipClientChannels.js";
@@ -8,6 +5,7 @@ import CatnipServerChannels from "./CatnipServerChannels.js";
 import CatnipServerSessions from "./CatnipServerSessions.js";
 import CatnipSettings from "./CatnipSettings.js";
 import Db from "../orm/Db.js";
+import {CatnipView} from "../components/CatnipView.jsx";
 import {isClient, isServer} from "../utils/js-util.js";
 import {createContext, useContext} from "preact/compat";
 
@@ -23,8 +21,11 @@ class Catnip {
 			this.serverChannels=new CatnipServerChannels();
 			this.composeFunctions(this.serverChannels);
 
-			this.serverSessions=new CatnipServerSessions(this.db);
+			this.serverSessions=new CatnipServerSessions(this);
 			this.composeFunctions(this.serverSessions);
+
+			this.settings=new CatnipSettings(this.db);
+			this.composeFunctions(this.settings);
 		}
 
 		if (isClient()) {
@@ -32,27 +33,18 @@ class Catnip {
 
 			this.sessionManager=new CatnipSessionManager();
 			this.composeFunctions(this.sessionManager);
-		}
 
-		// move to server
-		this.settings=new CatnipSettings(this.db);
-		this.composeFunctions(this.settings);
-
-		if (isClient()) {
 			this.clientChannels=new CatnipClientChannels();
 			this.composeFunctions(this.clientChannels);
 		}
+
+		this.elements={};
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
 					k!="composeFunctions" &&
 					k!="load")
 				console.log(`export const ${k}=catnip.${k};`);*/
-
-		this.elements={};
-
-		this.composeFunctions(imports);
-		//console.log(imports);
 	}
 
 	useTemplateContext=()=>{
@@ -70,14 +62,14 @@ class Catnip {
 	}
 
 	addModel=(model)=>{
-		if (!this.isServer())
+		if (!isServer())
 			return;
 
 		this.db.addModel(model);
 	}
 
 	addApi=(path, fn)=>{
-		if (!this.isServer())
+		if (!isServer())
 			return;
 
 		this.apis[path]=fn;
@@ -85,7 +77,7 @@ class Catnip {
 
 	clientMain=()=>{
 		let el=document.getElementById("catnip-root");
-		render(<this.CatnipView />,el);
+		render(<CatnipView />,el);
 	}
 
 	serverMain=async (options)=>{
@@ -105,11 +97,13 @@ class Catnip {
 	}
 }
 
-export const catnip=new Catnip();
-export default catnip;
+const catnip=new Catnip();
 
 export const elements=catnip.elements;
 export const db=catnip.db;
+export const serverChannels=catnip.serverChannels;
+export const apis=catnip.apis;
+export const TemplateContext=catnip.TemplateContext;
 
 export const addElement=catnip.addElement;
 export const addModel=catnip.addModel;
@@ -120,10 +114,12 @@ export const addAction=catnip.addAction;
 export const doAction=catnip.doAction;
 export const doActionAsync=catnip.doActionAsync;
 export const useSession=catnip.useSession;
-export const withSession=catnip.withSession;
 export const getSetting=catnip.getSetting;
 export const setSetting=catnip.setSetting;
 export const useChannel=catnip.useChannel;
+export const useWebSocketStatus=catnip.useWebSocketStatus;
 export const addChannel=catnip.addChannel;
-export const TemplateContext=catnip.TemplateContext;
 export const useTemplateContext=catnip.useTemplateContext;
+export const initSessionRequest=catnip.initSessionRequest;
+export const getChannelData=catnip.getChannelData;
+export const notifyChannel=catnip.notifyChannel;

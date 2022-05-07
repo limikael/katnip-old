@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jasmine"
   },
-  "main": "src/lib/catnip.jsx",
+  "main": "src/lib/catnip-exports.js",
   "type": "module",
   "dependencies": {
     "bootstrap-icons": "^1.8.1",

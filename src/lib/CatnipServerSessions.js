@@ -1,4 +1,4 @@
-import {catnip, Model} from "catnip";
+import Model from "../orm/Model.js";
 
 class Session extends Model {
 	static fields={
@@ -9,8 +9,9 @@ class Session extends Model {
 }
 
 export default class CatnipServerSessions {
-	constructor(db) {
-		db.addModel(Session);
+	constructor(catnip) {
+		this.catnip=catnip;
+		this.catnip.db.addModel(Session);
 		this.sessions={};
 	}
 
@@ -23,10 +24,10 @@ export default class CatnipServerSessions {
 		}
 		sessionRequest.setUserId=async (uid)=>{
 			await this.setSessionUserId(cookie,uid);
-			await catnip.doActionAsync("initSessionRequest",sessionRequest);
+			await this.catnip.doActionAsync("initSessionRequest",sessionRequest);
 		}
 
-		await catnip.doActionAsync("initSessionRequest",sessionRequest);
+		await this.catnip.doActionAsync("initSessionRequest",sessionRequest);
 
 		return sessionRequest;
 	}
