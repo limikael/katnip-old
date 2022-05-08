@@ -36,6 +36,9 @@ class Catnip {
 
 			this.clientChannels=new CatnipClientChannels();
 			this.composeFunctions(this.clientChannels);
+
+			this.templates={};
+			this.routes={};
 		}
 
 		this.elements={};
@@ -45,6 +48,37 @@ class Catnip {
 					k!="composeFunctions" &&
 					k!="load")
 				console.log(`export const ${k}=catnip.${k};`);*/
+	}
+
+	addRoute=(route, component)=>{
+		this.routes[route]=component;
+	}
+
+	addTemplate=(route, component)=>{
+		this.templates[route]=component;
+	}
+
+	getTemplateForRoute=(route)=>{
+		return this.selectComponentForRoute(this.templates,route);
+	}
+
+	getPageComponentForRoute=(route)=>{
+		return this.selectComponentForRoute(this.routes,route);
+	}
+
+	selectComponentForRoute=(patterns, route)=>{
+		let bestMatch="z";
+		let component;
+
+		for (let k in patterns) {
+			let kMatch=mathPath(k,route)
+			if (kMatch && kMatch<bestMatch) {
+				bestMatch=kMatch;
+				component=patterns[k]
+			}
+		}
+
+		return component;
 	}
 
 	useTemplateContext=()=>{
@@ -123,3 +157,8 @@ export const useTemplateContext=catnip.useTemplateContext;
 export const initSessionRequest=catnip.initSessionRequest;
 export const getChannelData=catnip.getChannelData;
 export const notifyChannel=catnip.notifyChannel;
+
+export const addRoute=catnip.addRoute;
+export const addTemplate=catnip.addTemplate;
+export const getTemplateForRoute=catnip.getTemplateForRoute;
+export const getPageComponentForRoute=catnip.getPageComponentForRoute;

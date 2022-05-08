@@ -6,10 +6,23 @@ import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 
-catnip.addAction("getPageTemplate",(request)=>{
+catnip.addTemplate("admin/*",AdminTemplate);
+
+catnip.addRoute("admin",Dashboard);
+catnip.addRoute("admin/settings",Settings);
+
+/*catnip.addAction("getPageTemplate",(request)=>{
 	if (request.params[0]=="admin")
 		return AdminTemplate;
 });
+
+catnip.addAction("getPageComponent",(request)=>{
+	if (request.path=="/admin")
+		return Dashboard;
+
+	if (request.path=="/admin/settings")
+		return Settings;
+});*/
 
 catnip.addAction("getAdminMenu",(items)=>{
 	items.push({
@@ -38,14 +51,6 @@ catnip.addAction("getAdminMenu",(items)=>{
 function Hello({request}) {
 	return (<>Hello</>)
 }
-
-catnip.addAction("getPageComponent",(request)=>{
-	if (request.path=="/admin")
-		return Dashboard;
-
-	if (request.path=="/admin/settings")
-		return Settings;
-});
 
 catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 	sreq.assertCap("manage-settings");

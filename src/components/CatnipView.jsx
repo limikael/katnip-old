@@ -21,8 +21,8 @@ export function CatnipView() {
 	if (request.path=="/")
 		request=catnip.parseRequest(session.homepath);
 
-	let Layout=catnip.doAction("getPageTemplate",request);
-	let Page=catnip.doAction("getPageComponent",request);
+	let Layout=catnip.getTemplateForRoute(request.path); //doAction("getPageTemplate",request);
+	let Page=catnip.getPageComponentForRoute(request.path); //doAction("getPageComponent",request);
 
 	let [title,setTitle]=useRevertibleState(null,[request.href]);
 	let tc={title,setTitle};
