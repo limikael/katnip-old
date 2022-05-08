@@ -67,10 +67,6 @@ catnip.addAction("getCustomizerOptions",(items)=>{
 			none: "None"
 		}
 	});
-
 });
 
-catnip.addAction("getPageTemplate",(request)=>{
-	if (request.params[0]!="admin")
-		return PageTemplate;
-});
+catnip.addTemplate("**",PageTemplate);

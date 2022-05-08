@@ -11,10 +11,7 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addAction("getPageComponent",(request)=>{
-	if (request.path=="/admin/menus")
-		return MenuEditor;
-});
+catnip.addRoute("admin/menus",MenuEditor);
 
 catnip.addApi("/api/getMenu",async ({setting})=>{
 	return await catnip.getSetting(setting);

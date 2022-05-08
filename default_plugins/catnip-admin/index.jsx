@@ -6,23 +6,10 @@ import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 
-catnip.addTemplate("admin/*",AdminTemplate);
+catnip.addTemplate("admin/**",AdminTemplate);
 
 catnip.addRoute("admin",Dashboard);
 catnip.addRoute("admin/settings",Settings);
-
-/*catnip.addAction("getPageTemplate",(request)=>{
-	if (request.params[0]=="admin")
-		return AdminTemplate;
-});
-
-catnip.addAction("getPageComponent",(request)=>{
-	if (request.path=="/admin")
-		return Dashboard;
-
-	if (request.path=="/admin/settings")
-		return Settings;
-});*/
 
 catnip.addAction("getAdminMenu",(items)=>{
 	items.push({

@@ -8,6 +8,7 @@ import Db from "../orm/Db.js";
 import {CatnipView} from "../components/CatnipView.jsx";
 import {isClient, isServer} from "../utils/js-util.js";
 import {createContext, useContext} from "preact/compat";
+import {pathMatch} from "../utils/path-match.js"; 
 
 class Catnip {
 	constructor() {
@@ -37,11 +38,11 @@ class Catnip {
 			this.clientChannels=new CatnipClientChannels();
 			this.composeFunctions(this.clientChannels);
 
-			this.templates={};
-			this.routes={};
 		}
 
 		this.elements={};
+		this.templates={};
+		this.routes={};
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -71,7 +72,7 @@ class Catnip {
 		let component;
 
 		for (let k in patterns) {
-			let kMatch=mathPath(k,route)
+			let kMatch=pathMatch(k,route)
 			if (kMatch && kMatch<bestMatch) {
 				bestMatch=kMatch;
 				component=patterns[k]

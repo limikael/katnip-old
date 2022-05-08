@@ -23,15 +23,8 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addAction("getPageComponent",(request)=>{
-	switch (request.path) {
-		case "/login":
-			return LoginPage;
-
-		case "/admin/user":
-			return UserAdmin;
-	}
-});
+catnip.addRoute("login",LoginPage);
+catnip.addRoute("admin/user",UserAdmin);
 
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 	if (sessionRequest.getUserId())

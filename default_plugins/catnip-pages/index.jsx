@@ -51,13 +51,8 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addAction("getPageComponent",(request)=>{
-	if (request.path=="/admin/page")
-		return PageAdmin;
-
-	if (request.params[0]=="page")
-		return PageView;
-});
+catnip.addRoute("admin/page",PageAdmin);
+catnip.addRoute("page/*",PageView);
 
 catnip.addElement("PluggyEcho",({text,children})=>{
 	//console.log("called..");

@@ -15,9 +15,11 @@ export function pathMatch(pattern, path) {
 
 	let specificity="";
 
-	for (let i=0; i<pattern.length; i++) {
-		if (pattern[i]=="**")
+	for (let i=0; i<Math.max(pattern.length,path.length); i++) {
+		if (pattern[i]=="**") {
 			specificity+="c";
+			return specificity;
+		}
 
 		else if (pattern[i]=="*" && path[i])
 			specificity+="b";
