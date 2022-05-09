@@ -127,6 +127,8 @@ class Catnip {
 			await this.db.install();
 		}
 
+		await this.doActionAsync("serverMain",options);
+
 		await this.serverSessions.loadSessions();
 		await this.settings.load();
 	}
