@@ -15,7 +15,11 @@ export function usePromise(fn, deps) {
 		result=undefined;
 
 		try {
-			setResult(await fn());
+			if (typeof fn=="function")
+				setResult(await fn());
+
+			else
+				setResult(fn);
 		}
 
 		catch (e){
@@ -56,8 +60,9 @@ export function useRevertibleState(initial, deps=[]) {
 	return [state,setState,state!=initial];
 }
 
-export function useForm(initial, deps=[], options={}) {
-	let [current,setCurrent,modified]=useRevertibleState(initial,deps);
+export function useForm(getInitial, deps=[], options={}) {
+	let initial=usePromise(getInitial,deps);
+	let [current,setCurrent,modified]=useRevertibleState(initial,[...deps,initial]);
 
 	function onFieldChange(ev) {
 		if (!current)

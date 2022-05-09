@@ -5,7 +5,14 @@ export function PromiseButton(props) {
 
 	async function onClick() {
 		setBusy(true);
-		await props.action();
+		try {
+			await props.action();
+		}
+
+		catch (e) {
+			props.onerror(e);
+		}
+
 		setBusy(false);
 	}
 

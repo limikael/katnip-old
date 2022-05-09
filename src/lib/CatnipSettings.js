@@ -5,7 +5,7 @@ class Setting extends Model {
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		key: "VARCHAR(255) NOT NULL",
-		value: "TEXT NOT NULL"
+		value: "TEXT"
 	}
 }
 
