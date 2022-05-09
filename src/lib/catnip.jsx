@@ -111,6 +111,8 @@ class Catnip {
 	}
 
 	clientMain=()=>{
+		this.doActionAsync("clientMain",this.sessionManager.clientSession);
+
 		let el=document.getElementById("catnip-root");
 		render(<CatnipView />,el);
 	}
