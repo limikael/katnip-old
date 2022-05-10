@@ -15,6 +15,10 @@ export default class CatnipServerSessions {
 		this.sessions={};
 	}
 
+	getUserIdByCookie=(cookie)=>{
+		return this.sessions[cookie];
+	}
+
 	initSessionRequest=async (cookie)=>{
 		let sessionRequest={};
 

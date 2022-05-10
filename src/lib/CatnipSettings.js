@@ -35,7 +35,7 @@ export default class CatnipSettings {
 		await setting.save();
 	}
 
-	load=async ()=>{
+	loadSettings=async ()=>{
 		for (let setting of await Setting.findMany()) 
 			this.settings[setting.key]=JSON.parse(setting.value);
 	}
