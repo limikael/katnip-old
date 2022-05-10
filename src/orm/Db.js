@@ -17,7 +17,7 @@ export default class Db {
 		cls.db=this;
 		this.classes.push(cls);
 
-		this[cls.name]=cls;
+		this[cls.getTableName()]=cls;
 	}
 
 	createConnection(url) {

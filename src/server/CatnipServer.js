@@ -10,7 +10,7 @@ export default class CatnipServer {
 		this.options=options;
 	}
 
-	async run() {
+	async build() {
 		this.outDir=await createOutDir();
 		console.log("Building in: "+this.outDir);
 
@@ -47,7 +47,10 @@ export default class CatnipServer {
 		this.catnip=global.catnip;
 		this.catnip.db.MySql=await import("mysql");
 		global.fetch=(await import("node-fetch")).default;
+	}
 
+	async run() {
+		await this.build();
 		console.log("Starting...");
 		await this.catnip.serverMain(this.options);
 
