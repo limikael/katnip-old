@@ -1,4 +1,5 @@
 import Db, {Model} from "../../src/orm/Db.js";
+import {createWhereClause} from "../../src/orm/db-util.js";
 import mysql from "mysql";
 
 class Employee extends Model {
@@ -40,6 +41,9 @@ describe("db",()=>{
 		let total=await db.Employee.getAggregate("SUM(salary)");
 		expect(total).toEqual(13);
 
+		let total2=await db.Employee.getAggregate("SUM(salary)",{name: "Micke"});
+		expect(total2).toEqual(5);
+
 		let a=await db.Employee.findOne({name: "Micke"});
 		let b=await db.Employee.findOne({name: "Micke"});
 
@@ -51,5 +55,30 @@ describe("db",()=>{
 
 		/*let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
 		expect(total).toEqual([13,6.5]);*/
+	});
+
+	it("can create a where clause",()=>{
+		let w;
+
+		w=createWhereClause({
+			a: 5,
+			b: 6,
+			$limit: 1
+		});
+		//console.log(w);
+
+		w=createWhereClause({
+			a: 5,
+			b: 6,
+			$limit: [1,2]
+		});
+		//console.log(w);
+
+		w=createWhereClause({
+			a: 5,
+			b: 6,
+			$order: "bla"
+		});
+		//console.log(w);
 	});
 });

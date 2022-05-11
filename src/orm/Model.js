@@ -16,7 +16,7 @@ export default class Model {
 		o[cls.getPrimaryKeyField()]=this.getPrimaryKeyValue();
 		let q=createWhereClause(o);
 
-		let qs=`SELECT * FROM ${cls.getTableName()} WHERE ${q.query}`;
+		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 		let dbRow=dbRows[0];
 
@@ -26,7 +26,6 @@ export default class Model {
 
 	static async findMany(params={}) {
 		let cls=this;
-		let wherePart="";
 		let q;
 
 		if (typeof params=="object" && params)
@@ -38,10 +37,7 @@ export default class Model {
 			q=createWhereClause(o);
 		}
 
-		if (q.query)
-			wherePart=" WHERE "+q.query;
-
-		let qs=`SELECT * FROM ${cls.getTableName()} ${wherePart}`;
+		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
 		let res=[];
@@ -58,11 +54,11 @@ export default class Model {
 	static async getAggregate(sql, whereParams={}) {
 		let cls=this;
 		let q=createWhereClause(whereParams);
-		let wherePart="";
-		if (q.query)
-			wherePart=" WHERE "+q.query;
+//		let wherePart="";
+/*		if (q.query)
+			wherePart=" WHERE "+q.query;*/
 
-		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${wherePart}`;
+		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${q.query}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
 		let firstKey=Object.keys(dbRows[0])[0];

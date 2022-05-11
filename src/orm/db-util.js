@@ -1,4 +1,4 @@
-export function createWhereClause(spec) {
+export function createWhereClause(spec, isSubClause) {
 	if (!spec.$op)
 		spec.$op="and";
 
@@ -14,6 +14,25 @@ export function createWhereClause(spec) {
 			qs+=` \`${k}\`=? `;
 			vals.push(spec[k]);
 		}
+	}
+
+	if (vals.length && !isSubClause)
+		qs=" WHERE "+qs;
+
+	if (spec.$limit) {
+		if (Array.isArray(spec.$limit)) {
+			qs+=" LIMIT ?,? ";
+			vals.push(...spec.$limit)
+		}
+
+		else {
+			qs+=" LIMIT ? ";
+			vals.push(spec.$limit)
+		}
+	}
+
+	if (spec.$order) {
+		qs+=" ORDER BY "+spec.$order;
 	}
 
 	return {
