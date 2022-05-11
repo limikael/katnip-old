@@ -167,3 +167,5 @@ export const addRoute=catnip.addRoute;
 export const addTemplate=catnip.addTemplate;
 export const getTemplateForRoute=catnip.getTemplateForRoute;
 export const getPageComponentForRoute=catnip.getPageComponentForRoute;
+
+export const getUserIdByCookie=catnip.getUserIdByCookie;

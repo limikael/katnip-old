@@ -38,6 +38,7 @@ catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 });
 
 catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
+	clientSession.cookie=sessionRequest.cookie;
 	if (sessionRequest.uid) {
 		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
 		clientSession.user={

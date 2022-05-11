@@ -29,7 +29,7 @@ export default class Model {
 		let wherePart="";
 		let q;
 
-		if (typeof params=="object")
+		if (typeof params=="object" && params)
 			q=createWhereClause(params);
 
 		else {
