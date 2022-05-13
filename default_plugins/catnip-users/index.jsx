@@ -1,16 +1,11 @@
-import {LoginPage, UserAdmin} from "./components.jsx";
-import {catnip, Model} from "catnip";
+import LoginPage from "./components/LoginPage.jsx";
+import SignupPage from "./components/SignupPage.jsx";
+import AccountPage from "./components/AccountPage.jsx";
+import UserAdmin from "./components/UserAdmin.jsx";
+import {catnip, delay} from "catnip";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
 import {getCapsByRole} from "./rolecaps.js";
-
-class User extends Model {
-	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
-		email: "VARCHAR(255) NOT NULL",
-		password: "VARCHAR(255) NOT NULL",
-		role: "VARCHAR(64) NOT NULL",
-	};
-}
+import User from "./src/User.js";
 
 catnip.addModel(User);
 
@@ -24,13 +19,22 @@ catnip.addAction("getAdminMenu",(items)=>{
 });
 
 catnip.addRoute("login",LoginPage);
+catnip.addRoute("signup",SignupPage);
+catnip.addRoute("account",AccountPage);
 catnip.addRoute("admin/user",UserAdmin);
 
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 	if (sessionRequest.getUserId())
 		sessionRequest.user=await User.findOne(sessionRequest.getUserId());
 
+	sessionRequest.getUser=()=>{
+		return sessionRequest.user;
+	}
+
 	sessionRequest.assertCap=(cap)=>{
+		if (!sessionRequest.user)
+			throw new Error("Not authorized.");
+
 		let caps=getCapsByRole(sessionRequest.user.role);
 		if (!caps.includes(cap))
 			throw new Error("Not authorized.");
@@ -86,13 +90,38 @@ catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 });
 
 catnip.addApi("/api/login",async ({login, password}, sessionRequest)=>{
-	let u=await catnip.db.User.findOne({
-		email: login,
-		password: password
-	});
+	let u=await catnip.db.User.findOne({email: login});
 
 	if (!u)
 		throw new Error("Bad credentials.");
+
+	u.assertPassword(password);
+
+	await sessionRequest.setUserId(u.id);
+
+	return {
+		user: {
+			id: u.id,
+			email: u.email
+		}
+	}
+});
+
+catnip.addApi("/api/signup",async ({login, password, repeatPassword})=>{
+	if (await User.findOne({email: login}))
+		throw new Error("The email is already in use");
+
+	if (!login)
+		throw new Error("Invalid email");
+
+	if (password!=repeatPassword)
+		throw new Error("The passwords don't match");
+
+	u=new User();
+	u.email=login;
+	u.setPassword(password);
+	u.role="user";
+	await u.save();
 
 	await sessionRequest.setUserId(u.id);
 

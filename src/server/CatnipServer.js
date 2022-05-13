@@ -4,6 +4,7 @@ import fs from "fs";
 import CatnipRequestHandler from "./CatnipRequestHandler.js";
 import CatnipChannelHandler from "./CatnipChannelHandler.js";
 import {createOutDir, getPluginPaths} from "./catnip-server-util.js";
+import crypto from "crypto";
 
 export default class CatnipServer {
 	constructor(options) {
@@ -47,6 +48,7 @@ export default class CatnipServer {
 		this.catnip=global.catnip;
 		this.catnip.db.MySql=await import("mysql");
 		global.fetch=(await import("node-fetch")).default;
+		global.crypto=crypto;
 	}
 
 	async run() {

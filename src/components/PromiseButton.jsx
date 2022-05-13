@@ -3,10 +3,16 @@ import {useState} from "preact/compat";
 export function PromiseButton(props) {
 	let [busy, setBusy]=useState(false);
 
-	async function onClick() {
+	async function onClick(ev) {
+		ev.preventDefault();
+
 		setBusy(true);
 		try {
-			await props.action();
+			if (props.action)
+				await props.action();
+
+			if (props.onclick)
+				await props.onclick();
 		}
 
 		catch (e) {
@@ -16,15 +22,16 @@ export function PromiseButton(props) {
 		setBusy(false);
 	}
 
-	props.disabled=busy;
+	let propsCopy={...props};
+	propsCopy.disabled=busy;
+	propsCopy.onclick=null;
 
 	return (
-		<button {...props}
-				onclick={onClick}>
+		<button  {...propsCopy} onclick={onClick}>
 			{busy &&
 				<span class="spinner-border spinner-border-sm me-2"/>
 			}
-			{props.children}
+			{propsCopy.children}
 		</button>
 	);
 } 

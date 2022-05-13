@@ -79,8 +79,12 @@ export function useForm(getInitial, deps=[], options={}) {
 		if (!current)
 			current={};
 
+		let v=current[name];
+		if (!v)
+			v="";
+
 		return {
-			value: current[name],
+			value: v,
 			onchange: onFieldChange,
 			"data-field": name
 		}
