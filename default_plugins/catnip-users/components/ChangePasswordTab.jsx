@@ -14,9 +14,9 @@ catnip.addApi("/api/changePassword",async (params, sreq)=>{
 });
 
 export default function ChangePasswordTab() {
-	[counter, invalidate]=useCounter();
-	[values, field]=useForm({},[counter]);
-	[message, setMessage]=useState();
+	let [counter, invalidate]=useCounter();
+	let [values, field]=useForm({},[counter]);
+	let [message, setMessage]=useState();
 
 	async function onChangePasswordClick() {
 		setMessage();

@@ -1,5 +1,7 @@
 import {catnip} from "catnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
+import ChangeEmailTab from "./ChangeEmailTab.jsx";
+import DeleteAccountTab from "./DeleteAccountTab.jsx";
 
 function AccordionItem({id, parent, children, show, title}) {
 	return (
@@ -25,14 +27,6 @@ function AccordionItem({id, parent, children, show, title}) {
 			</div>
 		</div>
 	);
-}
-
-function ChangeEmailTab() {
-	
-}
-
-function DeleteAccountTab() {
-	
 }
 
 export default function AccountPage() {

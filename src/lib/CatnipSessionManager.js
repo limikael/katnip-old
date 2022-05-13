@@ -23,6 +23,7 @@ export default class CatnipSessionManager {
 			this.clientSession,
 			(newSession)=>{
 				Object.assign(this.clientSession,newSession);
+				console.log(this.clientSession);
 				forceUpdate();
 			}
 		]
