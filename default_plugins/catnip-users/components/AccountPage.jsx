@@ -36,18 +36,24 @@ export default function AccountPage() {
 	let accountTabs=[];
 	accountTabs.push({
 		title: "Change Password",
-		component: ChangePasswordTab
+		component: ChangePasswordTab,
+		priority: 10,
 	});
 
 	accountTabs.push({
 		title: "Change Email",
-		component: ChangeEmailTab
+		component: ChangeEmailTab,
+		priority: 20,
 	});
 
 	accountTabs.push({
 		title: "Delete Account",
-		component: DeleteAccountTab
+		component: DeleteAccountTab,
+		priority: 30,
 	});
+
+	catnip.doAction("getAccountTabs",accountTabs);
+	accountTabs.sort((a,b)=>a.priority-b.priority);
 
 	let accordionItems=[];
 	for (let i=0; i<accountTabs.length; i++) {
