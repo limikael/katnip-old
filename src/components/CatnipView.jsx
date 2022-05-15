@@ -18,11 +18,16 @@ export function CatnipView() {
 	});
 
 	let request=catnip.getCurrentRequest();
+	if (session.redirect && request.path!=session.redirect) {
+		catnip.setLocation(session.redirect);
+		return;
+	}
+
 	if (request.path=="/")
 		request=catnip.parseRequest(session.homepath);
 
-	let Layout=catnip.getTemplateForRoute(request.path); //doAction("getPageTemplate",request);
-	let Page=catnip.getPageComponentForRoute(request.path); //doAction("getPageComponent",request);
+	let Layout=catnip.getTemplateForRoute(request.path);
+	let Page=catnip.getPageComponentForRoute(request.path);
 
 	let [title,setTitle]=useRevertibleState(null,[request.href]);
 	let tc={title,setTitle};

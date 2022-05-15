@@ -23,3 +23,39 @@ export function BootstrapAlert({message, ondismiss}) {
 		</div>
 	);
 }
+
+export function BsInput({...props}) {
+	if (props.type=="textarea")
+		return (
+			<textarea class="form-control" {...props}>{props.value}</textarea>
+		);
+
+	if (props.type=="select") {
+		let options=null;
+		if (props.options)
+			options=optionsFromObject(props.options);
+
+		return (
+			<select class="form-select" {...props}>
+				{options}
+				{props.children}
+			</select>
+		);
+	}
+
+	return (
+		<input class="form-control" {...props} />
+	);
+
+}
+
+export function BsGroupInput({title, ...props}) {
+	return (
+		<div class="form-group row mb-3">
+			<label class="col-4 col-form-label">{title}</label>
+			<div class="col-8">
+				<BsInput {...props}/>
+			</div>
+		</div>
+	);
+}

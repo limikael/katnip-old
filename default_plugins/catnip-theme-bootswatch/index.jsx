@@ -70,3 +70,10 @@ catnip.addAction("getCustomizerOptions",(items)=>{
 });
 
 catnip.addTemplate("**",PageTemplate);
+
+catnip.addAction("serverMain",async ()=>{
+	if (!catnip.getSetting("sitename")) {
+		console.log("No site name, setting...")
+		await catnip.setSetting("sitename","My Site");
+	}
+});

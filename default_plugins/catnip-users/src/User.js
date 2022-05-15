@@ -14,7 +14,7 @@ export default class User extends Model {
 	};
 
 	setPassword(newPassword) {
-		if (newPassword.length<6)
+		if (!newPassword || newPassword.length<6)
 			throw new Error("The password is too short");
 
 		this.salt=hash(crypto.randomBytes(64));

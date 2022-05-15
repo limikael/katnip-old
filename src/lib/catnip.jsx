@@ -6,7 +6,7 @@ import CatnipServerSessions from "./CatnipServerSessions.js";
 import CatnipSettings from "./CatnipSettings.js";
 import Db from "../orm/Db.js";
 import {CatnipView} from "../components/CatnipView.jsx";
-import {isClient, isServer} from "../utils/js-util.js";
+import {isClient, isServer, retry} from "../utils/js-util.js";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
 
@@ -118,8 +118,17 @@ class Catnip {
 	}
 
 	serverMain=async (options)=>{
-		//console.log(global);
-		await this.db.connect(options.dsn);
+		let retryOptions={
+			times: 6*2,
+			delay: 10000,
+			onerror: (e)=>{
+				console.log("Connection failed, trying again......")
+			}
+		};
+
+		await retry(async ()=>{
+			await this.db.connect(options.dsn);
+		},retryOptions);
 
 		if (!options.hasOwnProperty("dbinstall"))
 			options["dbinstall"]=true;

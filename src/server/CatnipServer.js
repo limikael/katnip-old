@@ -64,7 +64,7 @@ export default class CatnipServer {
 		let server=http.createServer(this.requestHandler.handleRequest);
 		let channelHandler=new CatnipChannelHandler(this.catnip,server);
 
-		server.listen(3000,"localhost",()=>{
+		server.listen(3000,"0.0.0.0",()=>{
 			console.log("Running...");
 			console.log();
 			console.log("    http://localhost:3000/");

@@ -82,3 +82,27 @@ catnip.addChannel("numPages",async ()=>{
 catnip.addChannel("pageContent",async ({id})=>{
 	return await catnip.db.Page.findOne(id);
 });
+
+catnip.addAction("serverMain",async ()=>{
+	if (!await Page.getCount()) {
+		console.log("No pages, will create one...");
+		let p=new Page({
+			title: "Hello",
+			content: "<p>Hello and welcome!</p><p>This is a page...</p>",
+			stamp: Date.now()/1000,
+			slug: convertToSlug("Hello")
+		});
+
+		await p.save();
+
+		if (!catnip.getSetting("homepath")) {
+			console.log("Setting home path...");
+			await catnip.setSetting("homepath","/page/hello");
+		}
+	}
+
+	if (!catnip.getSetting("sitename")) {
+		console.log("No site name, setting...")
+		await catnip.setSetting("sitename","My Site");
+	}
+});

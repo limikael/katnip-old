@@ -1,3 +1,16 @@
+function mysqlConnect(mysql) {
+	return new Promise((resolve, reject)=>{
+		mysql.connect((err)=>{
+			if (err) {
+				reject(err);
+				return;
+			}
+
+			resolve(err);
+		});
+	});
+}
+
 export default class DbConnection {
 	constructor(url) {
 		this.url=new URL(url);
@@ -18,7 +31,7 @@ export default class DbConnection {
 							database: this.url.pathname.replace("/","")
 						});
 
-						this.mysql.connect();
+						await mysqlConnect(this.mysql);
 						break;
 
 					default:
@@ -26,6 +39,10 @@ export default class DbConnection {
 						break;
 				}
 			})();
+
+			this.connectionPromise.catch((e)=>{
+				this.connectionPromise=null;
+			});
 		}
 
 		return this.connectionPromise;

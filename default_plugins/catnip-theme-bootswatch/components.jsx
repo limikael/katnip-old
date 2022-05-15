@@ -42,6 +42,9 @@ function Nav({request, onsize}) {
 	},[]);
 
 	let navColor=session.bootswatchNavColor;
+	if (!navColor)
+		navColor="primary";
+
 	let navClass="navbar-dark ";
 	if (navColor=="light")
 		navClass="navbar-light ";
@@ -49,6 +52,10 @@ function Nav({request, onsize}) {
 	navClass+=` bg-${navColor}`;
 	if (session.bootswatchNavStyle=="fixed")
 		navClass+=" fixed-top";
+
+	let menuHeader=session.menuHeader;
+	if (!menuHeader)
+		menuHeader=[];
 
 	return (
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
@@ -63,7 +70,7 @@ function Nav({request, onsize}) {
 
 				<div class="collapse navbar-collapse" id="navbarColor01">
 					<ul class="navbar-nav me-auto">
-						{session.menuHeader.map(item=>{
+						{menuHeader.map(item=>{
 							let cls="nav-link";
 
 							if (request.path==item.href)
@@ -95,10 +102,6 @@ function Footer({request}) {
 
 	let cls;
 	switch (session.bootswatchFooter) {
-		case "dark":
-			cls="bg-dark text-light";
-			break;
-
 		case "light":
 			cls="bg-light text-dark";
 			break;
@@ -112,17 +115,24 @@ function Footer({request}) {
 			break;
 
 		case "transparent":
-		default:
+			break;
+
+		case "dark":
+			default:
+			cls="bg-dark text-light";
 			break;
 	}
 
+	let menuFooter=session.menuFooter;
+	if (!menuFooter)
+		menuFooter=[];
 
 	return (
 		<footer class={`container-fluid ${cls}`}>
 			<div class="container pt-4 pb-4">
 				<h4>{session.sitename}</h4>
 				<ul>
-					{session.menuFooter.map(item=>{
+					{menuFooter.map(item=>{
 						return (
 							<li>
 								<A href={item.href}>
