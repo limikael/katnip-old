@@ -21,6 +21,10 @@ export default class CatnipClientChannels extends EventEmitter {
 				protocol="ws";
 				break;
 
+			case "https:":
+				protocol="wss";
+				break;
+
 			default:
 				throw new Error("Unknown protocol: "+window.location.protocol);
 		}
