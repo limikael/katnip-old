@@ -5,6 +5,8 @@ function hash(v) {
 }
 
 export default class User extends Model {
+	static tableName="User";
+
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		email: "VARCHAR(255) NOT NULL",

@@ -12,8 +12,11 @@ export default class CatnipServer {
 	}
 
 	async build() {
+		if (!this.options.minify)
+			this.options.minify=false;
+
 		this.outDir=await createOutDir();
-		console.log("Building in: "+this.outDir);
+		console.log("Building in: "+this.outDir+" minify: "+this.options.minify);
 
 		if (!fs.existsSync("node_modules/react"))
 			fs.symlinkSync("preact/compat","node_modules/react","dir");
@@ -33,7 +36,7 @@ export default class CatnipServer {
 				external: ["mysql"],
 				jsxFactory: "h",
 				jsxFragment: "Fragment",
-				//minify: true,
+				minify: this.options.minify,
 				outfile: this.outDir+"/catnip-bundle.js",
 				loader: {".svg": "dataurl"}
 			});

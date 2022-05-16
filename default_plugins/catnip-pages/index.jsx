@@ -3,6 +3,8 @@ import {PageView, PageAdmin} from "./components.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
 class Page extends catnip.Model {
+	static tableName="Page";
+
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		title: "TEXT NOT NULL",

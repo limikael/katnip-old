@@ -1,6 +1,8 @@
 import Model from "../orm/Model.js";
 
 class Session extends Model {
+	static tableName="Session";
+
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		cookie: "VARCHAR(255) NOT NULL",

@@ -133,6 +133,7 @@ export default class Model {
 		if (this.tableName)
 			return this.tableName;
 
+		throw new Error("No tableName defined for: "+this.name);
 		return this.name;
 	}
 

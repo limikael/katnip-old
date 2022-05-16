@@ -1,7 +1,7 @@
 import {catnip} from "catnip";
 
 export function createCrudApi(model, options={}) {
-	let name=model.name.toLowerCase();
+	let name=model.getTableName().toLowerCase();
 
 	if (!options.cap)
 		options.cap="manage-settings";
