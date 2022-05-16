@@ -1,5 +1,5 @@
-import {isClient, isServer} from "../utils/js-util.js";
 import Model from "../orm/Model.js";
+import {isServer} from "../utils/js-util.js";
 
 class Setting extends Model {
 	static fields={
@@ -11,32 +11,68 @@ class Setting extends Model {
 
 export default class CatnipSettings {
 	constructor(db) {
-		if (isServer()) {
-			this.settings={};
+		this.settings={};
+		this.categories={};
 
+		if (isServer())
 			db.addModel(Setting);
-		}
 	}
 
-	getSetting=(key)=>{
-		return this.settings[key];
+	getSetting=(id)=>{
+		if (!this.settings[id])
+			throw new Error("No such setting: "+id);
+
+		return this.settings[id].value;
 	}
 
-	setSetting=async (key, value)=>{
-		this.settings[key]=value;
+	addSetting=(id, setting={})=>{
+		setting.id=id;
+		if (!setting.title)
+			setting.title=setting.id;
 
-		let setting=await Setting.findOne({key: key});
+		this.settings[id]=setting;
+	}
+
+	setSetting=async (id, value)=>{
+		if (!this.settings[id])
+			throw new Error("No such setting: "+key);
+
+		this.settings[id].value=value;
+
+		let setting=await Setting.findOne({key: id});
 		if (!setting) {
 			setting=new Setting()
-			setting.key=key;
+			setting.key=id;
 		}
 
-		setting.value=JSON.stringify(this.settings[key]);
+		setting.value=JSON.stringify(this.settings[id].value);
 		await setting.save();
 	}
 
 	loadSettings=async ()=>{
 		for (let setting of await Setting.findMany()) 
-			this.settings[setting.key]=JSON.parse(setting.value);
+			this.settings[setting.key].value=JSON.parse(setting.value);
+	}
+
+	getSettings=(q={})=>{
+		let res=[];
+
+		for (let id in this.settings) {
+			let setting=this.settings[id];
+			if (!q.category || setting.category==q.category)
+				if (!q.session || setting.session)
+					res.push(setting);
+		}
+
+		return res;
+	}
+
+	getSettingCategories=()=>{
+		return this.categories;
+	}
+
+	addSettingCategory=(id, category={})=>{
+		category.id=id;
+		this.categories[id]=category;
 	}
 }

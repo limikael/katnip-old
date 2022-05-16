@@ -1,3 +1,5 @@
+import {optionsFromObject, usePromise} from "./react-util.jsx";
+
 export function BootstrapAlert({message, ondismiss}) {
 	let alertClass="alert-success";
 
@@ -25,19 +27,21 @@ export function BootstrapAlert({message, ondismiss}) {
 }
 
 export function BsInput({...props}) {
+	let options=usePromise(props.options,[]);
+
 	if (props.type=="textarea")
 		return (
 			<textarea class="form-control" {...props}>{props.value}</textarea>
 		);
 
 	if (props.type=="select") {
-		let options=null;
-		if (props.options)
-			options=optionsFromObject(props.options);
+		let optionElements=null;
+		if (options)
+			optionElements=optionsFromObject(options);
 
 		return (
 			<select class="form-select" {...props}>
-				{options}
+				{optionElements}
 				{props.children}
 			</select>
 		);

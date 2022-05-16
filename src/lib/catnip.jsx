@@ -24,9 +24,6 @@ class Catnip {
 
 			this.serverSessions=new CatnipServerSessions(this);
 			this.composeFunctions(this.serverSessions);
-
-			this.settings=new CatnipSettings(this.db);
-			this.composeFunctions(this.settings);
 		}
 
 		if (isClient()) {
@@ -37,8 +34,10 @@ class Catnip {
 
 			this.clientChannels=new CatnipClientChannels();
 			this.composeFunctions(this.clientChannels);
-
 		}
+
+		this.settings=new CatnipSettings(this.db);
+		this.composeFunctions(this.settings);
 
 		this.elements={};
 		this.templates={};
@@ -171,6 +170,10 @@ export const useTemplateContext=catnip.useTemplateContext;
 export const initSessionRequest=catnip.initSessionRequest;
 export const getChannelData=catnip.getChannelData;
 export const notifyChannel=catnip.notifyChannel;
+export const addSetting=catnip.addSetting;
+export const getSettings=catnip.getSettings;
+export const addSettingCategory=catnip.addSettingCategory;
+export const getSettingCategories=catnip.getSettingCategories;
 
 export const addRoute=catnip.addRoute;
 export const addTemplate=catnip.addTemplate;

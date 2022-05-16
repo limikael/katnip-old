@@ -9,7 +9,12 @@ import GEAR from "bootstrap-icons/icons/gear.svg";
 catnip.addTemplate("admin/**",AdminTemplate);
 
 catnip.addRoute("admin",Dashboard);
-catnip.addRoute("admin/settings",Settings);
+catnip.addRoute("admin/settings/**",Settings);
+
+catnip.addSetting("sitename",{title: "Site Name", category: "settings", session: true});
+catnip.addSetting("homepath",{title: "Homepage Route", category: "settings", session: true});
+
+catnip.addSettingCategory("settings",{title: "Settings", priority: 10});
 
 catnip.addAction("getAdminMenu",(items)=>{
 	items.push({
@@ -39,6 +44,16 @@ function Hello({request}) {
 	return (<>Hello</>)
 }
 
+catnip.addApi("/api/getSettings",async ({category},sreq)=>{
+	sreq.assertCap("manage-settings");
+	let res={};
+
+	for (let setting of catnip.getSettings({category: category}))
+		res[setting.id]=setting.value;
+
+	return res;
+});
+
 catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 	sreq.assertCap("manage-settings");
 	for (let k in settings)
@@ -58,6 +73,9 @@ catnip.addAction("getClientSession",async (clientSession)=>{
 	for (let k of customizerOptions)
 		clientSession[k.setting]=catnip.getSetting(k.setting);
 
-	clientSession["sitename"]=catnip.getSetting("sitename");
-	clientSession["homepath"]=catnip.getSetting("homepath");
+	for (let setting of catnip.getSettings({session: true}))
+		clientSession[setting.id]=setting.value;
+
+/*	clientSession["sitename"]=catnip.getSetting("sitename");
+	clientSession["homepath"]=catnip.getSetting("homepath");*/
 });

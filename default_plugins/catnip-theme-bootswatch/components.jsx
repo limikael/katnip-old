@@ -12,8 +12,6 @@ function Nav({request, onsize}) {
 		if (!navRef.current)
 			return;
 
-		//console.log("getNavHeight");
-
 		let navStyle=window.getComputedStyle(navRef.current);
 		let padding=
 			parseFloat(navStyle["padding-top"])+

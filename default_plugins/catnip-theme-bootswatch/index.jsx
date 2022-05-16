@@ -13,6 +13,14 @@ catnip.addAction("getMenuLocations",(items)=>{
 	});
 })
 
+catnip.addSetting("menuHeader");
+catnip.addSetting("menuFooter");
+
+catnip.addSetting("bootswatchTheme");
+catnip.addSetting("bootswatchNavColor");
+catnip.addSetting("bootswatchNavStyle");
+catnip.addSetting("bootswatchFooter");
+
 catnip.addAction("getCustomizerOptions",(items)=>{
 	let themes=[
 		"cerulean", "cosmo", "cyborg", "darkly", "flatly",

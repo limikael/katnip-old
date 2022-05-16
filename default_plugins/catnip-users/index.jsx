@@ -25,6 +25,8 @@ catnip.addRoute("signup",SignupPage);
 catnip.addRoute("account",AccountPage);
 catnip.addRoute("admin/user",UserAdmin);
 
+catnip.addSetting("install");
+
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 	if (sessionRequest.getUserId()) {
 		sessionRequest.user=await User.findOne(sessionRequest.getUserId());
