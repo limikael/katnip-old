@@ -53,6 +53,11 @@ export default class CatnipServer {
 
 	async run() {
 		await this.build();
+
+		let port=this.options.port;
+		if (!port)
+			port=3000;
+
 		console.log("Starting...");
 		await this.catnip.serverMain(this.options);
 
@@ -64,11 +69,8 @@ export default class CatnipServer {
 		let server=http.createServer(this.requestHandler.handleRequest);
 		let channelHandler=new CatnipChannelHandler(this.catnip,server);
 
-		server.listen(3000,"0.0.0.0",()=>{
-			console.log("Running...");
-			console.log();
-			console.log("    http://localhost:3000/");
-			console.log();
+		server.listen(port,"0.0.0.0",()=>{
+			console.log("Running on port "+port);
 		});
 	}
 }

@@ -7,7 +7,10 @@ import CatnipServer from "./CatnipServer.js";
 
 let options={};
 if (process.env.DSN)
-	options.dsn=process.env.DSN
+	options.dsn=process.env.DSN;
+
+if (process.env.PORT)
+	options.port=process.env.PORT;
 
 Object.assign(options,minimist(process.argv.slice(2)));
 
