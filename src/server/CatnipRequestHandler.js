@@ -7,10 +7,61 @@ export default class CatnipRequestHandler {
 	constructor(catnip, options) {
 		this.catnip=catnip;
 		this.options=options;
+		this.startTime=Date.now();
 	}
 
 	setClientBundle(bundle) {
 		this.clientBundle=bundle;
+	}
+
+	computeETag=(entity)=>{
+		let hash = crypto
+			.createHash('sha1')
+			.update(entity, 'utf8')
+			.digest('base64')
+			.substring(0, 27)
+
+		let len = typeof entity==='string'
+			?Buffer.byteLength(entity,'utf8')
+			:entity.length
+
+		return '"' + len.toString(16) + '-' + hash + '"';
+	}
+
+	handleContent=(req, res, content, headers)=>{
+		headers["ETag"]=this.computeETag(content);
+
+		let len=typeof content==='string'
+			?Buffer.byteLength(content,'utf8')
+			:content.length
+
+		headers["Content-Length"]=len;
+		headers["Cache-Control"]="public, max-age=0";
+
+		if (req.headers["if-none-match"]==headers["ETag"]) {
+			res.writeHead(304,headers);
+			res.end();
+			return;
+		}
+
+		res.writeHead(200,headers);
+		res.end(content);
+	}
+
+	getFileMimeType(fn) {
+		let ext=fn.split('.').pop().toLowerCase();
+		let types={
+			"jpg": "image/jpeg",
+			"jpeg": "image/jpeg",
+			"png": "image/png",
+			"js": "application/javascript",
+			"css": "text/css"
+		};
+
+		if (types[ext])
+			return types[ext];
+
+		return "application/octet-stream";
 	}
 
 	handlePublic=(req, res)=> {
@@ -20,8 +71,11 @@ export default class CatnipRequestHandler {
 			let cand=pluginPaths[pluginName]+"/"+req.url;
 
 			if (fs.existsSync(cand)) {
-				res.writeHead(200);
-				res.end(fs.readFileSync(cand));
+				let mtime=fs.statSync(cand).mtime;
+				this.handleContent(req,res,fs.readFileSync(cand),{
+					"Content-Type": this.getFileMimeType(cand),
+					"Last-Modified": new Date(mtime).toUTCString()
+				});
 				return;
 			}
 		}
@@ -89,14 +143,14 @@ export default class CatnipRequestHandler {
 			cookies.catnip=uuidv4();
 
 		try {
-			if (req.url=="/catnip-bundle.js") {
-				res.writeHead(200);
-				res.end(this.clientBundle);
-			}
+			if (req.url=="/catnip-bundle.js")
+				this.handleContent(req,res,this.clientBundle,{
+					"Content-Type": "application/javascript",
+					"Last-Modified": new Date(this.startTime).toUTCString()
+				});
 
-			else if (req.url.startsWith("/api/")) {
+			else if (req.url.startsWith("/api/"))
 				await this.handleApi(req,res,cookies.catnip);
-			}
 
 			else if (req.url.startsWith("/public/"))
 				this.handlePublic(req,res);
