@@ -168,6 +168,9 @@ export default class CatnipRequestHandler {
 					let quotedSession=quoteAttr(JSON.stringify(clientSession));
 
 					let clientPage=`<body><html>`;
+					clientPage+=`<head>`;
+					clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
+					clientPage+=`</head>`;
 					clientPage+=`<div id="catnip-root"></div>`;
 					clientPage+=`<script data-session="${quotedSession}" src="/catnip-bundle.js"></script>`;
 					clientPage+=`</html></body>`;
