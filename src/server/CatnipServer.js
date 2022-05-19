@@ -7,7 +7,7 @@ import {createOutDir, getPluginPaths} from "./catnip-server-util.js";
 import crypto from "crypto";
 
 export default class CatnipServer {
-	constructor(options) {
+	constructor(options={}) {
 		this.options=options;
 	}
 
