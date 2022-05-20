@@ -1,4 +1,4 @@
-import {catnip} from "catnip";
+import {catnip, PromiseButton} from "catnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
 import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import DeleteAccountTab from "./DeleteAccountTab.jsx";
@@ -30,7 +30,15 @@ function AccordionItem({id, parent, children, show, title}) {
 }
 
 export default function AccountPage() {
+	let [session, setSession]=catnip.useSession();
 	let tc=catnip.useTemplateContext();
+
+	if (!session.user) {
+		console.log("no user, redirecting");
+		catnip.setLocation("/login");
+		return;
+	}
+
 	tc.setTitle("Account");
 
 	let accountTabs=[];
@@ -68,9 +76,17 @@ export default function AccountPage() {
 		);
 	}
 
-	return (
-		<div class="accordion" id="account-accordion" style="max-width: 40rem">
+	async function onLogoutClick() {
+		await catnip.apiFetch("/api/logout");
+		setSession({user: null});
+	}
+
+	return (<>
+		<div class="accordion mb-3" id="account-accordion" style="max-width: 40rem">
 			{accordionItems}
 		</div>
-	);
+		<PromiseButton class="btn btn-primary" onclick={onLogoutClick}>
+			Log out
+		</PromiseButton>
+	</>);
 }

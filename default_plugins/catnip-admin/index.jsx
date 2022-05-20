@@ -13,6 +13,7 @@ catnip.addRoute("admin/settings/**",Settings);
 
 catnip.addSetting("sitename",{title: "Site Name", category: "settings", session: true});
 catnip.addSetting("homepath",{title: "Homepage Route", category: "settings", session: true});
+catnip.addSetting("postloginpath",{title: "Post Login Route", category: "settings", session: true});
 
 catnip.addSettingCategory("settings",{title: "Settings", priority: 10});
 

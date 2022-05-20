@@ -18,7 +18,7 @@ export default function LoginPage() {
 			});
 
 			setSession(u);
-			catnip.setLocation("/admin");
+			catnip.setLocation(session.postloginpath);
 		}
 
 		catch (e) {

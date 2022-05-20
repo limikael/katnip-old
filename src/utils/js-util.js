@@ -162,6 +162,9 @@ export function setLocation(url, options={}) {
 	if (!options.hasOwnProperty(event))
 		options.event="locationchange";
 
+	if (!url)
+		url="/";
+
 	if (options.replace)
 		history.replaceState(null,null,url);
 

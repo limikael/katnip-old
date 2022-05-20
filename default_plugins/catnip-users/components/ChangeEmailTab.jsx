@@ -4,8 +4,10 @@ import {useState} from "preact/compat";
 catnip.addApi("/api/changeEmail",async (params, sreq)=>{
 	sreq.assertCap("user");
 	let u=sreq.getUser();
-
 	u.assertPassword(params.password);
+
+	if (await User.findOne({email: params.email}))
+		throw new Error("The email is already in use");
 
 	u.email=params.email;
 	await u.save();
