@@ -27,7 +27,7 @@ export function BootstrapAlert({message, ondismiss}) {
 }
 
 export function BsInput({...props}) {
-	let options=usePromise(props.options,[]);
+	let options=usePromise(props.options,[props.options]);
 
 	if (props.type=="textarea")
 		return (
@@ -56,8 +56,8 @@ export function BsInput({...props}) {
 export function BsGroupInput({title, ...props}) {
 	return (
 		<div class="form-group row mb-3">
-			<label class="col-4 col-form-label">{title}</label>
-			<div class="col-8">
+			<label class="col-12 col-sm-4 col-form-label">{title}</label>
+			<div class="col-12 col-sm-8">
 				<BsInput {...props}/>
 			</div>
 		</div>
