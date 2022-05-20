@@ -13,7 +13,7 @@ export default function SignupPage() {
 		let u=await catnip.apiFetch("/api/signup",formValues);
 
 		setSession(u);
-		catnip.setLocation("/admin");
+		catnip.setLocation(session.postloginpath);
 	}
 
 	let messageEl;
