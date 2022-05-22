@@ -1,4 +1,4 @@
-import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext} from "catnip";
+import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext, buildUrl} from "catnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
@@ -162,17 +162,19 @@ export function PageTemplate({request,children}) {
 	if (session.bootswatchTheme)
 		cssUrl=`/public/bootstrap-${session.bootswatchTheme}.min.css`;
 
+	cssUrl=buildUrl(cssUrl,{contentHash: session.contentHash});
+
 	let containerStyle={};
 	if (session.bootswatchNavStyle=="fixed")
 		containerStyle["margin-top"]=navSize+"px";
 
-	//console.log(tc);
+	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: session.contentHash});
 
 	return (
 		<>
 			<link rel="stylesheet" href={cssUrl}/>
 			<script
-				src="/public/bootstrap.bundle.min.js"
+				src={bsUrl}
 				async
 			/>
 			<style global jsx>{`

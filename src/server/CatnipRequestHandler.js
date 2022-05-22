@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {quoteAttr, delay} from "../utils/js-util.js";
+import {quoteAttr, delay, parseRequest, buildUrl} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 
@@ -12,6 +12,14 @@ export default class CatnipRequestHandler {
 
 	setClientBundle(bundle) {
 		this.clientBundle=bundle;
+		this.bundleHash=crypto
+			.createHash('sha1')
+			.update(bundle, 'utf8')
+			.digest('hex');
+	}
+
+	setContentHash(contentHash) {
+		this.contentHash=contentHash;
 	}
 
 	computeETag=(entity)=>{
@@ -36,7 +44,9 @@ export default class CatnipRequestHandler {
 			:content.length
 
 		headers["Content-Length"]=len;
-		headers["Cache-Control"]="public, max-age=0";
+
+		if (!headers["Cache-Control"])
+			headers["Cache-Control"]="public, max-age=0";
 
 		if (req.headers["if-none-match"]==headers["ETag"]) {
 			res.writeHead(304,headers);
@@ -66,16 +76,23 @@ export default class CatnipRequestHandler {
 
 	handlePublic=(req, res)=> {
 		let pluginPaths=getPluginPaths();
+		let urlreq=parseRequest(req.url,"http://example.com/");
 
 		for (let pluginName in pluginPaths) {
-			let cand=pluginPaths[pluginName]+"/"+req.url;
+			let cand=pluginPaths[pluginName]+"/"+urlreq.path;
 
 			if (fs.existsSync(cand)) {
 				let mtime=fs.statSync(cand).mtime;
-				this.handleContent(req,res,fs.readFileSync(cand),{
+				let headers={
 					"Content-Type": this.getFileMimeType(cand),
 					"Last-Modified": new Date(mtime).toUTCString()
-				});
+				};
+
+				if (urlreq.query.contentHash &&
+						urlreq.query.contentHash==this.contentHash)
+					headers["Cache-Control"]="public, max-age=31536000";
+
+				this.handleContent(req,res,fs.readFileSync(cand),headers);
 				return;
 			}
 		}
@@ -101,12 +118,6 @@ export default class CatnipRequestHandler {
 		Object.assign(query,bodyQuery);
 		let params=l.pathname.split("/").filter(s=>s.length>0);
 		let path="/"+params.join("/");
-
-		/*if (params.length!=2) {
-			res.writeHead(404);
-			res.end("Malformed...");
-			return;
-		}*/
 
 		let func=this.catnip.apis[path];
 		if (func) {
@@ -137,47 +148,62 @@ export default class CatnipRequestHandler {
 		}));
 	}
 
+	handleDefault=async (req, res, cookie)=>{
+		let clientSession={};
+		let sessionRequest=await catnip.initSessionRequest(cookie);
+		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
+
+		clientSession.contentHash=this.contentHash;
+
+		res.writeHead(200,{
+			"Set-Cookie": `catnip=${cookie}`
+		});
+
+		let quotedSession=quoteAttr(JSON.stringify(clientSession));
+		let bundleUrl=buildUrl("/catnip-bundle.js",{
+			bundleHash: this.bundleHash
+		});
+
+		let clientPage=`<body><html>`;
+		clientPage+=`<head>`;
+		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
+		clientPage+=`</head>`;
+		clientPage+=`<div id="catnip-root"></div>`;
+		clientPage+=`<script data-session="${quotedSession}" src="${bundleUrl}"></script>`;
+		clientPage+=`</html></body>`;
+
+		res.end(clientPage);
+	}
+
 	handleRequest=async (req, res)=>{
 		let cookies=this.catnip.parseCookies(req);
 		if (!cookies.catnip)
 			cookies.catnip=uuidv4();
 
+		let urlreq=parseRequest(req.url,"http://example.com/");
+
 		try {
-			if (req.url=="/catnip-bundle.js")
-				this.handleContent(req,res,this.clientBundle,{
+			if (urlreq.path=="/catnip-bundle.js") {
+				let headers={
 					"Content-Type": "application/javascript",
 					"Last-Modified": new Date(this.startTime).toUTCString()
-				});
+				};
+
+				if (urlreq.query.bundleHash &&
+						urlreq.query.bundleHash==this.bundleHash)
+					headers["Cache-Control"]="public, max-age=31536000";
+
+				this.handleContent(req,res,this.clientBundle,headers);
+			}
 
 			else if (req.url.startsWith("/api/"))
 				await this.handleApi(req,res,cookies.catnip);
 
 			else if (req.url.startsWith("/public/"))
-				this.handlePublic(req,res);
+				await this.handlePublic(req,res);
 
-			else {
-				(async()=>{
-					let clientSession={};
-					let sessionRequest=await catnip.initSessionRequest(cookies.catnip);
-					await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
-
-					res.writeHead(200,{
-						"Set-Cookie": `catnip=${cookies.catnip}`
-					});
-
-					let quotedSession=quoteAttr(JSON.stringify(clientSession));
-
-					let clientPage=`<body><html>`;
-					clientPage+=`<head>`;
-					clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
-					clientPage+=`</head>`;
-					clientPage+=`<div id="catnip-root"></div>`;
-					clientPage+=`<script data-session="${quotedSession}" src="/catnip-bundle.js"></script>`;
-					clientPage+=`</html></body>`;
-
-					res.end(clientPage);
-				})();
-			}
+			else
+				await this.handleDefault(req,res,cookies.catnip);
 		}
 
 		catch (e) {

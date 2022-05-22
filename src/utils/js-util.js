@@ -98,8 +98,11 @@ export async function apiFetch(url, query={}, extraHeaders={}) {
 	return data;
 }
 
-export function parseRequest(url) {
-	let l=new URL(url,window.location.origin);
+export function parseRequest(url, origin) {
+	if (!origin)
+		origin=window.location.origin;
+
+	let l=new URL(url,origin);
 	let query=Object.fromEntries(new URLSearchParams(l.search));
 	let params=l.pathname.split("/").filter(s=>s.length>0);
 	let path="/"+params.join("/");

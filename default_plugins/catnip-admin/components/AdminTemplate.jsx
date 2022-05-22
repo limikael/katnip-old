@@ -104,17 +104,20 @@ function Sidebar({request}) {
 }
 
 export function AdminHead() {
+	let [session]=useSession();
+
+	let cssUrl=buildUrl("/public/bootstrap.min.css",{contentHash: session.contentHash});
+	let jsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: session.contentHash});
+
 	return (<>
-		<link rel="stylesheet" 
-			href="/public/bootstrap.min.css"/>
+		<link rel="stylesheet" href={cssUrl}/>
 		<style>{`
 			html, body, .page {
 				height: 100%;
 				width: 100%;
 			}
 		`}</style>
-		<script
-			src="/public/bootstrap.bundle.min.js"/>
+		<script src={jsUrl}/>
 	</>);
 }
 
