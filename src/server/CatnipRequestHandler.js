@@ -1,4 +1,3 @@
-import {v4 as uuidv4} from 'uuid';
 import {quoteAttr, delay, parseRequest, buildUrl} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
@@ -178,7 +177,7 @@ export default class CatnipRequestHandler {
 	handleRequest=async (req, res)=>{
 		let cookies=this.catnip.parseCookies(req);
 		if (!cookies.catnip)
-			cookies.catnip=uuidv4();
+			cookies.catnip=crypto.randomUUID();
 
 		let urlreq=parseRequest(req.url,"http://example.com/");
 
