@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import {useEventUpdate, useImmediateEffect} from "../utils/react-util.jsx";
 import {objectFirstKey, buildUrl} from "../utils/js-util.js";
+import {installWsKeepAlive} from "../utils/ws-util.js";
 
 export default class CatnipClientChannels extends EventEmitter {
 	constructor() {
@@ -35,9 +36,13 @@ export default class CatnipClientChannels extends EventEmitter {
 		this.ws.addEventListener("message",this.onMessage);
 		this.ws.addEventListener("close",this.onClose);
 		this.ws.addEventListener("error",this.onClose);
+		installWsKeepAlive(this.ws,{delay:10000});
 	}
 
 	onMessage=(ev)=>{
+		if (ev.data=="PING" || ev.data=="PONG")
+			return;
+
 		let messageData=JSON.parse(ev.data);
 
 		switch (objectFirstKey(messageData)) {

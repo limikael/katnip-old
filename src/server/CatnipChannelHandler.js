@@ -1,5 +1,6 @@
 import {WebSocketServer} from "ws";
 import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
+import {installWsKeepAlive} from "../utils/ws-util.js";
 
 export default class CatnipChannelHandler {
 	constructor(catnip, server) {
@@ -12,6 +13,8 @@ export default class CatnipChannelHandler {
 	}
 
 	onConnection=(ws, req)=>{
+		installWsKeepAlive(ws,{delay:10000});
+
 		let cookies=this.catnip.parseCookies(req);
 		ws.cookie=cookies.catnip;
 		ws.subscriptions=[];
@@ -48,6 +51,9 @@ export default class CatnipChannelHandler {
 	}
 
 	onConnectionMessage=async (ws, msg)=>{
+		if (msg=="PING" || msg=="PONG")
+			return;
+
 		let messageData=JSON.parse(msg);
 		//console.log(messageData);
 		switch (objectFirstKey(messageData)) {
