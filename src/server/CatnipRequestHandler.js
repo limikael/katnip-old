@@ -148,6 +148,8 @@ export default class CatnipRequestHandler {
 	}
 
 	handleDefault=async (req, res, cookie)=>{
+		console.log(req.headers);
+
 		let clientSession={};
 		let sessionRequest=await catnip.initSessionRequest(cookie);
 		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
