@@ -33,13 +33,13 @@ catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 catnip.addSetting("googleClientId",{title: "Google Client Id", category: "auth"});
 catnip.addSetting("googleClientSecret",{title: "Google Client Secret", category: "auth"});
 
-function createGoogleAuthClient() {
+function createGoogleAuthClient(origin) {
 	return new ClientOAuth2({
 		clientId: catnip.getSetting("googleClientId"),
 		clientSecret: catnip.getSetting("googleClientSecret"),
 		accessTokenUri: 'https://oauth2.googleapis.com/token',
 		authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
-		redirectUri: 'http://localhost:3000/auth',
+		redirectUri: origin+'/auth',
 		scopes: ['https://www.googleapis.com/auth/userinfo.email']
 	});
 }
@@ -82,7 +82,7 @@ catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
 
 	if (catnip.getSetting("googleClientId") &&
 			catnip.getSetting("googleClientSecret"))
-		clientSession.googleAuthUrl=createGoogleAuthClient().code.getUri();
+		clientSession.googleAuthUrl=createGoogleAuthClient(sessionRequest.origin).code.getUri();
 });
 
 catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
@@ -166,7 +166,7 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
 });
 
 catnip.addApi("/api/auth",async ({url}, sreq)=>{
-	let res=await createGoogleAuthClient().code.getToken(url);
+	let res=await createGoogleAuthClient(sreq.origin).code.getToken(url);
 
 	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{
 		id_token: res.data.id_token

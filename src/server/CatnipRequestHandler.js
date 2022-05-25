@@ -122,6 +122,7 @@ export default class CatnipRequestHandler {
 		if (func) {
 			try {
 				let sessionRequest=await catnip.initSessionRequest(sessionCookie);
+				sessionRequest.origin=this.getOrigin(req);
 				let data=await func(query,sessionRequest);
 
 				res.writeHead(200);
@@ -147,11 +148,19 @@ export default class CatnipRequestHandler {
 		}));
 	}
 
-	handleDefault=async (req, res, cookie)=>{
-		console.log(req.headers);
+	getOrigin=(req)=>{
+		let protocol="http";
+		if (req.headers["x-forwarded-proto"])
+			protocol=req.headers["x-forwarded-proto"];
 
+		let origin=protocol+"://"+req.headers.host;
+		return origin;
+	}
+
+	handleDefault=async (req, res, cookie)=>{
 		let clientSession={};
 		let sessionRequest=await catnip.initSessionRequest(cookie);
+		sessionRequest.origin=this.getOrigin(req);
 		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
 
 		clientSession.contentHash=this.contentHash;
