@@ -11,6 +11,7 @@
   "type": "module",
   "dependencies": {
     "bootstrap-icons": "^1.8.1",
+    "client-oauth2": "^4.3.3",
     "dayjs": "^1.11.1",
     "dotenv": "^16.0.0",
     "esbuild": "^0.14.34",

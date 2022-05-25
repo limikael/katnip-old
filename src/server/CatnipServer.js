@@ -5,6 +5,7 @@ import CatnipRequestHandler from "./CatnipRequestHandler.js";
 import CatnipChannelHandler from "./CatnipChannelHandler.js";
 import {createOutDir, getPluginPaths} from "./catnip-server-util.js";
 import crypto from "crypto";
+import ClientOAuth2 from "client-oauth2";
 
 export default class CatnipServer {
 	constructor(options={}) {
@@ -92,6 +93,7 @@ export default class CatnipServer {
 		this.catnip.db.MySql=await import("mysql");
 		global.fetch=(await import("node-fetch")).default;
 		global.crypto=crypto;
+		global.ClientOAuth2=ClientOAuth2;
 	}
 
 	async run() {

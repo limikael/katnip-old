@@ -3,10 +3,11 @@ import SignupPage from "./components/SignupPage.jsx";
 import AccountPage from "./components/AccountPage.jsx";
 import UserAdmin from "./components/UserAdmin.jsx";
 import InstallPage from "./components/InstallPage.jsx";
-import {catnip, delay} from "catnip";
+import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
 import {getCapsByRole} from "./rolecaps.js";
 import User from "./src/User.js";
+import Auth from "./components/Auth.jsx";
 
 catnip.addModel(User);
 
@@ -24,8 +25,24 @@ catnip.addRoute("login",LoginPage);
 catnip.addRoute("signup",SignupPage);
 catnip.addRoute("account",AccountPage);
 catnip.addRoute("admin/user",UserAdmin);
+catnip.addRoute("auth",Auth);
 
 catnip.addSetting("install");
+
+catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
+catnip.addSetting("googleClientId",{title: "Google Client Id", category: "auth"});
+catnip.addSetting("googleClientSecret",{title: "Google Client Secret", category: "auth"});
+
+function createGoogleAuthClient() {
+	return new ClientOAuth2({
+		clientId: catnip.getSetting("googleClientId"),
+		clientSecret: catnip.getSetting("googleClientSecret"),
+		accessTokenUri: 'https://oauth2.googleapis.com/token',
+		authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
+		redirectUri: 'http://localhost:3000/auth',
+		scopes: ['https://www.googleapis.com/auth/userinfo.email']
+	});
+}
 
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 	if (sessionRequest.getUserId()) {
@@ -62,6 +79,10 @@ catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
 
 	if (catnip.getSetting("install"))
 		clientSession.redirect="/install";
+
+	if (catnip.getSetting("googleClientId") &&
+			catnip.getSetting("googleClientSecret"))
+		clientSession.googleAuthUrl=createGoogleAuthClient().code.getUri();
 });
 
 catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
@@ -136,11 +157,38 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
 	await u.save();
 
 	await sreq.setUserId(u.id);
-
 	return {
 		user: {
 			id: u.id,
 			email: u.email
+		}
+	}
+});
+
+catnip.addApi("/api/auth",async ({url}, sreq)=>{
+	let res=await createGoogleAuthClient().code.getToken(url);
+
+	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{
+		id_token: res.data.id_token
+	});
+
+	let tokenInfo=await apiFetch(googleApiUrl);
+	if (!tokenInfo.email)
+		throw new Error("Unable to login with google");
+
+	let user=await User.findOne({email: tokenInfo.email});
+	if (!user) {
+		user=new User();
+		user.email=login;
+		user.role="user";
+		await user.save();
+	}
+
+	await sreq.setUserId(user.id);
+	return {
+		user: {
+			id: user.id,
+			email: user.email
 		}
 	}
 });

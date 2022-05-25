@@ -23,32 +23,37 @@ export default function SignupPage() {
 		);
 
 	return (
-		<div class="d-flex flex-row align-items-center" style="width: 100%; height: 100%">
-			<div class="d-flex align-items-center flex-column" style="width: 100%">
-				<div class="card border shadow mb-3">
-					<div class="card-body">
-						<h3 class="text-center mb-4">Sign Up</h3>
+		<div class="mt-5 ms-auto me-auto" style="width: 100%; max-width: 20rem">
+			<div class="card border shadow mb-4">
+				<div class="card-body">
+					<h3 class="text-center mb-3">Sign Up</h3>
 
-						<form>
-							<input type="text" class="form-control mb-3" placeholder="Username / Email"
-									{...field("login")}/>
-							<input type="password" class="form-control mb-3" placeholder="Password"
-									{...field("password")}/>
-							<input type="password" class="form-control mb-3" placeholder="Repeat Password" 
-									{...field("repeatPassword")}/>
-						</form>
+					<form class="mb-2">
+						<input type="text" class="form-control mb-3" placeholder="Username / Email"
+								{...field("login")}/>
+						<input type="password" class="form-control mb-3" placeholder="Password"
+								{...field("password")}/>
+						<input type="password" class="form-control" placeholder="Repeat Password" 
+								{...field("repeatPassword")}/>
+					</form>
 
-						{messageEl}
+					{messageEl}
 
-						<PromiseButton class="btn btn-primary mt-2" style="width: 100%"
-								action={onSignupClick}
-								onerror={setMessage}>
-							Sign Up
-						</PromiseButton>
-					</div>
+					<PromiseButton class="btn btn-primary mt-2 mb-2" style="width: 100%"
+							action={onSignupClick}
+							onerror={setMessage}>
+						Sign Up
+					</PromiseButton>
+					<A href="/login" class="d-block small text-muted text-center" style="width: 100%">
+						<b>Already have an account? Login instead.</b>
+					</A>
 				</div>
-				<A href="/login"><b>Already have an account? Login instead.</b></A>
 			</div>
+			{session.googleAuthUrl &&
+				<a class="btn btn-danger mb-2" style="width: 100%" href={session.googleAuthUrl}>
+					<b>Sign in with Google</b>
+				</a>
+			}
 		</div>
 	);
 }
