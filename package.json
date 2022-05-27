@@ -5,7 +5,8 @@
     "catnip": "src/server/catnip-cli.js"
   },
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "dev": "./src/server/catnip-cli.js --no-dbinstall"
   },
   "main": "src/lib/catnip-exports.js",
   "type": "module",
@@ -25,5 +26,8 @@
   "devDependencies": {
     "jasmine": "^4.1.0",
     "mysql": "^2.18.1"
+  },
+  "_moduleAliases": {
+    "catnip": "."
   }
 }

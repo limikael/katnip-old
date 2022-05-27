@@ -1,7 +1,7 @@
 import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl} from "catnip";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
 import {useRef, useState} from "preact/compat";
-import {getRoles} from "../rolecaps.js";
+import {getRoles} from "../src/rolecaps.js";
 
 export function UserList() {
 	let columns={
