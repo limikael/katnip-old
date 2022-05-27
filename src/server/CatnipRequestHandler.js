@@ -1,6 +1,7 @@
 import {quoteAttr, delay, parseRequest, buildUrl} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
+import crypto from "crypto";
 
 export default class CatnipRequestHandler {
 	constructor(catnip, options) {
@@ -74,11 +75,10 @@ export default class CatnipRequestHandler {
 	}
 
 	handlePublic=(req, res)=> {
-		let pluginPaths=getPluginPaths();
 		let urlreq=parseRequest(req.url,"http://example.com/");
 
-		for (let pluginName in pluginPaths) {
-			let cand=pluginPaths[pluginName]+"/"+urlreq.path;
+		for (let pluginPath of getPluginPaths()) {
+			let cand=pluginPath+"/"+urlreq.path;
 
 			if (fs.existsSync(cand)) {
 				let mtime=fs.statSync(cand).mtime;
@@ -121,7 +121,7 @@ export default class CatnipRequestHandler {
 		let func=this.catnip.apis[path];
 		if (func) {
 			try {
-				let sessionRequest=await catnip.initSessionRequest(sessionCookie);
+				let sessionRequest=await this.catnip.initSessionRequest(sessionCookie);
 				sessionRequest.origin=this.getOrigin(req);
 				let data=await func(query,sessionRequest);
 
@@ -159,7 +159,7 @@ export default class CatnipRequestHandler {
 
 	handleDefault=async (req, res, cookie)=>{
 		let clientSession={};
-		let sessionRequest=await catnip.initSessionRequest(cookie);
+		let sessionRequest=await this.catnip.initSessionRequest(cookie);
 		sessionRequest.origin=this.getOrigin(req);
 		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
 

@@ -1,3 +1,6 @@
+import ClientOAuth2 from "client-oauth2";
+import {catnip} from "catnip";
+
 export function createGoogleAuthClient(origin) {
 	return new ClientOAuth2({
 		clientId: catnip.getSetting("googleClientId"),

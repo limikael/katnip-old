@@ -1,5 +1,6 @@
 {
   "name": "catnip-users",
   "type": "module",
-  "main": "index.jsx"
+  "main": "src/catnip-users-main.js",
+  "browser": "src/catnip-users-browser.jsx"
 }

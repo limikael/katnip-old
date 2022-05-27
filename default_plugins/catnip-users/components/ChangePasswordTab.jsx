@@ -1,18 +1,6 @@
 import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter} from "catnip";
 import {useState} from "preact/compat";
 
-catnip.addApi("/api/changePassword",async (params, sreq)=>{
-	sreq.assertCap("user");
-	let u=sreq.getUser();
-
-	u.assertPassword(params.oldPassword);
-	if (params.newPassword!=params.repeatNewPassword)
-		throw new Error("The passwords don't match");
-
-	await u.setPassword(params.newPassword);
-	await u.save();
-});
-
 export default function ChangePasswordTab() {
 	let [counter, invalidate]=useCounter();
 	let [values, field]=useForm({},[counter]);

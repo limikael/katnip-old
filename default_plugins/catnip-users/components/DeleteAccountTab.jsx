@@ -1,15 +1,6 @@
 import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter, useSession} from "catnip";
 import {useState} from "preact/compat";
 
-catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
-	sreq.assertCap("user");
-	let u=sreq.getUser();
-
-	u.assertPassword(params.password);
-	await u.delete();
-	await sreq.setUserId();
-});
-
 export default function DeleteAccountTab() {
 	let [values, field]=useForm({});
 	let [message, setMessage]=useState();

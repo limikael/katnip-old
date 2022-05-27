@@ -1,5 +1,6 @@
 {
   "name": "catnip-admin",
   "type": "module",
-  "main": "index.jsx"
+  "main": "./src/catnip-admin-main.js",
+  "browser": "./src/catnip-admin-browser.jsx"
 }

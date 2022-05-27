@@ -1,5 +1,6 @@
 {
   "name": "catnip-pages",
   "type": "module",
-  "main": "index.jsx"
+  "main": "./src/catnip-pages-main.js",
+  "browser": "./src/catnip-pages-browser.jsx"
 }

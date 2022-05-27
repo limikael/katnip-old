@@ -24,17 +24,17 @@ export function	getDirectories(source) {
 export function	getPluginPaths() {
 	let pkg=JSON.parse(fs.readFileSync("package.json"));
 	let pluginsNames=pkg.plugins||[];
-	let pluginPaths={};
+	let pluginPaths=[];
 
 	if (pkg.main)
-		pluginPaths[pkg.name]=`${process.cwd()}`;
+		pluginPaths.push(`${process.cwd()}`);
 
 	for (let pluginName of pluginsNames)
-		pluginPaths[pluginName]=`${process.cwd()}/node_modules/${pluginName}`;
+		pluginPaths.push(`${process.cwd()}/node_modules/${pluginName}`);
 
 	let defaultPlugins=getDirectories(`${process.cwd()}/node_modules/catnip/default_plugins/`);
 	for (let defaultPlugin of defaultPlugins)
-		pluginPaths[defaultPlugin]=`${process.cwd()}/node_modules/catnip/default_plugins/${defaultPlugin}`;
+		pluginPaths.push(`${process.cwd()}/node_modules/catnip/default_plugins/${defaultPlugin}`);
 
 	return pluginPaths;		
 }

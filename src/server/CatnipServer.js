@@ -5,7 +5,6 @@ import CatnipRequestHandler from "./CatnipRequestHandler.js";
 import CatnipChannelHandler from "./CatnipChannelHandler.js";
 import {createOutDir, getPluginPaths} from "./catnip-server-util.js";
 import crypto from "crypto";
-import ClientOAuth2 from "client-oauth2";
 
 export default class CatnipServer {
 	constructor(options={}) {
@@ -40,7 +39,7 @@ export default class CatnipServer {
 	computeContentHash() {
 		let allHashes=[];
 
-		for (let pluginPath of Object.values(getPluginPaths()))
+		for (let pluginPath of getPluginPaths())
 			if (fs.existsSync(pluginPath+"/public"))
 				allHashes.push(...this.getContentFileHashes(pluginPath+"/public"));
 
@@ -50,6 +49,11 @@ export default class CatnipServer {
 			.digest('hex');
 
 		return hash;
+	}
+
+	resolveMainFile(packageDir) {
+		let pkg=JSON.parse(fs.readFileSync(packageDir+"/package.json"));
+		return packageDir+"/"+pkg.main;
 	}
 
 	async build() {
@@ -69,12 +73,11 @@ export default class CatnipServer {
 		try {
 			await build({
 				multiBundle: true,
-				include: Object.values(getPluginPaths()),
+				include: getPluginPaths(),
 				expose: {
 					catnip: `${process.cwd()}/node_modules/catnip`
 				},
 				inject: [`${process.cwd()}/node_modules/catnip/src/utils/preact-shim.js`],
-				external: ["mysql"],
 				jsxFactory: "h",
 				jsxFragment: "Fragment",
 				minify: this.options.minify,
@@ -88,12 +91,25 @@ export default class CatnipServer {
 			process.exit();
 		}
 
+		console.log("Build done...");
+
+
+//		await import("/home/micke/Repo/catnip/node_modules/catnip/default_plugins/catnip-admin")
+
+		this.catnip=await import("catnip");
+		for (let pluginPath of getPluginPaths()) {
+			//console.log(pluginPath);
+			await import(this.resolveMainFile(pluginPath));
+		}
+
+		/*process.exit();
+
 		await import(this.outDir+"/catnip-bundle.js");
 		this.catnip=global.catnip;
 		this.catnip.db.MySql=await import("mysql");
 		global.fetch=(await import("node-fetch")).default;
 		global.crypto=crypto;
-		global.ClientOAuth2=ClientOAuth2;
+		global.ClientOAuth2=ClientOAuth2;*/
 	}
 
 	async run() {
