@@ -179,7 +179,7 @@ catnip.addApi("/api/auth",async ({url}, sreq)=>{
 	let user=await User.findOne({email: tokenInfo.email});
 	if (!user) {
 		user=new User();
-		user.email=login;
+		user.email=tokenInfo.email;
 		user.role="user";
 		await user.save();
 	}
