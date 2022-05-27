@@ -121,7 +121,7 @@ class Catnip {
 			times: 6*2,
 			delay: 10000,
 			onerror: (e)=>{
-				console.log("Connection failed, trying again......")
+				console.log("Connection failed, trying again: "+e.message)
 			}
 		};
 
