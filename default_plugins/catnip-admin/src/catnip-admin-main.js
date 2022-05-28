@@ -25,18 +25,6 @@ catnip.addSetting("postloginpath",{
 });
 
 catnip.addAction("getClientSession",async (clientSession)=>{
-	let menuLocations=[];
-	catnip.doAction("getMenuLocations",menuLocations);
-
-	for (let k of menuLocations)
-		clientSession[k.setting]=catnip.getSetting(k.setting);
-
-	let customizerOptions=[];
-	catnip.doAction("getCustomizerOptions",customizerOptions);
-
-	for (let k of customizerOptions)
-		clientSession[k.setting]=catnip.getSetting(k.setting);
-
 	for (let setting of catnip.getSettings({session: true}))
 		clientSession[setting.id]=setting.value;
 });

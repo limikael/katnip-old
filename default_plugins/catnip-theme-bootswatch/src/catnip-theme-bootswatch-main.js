@@ -1,12 +1,12 @@
 import catnip from "catnip";
 
-catnip.addSetting("menuHeader");
-catnip.addSetting("menuFooter");
+catnip.addSetting("menuHeader",{session: true});
+catnip.addSetting("menuFooter",{session: true});
 
-catnip.addSetting("bootswatchTheme");
-catnip.addSetting("bootswatchNavColor");
-catnip.addSetting("bootswatchNavStyle");
-catnip.addSetting("bootswatchFooter");
+catnip.addSetting("bootswatchTheme",{session: true});
+catnip.addSetting("bootswatchNavColor",{session: true});
+catnip.addSetting("bootswatchNavStyle",{session: true});
+catnip.addSetting("bootswatchFooter",{session: true});
 
 catnip.addAction("serverMain",async ()=>{
 	if (!catnip.getSetting("sitename")) {

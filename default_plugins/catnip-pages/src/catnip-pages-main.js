@@ -1,4 +1,4 @@
-import {catnip} from "catnip";
+import {catnip, convertToSlug} from "catnip";
 import "./catnip-pages-api.js";
 
 class Page extends catnip.Model {

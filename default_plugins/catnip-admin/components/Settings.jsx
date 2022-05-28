@@ -1,16 +1,16 @@
 import {ItemForm, apiFetch, useSession, useForm, BsGroupInput, 
 		PromiseButton, BootstrapAlert, A, setLocation,
-		useRevertibleState, buildUrl} from "catnip";
+		useRevertibleState, buildUrl, useApiFetch} from "catnip";
 import {useState} from "preact/compat";
 
-function SettingsTabs({request}) {
+function SettingsTabs({request, categories}) {
 	let categoryKey=request.query.category;
-	let categories=Object.values(catnip.getSettingCategories());
-	categories.sort((a,b)=>a.priority-b.priority);
+	let categoriesArray=Object.values(categories);
+	categoriesArray.sort((a,b)=>a.priority-b.priority);
 
 	return (
 		<ul class="nav nav-tabs mb-3">
-			{categories.map(category=>{
+			{categoriesArray.map(category=>{
 				let href=buildUrl("/admin/settings/",{category: category.id});
 				let linkCls="nav-link ";
 
@@ -30,6 +30,7 @@ function SettingsTabs({request}) {
 export default function Settings({request}) {
 	let categoryId=request.query.category;
 
+	let categories=useApiFetch("/api/getSettingCategories");
 	let [session, setSession]=useSession();
 	let [message, setMessage]=useRevertibleState("",[categoryId]);
 
@@ -44,8 +45,10 @@ export default function Settings({request}) {
 		await apiFetch("/api/saveSettings",values);
 
 		let o={};
-		for (let setting of catnip.getSettings({category: categoryId, session: true}))
-			o[setting.id]=values[setting.id];
+		for (let setting of categories[categoryId].settings) {
+			if (setting.session)
+				o[setting.id]=values[setting.id];
+		}
 
 		setSession(o);
 		setMessage("Settings saved...");
@@ -56,17 +59,15 @@ export default function Settings({request}) {
 		return;
 	}
 
-	let category=catnip.getSettingCategories()[categoryId];
-
 	return (<>
 		<h1 class="mb-3">Settings</h1>
-		<SettingsTabs request={request}/>
+		{categories && <SettingsTabs request={request} categories={categories}/>}
 		{message && <BootstrapAlert message={message} ondismiss={setMessage}/>}
-		{!values && <div class="spinner-border m-3"/>}
-		{values &&
+		{(!values || !categories) && <div class="spinner-border m-3"/>}
+		{(values && categories) &&
 			<form style="max-width: 40rem">
-				{catnip.getSettings({category: categoryId}).map(setting=>
-					<BsGroupInput {...field(setting.id)} {...setting}/>
+				{categories[categoryId].settings.map(setting=>
+					<BsGroupInput {...setting} {...field(setting.id)}/>
 				)}
 				<PromiseButton class="btn btn-primary" onclick={write} onerror={setMessage}>
 				Save Settings

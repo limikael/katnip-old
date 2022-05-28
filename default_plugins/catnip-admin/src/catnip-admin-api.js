@@ -1,5 +1,17 @@
 import {catnip} from "catnip";
 
+catnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
+	sreq.assertCap("manage-settings");
+
+	let categories=catnip.getSettingCategories();
+	for (let categoryId in categories) {
+		let category=categories[categoryId];
+		category.settings=catnip.getSettings({category: categoryId})
+	}
+
+	return categories;
+});
+
 catnip.addApi("/api/getSettings",async ({category},sreq)=>{
 	sreq.assertCap("manage-settings");
 	let res={};

@@ -93,9 +93,6 @@ export default class CatnipServer {
 
 		console.log("Build done...");
 
-
-//		await import("/home/micke/Repo/catnip/node_modules/catnip/default_plugins/catnip-admin")
-
 		this.catnip=await import("catnip");
 		for (let pluginPath of getPluginPaths()) {
 			//console.log(pluginPath);
@@ -107,7 +104,6 @@ export default class CatnipServer {
 		await import(this.outDir+"/catnip-bundle.js");
 		this.catnip=global.catnip;
 		this.catnip.db.MySql=await import("mysql");
-		global.fetch=(await import("node-fetch")).default;
 		global.crypto=crypto;
 		global.ClientOAuth2=ClientOAuth2;*/
 	}

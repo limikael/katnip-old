@@ -4,6 +4,9 @@ import CatnipServerSessions from "../lib/CatnipServerSessions.js";
 import CatnipSettings from "../lib/CatnipSettings.js";
 import Db from "../orm/Db.js";
 import {isClient, isServer, retry} from "../utils/js-util.js";
+import fetch from "node-fetch";
+
+global.fetch=fetch;
 
 class MainCatnip {
 	constructor() {
