@@ -7,6 +7,11 @@ catnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
 	for (let categoryId in categories) {
 		let category=categories[categoryId];
 		category.settings=catnip.getSettings({category: categoryId})
+
+		for (let setting of category.settings) {
+			if (setting.options instanceof Function)
+				setting.options=await setting.options();
+		}
 	}
 
 	return categories;
