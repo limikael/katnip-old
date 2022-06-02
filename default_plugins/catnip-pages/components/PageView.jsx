@@ -5,6 +5,16 @@ import XMLToReactModule from 'xml-to-react';
 
 const XMLToReact=XMLToReactModule.default;
 
+catnip.addElement("HideTitle",()=>{
+	let tc=catnip.useTemplateContext();
+
+	tc.setTitle("");
+})
+
+catnip.addElement("Img",(props)=>{
+	return <img {...props}/>
+});
+
 export default function PageView({request}) {
 	let tc=catnip.useTemplateContext();
 	let pageQuery=request.params[1];
@@ -17,7 +27,7 @@ export default function PageView({request}) {
 	if (page instanceof Error)
 		return <div class="mt-5"><BootstrapAlert message={page}/></div>;
 
-	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr"];
+	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr","small","br"];
 	let options={};
 
 	for (let tag of tags)
@@ -35,7 +45,8 @@ export default function PageView({request}) {
 	const xmlToReact=new XMLToReact(options);
 	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
 
-	tc.setTitle(page.title);
+	if (tc.title===null)
+		tc.setTitle(page.title);
 
 	return (<>
 		{reactTree}

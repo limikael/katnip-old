@@ -191,7 +191,9 @@ export function PageTemplate({request,children}) {
 							{tc && tc.title &&
 								<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
 							}
-
+							{(!tc || !tc.title) &&
+								<div class="mt-3"></div>
+							}
 							{children}
 						</div>
 					</div>
