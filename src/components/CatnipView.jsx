@@ -23,6 +23,11 @@ export function CatnipView() {
 		return;
 	}
 
+	if (session.homepath && request.path==session.homepath) {
+		catnip.setLocation("/");
+		request=catnip.getCurrentRequest();
+	}
+
 	if (request.path=="/")
 		request=catnip.parseRequest(session.homepath);
 

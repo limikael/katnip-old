@@ -170,6 +170,9 @@ export default function BootswatchPageTemplate({request,children}) {
 
 	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: session.contentHash});
 
+	let topItems=[];
+	catnip.doAction("topItems",topItems,request);
+
 	return (
 		<>
 			<link rel="stylesheet" href={cssUrl}/>
@@ -184,17 +187,20 @@ export default function BootswatchPageTemplate({request,children}) {
 			`}</style>
 			<div class="page d-flex flex-column">
 				<Nav request={request} onsize={setNavSize}/>
-				<div class="container mb-5 flex-grow-1" style={containerStyle}>
-					<div class="row" style="height: 100%">
-						<div class="d-none d-lg-block" style="width: 12.5%"></div>
-						<div class="col-lg-9">
-							{tc && tc.title &&
-								<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
-							}
-							{(!tc || !tc.title) &&
-								<div class="mt-3"></div>
-							}
-							{children}
+				<div style={containerStyle} class="flex-grow-1">
+					{topItems}
+					<div class="container mb-5">
+						<div class="row" style="height: 100%">
+							<div class="d-none d-lg-block" style="width: 12.5%"></div>
+							<div class="col-lg-9">
+								{tc && tc.title &&
+									<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
+								}
+								{(!tc || !tc.title) &&
+									<div class="mt-3"></div>
+								}
+								{children}
+							</div>
 						</div>
 					</div>
 				</div>
