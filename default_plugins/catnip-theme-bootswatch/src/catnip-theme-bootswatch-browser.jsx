@@ -1,7 +1,7 @@
 import catnip from "catnip";
-import {PageTemplate} from "../components.jsx";
+import BootswatchPageTemplate from "../components/BootswatchPageTemplate.jsx";
 
-catnip.addTemplate("**",PageTemplate);
+catnip.addTemplate("**",BootswatchPageTemplate);
 
 catnip.addAction("getMenuLocations",(items)=>{
 	items.push({

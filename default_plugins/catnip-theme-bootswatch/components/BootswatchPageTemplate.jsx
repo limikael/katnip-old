@@ -145,7 +145,7 @@ function Footer({request}) {
 	);
 }
 
-export function PageTemplate({request,children}) {
+export default function BootswatchPageTemplate({request,children}) {
 	let [session]=useSession();
 	let [navSize,setNavSize]=useState();
 	let newPage=useValueChanged(request.href);
