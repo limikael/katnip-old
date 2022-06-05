@@ -3,13 +3,35 @@ import {useEventUpdate, useImmediateEffect} from "../utils/react-util.jsx";
 import {objectFirstKey, buildUrl} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
 
+class ChannelData extends EventEmitter {
+	constructor(id) {
+		super();
+
+		this.id=id;
+		this.ref=0;
+	}
+
+	processMessage(message) {
+		if (message.error)
+			this.value=message.error;
+
+		else
+			this.value=message.data;
+
+		this.emit("change");
+	}
+
+	setValue(value) {
+		this.value=value;
+		this.emit("change");
+	}
+}
+
 export default class CatnipClientChannels extends EventEmitter {
 	constructor() {
 		super();
 
 		this.channelData={};
-		this.channelRef={};
-
 		this.initWebSocket();
 	}
 
@@ -44,19 +66,14 @@ export default class CatnipClientChannels extends EventEmitter {
 			return;
 
 		let messageData=JSON.parse(ev.data);
-
 		switch (objectFirstKey(messageData)) {
 			case "channel":
-				if (messageData.data)
-					this.channelData[messageData.channel]=messageData.data;
-
-				else if (messageData.error)
-					this.channelData[messageData.channel]=new Error(messageData.error);
+				let channelData=this.channelData[messageData.channel];
+				if (channelData)
+					channelData.processMessage(messageData);
 
 				else
-					this.channelData[messageData.channel]=undefined;
-
-				this.emit("channel-"+messageData.channel);
+					console.log("Bad channel: "+JSON.stringify(messageData));
 				break;
 
 			default:
@@ -68,10 +85,8 @@ export default class CatnipClientChannels extends EventEmitter {
 	onClose=()=>{
 		console.log("WebSocket closed")
 
-		for (let channelUrl of Object.keys(this.channelData)) {
-			this.channelData[channelUrl]=undefined;
-			this.emit("channel-"+channelUrl);
-		}
+		for (let channelUrl of Object.keys(this.channelData))
+			this.channelData[channelUrl].setValue(undefined);
 
 		this.ws.removeEventListener("open",this.onOpen);
 		this.ws.removeEventListener("message",this.onMessage);
@@ -84,7 +99,7 @@ export default class CatnipClientChannels extends EventEmitter {
 
 	onOpen=()=>{
 		console.log("WebSocket open");
-		for (let channelUrl of Object.keys(this.channelRef))
+		for (let channelUrl of Object.keys(this.channelData))
 			this.sendMessage({subscribe: channelUrl});
 
 		this.emit("statusChange");
@@ -95,22 +110,24 @@ export default class CatnipClientChannels extends EventEmitter {
 	}
 
 	increaseChannelRef=(channelUrl)=>{
-		if (!this.channelRef.hasOwnProperty(channelUrl)) {
-			this.channelRef[channelUrl]=0;
-			this.channelData[channelUrl]=undefined;
-
+		if (!this.channelData[channelUrl]) {
+			this.channelData[channelUrl]=new ChannelData(channelUrl);
 			if (this.ws && this.ws.readyState==WebSocket.OPEN)
 				this.sendMessage({subscribe: channelUrl});
 		}
 
-		this.channelRef[channelUrl]++;
+		this.channelData[channelUrl].ref++;
 	}
 
 	decreaseChannelRef=(channelUrl)=>{
-		this.channelRef[channelUrl]--;
+		if (!this.channelData[channelUrl]) {
+			console.log("Count already zero: "+channelUrl);
+			return;
+		}
 
-		if (this.channelRef[channelUrl]==0) {
-			delete this.channelRef[channelUrl];
+		this.channelData[channelUrl].ref--;
+
+		if (this.channelData[channelUrl].ref==0) {
 			delete this.channelData[channelUrl];
 
 			if (this.ws && this.ws.readyState==WebSocket.OPEN)
@@ -130,7 +147,6 @@ export default class CatnipClientChannels extends EventEmitter {
 			channelUrl=buildUrl(channelIdOrFunc,params);
 		}
 
-		useEventUpdate("channel-"+channelUrl,this);
 		useImmediateEffect(()=>{
 			if (channelUrl)
 				this.increaseChannelRef(channelUrl);
@@ -140,8 +156,9 @@ export default class CatnipClientChannels extends EventEmitter {
 					this.decreaseChannelRef(channelUrl);
 			}
 		},[channelUrl]);
+		useEventUpdate("change",this.channelData[channelUrl]);
 
-		return this.channelData[channelUrl];
+		return this.channelData[channelUrl].value;
 	}
 
 	useWebSocketStatus=()=>{
