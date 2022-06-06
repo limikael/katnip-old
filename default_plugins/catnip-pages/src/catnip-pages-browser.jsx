@@ -3,6 +3,8 @@ import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
+catnip.setChannelPersistence("numPages",true);
+
 catnip.addElement("PageCounter",()=>{
 	let numPages=useChannel("numPages");
 

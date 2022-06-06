@@ -25,6 +25,10 @@ class ChannelData extends EventEmitter {
 		this.value=value;
 		this.emit("change");
 	}
+
+	getValue() {
+		return this.value;
+	}
 }
 
 export default class CatnipClientChannels extends EventEmitter {
@@ -85,8 +89,10 @@ export default class CatnipClientChannels extends EventEmitter {
 	onClose=()=>{
 		console.log("WebSocket closed")
 
-		for (let channelUrl of Object.keys(this.channelData))
-			this.channelData[channelUrl].setValue(undefined);
+		for (let channelUrl of Object.keys(this.channelData)) {
+			if (!this.channelData[channelUrl].persistent)
+				this.channelData[channelUrl].setValue(undefined);
+		}
 
 		this.ws.removeEventListener("open",this.onOpen);
 		this.ws.removeEventListener("message",this.onMessage);
@@ -135,6 +141,44 @@ export default class CatnipClientChannels extends EventEmitter {
 		}
 	}
 
+	getChannelValue=(channelUrl)=>{
+		if (!this.channelData[channelUrl])
+			return null;
+
+		return this.channelData[channelUrl].getValue();
+	}
+
+	setChannelValue=(channelUrl, value)=>{
+		if (!this.channelData[channelUrl])
+			return;
+
+		this.channelData[channelUrl].setValue(value);
+	}
+
+	setChannelPersistence=(channelUrl, persistent)=>{
+		if (persistent) {
+			if (!this.channelData[channelUrl])
+				this.channelData[channelUrl]=new ChannelData(channelUrl);
+
+			this.channelData[channelUrl].persistent=true;
+			if (this.channelData[channelUrl].ref==0) {
+				if (this.ws && this.ws.readyState==WebSocket.OPEN)
+					this.sendMessage({subscribe: channelUrl});
+			}
+		}
+
+		else {
+			if (!this.channelData[channelUrl])
+				return;
+
+			this.channelData[channelUrl].persistent=false;
+			if (this.channelData[channelUrl].ref==0) {
+				if (this.ws && this.ws.readyState==WebSocket.OPEN)
+					this.sendMessage({unsubscribe: channelUrl});
+			}
+		}
+	}
+
 	useChannel=(channelIdOrFunc, params={})=>{
 		let channelUrl;
 		if (typeof channelIdOrFunc=="function") {
@@ -158,7 +202,7 @@ export default class CatnipClientChannels extends EventEmitter {
 		},[channelUrl]);
 		useEventUpdate("change",this.channelData[channelUrl]);
 
-		return this.channelData[channelUrl].value;
+		return this.channelData[channelUrl].getValue();
 	}
 
 	useWebSocketStatus=()=>{
@@ -166,6 +210,4 @@ export default class CatnipClientChannels extends EventEmitter {
 
 		return (this.ws && this.ws.readyState==WebSocket.OPEN);
 	}
-
-	addChannel=()=>{}
 }
