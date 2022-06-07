@@ -1,4 +1,5 @@
-import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext, buildUrl} from "catnip";
+import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext, buildUrl,
+		useChannel} from "catnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
@@ -39,7 +40,9 @@ function Nav({request, onsize}) {
 		setTimeout(checkHeight,0);
 	},[]);
 
-	let navColor=session.bootswatchNavColor;
+//	let navColor=session.bootswatchNavColor;
+	let navColor=useChannel("bootswatchNavColor");
+	console.log("nav color: "+navColor);
 	if (!navColor)
 		navColor="primary";
 

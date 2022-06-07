@@ -16,14 +16,14 @@ class MainCatnip {
 		this.db=new Db();
 		this.apis={};
 
-		this.serverChannels=new CatnipServerChannels();
+		this.settings=new CatnipSettings(this);
+		this.composeFunctions(this.settings);
+
+		this.serverChannels=new CatnipServerChannels(this);
 		this.composeFunctions(this.serverChannels);
 
 		this.serverSessions=new CatnipServerSessions(this);
 		this.composeFunctions(this.serverSessions);
-
-		this.settings=new CatnipSettings(this.db);
-		this.composeFunctions(this.settings);
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -50,6 +50,11 @@ class MainCatnip {
 			return;
 
 		this.apis[path]=fn;
+	}
+
+	assertFreeName=(name)=>{
+		this.settings.assertFreeName(name);
+		this.serverChannels.assertFreeName(name);
 	}
 
 	serverMain=async (options)=>{

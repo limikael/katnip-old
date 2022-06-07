@@ -12,12 +12,12 @@ class Setting extends Model {
 }
 
 export default class CatnipSettings {
-	constructor(db) {
+	constructor(catnip) {
+		this.catnip=catnip;
 		this.settings={};
 		this.categories={};
 
-		if (isServer())
-			db.addModel(Setting);
+		this.catnip.db.addModel(Setting);
 	}
 
 	getSetting=(id)=>{
@@ -27,7 +27,14 @@ export default class CatnipSettings {
 		return this.settings[id].value;
 	}
 
+	assertFreeName=(name)=>{
+		if (this.settings[name])
+			throw new Error("Already a setting: "+name);
+	}
+
 	addSetting=(id, setting={})=>{
+		this.catnip.assertFreeName(id);
+
 		setting.id=id;
 		if (!setting.title)
 			setting.title=setting.id;
@@ -49,6 +56,8 @@ export default class CatnipSettings {
 
 		setting.value=JSON.stringify(this.settings[id].value);
 		await setting.save();
+
+		this.catnip.notifyChannel(id);
 	}
 
 	loadSettings=async ()=>{
@@ -60,6 +69,13 @@ export default class CatnipSettings {
 
 	getSettings=(q={})=>{
 		let res=[];
+
+		if (q.id) {
+			if (this.settings[q.id])
+				return [this.settings[q.id]];
+
+			return [];
+		}
 
 		for (let id in this.settings) {
 			let setting=this.settings[id];
