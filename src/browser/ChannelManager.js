@@ -10,7 +10,9 @@ export default class ChannelManager extends EventEmitter {
 	}
 
 	setChannelValue=(channelId, value)=>{
-		console.log("set chan val: "+channelId+"="+value);
+		if (!channelId)
+			throw new Error("null channel id");
+		//console.log("set chan val: "+channelId+"="+value);
 		if (!this.channelData[channelId])
 			return;
 
@@ -38,12 +40,20 @@ export default class ChannelManager extends EventEmitter {
 	}
 
 	useChannel=(channelId, dontUse)=>{
-		useImmediateEffect(()=>{
-			this.softCreateChannel(channelId);
-			this.channelData[channelId].incRef();
+		if (typeof channelId=="function")
+			channelId=channelId();
 
-			return ()=>{
-				this.channelData[channelId].decRef();
+		if (channelId && typeof channelId!="string")
+			throw new Error("bad channel id: "+channelId);
+
+		useImmediateEffect(()=>{
+			if (channelId) {
+				this.softCreateChannel(channelId);
+				this.channelData[channelId].incRef();
+
+				return ()=>{
+					this.channelData[channelId].decRef();
+				}
 			}
 		},[channelId]);
 
@@ -52,7 +62,8 @@ export default class ChannelManager extends EventEmitter {
 		if (dontUse)
 			throw new Error("don't use this param");
 
-		return this.channelData[channelId].getValue();
+		if (channelId)
+			return this.channelData[channelId].getValue();
 	}
 
 	setChannelPersistence=(channelId, persistence)=>{

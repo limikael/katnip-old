@@ -171,23 +171,25 @@ export function useEventListener(event, target, func) {
 			func(...params);
 		}
 
-		if (target.on)
-			target.on(event,onEvent);
+		if (target) {
+			if (target.on)
+				target.on(event,onEvent);
 
-		else if (target.addEventListener)
-			target.addEventListener(event,onEvent);
-
-		else throw new Error("not an event dispatcher");
-
-		return (()=>{
-			if (target.off)
-				target.off(event,onEvent);
-
-			else if (target.removeEventListener)
-				target.removeEventListener(event,onEvent);
+			else if (target.addEventListener)
+				target.addEventListener(event,onEvent);
 
 			else throw new Error("not an event dispatcher");
-		});
+
+			return (()=>{
+				if (target.off)
+					target.off(event,onEvent);
+
+				else if (target.removeEventListener)
+					target.removeEventListener(event,onEvent);
+
+				else throw new Error("not an event dispatcher");
+			});
+		}
 	},[target,event]);
 }
 

@@ -2,6 +2,7 @@ import EventEmitter from "events";
 
 export default class ChannelData extends EventEmitter {
 	constructor(channelId) {
+		//console.log("id: "+channelId);
 		super();
 
 		this.id=channelId;

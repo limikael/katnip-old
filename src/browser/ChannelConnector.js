@@ -97,13 +97,12 @@ export default class ChannelConnector extends EventEmitter {
 	}
 
 	onNewChannel=(channelId)=>{
-		//console.log("new in conn: "+channelId+" isconn: "+this.isConnected());
 		if (this.isConnected())
 			this.sendMessage({subscribe: channelId});
 	}
 
 	onDeleteChannel=(channelId)=>{
-		console.log("chan del: "+channelId);
+		//console.log("chan del: "+channelId);
 		if (this.isConnected())
 			this.sendMessage({unsubscribe: channelId});
 	}
