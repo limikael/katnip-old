@@ -1,14 +1,21 @@
-import {catnip, useSession, useEventUpdate, useEventListener, TemplateContext, useRevertibleState} from "catnip";
+import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState} from "catnip";
 import {useState} from "preact/compat";
 
 export function CatnipView() {
-	let [session,setSession]=useSession();
+//	let [session,setSession]=useSession();
+	let redirect=useChannel("redirect");
+	let homepath=useChannel("homepath");
+
 	useEventUpdate("locationchange");
 	useEventUpdate("popstate");
 	useEventListener("message",window,(ev)=>{
 		switch (ev.data.type) {
 			case "setSession":
-				setSession(ev.data.values);
+				//setSession(ev.data.values);
+
+				for (let k in ev.data.values)
+					catnip.setChannelValue(k,ev.data.values[k]);
+
 				break;
 
 			default:
@@ -18,18 +25,18 @@ export function CatnipView() {
 	});
 
 	let request=catnip.getCurrentRequest();
-	if (session.redirect && request.path!=session.redirect) {
-		catnip.setLocation(session.redirect);
+	if (redirect && request.path!=redirect) {
+		catnip.setLocation(redirect);
 		return;
 	}
 
-	if (session.homepath && request.path==session.homepath) {
+	if (homepath && request.path==homepath) {
 		catnip.setLocation("/");
 		request=catnip.getCurrentRequest();
 	}
 
 	if (request.path=="/")
-		request=catnip.parseRequest(session.homepath);
+		request=catnip.parseRequest(homepath);
 
 	let Layout=catnip.getTemplateForRoute(request.path);
 	let Page=catnip.getPageComponentForRoute(request.path);

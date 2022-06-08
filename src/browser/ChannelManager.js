@@ -12,7 +12,7 @@ export default class ChannelManager extends EventEmitter {
 	setChannelValue=(channelId, value)=>{
 		if (!channelId)
 			throw new Error("null channel id");
-		//console.log("set chan val: "+channelId+"="+value);
+
 		if (!this.channelData[channelId])
 			return;
 

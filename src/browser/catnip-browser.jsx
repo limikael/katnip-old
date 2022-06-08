@@ -1,5 +1,5 @@
 import CatnipActions from "../lib/CatnipActions.js";
-import CatnipSessionManager from "../lib/CatnipSessionManager.js";
+//import CatnipSessionManager from "../lib/CatnipSessionManager.js";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
 import {CatnipView} from "../components/CatnipView.jsx";
@@ -13,11 +13,20 @@ class BrowserCatnip {
 
 		this.TemplateContext=createContext();
 
-		this.sessionManager=new CatnipSessionManager();
-		this.composeFunctions(this.sessionManager);
+		/*this.sessionManager=new CatnipSessionManager();
+		this.composeFunctions(this.sessionManager);*/
 
 		this.channelManager=new ChannelManager();
 		this.channelConnector=new ChannelConnector(this.channelManager);
+
+		let channelTag=window.document.currentScript.dataset.channels;
+		let initChannels=JSON.parse(channelTag);
+		for (let k in initChannels) {
+			this.channelManager.setChannelPersistence(k,true);
+			this.channelManager.setChannelValue(k,initChannels[k]);
+		}
+
+		console.log(initChannels);
 
 		this.elements={};
 		this.templates={};
@@ -70,7 +79,7 @@ class BrowserCatnip {
 	}
 
 	clientMain=()=>{
-		this.doActionAsync("clientMain",this.sessionManager.clientSession);
+		this.doActionAsync("clientMain");//,this.sessionManager.clientSession);
 
 		let el=document.getElementById("catnip-root");
 		render(<CatnipView />,el);

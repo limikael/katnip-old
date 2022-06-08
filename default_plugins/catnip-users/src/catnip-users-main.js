@@ -32,6 +32,26 @@ catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
 		clientSession.googleAuthUrl=createGoogleAuthClient(sessionRequest.origin).code.getUri();
 });
 
+catnip.addAction("initChannels",(channelIds, sessionRequest)=>{
+	channelIds.push(buildUrl("user",{cookie: sessionRequest.cookie}));
+	channelIds.push("cookie");
+});
+
+catnip.addChannel("user",async ({cookie}, sessionRequest)=>{
+	if (sessionRequest.uid) {
+		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
+		if (u)
+			return {
+				id: u.id,
+				email: u.email
+			}
+	}
+});
+
+catnip.addChannel("cookie",({}, sessionRequest)=>{
+	return sessionRequest.cookie;
+});
+
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{
 	if (sessionRequest.getUserId()) {
 		sessionRequest.user=await User.findOne(sessionRequest.getUserId());

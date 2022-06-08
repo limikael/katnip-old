@@ -162,14 +162,24 @@ export default class CatnipRequestHandler {
 		let sessionRequest=await this.catnip.initSessionRequest(cookie);
 		sessionRequest.origin=this.getOrigin(req);
 		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
-
 		clientSession.contentHash=this.contentHash;
+		let quotedSession=quoteAttr(JSON.stringify(clientSession));
+
+		let initChannelIds=[];
+		await this.catnip.doActionAsync("initChannels",initChannelIds,sessionRequest);
+		for (let channel of this.catnip.getSettings({session: true}))
+			initChannelIds.push(channel.id);
+
+		let initChannels={};
+		for (let channelId of initChannelIds)
+			initChannels[channelId]=await this.catnip.getChannelData(channelId,sessionRequest);
+
+		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 
 		res.writeHead(200,{
 			"Set-Cookie": `catnip=${cookie}`
 		});
 
-		let quotedSession=quoteAttr(JSON.stringify(clientSession));
 		let bundleUrl=buildUrl("/catnip-bundle.js",{
 			bundleHash: this.bundleHash
 		});
@@ -179,7 +189,7 @@ export default class CatnipRequestHandler {
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
 		clientPage+=`</head>`;
 		clientPage+=`<div id="catnip-root"></div>`;
-		clientPage+=`<script data-session="${quotedSession}" src="${bundleUrl}"></script>`;
+		clientPage+=`<script data-session="${quotedSession}" data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);
