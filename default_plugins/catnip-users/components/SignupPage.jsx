@@ -1,19 +1,21 @@
-import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl} from "catnip";
-import {useForm, useCounter, useApiFetch, useValueChanged, PromiseButton} from "catnip";
+import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl,
+		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
+		setCurrentUser, useChannel} from "catnip";
 import {useRef, useState} from "preact/compat";
 
 export default function SignupPage() {
 	let [formValues, field]=useForm();
 	let [message, setMessage]=useState();
-	let [session, setSession]=catnip.useSession();
+	let postloginpath=useChannel("postloginpath");
+	let googleAuthUrl=useChannel("googleAuthUrl");
 
 	async function onSignupClick() {
 		setMessage();
 
 		let u=await catnip.apiFetch("/api/signup",formValues);
 
-		setSession(u);
-		catnip.setLocation(session.postloginpath);
+		setCurrentUser(u.user);
+		catnip.setLocation(postloginpath);
 	}
 
 	let messageEl;
@@ -49,8 +51,8 @@ export default function SignupPage() {
 					</A>
 				</div>
 			</div>
-			{session.googleAuthUrl &&
-				<a class="btn btn-danger mb-2" style="width: 100%" href={session.googleAuthUrl}>
+			{googleAuthUrl &&
+				<a class="btn btn-danger mb-2" style="width: 100%" href={googleAuthUrl}>
 					<b>Sign in with Google</b>
 				</a>
 			}

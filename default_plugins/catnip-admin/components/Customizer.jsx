@@ -1,4 +1,4 @@
-import {catnip, A, buildUrl, ItemForm, optionsFromObject, useSession, apiFetch} from "catnip";
+import {catnip, A, buildUrl, ItemForm, optionsFromObject, apiFetch} from "catnip";
 import {useState, useRef, useEffect} from "preact/compat";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
@@ -19,17 +19,16 @@ function getThemeOptionKeys() {
 	return keys;
 }
 
-function getThemeOptionsFromSession(session) {
+function getThemeOptionsFromSession() {
 	let values={};
 	for (let k of getThemeOptionKeys())
-		values[k]=session[k];
+		values[k]=catnip.getChannelValue(k);
 
 	return values;
 }
 
 export function CustomizerSidebar({request, iframeRef}) {
-	let [session, setSession]=useSession();
-	let [viewSettings, setViewSettings]=useState(getThemeOptionsFromSession(session));
+	let [viewSettings, setViewSettings]=useState(getThemeOptionsFromSession());
 	let items=[];
 
 	function postValues(values) {
@@ -58,12 +57,14 @@ export function CustomizerSidebar({request, iframeRef}) {
 	}
 
 	function read() {
-		return getThemeOptionsFromSession(session);
+		return getThemeOptionsFromSession();
 	}
 
 	async function write(values) {
 		await apiFetch("/api/saveSettings",values);
-		setSession(values);
+		for (let k in values)
+			catnip.setChannelValue(k,values[k]);
+
 		return "Saved.";
 	}
 

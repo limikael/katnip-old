@@ -1,6 +1,7 @@
 import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import {getCapsByRole} from "./rolecaps.js";
 import {createGoogleAuthClient} from "./auth.js";
+import User from "./User.js";
 
 catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 	sreq.assertCap("user");
@@ -15,6 +16,9 @@ catnip.addApi("/api/changeEmail",async (params, sreq)=>{
 	sreq.assertCap("user");
 	let u=sreq.getUser();
 	u.assertPassword(params.password);
+
+	if (u.email==params.email)
+		return;
 
 	if (await User.findOne({email: params.email}))
 		throw new Error("The email is already in use");
@@ -100,7 +104,7 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	u=new catnip.db.User();
+	let u=new catnip.db.User();
 	u.email=login;
 	u.setPassword(password);
 	u.role="user";
@@ -160,7 +164,7 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, sreq)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	u=new catnip.db.User();
+	let u=new catnip.db.User();
 	u.email=email;
 	u.setPassword(password);
 	u.role="admin";

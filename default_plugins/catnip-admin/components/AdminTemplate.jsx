@@ -1,4 +1,4 @@
-import {catnip, A, buildUrl, useSession} from "catnip";
+import {catnip, A, buildUrl, useCurrentUser, useChannel} from "catnip";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
@@ -7,9 +7,9 @@ const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216de
 
 function Nav() {
 	let webSocketStatus=catnip.useWebSocketStatus();
-	let [session,setSession]=useSession();
+	let user=useCurrentUser();
 
-	if (!session.user) {
+	if (!user) {
 		console.log("no user, redirecting");
 		catnip.setLocation("/login");
 		return;
@@ -19,10 +19,10 @@ function Nav() {
 		ev.preventDefault();
 
 		await catnip.apiFetch("/api/logout");
-		setSession({user: null});
+		catnip.setCurrentUser(null);
 	}
 
-	let userLink=buildUrl("/admin/user",{id: session.user.id});
+	let userLink=buildUrl("/admin/user",{id: user.id});
 
 	return (
 		<nav className="navbar navbar-expand navbar-dark bg-dark py-0">
@@ -37,7 +37,7 @@ function Nav() {
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item">
 						<A class="nav-link" href={userLink}>
-							<b>{session.user.email}</b>
+							<b>{user.email}</b>
 						</A>
 					</li>
 					<li class="nav-item">
@@ -104,10 +104,10 @@ function Sidebar({request}) {
 }
 
 export function AdminHead() {
-	let [session]=useSession();
+	let contentHash=useChannel("contentHash");
 
-	let cssUrl=buildUrl("/public/bootstrap.min.css",{contentHash: session.contentHash});
-	let jsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: session.contentHash});
+	let cssUrl=buildUrl("/public/bootstrap.min.css",{contentHash: contentHash});
+	let jsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	return (<>
 		<link rel="stylesheet" href={cssUrl}/>

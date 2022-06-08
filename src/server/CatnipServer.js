@@ -99,13 +99,13 @@ export default class CatnipServer {
 			await import(this.resolveMainFile(pluginPath));
 		}
 
-		/*process.exit();
+		this.catnip.addChannel("contentHash",()=>{
+			return this.contentHash;
+		});
 
-		await import(this.outDir+"/catnip-bundle.js");
-		this.catnip=global.catnip;
-		this.catnip.db.MySql=await import("mysql");
-		global.crypto=crypto;
-		global.ClientOAuth2=ClientOAuth2;*/
+		this.catnip.addAction("initChannels",(channelIds, sessionRequest)=>{
+			channelIds.push("contentHash");
+		});
 	}
 
 	async run() {
@@ -115,8 +115,8 @@ export default class CatnipServer {
 		if (!port)
 			port=3000;
 
-		let contentHash=this.computeContentHash();
-		console.log("Content hash: "+contentHash);
+		this.contentHash=this.computeContentHash();
+		console.log("Content hash: "+this.contentHash);
 
 		console.log("Starting...");
 		await this.catnip.serverMain(this.options);
@@ -125,7 +125,7 @@ export default class CatnipServer {
 
 		let clientBundle=fs.readFileSync(this.outDir+"/catnip-bundle.js")+"window.catnip.clientMain();";
 		this.requestHandler.setClientBundle(clientBundle);
-		this.requestHandler.setContentHash(contentHash);
+		this.requestHandler.setContentHash(this.contentHash);
 
 		let server=http.createServer(this.requestHandler.handleRequest);
 		let channelHandler=new CatnipChannelHandler(this.catnip,server);

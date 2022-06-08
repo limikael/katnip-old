@@ -1,9 +1,7 @@
-import {A, catnip, useSession, useResizeObserver, useValueChanged, useTemplateContext, buildUrl,
-		useChannel} from "catnip";
+import {A, catnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl} from "catnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
-	let [session]=catnip.useSession();
 	let webSocketStatus=catnip.useWebSocketStatus();
 	let brandRef=useRef();
 	let navRef=useRef();
@@ -40,9 +38,11 @@ function Nav({request, onsize}) {
 		setTimeout(checkHeight,0);
 	},[]);
 
-//	let navColor=session.bootswatchNavColor;
 	let navColor=useChannel("bootswatchNavColor");
-	console.log("nav color: "+navColor);
+	let navStyle=useChannel("bootswatchNavStyle");
+	let menuHeader=useChannel("menuHeader");
+	let sitename=useChannel("sitename");
+
 	if (!navColor)
 		navColor="primary";
 
@@ -51,17 +51,16 @@ function Nav({request, onsize}) {
 		navClass="navbar-light ";
 
 	navClass+=` bg-${navColor}`;
-	if (session.bootswatchNavStyle=="fixed")
+	if (navStyle=="fixed")
 		navClass+=" fixed-top";
 
-	let menuHeader=session.menuHeader;
 	if (!menuHeader)
 		menuHeader=[];
 
 	return (
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
 			<div class="container">
-				<A class="navbar-brand" href="/" ref={brandRef}>{session.sitename}</A>
+				<A class="navbar-brand" href="/" ref={brandRef}>{sitename}</A>
 
 				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
 						data-bs-target="#navbarColor01"
@@ -99,10 +98,12 @@ function Nav({request, onsize}) {
 }
 
 function Footer({request}) {
-	let [session]=catnip.useSession();
+	let menuFooter=useChannel("menuFooter");
+	let sitename=useChannel("sitename");
+	let bootswatchFooter=useChannel("bootswatchFooter")
 
 	let cls;
-	switch (session.bootswatchFooter) {
+	switch (bootswatchFooter) {
 		case "light":
 			cls="bg-light text-dark";
 			break;
@@ -124,14 +125,13 @@ function Footer({request}) {
 			break;
 	}
 
-	let menuFooter=session.menuFooter;
 	if (!menuFooter)
 		menuFooter=[];
 
 	return (
 		<footer class={`container-fluid ${cls}`}>
 			<div class="container pt-4 pb-4">
-				<h4>{session.sitename}</h4>
+				<h4>{sitename}</h4>
 				<ul>
 					{menuFooter.map(item=>{
 						return (
@@ -149,10 +149,12 @@ function Footer({request}) {
 }
 
 export default function BootswatchPageTemplate({request,children}) {
-	let [session]=useSession();
 	let [navSize,setNavSize]=useState();
 	let newPage=useValueChanged(request.href);
 	let tc=useTemplateContext();
+	let bootswatchTheme=useChannel("bootswatchTheme");
+	let bootswatchNavStyle=useChannel("bootswatchNavStyle");
+	let contentHash=useChannel("contentHash");
 
 	if (newPage) {
 		setTimeout(()=>{
@@ -162,16 +164,16 @@ export default function BootswatchPageTemplate({request,children}) {
 	}
 
 	let cssUrl="/public/bootstrap.min.css";
-	if (session.bootswatchTheme)
-		cssUrl=`/public/bootstrap-${session.bootswatchTheme}.min.css`;
+	if (bootswatchTheme)
+		cssUrl=`/public/bootstrap-${bootswatchTheme}.min.css`;
 
-	cssUrl=buildUrl(cssUrl,{contentHash: session.contentHash});
+	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
 
 	let containerStyle={};
-	if (session.bootswatchNavStyle=="fixed")
+	if (bootswatchNavStyle=="fixed")
 		containerStyle["margin-top"]=navSize+"px";
 
-	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: session.contentHash});
+	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	let topItems=[];
 	catnip.doAction("topItems",topItems,request);

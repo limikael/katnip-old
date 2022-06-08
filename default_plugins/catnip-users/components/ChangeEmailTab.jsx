@@ -1,10 +1,11 @@
-import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter, useSession} from "catnip";
+import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter,
+		useCurrentUser, setCurrentUser} from "catnip";
 import {useState} from "preact/compat";
 
 export default function ChangeEmailTab() {
-	let [session, setSession]=useSession();
+	let user=useCurrentUser();
 	let [counter, invalidate]=useCounter();
-	let [values, field]=useForm({email: session.user.email},[counter]);
+	let [values, field]=useForm({email: user.email},[counter]);
 	let [message, setMessage]=useState();
 
 	async function onChangeEmailClick() {
@@ -13,9 +14,8 @@ export default function ChangeEmailTab() {
 		await apiFetch("/api/changeEmail",values);
 		setMessage("Your email has been changed.");
 
-		let u=session.user;
-		u.email=newEmail;
-		setSession({user: u});
+		user.email=newEmail;
+		setCurrentUser(user);
 		invalidate();
 	}
 

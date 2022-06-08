@@ -1,4 +1,4 @@
-import {ItemForm, apiFetch, useSession, useForm, BsGroupInput, 
+import {ItemForm, apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BootstrapAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch} from "catnip";
 import {useState} from "preact/compat";
@@ -31,7 +31,6 @@ export default function Settings({request}) {
 	let categoryId=request.query.category;
 
 	let categories=useApiFetch("/api/getSettingCategories");
-	let [session, setSession]=useSession();
 	let [message, setMessage]=useRevertibleState("",[categoryId]);
 
 	async function read() {
@@ -44,13 +43,10 @@ export default function Settings({request}) {
 		setMessage();
 		await apiFetch("/api/saveSettings",values);
 
-		let o={};
-		for (let setting of categories[categoryId].settings) {
+		for (let setting of categories[categoryId].settings)
 			if (setting.session)
-				o[setting.id]=values[setting.id];
-		}
+				catnip.setChannelValue(setting.id,values[setting.id]);
 
-		setSession(o);
 		setMessage("Settings saved...");
 	}
 

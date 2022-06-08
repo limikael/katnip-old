@@ -1,19 +1,19 @@
-import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BootstrapAlert, apiFetch, useSession} from "catnip";
+import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BootstrapAlert, apiFetch,
+		setChannelValue, setCurrentUser} from "catnip";
 import {useState} from "preact/compat";
 
 export default function InstallPage() {
 	let tc=useTemplateContext();
 	let [values, field]=useForm();
 	let [message, setMessage]=useState();
-	let [session, setSession]=useSession();
 
 	tc.setTitle("Install");
 
 	async function write() {
 		setMessage();
 		let u=await apiFetch("/api/install",values);
-		setSession(u);
-		setSession({redirect: null});
+		setCurrentUser(u.user);
+		setChannelValue("redirect",null);
 		catnip.setLocation("/admin");
 	}
 

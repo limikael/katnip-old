@@ -12,7 +12,7 @@ catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 catnip.addSetting("googleClientId",{title: "Google Client Id", category: "auth"});
 catnip.addSetting("googleClientSecret",{title: "Google Client Secret", category: "auth"});
 
-catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
+/*catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
 	clientSession.cookie=sessionRequest.cookie;
 	if (sessionRequest.uid) {
 		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
@@ -30,11 +30,21 @@ catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
 	if (catnip.getSetting("googleClientId") &&
 			catnip.getSetting("googleClientSecret"))
 		clientSession.googleAuthUrl=createGoogleAuthClient(sessionRequest.origin).code.getUri();
-});
+});*/
 
 catnip.addAction("initChannels",(channelIds, sessionRequest)=>{
 	channelIds.push(buildUrl("user",{cookie: sessionRequest.cookie}));
 	channelIds.push("cookie");
+
+	if (catnip.getSetting("googleClientId") &&
+			catnip.getSetting("googleClientSecret"))
+		channelIds.push("googleAuthUrl");
+});
+
+catnip.addChannel("googleAuthUrl",({}, sessionRequest)=>{
+	//console.log("org: "+sessionRequest.origin);
+
+	return createGoogleAuthClient(sessionRequest.origin).code.getUri();
 });
 
 catnip.addChannel("user",async ({cookie}, sessionRequest)=>{
@@ -46,10 +56,17 @@ catnip.addChannel("user",async ({cookie}, sessionRequest)=>{
 				email: u.email
 			}
 	}
+
+	return null;
 });
 
 catnip.addChannel("cookie",({}, sessionRequest)=>{
 	return sessionRequest.cookie;
+});
+
+catnip.addChannel("redirect",({})=>{
+	if (catnip.getSetting("install"))
+		return "/install";
 });
 
 catnip.addAction("initSessionRequest",async (sessionRequest)=>{

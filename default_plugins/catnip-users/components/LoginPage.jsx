@@ -1,4 +1,4 @@
-import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl} from "catnip";
+import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl, useChannel} from "catnip";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
 import {useRef, useState} from "preact/compat";
 
@@ -6,7 +6,8 @@ export default function LoginPage() {
 	const loginRef=useRef();
 	const passwordRef=useRef();
 	let [message, setMessage]=useState();
-	let [session, setSession]=catnip.useSession();
+	let googleAuthUrl=useChannel("googleAuthUrl");
+	let postloginpath=useChannel("postloginpath");
 
 	async function onLoginClick() {
 		setMessage();
@@ -17,8 +18,8 @@ export default function LoginPage() {
 				password: passwordRef.current.value
 			});
 
-			setSession(u);
-			catnip.setLocation(session.postloginpath);
+			catnip.setCurrentUser(u.user);
+			catnip.setLocation(postloginpath);
 		}
 
 		catch (e) {
@@ -52,8 +53,8 @@ export default function LoginPage() {
 					<A href="/signup" class="d-block small text-muted text-center" style="width: 100%"><b>No account? Sign Up!</b></A>
 				</div>
 			</div>
-			{session.googleAuthUrl &&
-				<a class="btn btn-danger mb-2" style="width: 100%" href={session.googleAuthUrl}>
+			{googleAuthUrl &&
+				<a class="btn btn-danger mb-2" style="width: 100%" href={googleAuthUrl}>
 					<b>Sign in with Google</b>
 				</a>
 			}

@@ -2,7 +2,6 @@ import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, u
 import {useState} from "preact/compat";
 
 export function CatnipView() {
-//	let [session,setSession]=useSession();
 	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
 

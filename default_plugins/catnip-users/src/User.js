@@ -1,5 +1,5 @@
 import {catnip, Model} from "catnip";
-import crypto from "crypto";
+//import crypto from "crypto";
 
 function hash(v) {
 	return crypto.createHash("sha256").update(v).digest().toString("hex");			

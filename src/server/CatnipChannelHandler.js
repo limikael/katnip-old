@@ -1,5 +1,5 @@
 import {WebSocketServer} from "ws";
-import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
+import {bindArgs, objectFirstKey, arrayRemove, getRequestOrigin} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
 
 export default class CatnipChannelHandler {
@@ -16,6 +16,7 @@ export default class CatnipChannelHandler {
 		installWsKeepAlive(ws,{delay:10000});
 
 		let cookies=this.catnip.parseCookies(req);
+		ws.req=req;
 		ws.cookie=cookies.catnip;
 		ws.subscriptions=[];
 		ws.on("close",bindArgs(this.onConnectionClose,ws));
@@ -31,8 +32,19 @@ export default class CatnipChannelHandler {
 		arrayRemove(this.connections,ws);
 	}
 
+	getOrigin=(req)=>{
+		let protocol="http";
+		if (req.headers["x-forwarded-proto"])
+			protocol=req.headers["x-forwarded-proto"];
+
+		let origin=protocol+"://"+req.headers.host;
+		return origin;
+	}
+
 	sendChannelData=async (ws, channelId)=>{
 		let sessionRequest=await this.catnip.initSessionRequest(ws.cookie);
+		sessionRequest.origin=getRequestOrigin(ws.req);
+
 		try {
 			let channelData=await this.catnip.getChannelData(channelId,sessionRequest);
 			ws.send(JSON.stringify({

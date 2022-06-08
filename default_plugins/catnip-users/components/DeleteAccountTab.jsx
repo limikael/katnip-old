@@ -1,16 +1,17 @@
-import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter, useSession} from "catnip";
+import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter,
+		useCurrentUser, setCurrentUser} from "catnip";
 import {useState} from "preact/compat";
 
 export default function DeleteAccountTab() {
 	let [values, field]=useForm({});
 	let [message, setMessage]=useState();
-	let [session, setSession]=useSession();
+	let user=useCurrentUser();
 
 	async function onDeleteAccountClick() {
 		setMessage();
 		await apiFetch("/api/deleteAccount",values);
 
-		setSession({user: null});
+		setCurrentUser(null);
 		catnip.setLocation("/");
 	}
 

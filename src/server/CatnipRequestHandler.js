@@ -1,4 +1,4 @@
-import {quoteAttr, delay, parseRequest, buildUrl} from "../utils/js-util.js";
+import {quoteAttr, delay, parseRequest, buildUrl, getRequestOrigin} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 import crypto from "crypto";
@@ -122,7 +122,7 @@ export default class CatnipRequestHandler {
 		if (func) {
 			try {
 				let sessionRequest=await this.catnip.initSessionRequest(sessionCookie);
-				sessionRequest.origin=this.getOrigin(req);
+				sessionRequest.origin=getRequestOrigin(req);
 				let data=await func(query,sessionRequest);
 
 				res.writeHead(200);
@@ -148,22 +148,9 @@ export default class CatnipRequestHandler {
 		}));
 	}
 
-	getOrigin=(req)=>{
-		let protocol="http";
-		if (req.headers["x-forwarded-proto"])
-			protocol=req.headers["x-forwarded-proto"];
-
-		let origin=protocol+"://"+req.headers.host;
-		return origin;
-	}
-
 	handleDefault=async (req, res, cookie)=>{
-		let clientSession={};
 		let sessionRequest=await this.catnip.initSessionRequest(cookie);
-		sessionRequest.origin=this.getOrigin(req);
-		await this.catnip.doActionAsync("getClientSession",clientSession,sessionRequest);
-		clientSession.contentHash=this.contentHash;
-		let quotedSession=quoteAttr(JSON.stringify(clientSession));
+		sessionRequest.origin=getRequestOrigin(req);
 
 		let initChannelIds=[];
 		await this.catnip.doActionAsync("initChannels",initChannelIds,sessionRequest);
@@ -173,6 +160,8 @@ export default class CatnipRequestHandler {
 		let initChannels={};
 		for (let channelId of initChannelIds)
 			initChannels[channelId]=await this.catnip.getChannelData(channelId,sessionRequest);
+
+		//console.log(JSON.stringify(initChannels));
 
 		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 
@@ -189,7 +178,7 @@ export default class CatnipRequestHandler {
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
 		clientPage+=`</head>`;
 		clientPage+=`<div id="catnip-root"></div>`;
-		clientPage+=`<script data-session="${quotedSession}" data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
+		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);

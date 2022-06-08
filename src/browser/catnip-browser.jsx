@@ -1,5 +1,4 @@
 import CatnipActions from "../lib/CatnipActions.js";
-//import CatnipSessionManager from "../lib/CatnipSessionManager.js";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
 import {CatnipView} from "../components/CatnipView.jsx";
@@ -13,9 +12,6 @@ class BrowserCatnip {
 
 		this.TemplateContext=createContext();
 
-		/*this.sessionManager=new CatnipSessionManager();
-		this.composeFunctions(this.sessionManager);*/
-
 		this.channelManager=new ChannelManager();
 		this.channelConnector=new ChannelConnector(this.channelManager);
 
@@ -26,7 +22,7 @@ class BrowserCatnip {
 			this.channelManager.setChannelValue(k,initChannels[k]);
 		}
 
-		console.log(initChannels);
+		//console.log(initChannels);
 
 		this.elements={};
 		this.templates={};
@@ -79,10 +75,18 @@ class BrowserCatnip {
 	}
 
 	clientMain=()=>{
-		this.doActionAsync("clientMain");//,this.sessionManager.clientSession);
+		this.doActionAsync("clientMain");
 
 		let el=document.getElementById("catnip-root");
 		render(<CatnipView />,el);
+	}
+
+	useCurrentUser=()=>{
+		return this.doAction("useCurrentUser");
+	}
+
+	setCurrentUser=(userData)=>{
+		this.doAction("setCurrentUser",userData);
 	}
 }
 
@@ -102,9 +106,11 @@ export const addTemplate=catnip.addTemplate;
 export const getTemplateForRoute=catnip.getTemplateForRoute;
 export const getPageComponentForRoute=catnip.getPageComponentForRoute;
 
-export const useSession=catnip.useSession;
+export const useCurrentUser=catnip.useCurrentUser;
+export const setCurrentUser=catnip.setCurrentUser;
+
 export const useChannel=catnip.channelManager.useChannel;
 export const setChannelPersistence=catnip.channelManager.setChannelPersistence;
-export const getChannelValue=catnip.channelManager.setChannelValue;
+export const getChannelValue=catnip.channelManager.getChannelValue;
 export const setChannelValue=catnip.channelManager.setChannelValue;
 export const useWebSocketStatus=catnip.channelConnector.useWebSocketStatus;

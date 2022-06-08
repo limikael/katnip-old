@@ -221,3 +221,12 @@ export async function retry(fn, options) {
 		}
 	}
 }
+
+export function getRequestOrigin(req) {
+	let protocol="http";
+	if (req.headers["x-forwarded-proto"])
+		protocol=req.headers["x-forwarded-proto"];
+
+	let origin=protocol+"://"+req.headers.host;
+	return origin;
+}

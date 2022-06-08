@@ -1,4 +1,4 @@
-import {catnip, PromiseButton} from "catnip";
+import {catnip, PromiseButton, useCurrentUser} from "catnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
 import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import DeleteAccountTab from "./DeleteAccountTab.jsx";
@@ -30,10 +30,12 @@ function AccordionItem({id, parent, children, show, title}) {
 }
 
 export default function AccountPage() {
-	let [session, setSession]=catnip.useSession();
 	let tc=catnip.useTemplateContext();
+	let user=useCurrentUser();
 
-	if (!session.user) {
+	//console.log(user);
+
+	if (!user) {
 		console.log("no user, redirecting");
 		catnip.setLocation("/login");
 		return;
@@ -78,14 +80,19 @@ export default function AccountPage() {
 
 	async function onLogoutClick() {
 		await catnip.apiFetch("/api/logout");
-		setSession({user: null});
+		catnip.setCurrentUser(null);
+		//setSession({user: null});
+	}
+
+	function onLogoutError(e) {
+		console.log(e);
 	}
 
 	return (<>
 		<div class="accordion mb-3" id="account-accordion" style="max-width: 40rem">
 			{accordionItems}
 		</div>
-		<PromiseButton class="btn btn-primary" onclick={onLogoutClick}>
+		<PromiseButton class="btn btn-primary" onclick={onLogoutClick} onerror={onLogoutError}>
 			Log out
 		</PromiseButton>
 	</>);
