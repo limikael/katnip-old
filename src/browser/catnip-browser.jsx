@@ -75,7 +75,7 @@ class BrowserCatnip {
 	}
 
 	clientMain=()=>{
-		this.doActionAsync("clientMain");
+		this.doAction("clientMain");
 
 		let el=document.getElementById("catnip-root");
 		render(<CatnipView />,el);
