@@ -50,7 +50,6 @@ export default class CatnipServerSessions {
 
 		session.userId=userId;
 		await session.save();
-
 	}
 
 	loadSessions=async ()=>{

@@ -2,6 +2,7 @@ import {quoteAttr, delay, parseRequest, buildUrl, getRequestOrigin} from "../uti
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 import crypto from "crypto";
+import CatnipRequest from "../lib/CatnipRequest.js";
 
 export default class CatnipRequestHandler {
 	constructor(catnip, options) {
@@ -185,6 +186,13 @@ export default class CatnipRequestHandler {
 	}
 
 	handleRequest=async (req, res)=>{
+		let request=await CatnipRequest.fromNodeRequest(req);
+		console.log(request);
+
+		res.end("hello");
+		return;
+
+
 		let cookies=this.catnip.parseCookies(req);
 		if (!cookies.catnip)
 			cookies.catnip=crypto.randomUUID();

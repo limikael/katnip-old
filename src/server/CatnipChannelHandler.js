@@ -42,11 +42,11 @@ export default class CatnipChannelHandler {
 	}
 
 	sendChannelData=async (ws, channelId)=>{
-		let sessionRequest=await this.catnip.initSessionRequest(ws.cookie);
-		sessionRequest.origin=getRequestOrigin(ws.req);
+		/*let sessionRequest=await this.catnip.initSessionRequest(ws.cookie);
+		sessionRequest.origin=getRequestOrigin(ws.req);*/
 
 		try {
-			let channelData=await this.catnip.getChannelData(channelId,sessionRequest);
+			let channelData=await this.catnip.getChannelData(channelId/*,sessionRequest*/);
 			ws.send(JSON.stringify({
 				channel: channelId,
 				data: channelData

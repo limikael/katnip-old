@@ -1,6 +1,6 @@
 import CatnipActions from "../lib/CatnipActions.js";
 import CatnipServerChannels from "../lib/CatnipServerChannels.js";
-import CatnipServerSessions from "../lib/CatnipServerSessions.js";
+import SessionManager from "./SessionManager.js";
 import CatnipSettings from "../lib/CatnipSettings.js";
 import Db from "../orm/Db.js";
 import {isClient, isServer, retry} from "../utils/js-util.js";
@@ -24,8 +24,10 @@ class MainCatnip {
 		this.serverChannels=new CatnipServerChannels(this);
 		this.composeFunctions(this.serverChannels);
 
-		this.serverSessions=new CatnipServerSessions(this);
-		this.composeFunctions(this.serverSessions);
+		this.sessionManager=new SessionManager(this);
+
+		/*this.serverSessions=new CatnipServerSessions(this);
+		this.composeFunctions(this.serverSessions);*/
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -80,7 +82,7 @@ class MainCatnip {
 			await this.db.install();
 		}
 
-		await this.serverSessions.loadSessions();
+		await this.sessionManager.loadSessions();
 		await this.settings.loadSettings();
 
 		await this.doActionAsync("serverMain",options);
@@ -102,11 +104,11 @@ export const doActionAsync=catnip.doActionAsync;
 export const getSetting=catnip.getSetting;
 export const setSetting=catnip.setSetting;
 export const addChannel=catnip.addChannel;
-export const initSessionRequest=catnip.initSessionRequest;
 export const getChannelData=catnip.getChannelData;
 export const notifyChannel=catnip.notifyChannel;
 export const addSetting=catnip.addSetting;
 export const getSettings=catnip.getSettings;
 export const addSettingCategory=catnip.addSettingCategory;
 export const getSettingCategories=catnip.getSettingCategories;
-export const getUserIdByCookie=catnip.getUserIdByCookie;
+export const getSessionValue=catnip.sessionManager.getSessionValue;
+export const setSessionValue=catnip.sessionManager.setSessionValue;
