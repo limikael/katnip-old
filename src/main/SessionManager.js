@@ -24,10 +24,10 @@ export default class SessionManager {
 	setSessionValue=async (sessionId, value)=>{
 		this.sessions[sessionId]=value;
 
-		let session=await Session.findOne({cookie: cookie});
+		let session=await Session.findOne({cookie: sessionId});
 		if (!session) {
 			session=new Session();
-			session.cookie=cookie;
+			session.cookie=sessionId;
 		}
 
 		session.value=value;

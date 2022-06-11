@@ -9,7 +9,7 @@ catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 
 	u.assertPassword(params.password);
 	await u.delete();
-	await sreq.setUserId();
+	await catnip.setSessionValue(sreq.sessionId,null);
 });
 
 catnip.addApi("/api/changeEmail",async (params, sreq)=>{
@@ -76,7 +76,7 @@ catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 	await u.delete();
 });
 
-catnip.addApi("/api/login",async ({login, password}, sessionRequest)=>{
+catnip.addApi("/api/login",async ({login, password}, req)=>{
 	let u=await catnip.db.User.findOne({email: login});
 
 	if (!u)
@@ -84,7 +84,7 @@ catnip.addApi("/api/login",async ({login, password}, sessionRequest)=>{
 
 	u.assertPassword(password);
 
-	await sessionRequest.setUserId(u.id);
+	await catnip.setSessionValue(req.sessionId,u.id);
 
 	return {
 		user: {
@@ -94,7 +94,7 @@ catnip.addApi("/api/login",async ({login, password}, sessionRequest)=>{
 	}
 });
 
-catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
+catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
 	if (await User.findOne({email: login}))
 		throw new Error("The email is already in use");
 
@@ -110,7 +110,8 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
 	u.role="user";
 	await u.save();
 
-	await sreq.setUserId(u.id);
+	await catnip.setSessionValue(req.sessionId,u.id);
+
 	return {
 		user: {
 			id: u.id,
@@ -119,8 +120,8 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword},sreq)=>{
 	}
 });
 
-catnip.addApi("/api/auth",async ({url}, sreq)=>{
-	let res=await createGoogleAuthClient(sreq.origin).code.getToken(url);
+catnip.addApi("/api/auth",async ({url}, req)=>{
+	let res=await createGoogleAuthClient(req.origin).code.getToken(url);
 
 	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{
 		id_token: res.data.id_token
@@ -138,7 +139,8 @@ catnip.addApi("/api/auth",async ({url}, sreq)=>{
 		await user.save();
 	}
 
-	await sreq.setUserId(user.id);
+	await catnip.setSessionValue(req.sessionId,user.id);
+
 	return {
 		user: {
 			id: user.id,
@@ -147,11 +149,11 @@ catnip.addApi("/api/auth",async ({url}, sreq)=>{
 	}
 });
 
-catnip.addApi("/api/logout",async ({}, sessionRequest)=>{
-	await sessionRequest.setUserId();
+catnip.addApi("/api/logout",async ({}, req)=>{
+	await catnip.setSessionValue(req.sessionId,null);
 });
 
-catnip.addApi("/api/install",async ({email, password, repeatPassword}, sreq)=>{
+catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	if (!catnip.getSetting("install"))
 		throw new Error("Not install mode");
 
@@ -169,7 +171,7 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, sreq)=>{
 	u.setPassword(password);
 	u.role="admin";
 	await u.save();
-	await sreq.setUserId(u.id);
+	await catnip.setSessionValue(req.sessionId,u.id);
 
 	await catnip.setSetting("install",false);
 

@@ -101,30 +101,14 @@ export default class CatnipRequestHandler {
 		res.end("Not found...");
 	}
 
-	handleApi=async (req, res, sessionCookie)=>{
+	handleApi=async (req, res)=>{
 		if (this.options.apidelay)
 			await delay(1000);
 
-		const buffers = [];
-		for await (const chunk of req)
-			buffers.push(chunk);
-
-		let bodyQuery={};
-		if (Buffer.concat(buffers).length)
-			bodyQuery=JSON.parse(Buffer.concat(buffers));
-
-		let l=new URL(req.url,"http://example.com");
-		let query=Object.fromEntries(new URLSearchParams(l.search));
-		Object.assign(query,bodyQuery);
-		let params=l.pathname.split("/").filter(s=>s.length>0);
-		let path="/"+params.join("/");
-
-		let func=this.catnip.apis[path];
+		let func=this.catnip.apis[req.pathname];
 		if (func) {
 			try {
-				let sessionRequest=await this.catnip.initSessionRequest(sessionCookie);
-				sessionRequest.origin=getRequestOrigin(req);
-				let data=await func(query,sessionRequest);
+				let data=await func(req.query,req);
 
 				res.writeHead(200);
 				if (!data)
@@ -150,24 +134,21 @@ export default class CatnipRequestHandler {
 	}
 
 	handleDefault=async (req, res, cookie)=>{
-		let sessionRequest=await this.catnip.initSessionRequest(cookie);
-		sessionRequest.origin=getRequestOrigin(req);
-
 		let initChannelIds=[];
-		await this.catnip.doActionAsync("initChannels",initChannelIds,sessionRequest);
+		await this.catnip.doActionAsync("initChannels",initChannelIds,req);
 		for (let channel of this.catnip.getSettings({session: true}))
 			initChannelIds.push(channel.id);
 
 		let initChannels={};
 		for (let channelId of initChannelIds)
-			initChannels[channelId]=await this.catnip.getChannelData(channelId,sessionRequest);
+			initChannels[channelId]=await this.catnip.getChannelData(channelId,req);
 
 		//console.log(JSON.stringify(initChannels));
 
 		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 
 		res.writeHead(200,{
-			"Set-Cookie": `catnip=${cookie}`
+			"Set-Cookie": `catnip=${req.sessionId}`
 		});
 
 		let bundleUrl=buildUrl("/catnip-bundle.js",{
@@ -185,42 +166,32 @@ export default class CatnipRequestHandler {
 		res.end(clientPage);
 	}
 
-	handleRequest=async (req, res)=>{
-		let request=await CatnipRequest.fromNodeRequest(req);
-		console.log(request);
-
-		res.end("hello");
-		return;
-
-
-		let cookies=this.catnip.parseCookies(req);
-		if (!cookies.catnip)
-			cookies.catnip=crypto.randomUUID();
-
-		let urlreq=parseRequest(req.url,"http://example.com/");
+	handleRequest=async (nodeReq, res)=>{
+		let req=await CatnipRequest.fromNodeRequest(nodeReq);
+		await this.catnip.doActionAsync("initRequest",req);
 
 		try {
-			if (urlreq.path=="/catnip-bundle.js") {
+			if (req.pathname=="/catnip-bundle.js") {
 				let headers={
 					"Content-Type": "application/javascript",
 					"Last-Modified": new Date(this.startTime).toUTCString()
 				};
 
-				if (urlreq.query.bundleHash &&
-						urlreq.query.bundleHash==this.bundleHash)
+				if (req.query.bundleHash &&
+						req.query.bundleHash==this.bundleHash)
 					headers["Cache-Control"]="public, max-age=31536000";
 
 				this.handleContent(req,res,this.clientBundle,headers);
 			}
 
-			else if (req.url.startsWith("/api/"))
-				await this.handleApi(req,res,cookies.catnip);
+			else if (req.pathargs[0]=="api")
+				await this.handleApi(req,res);//,cookies.catnip);
 
-			else if (req.url.startsWith("/public/"))
+			else if (req.pathargs[0]=="public")
 				await this.handlePublic(req,res);
 
 			else
-				await this.handleDefault(req,res,cookies.catnip);
+				await this.handleDefault(req,res);//,cookies.catnip);
 		}
 
 		catch (e) {

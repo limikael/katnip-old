@@ -33,6 +33,14 @@ export default class CatnipRequest {
 		return list;
 	}
 
+	static async readBody(request) {
+		const buffers = [];
+		for await (const chunk of request)
+			buffers.push(chunk);
+
+		return Buffer.concat(buffers);
+	}
+
 	static async fromNodeRequest(req) {
 		let protocol="http";
 		if (req.headers["x-forwarded-proto"])
@@ -54,8 +62,17 @@ export default class CatnipRequest {
 		if (!sessionId)
 			sessionId=crypto.randomUUID();
 
+		if (req.method=="POST") {
+			let body=await CatnipRequest.readBody(req);
+			if (body.length) {
+				let bodyQuery=JSON.parse(body);
+				Object.assign(query,bodyQuery);
+			}
+		}
+
 		return new CatnipRequest({
-			origin,query,pathargs,pathname,url,href,cookies,sessionId
+			origin,query,pathargs,pathname,url,href,cookies,sessionId,
+			headers: req.headers
 		});
 	}
 

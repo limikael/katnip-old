@@ -25,9 +25,7 @@ class MainCatnip {
 		this.composeFunctions(this.serverChannels);
 
 		this.sessionManager=new SessionManager(this);
-
-		/*this.serverSessions=new CatnipServerSessions(this);
-		this.composeFunctions(this.serverSessions);*/
+		this.composeFunctions(this.sessionManager);
 
 		/*for (let k in this)
 			if (typeof this[k]=='function' &&
@@ -110,5 +108,5 @@ export const addSetting=catnip.addSetting;
 export const getSettings=catnip.getSettings;
 export const addSettingCategory=catnip.addSettingCategory;
 export const getSettingCategories=catnip.getSettingCategories;
-export const getSessionValue=catnip.sessionManager.getSessionValue;
-export const setSessionValue=catnip.sessionManager.setSessionValue;
+export const getSessionValue=catnip.getSessionValue;
+export const setSessionValue=catnip.setSessionValue;

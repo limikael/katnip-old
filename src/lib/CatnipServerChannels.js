@@ -20,7 +20,7 @@ export default class CatnipServerChannels extends EventEmitter {
 		this.emit("notification",channelUrl);
 	}
 
-	getChannelData=async (channelUrl, sessionReqeust)=>{
+	getChannelData=async (channelUrl, req)=>{
 		let [channelId,queryString]=channelUrl.split("?");
 		let query=decodeQueryString(queryString);
 
@@ -37,7 +37,7 @@ export default class CatnipServerChannels extends EventEmitter {
 		if (!this.channels[channelId])
 			throw new Error("No such channel: "+channelId);
 
-		return await this.channels[channelId](query, sessionReqeust);
+		return await this.channels[channelId](query, req);
 	}
 
 	assertFreeName=(name)=>{

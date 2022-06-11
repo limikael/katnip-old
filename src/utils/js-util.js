@@ -1,9 +1,9 @@
-export function parseCookies(request) {
+export function parseCookieString(str) {
 	const list = {};
-	const cookieHeader = request.headers?.cookie;
-	if (!cookieHeader) return list;
 
-	cookieHeader.split(`;`).forEach(function(cookie) {
+	if (!str) return list;
+
+	str.split(`;`).forEach(function(cookie) {
 		let [ name, ...rest] = cookie.split(`=`);
 		name = name?.trim();
 		if (!name) return;

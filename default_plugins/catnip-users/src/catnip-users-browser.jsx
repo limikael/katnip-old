@@ -1,4 +1,4 @@
-import {catnip, delay, buildUrl, apiFetch, useChannel} from "catnip";
+import {catnip, delay, buildUrl, apiFetch, useChannel, getSessionId} from "catnip";
 import LoginPage from "../components/LoginPage.jsx";
 import SignupPage from "../components/SignupPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
@@ -25,8 +25,7 @@ catnip.addAction("getAdminMenu",(items)=>{
 });
 
 catnip.addAction("useCurrentUser",()=>{
-	let cookie=useChannel("cookie");
-	let userData=useChannel(buildUrl("user",{cookie: cookie}));
+	let userData=useChannel(buildUrl("user",{sessionId: getSessionId()}));
 	if (!userData)
 		return null;
 
@@ -34,8 +33,7 @@ catnip.addAction("useCurrentUser",()=>{
 });
 
 catnip.addAction("setCurrentUser",(userData)=>{
-	let cookie=catnip.getChannelValue("cookie");
-	let channelId=buildUrl("user",{cookie: cookie});
+	let channelId=buildUrl("user",{sessionId: getSessionId()});
 
 	if (userData && !userData.email)
 		throw new Error("This is not user data");

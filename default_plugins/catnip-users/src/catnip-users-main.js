@@ -12,82 +12,55 @@ catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 catnip.addSetting("googleClientId",{title: "Google Client Id", category: "auth"});
 catnip.addSetting("googleClientSecret",{title: "Google Client Secret", category: "auth"});
 
-/*catnip.addAction("getClientSession",async (clientSession, sessionRequest)=>{
-	clientSession.cookie=sessionRequest.cookie;
-	if (sessionRequest.uid) {
-		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
-		if (u) {
-			clientSession.user={
-				id: u.id,
-				email: u.email
-			};
-		}
+catnip.addAction("initRequest",async (req)=>{
+	let uid=catnip.getSessionValue(req.sessionId);
+	if (uid)
+		req.user=await User.findOne(uid);
+
+	req.getUser=()=>{
+		return req.user;
 	}
 
-	if (catnip.getSetting("install"))
-		clientSession.redirect="/install";
+	req.assertCap=(cap)=>{
+		if (!req.user)
+			throw new Error("Not authorized.");
 
-	if (catnip.getSetting("googleClientId") &&
-			catnip.getSetting("googleClientSecret"))
-		clientSession.googleAuthUrl=createGoogleAuthClient(sessionRequest.origin).code.getUri();
-});*/
+		let caps=getCapsByRole(req.user.role);
+		if (!caps.includes(cap))
+			throw new Error("Not authorized.");
+	}
+});
 
-catnip.addAction("initChannels",(channelIds, sessionRequest)=>{
-	channelIds.push(buildUrl("user",{cookie: sessionRequest.cookie}));
-	channelIds.push("cookie");
+catnip.addAction("initChannels",(channelIds, req)=>{
+	channelIds.push(buildUrl("user",{sessionId: req.sessionId}));
 
 	if (catnip.getSetting("googleClientId") &&
 			catnip.getSetting("googleClientSecret"))
 		channelIds.push("googleAuthUrl");
 });
 
-catnip.addChannel("googleAuthUrl",({}, sessionRequest)=>{
+catnip.addChannel("googleAuthUrl",({}, req)=>{
 	//console.log("org: "+sessionRequest.origin);
 
-	return createGoogleAuthClient(sessionRequest.origin).code.getUri();
+	return createGoogleAuthClient(req.origin).code.getUri();
 });
 
-catnip.addChannel("user",async ({cookie}, sessionRequest)=>{
-	if (sessionRequest.uid) {
-		let u=await catnip.db.User.findOne({id: sessionRequest.uid});
-		if (u)
-			return {
-				id: u.id,
-				email: u.email
-			}
+catnip.addChannel("user",async ({sessionId}, req)=>{
+	if (req.sessionId!=sessionId)
+		throw new Error("Wrong session");
+
+	if (!req.user)
+		return null;
+
+	return {
+		id: req.user.id,
+		email: req.user.email
 	}
-
-	return null;
-});
-
-catnip.addChannel("cookie",({}, sessionRequest)=>{
-	return sessionRequest.cookie;
 });
 
 catnip.addChannel("redirect",({})=>{
 	if (catnip.getSetting("install"))
 		return "/install";
-});
-
-catnip.addAction("initSessionRequest",async (sessionRequest)=>{
-	if (sessionRequest.getUserId()) {
-		sessionRequest.user=await User.findOne(sessionRequest.getUserId());
-		if (!sessionRequest.user)
-			sessionRequest.setUserId();
-	}
-
-	sessionRequest.getUser=()=>{
-		return sessionRequest.user;
-	}
-
-	sessionRequest.assertCap=(cap)=>{
-		if (!sessionRequest.user)
-			throw new Error("Not authorized.");
-
-		let caps=getCapsByRole(sessionRequest.user.role);
-		if (!caps.includes(cap))
-			throw new Error("Not authorized.");
-	}
 });
 
 catnip.addAction("serverMain",async (options)=>{

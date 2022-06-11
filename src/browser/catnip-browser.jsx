@@ -4,6 +4,7 @@ import ChannelConnector from "./ChannelConnector.js";
 import {CatnipView} from "../components/CatnipView.jsx";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
+import {parseCookieString} from "../utils/js-util.js";
 
 class BrowserCatnip {
 	constructor() {
@@ -88,6 +89,11 @@ class BrowserCatnip {
 	setCurrentUser=(userData)=>{
 		this.doAction("setCurrentUser",userData);
 	}
+
+	getSessionId=()=>{
+		let cookies=parseCookieString(document.cookie);
+		return cookies.catnip;
+	}
 }
 
 const catnip=new BrowserCatnip();
@@ -114,3 +120,5 @@ export const setChannelPersistence=catnip.channelManager.setChannelPersistence;
 export const getChannelValue=catnip.channelManager.getChannelValue;
 export const setChannelValue=catnip.channelManager.setChannelValue;
 export const useWebSocketStatus=catnip.channelConnector.useWebSocketStatus;
+
+export const getSessionId=catnip.getSessionId;
