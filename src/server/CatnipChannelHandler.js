@@ -1,5 +1,5 @@
 import {WebSocketServer} from "ws";
-import {bindArgs, objectFirstKey, arrayRemove, getRequestOrigin} from "../utils/js-util.js";
+import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
 import CatnipRequest from "../lib/CatnipRequest.js";
 
@@ -31,18 +31,11 @@ export default class CatnipChannelHandler {
 		arrayRemove(this.connections,ws);
 	}
 
-	getOrigin=(req)=>{
-		let protocol="http";
-		if (req.headers["x-forwarded-proto"])
-			protocol=req.headers["x-forwarded-proto"];
-
-		let origin=protocol+"://"+req.headers.host;
-		return origin;
-	}
-
 	sendChannelData=async (ws, channelId)=>{
 		try {
-			let req=await CatnipRequest.fromNodeRequest(ws.req);
+			let req=new CatnipRequest();
+			req.processNodeRequest(ws.req);
+			req.processUrl(channelId);
 			await this.catnip.doActionAsync("initRequest",req);
 
 			let channelData=await this.catnip.getChannelData(channelId,req);

@@ -17,7 +17,7 @@ catnip.addElement("Img",(props)=>{
 
 export default function PageView({request}) {
 	let tc=catnip.useTemplateContext();
-	let pageQuery=request.params[1];
+	let pageQuery=request.pathargs[1];
 	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
 

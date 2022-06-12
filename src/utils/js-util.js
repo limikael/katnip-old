@@ -98,27 +98,6 @@ export async function apiFetch(url, query={}, extraHeaders={}) {
 	return data;
 }
 
-export function parseRequest(url, origin) {
-	if (!origin)
-		origin=window.location.origin;
-
-	let l=new URL(url,origin);
-	let query=Object.fromEntries(new URLSearchParams(l.search));
-	let params=l.pathname.split("/").filter(s=>s.length>0);
-	let path="/"+params.join("/");
-
-	return {
-		params,
-		path,
-		query,
-		href: l.href
-	};
-}
-
-export function	getCurrentRequest() {
-	return parseRequest(window.location);
-}
-
 export function quoteAttr(s, preserveCR) {
     preserveCR = preserveCR ? '&#13;' : '\n';
     return ('' + s) /* Forces the conversion to string. */
@@ -225,13 +204,4 @@ export async function retry(fn, options) {
 			tries++;
 		}
 	}
-}
-
-export function getRequestOrigin(req) {
-	let protocol="http";
-	if (req.headers["x-forwarded-proto"])
-		protocol=req.headers["x-forwarded-proto"];
-
-	let origin=protocol+"://"+req.headers.host;
-	return origin;
 }

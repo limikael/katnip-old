@@ -1,82 +1,61 @@
-export default class CatnipRequest {
-	constructor(data) {
-		for (let k in data)
-			this[k]=data[k];
+import {parseCookieString} from "../utils/js-util.js";
 
-/*		this.pathname="";
-		this.pathargs=[];
-		this.query="";
-		this.origin="";
-		this.href="";
-		this.cookies="";
-		this.sessionId*/
+export default class CatnipRequest {
+	constructor() {
 	}
 
 	matchPath() {
-
 	}
 
-	static parseCookies(request) {
-		const list = {};
-		const cookieHeader = request.headers?.cookie;
-		if (!cookieHeader) return list;
-
-		cookieHeader.split(`;`).forEach(function(cookie) {
-			let [ name, ...rest] = cookie.split(`=`);
-			name = name?.trim();
-			if (!name) return;
-			const value = rest.join(`=`).trim();
-			if (!value) return;
-			list[name] = decodeURIComponent(value);
-		});
-
-		return list;
+	processUrl(url) {
+		let l=new URL(url,this.origin);
+		this.query=Object.fromEntries(new URLSearchParams(l.search));
+		this.pathargs=l.pathname.split("/").filter(s=>s.length>0);
+		this.pathname="/"+this.pathargs.join("/");
+		this.href=l.href;
+		this.url=l.pathname+l.search;
+		this.origin=l.origin;
 	}
 
-	static async readBody(request) {
+	processNodeRequestOrigin(request) {
+		let protocol="http";
+		if (request.headers["x-forwarded-proto"])
+			protocol=request.headers["x-forwarded-proto"];
+
+		this.origin=protocol+"://"+request.headers.host;
+	}
+
+	processCookieString(cookieString) {
+		this.cookies=parseCookieString(cookieString);
+	}
+
+	processNodeRequest(request) {
+		this.processNodeRequestOrigin(request);
+		this.processUrl(request.url);
+		this.processCookieString(request.headers.cookie);
+
+		this.headers=request.headers;
+
+		this.sessionId=this.cookies.catnip;
+		if (!this.sessionId)
+			this.sessionId=crypto.randomUUID();
+	}
+
+	async processNodeRequestBody(request) {
 		const buffers = [];
 		for await (const chunk of request)
 			buffers.push(chunk);
 
-		return Buffer.concat(buffers);
-	}
-
-	static async fromNodeRequest(req) {
-		let protocol="http";
-		if (req.headers["x-forwarded-proto"])
-			protocol=req.headers["x-forwarded-proto"];
-
-		let origin=protocol+"://"+req.headers.host;
-
-		let l=new URL(req.url,origin);
-		let query=Object.fromEntries(new URLSearchParams(l.search));
-		let pathargs=l.pathname.split("/").filter(s=>s.length>0);
-		let pathname="/"+pathargs.join("/");
-
-		let url=req.url;
-		let href=origin+url;
-
-		let cookies=CatnipRequest.parseCookies(req);
-
-		let sessionId=cookies.catnip;
-		if (!sessionId)
-			sessionId=crypto.randomUUID();
-
-		if (req.method=="POST") {
-			let body=await CatnipRequest.readBody(req);
-			if (body.length) {
-				let bodyQuery=JSON.parse(body);
-				Object.assign(query,bodyQuery);
-			}
+		let body=Buffer.concat(buffers);
+		if (body.length) {
+			let bodyQuery=JSON.parse(body);
+			Object.assign(this.query,bodyQuery);
 		}
-
-		return new CatnipRequest({
-			origin,query,pathargs,pathname,url,href,cookies,sessionId,
-			headers: req.headers
-		});
 	}
 
-	static fromBrowserLocation() {
-		
+	processBrowserDocument() {
+		this.processUrl(window.location);
+		this.processCookieString(window.document.cookie)
+		this.sessionId=this.cookies.catnip;
 	}
 }

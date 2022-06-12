@@ -73,7 +73,7 @@ function Nav({request, onsize}) {
 						{menuHeader.map(item=>{
 							let cls="nav-link";
 
-							if (request.path==item.href)
+							if (request.pathname==item.href)
 								cls+=" active";
 
 							return (

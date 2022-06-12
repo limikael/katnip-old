@@ -1,4 +1,5 @@
 import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState} from "catnip";
+import CatnipRequest from "../lib/CatnipRequest.js";
 import {useState} from "preact/compat";
 
 export function CatnipView() {
@@ -23,22 +24,24 @@ export function CatnipView() {
 		}
 	});
 
-	let request=catnip.getCurrentRequest();
-	if (redirect && request.path!=redirect) {
+	let request=new CatnipRequest();
+	request.processBrowserDocument();
+
+	if (redirect && request.pathname!=redirect) {
 		catnip.setLocation(redirect);
 		return;
 	}
 
-	if (homepath && request.path==homepath) {
+	if (homepath && request.pathname==homepath) {
 		catnip.setLocation("/");
-		request=catnip.getCurrentRequest();
+		request.processBrowserDocument();
 	}
 
-	if (request.path=="/")
-		request=catnip.parseRequest(homepath);
+	if (request.pathname=="/")
+		request.processUrl(homepath);
 
-	let Layout=catnip.getTemplateForRoute(request.path);
-	let Page=catnip.getPageComponentForRoute(request.path);
+	let Layout=catnip.getTemplateForRoute(request.pathname);
+	let Page=catnip.getPageComponentForRoute(request.pathname);
 
 	let [title,setTitle]=useRevertibleState(null,[request.href]);
 	let tc={title,setTitle};

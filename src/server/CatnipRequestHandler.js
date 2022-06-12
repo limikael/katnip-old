@@ -1,4 +1,4 @@
-import {quoteAttr, delay, parseRequest, buildUrl, getRequestOrigin} from "../utils/js-util.js";
+import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
 import {getPluginPaths} from "./catnip-server-util.js";
 import fs from "fs";
 import crypto from "crypto";
@@ -76,10 +76,8 @@ export default class CatnipRequestHandler {
 	}
 
 	handlePublic=(req, res)=> {
-		let urlreq=parseRequest(req.url,"http://example.com/");
-
 		for (let pluginPath of getPluginPaths()) {
-			let cand=pluginPath+"/"+urlreq.path;
+			let cand=pluginPath+"/"+req.pathname;
 
 			if (fs.existsSync(cand)) {
 				let mtime=fs.statSync(cand).mtime;
@@ -88,8 +86,8 @@ export default class CatnipRequestHandler {
 					"Last-Modified": new Date(mtime).toUTCString()
 				};
 
-				if (urlreq.query.contentHash &&
-						urlreq.query.contentHash==this.contentHash)
+				if (req.query.contentHash &&
+						req.query.contentHash==this.contentHash)
 					headers["Cache-Control"]="public, max-age=31536000";
 
 				this.handleContent(req,res,fs.readFileSync(cand),headers);
@@ -167,7 +165,9 @@ export default class CatnipRequestHandler {
 	}
 
 	handleRequest=async (nodeReq, res)=>{
-		let req=await CatnipRequest.fromNodeRequest(nodeReq);
+		let req=new CatnipRequest();
+		req.processNodeRequest(nodeReq);
+		await req.processNodeRequestBody(nodeReq);
 		await this.catnip.doActionAsync("initRequest",req);
 
 		try {
@@ -185,13 +185,13 @@ export default class CatnipRequestHandler {
 			}
 
 			else if (req.pathargs[0]=="api")
-				await this.handleApi(req,res);//,cookies.catnip);
+				await this.handleApi(req,res);
 
 			else if (req.pathargs[0]=="public")
 				await this.handlePublic(req,res);
 
 			else
-				await this.handleDefault(req,res);//,cookies.catnip);
+				await this.handleDefault(req,res);
 		}
 
 		catch (e) {

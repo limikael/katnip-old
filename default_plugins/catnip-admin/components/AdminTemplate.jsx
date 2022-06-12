@@ -67,8 +67,8 @@ function Sidebar({request}) {
 	for (let item of items) {
 		let cls="nav-link";
 
-		if (item.href==request.path ||
-				(item.routes && item.routes.includes(request.path)))
+		if (item.href==request.pathname ||
+				(item.routes && item.routes.includes(request.pathname)))
 			cls+=" active";
 
 		else
@@ -123,7 +123,7 @@ export function AdminHead() {
 
 export default function AdminTemplate({request, children}) {
 	let content;
-	if (request.path=="/admin/customize")
+	if (request.pathname=="/admin/customize")
 		content=<Customizer request={request}/>;
 
 	else
