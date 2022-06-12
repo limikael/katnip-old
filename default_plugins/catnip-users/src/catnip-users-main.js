@@ -21,6 +21,13 @@ catnip.addAction("initRequest",async (req)=>{
 		return req.user;
 	}
 
+	req.getUserId=()=>{
+		if (!req.user)
+			return null;
+
+		return req.user.id;
+	}
+
 	req.assertCap=(cap)=>{
 		if (!req.user)
 			throw new Error("Not authorized.");
