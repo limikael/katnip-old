@@ -61,6 +61,9 @@ export function useRevertibleState(initial, deps=[]) {
 }
 
 export function useForm(getInitial, deps=[], options={}) {
+	if (!getInitial)
+		getInitial={};
+
 	let initial=usePromise(getInitial,deps);
 	let [current,setCurrent,modified]=useRevertibleState(initial,[...deps,initial]);
 

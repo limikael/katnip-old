@@ -52,10 +52,13 @@ export default function SignupPage() {
 				</div>
 			</div>
 			{googleAuthUrl &&
-				<a class="btn btn-danger mb-2" style="width: 100%" href={googleAuthUrl}>
+				<a class="btn btn-danger mb-3" style="width: 100%" href={googleAuthUrl}>
 					<b>Sign in with Google</b>
 				</a>
 			}
+			<A class="btn btn-danger mb-3" style="width: 100%" href="/sessiontoken">
+				<b>Use a Session Token</b>
+			</A>
 		</div>
 	);
 }
