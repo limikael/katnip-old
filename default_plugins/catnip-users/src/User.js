@@ -10,11 +10,19 @@ export default class User extends Model {
 
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
-		email: "VARCHAR(255) NOT NULL",
+		email: "VARCHAR(255) NULL",
 		password: "VARCHAR(255) NULL",
 		salt: "VARCHAR(255) NULL",
+		token: "VARCHAR(255) NULL",
 		role: "VARCHAR(64) NOT NULL",
 	};
+
+	constructor(values) {
+		super(values);
+
+		if (!this.role)
+			this.role="user";
+	}
 
 	setPassword(newPassword) {
 		if (!newPassword || newPassword.length<6)

@@ -94,6 +94,22 @@ catnip.addApi("/api/login",async ({login, password}, req)=>{
 	}
 });
 
+catnip.addApi("/api/useToken",async ({token}, req)=>{
+	if (!token)
+		throw new Error("That's not a token");
+
+	let u=await catnip.db.User.findOne({token: token});
+
+	if (!u) {
+		u=new User({token: token});
+		await u.save();
+	}
+
+	await catnip.setSessionValue(req.sessionId,u.id);
+
+	return u;
+});
+
 catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
 	if (await User.findOne({email: login}))
 		throw new Error("The email is already in use");

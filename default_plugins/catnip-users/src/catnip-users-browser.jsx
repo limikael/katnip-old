@@ -37,7 +37,7 @@ catnip.addAction("useCurrentUser",()=>{
 catnip.addAction("setCurrentUser",(userData)=>{
 	let channelId=buildUrl("user",{sessionId: getSessionId()});
 
-	if (userData && !userData.email)
+	if (userData && !userData.id)
 		throw new Error("This is not user data");
 
 	catnip.setChannelValue(channelId,userData);

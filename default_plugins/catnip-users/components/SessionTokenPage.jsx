@@ -1,16 +1,25 @@
-import {useTemplateContext, PromiseButton, apiFetch, useForm} from "catnip";
+import {useTemplateContext, PromiseButton, apiFetch, useForm, setCurrentUser,
+		setLocation, useChannel} from "catnip";
+import {useState} from "react";
 
 export default function SessionTokenPage({request}) {
-	let [values, field]=useForm();
+	let token=catnip.parseCookieString(document.cookie).token;
+	if (!token) {
+		token=crypto.randomUUID();
+		document.cookie=`token=${token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;
+	}
+
+	let [values, field]=useForm({token});
 	let tc=useTemplateContext();
+	let postloginpath=useChannel("postloginpath");
 	tc.setTitle("Session Token");
 
 	async function onUseTokenClick() {
-		await apiFetch("/api/hello");
-	}
+		let userData=await apiFetch("/api/useToken",{token: values.token});
 
-	async function onRestoreSessionClick() {
-		await apiFetch("/api/restoreToken",{token: values.token});
+		document.cookie=`token=${values.token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;
+		setCurrentUser(userData);
+		setLocation(postloginpath);
 	}
 
 	return <>
@@ -19,28 +28,14 @@ export default function SessionTokenPage({request}) {
 				This is your session token. It will be stored in a cookie in this browser. Save it permanently before continuing,
 				so that you can use it to log in from another browser.
 			</p>
-			<div class="card bg-light mb-3">
-				<div class="card-body font-monospace">
-					<b>Hello world.</b>
-				</div>
-			</div>
+			<p>
+				If you have a session token from another device or browser, you can restore the
+				previous session by entering that session token here.
+			</p>
+			<input type="text" class="form-control mb-3" {...field("token")}/>
 			<p>
 				<PromiseButton class="btn btn-primary" onclick={onUseTokenClick}>
 					Use This Token
-				</PromiseButton>
-			</p>
-
-			<h2 class="mt-5">Restore Session</h2>
-			<p>
-				If you have a session token from another device or browser, you can restore the
-				previous session here.
-			</p>
-			<form class="mb-2">
-				<input type="text" class="form-control mb-3" placeholder="Session Token" {...field("token")}/>
-			</form>
-			<p>
-				<PromiseButton class="btn btn-primary" onclick={onRestoreSessionClick}>
-					Restore Session
 				</PromiseButton>
 			</p>
 		</div>
