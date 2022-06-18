@@ -86,6 +86,8 @@ describe("db",()=>{
 	});
 
 	it("can create a field spec",()=>{
-		let fieldSpec=FieldSpec.fromSqlDef("varchar(255) not null");
+		let fieldSpec=FieldSpec.fromSqlDef("text not null");
+		console.log(fieldSpec);
+
 	})
 });
