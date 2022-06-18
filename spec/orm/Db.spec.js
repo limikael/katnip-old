@@ -1,8 +1,11 @@
 import Db, {Model} from "../../src/orm/Db.js";
 import {createWhereClause} from "../../src/orm/db-util.js";
+import FieldSpec from "../../src/orm/FieldSpec.js";
 import mysql from "mysql";
 
 class Employee extends Model {
+	static tableName="Employee";
+
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		name: "VARCHAR(64)",
@@ -81,4 +84,8 @@ describe("db",()=>{
 		});
 		//console.log(w);
 	});
+
+	it("can create a field spec",()=>{
+		let fieldSpec=FieldSpec.fromSqlDef("varchar(255) not null");
+	})
 });
