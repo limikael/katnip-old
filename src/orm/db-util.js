@@ -41,7 +41,7 @@ export function createWhereClause(spec, isSubClause) {
 	};
 }
 
-export function createSqlFieldSpec(declaration) {
+/*export function createSqlFieldSpec(declaration) {
 	if (typeof declaration=="string")
 		return declaration;
 
@@ -82,4 +82,4 @@ export function hydrate(v, declaration) {
 		default:
 		  throw new Error("Unknown field declaration: " + JSON.stringify(declaration));
 	}
-}
+}*/

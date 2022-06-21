@@ -6,7 +6,7 @@ class Session extends Model {
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
 		cookie: "VARCHAR(255) NOT NULL",
-		value: {type: "json"}
+		value: "json"
 	}
 }
 

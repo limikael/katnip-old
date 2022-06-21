@@ -1,4 +1,5 @@
-import {createWhereClause, createSqlFieldSpec, serializeHydrated, hydrate} from "./db-util.js";
+import {createWhereClause} from "./db-util.js";
+import FieldSpec from "./FieldSpec.js";
 
 export default class Model {
 	constructor(data={}) {
@@ -20,8 +21,10 @@ export default class Model {
 		let dbRows=await cls.db.query(qs,q.vals);
 		let dbRow=dbRows[0];
 
-		for (let fieldName in cls.fields)
-			this[fieldName]=hydrate(dbRow[fieldName],cls.fields[fieldName]);
+		for (let fieldName in cls.fields) {
+			let fieldSpec=cls.getFieldSpec(fieldName);
+			this[fieldName]=fieldSpec.hydrate(dbRow[fieldName]);
+		}
 	}
 
 	static async findMany(params={}) {
@@ -43,8 +46,10 @@ export default class Model {
 		let res=[];
 		for (let dbRow of dbRows) {
 			let o={};
-			for (let fieldName in cls.fields)
-				o[fieldName]=hydrate(dbRow[fieldName],cls.fields[fieldName]);
+			for (let fieldName in cls.fields) {
+				let fieldSpec=cls.getFieldSpec(fieldName);
+				o[fieldName]=fieldSpec.hydrate(dbRow[fieldName]);
+			}
 			res.push(new cls(o));
 		}
 
@@ -85,8 +90,8 @@ export default class Model {
 
 				let fieldSpec=cls.fields[fieldName];
 				res.qs+=`\`${fieldName}\`=?`;
-				let spec=cls.fields[fieldName];
-				res.vals.push(serializeHydrated(this[fieldName],spec));
+				let spec=cls.getFieldSpec(fieldName);
+				res.vals.push(spec.serialize(this[fieldName]));
 			}
 		}
 		return res;
@@ -141,8 +146,14 @@ export default class Model {
 		return Object.keys(this.fields)[0];
 	}
 
-	static getSqlFieldSpec(fieldId) {
-		return createSqlFieldSpec(this.fields[fieldId]);
+	static getFieldSpec(fieldId) {
+		if (!this.fieldSpecs)
+			this.fieldSpecs={};
+
+		if (!this.fieldSpecs[fieldId])
+			this.fieldSpecs[fieldId]=FieldSpec.fromSqlDef(this.fields[fieldId]);
+
+		return this.fieldSpecs[fieldId];
 	}
 
 	static async install() {
@@ -151,12 +162,11 @@ export default class Model {
 
 		// Create if it doesn't exist.
 		for (let fieldName in cls.fields) {
-			let fieldSpec=cls.getSqlFieldSpec(fieldName);
+			let fieldSpec=cls.getFieldSpec(fieldName).getSql();
 			qs+=`\`${fieldName}\` ${fieldSpec},`;
 		}
 
 		qs+=`PRIMARY KEY (${this.getPrimaryKeyField()}))`;
-
 		await this.db.query(qs);
 
 		// Check current state of database.
@@ -165,28 +175,33 @@ export default class Model {
 
 		let existing={};
 		for (let describeRow of describeResult)
-			existing[describeRow["Field"]]=describeRow["Type"];
+			existing[describeRow["Field"]]=FieldSpec.fromDescribeRow(describeRow);
 
 		// Create or modify existing fields.
 		for (let fieldName in cls.fields) {
-	        let fieldSpec=cls.getSqlFieldSpec(fieldName);
-			let fieldDeclaration=cls.fields[fieldName];
-			let q;
+	        let fieldSpec=cls.getFieldSpec(fieldName);
 
-			if (Object.keys(existing).includes(fieldName))
-				q=`ALTER TABLE ${cls.getTableName()} MODIFY \`${fieldName}\` ${fieldSpec}`;
+			if (!Object.keys(existing).includes(fieldName))
+				await this.db.query(`
+					ALTER TABLE ${cls.getTableName()}
+					ADD \`${fieldName}\` ${fieldSpec.getSql()}
+				`);
 
-			else
-				q=`ALTER TABLE ${cls.getTableName()} ADD \`${fieldName}\` ${fieldSpec}`;
-
-			await this.db.query(q);
+			else if (!fieldSpec.equals(existing[fieldName]))
+				await this.db.query(`
+					ALTER TABLE ${cls.getTableName()}
+					MODIFY \`${fieldName}\` ${fieldSpec.getSql()}
+				`);
 		}
 
 		// Drup unused fields.
 		let currentFieldNames=Object.keys(cls.fields);
 		for (let existingField of Object.keys(existing)) {
 			if (!currentFieldNames.includes(existingField)) {
-				await this.db.query(`ALTER TABLE ${cls.getTableName()} DROP ${existingField}`);
+				await this.db.query(`
+					ALTER TABLE ${cls.getTableName()}
+					DROP ${existingField}
+				`);
 			}
 		}
 	}

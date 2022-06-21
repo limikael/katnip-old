@@ -11,7 +11,7 @@ class Employee extends Model {
 		name: "VARCHAR(64)",
 		test: "VARCHAR(64)",
 		salary: "INTEGER",
-		meta: {type: "json"}
+		meta: "json"
 	};
 }
 
@@ -56,8 +56,8 @@ describe("db",()=>{
 
 		expect(a.salary).toEqual(b.salary);
 
-		/*let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
-		expect(total).toEqual([13,6.5]);*/
+		//let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
+		//expect(total).toEqual([13,6.5]);
 	});
 
 	it("can create a where clause",()=>{
@@ -86,8 +86,28 @@ describe("db",()=>{
 	});
 
 	it("can create a field spec",()=>{
-		let fieldSpec=FieldSpec.fromSqlDef("text not null");
-		console.log(fieldSpec);
+		let fieldSpec1=FieldSpec.fromSqlDef("text not null");
+		//console.log(fieldSpec1.getSql());
 
-	})
+		let fieldSpec2=FieldSpec.fromSqlDef("integer not null");
+		//console.log(fieldSpec2.getSql());
+
+		let fieldSpec3=FieldSpec.fromSqlDef("varchar(64) null");
+		//console.log(fieldSpec3.getSql());
+
+		let rowSpec=FieldSpec.fromDescribeRow({
+			Field: 'name',
+			Type: 'varchar(64)',
+			Null: 'YES',
+			Key: '',
+			Default: null,
+			Extra: ''
+		});
+
+		/*console.log(fieldSpec3);
+		console.log(rowSpec);*/
+
+		expect(rowSpec.equals(fieldSpec3)).toEqual(true);
+		expect(rowSpec.equals(fieldSpec2)).toEqual(false);
+	});
 });

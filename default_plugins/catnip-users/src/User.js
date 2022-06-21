@@ -14,7 +14,7 @@ export default class User extends Model {
 		password: "VARCHAR(255) NULL",
 		salt: "VARCHAR(255) NULL",
 		token: "VARCHAR(255) NULL",
-		role: "VARCHAR(64) NOT NULL",
+		role: "VARCHAR(64) NOT NULL"
 	};
 
 	constructor(values) {

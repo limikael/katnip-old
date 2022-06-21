@@ -6,7 +6,7 @@
   },
   "scripts": {
     "test": "jasmine",
-    "dev": "./src/server/catnip-cli.js --no-dbinstall"
+    "dev": "./src/server/catnip-cli.js"
   },
   "main": "src/main/catnip-main-exports.js",
   "browser": "src/browser/catnip-browser-exports.js",

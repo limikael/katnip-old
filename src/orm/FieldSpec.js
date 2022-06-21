@@ -79,13 +79,46 @@ function parseSqlDefTopLevel(tokens) {
 }
 
 function parseSqlDef(s) {
+	if (typeof s!="string")
+		throw new Error("Not a string: "+JSON.stringify(s));
+
 	return parseSqlDefTopLevel(tokenizeSqlDef(s));
 }
 
 export default class FieldSpec {
+	static types={
+		"integer": {aliasFor: "int"},
+		"int": {defaultSize: 11},
+		"char": {defaultSize: 1},
+		"varchar": {},
+		"text": {sizeFree: true},
+		"json": {sizeFree: true, sqlType: "text"}
+	};
+
 	constructor(options) {
 		for (let k in options)
 			this[k]=options[k];
+
+		if (!FieldSpec.types[this.type])
+			throw new Error("Unknown sql type: "+this.type);
+
+		if (FieldSpec.types[this.type].aliasFor)
+			this.type=FieldSpec.types[this.type].aliasFor;
+
+		if (!this.size)
+			this.size=FieldSpec.types[this.type].defaultSize;
+
+		if (!this.size && !FieldSpec.types[this.type].sizeFree)
+			throw new Error("Need size for type: "+this.type);
+	}
+
+	equals(that) {
+		return (
+			(this.getSqlType()==that.getSqlType()) &&
+			(this.size==that.size) &&
+			(this.null==that.null) &&
+			(this.auto_increment==that.auto_increment)
+		);
 	}
 
 	static fromSqlDef(def) {
@@ -134,5 +167,83 @@ export default class FieldSpec {
 		}
 
 		return new FieldSpec(options);
+	}
+
+	static fromDescribeRow(row) {
+		let options={};
+
+		let typeDef=parseSqlDef(row.Type);
+		options.type=typeDef.shift();
+		if (Array.isArray(typeDef[0])) {
+			if (!isNaN(typeDef[0][0]))
+				options.size=parseInt(typeDef[0][0]);
+
+			if (!isNaN(typeDef[0][1]))
+				options.decimals=parseInt(typeDef[0][1]);
+
+			typeDef.shift();
+		}
+
+		options.null=false;
+		if (row.Null=="YES")
+			options.null=true;
+
+		options.auto_increment=false;
+		if (row.Extra.includes("auto_increment"))
+			options.auto_increment=true;
+
+		return new FieldSpec(options);
+	}
+
+	getSqlType() {
+		let typeSpec=FieldSpec.types[this.type];
+		if (typeSpec.sqlType)
+			return typeSpec.sqlType;
+
+		return this.type;
+	}
+
+	getSql() {
+		let s=this.getSqlType();
+
+		if (!FieldSpec.types[this.type].sizeFree)
+			s+=`(${this.size})`;
+
+		s+=(this.null?" null":" not null");
+
+		if (this.auto_increment)
+			s+=" auto_increment";
+
+		return s;
+	}
+
+	hydrate(dbValue) {
+		switch (this.type) {
+			case "json":
+				if (dbValue==="")
+					return undefined;
+
+				return JSON.parse(dbValue);
+				break;
+
+			default:
+				return dbValue;
+				break;
+		}
+	}
+
+	serialize(value) {
+		switch (this.type) {
+			case "json":
+				if (value===undefined)
+					return "";
+
+				return JSON.stringify(value);
+				break;
+
+			default:
+				return value;
+				break;
+		}
 	}
 }
