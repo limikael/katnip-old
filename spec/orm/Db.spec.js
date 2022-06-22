@@ -15,37 +15,61 @@ class Employee extends Model {
 	};
 }
 
-describe("db",()=>{
-	it("works",async ()=>{
-		let db=new Db("mysql://mysql:mysql@localhost/catniptest");
+class TestSetting extends Model {
+	static tableName="TestSetting";
 
-		db.addModel(Employee);
-		await db.install();
+	static fields={
+		setting: "VARCHAR(255) NOT NULL",
+		value: "VARCHAR(255)"
+	};
+}
+
+describe("db",()=>{
+	let db;
+
+	beforeEach(async ()=>{
+		if (!db) {
+			db=new Db("mysql://mysql:mysql@localhost/catniptest");
+
+			db.addModel(Employee);
+			db.addModel(TestSetting);
+
+			await db.install();
+		}
 
 		for (let e of await Employee.findMany())
 			await e.delete();
 
+		for (let e of await TestSetting.findMany())
+			await e.delete();
+	})
+
+	it("doesn't need AUTO_INCREMENT",async ()=>{
+		let s=new TestSetting({setting: "test", value: 123});
+		await s.save();
+	});
+
+	/*it("works",async ()=>{
 		let e=new db.Employee({name: "Micke"});
 		e.meta={hello: "world"};
 		e.salary=5;
 		await e.save();
 
+		e.salary=6;
+		await e.save();
+
 		let f=await db.Employee.findOne({name: "Micke"});
 		expect(f.meta.hello).toEqual("world");
+		expect(f.salary).toEqual(6);
 
-		let g=new db.Employee({name: "Micke2"});
-		g.meta={hello: "world"};
-		g.salary=8;
-		await g.save();
+		expect(await db.Employee.getCount()).toEqual(1);
 
-		let cnt=await db.Employee.getCount();
-		expect(cnt).toEqual(2);
+		console.log(JSON.stringify(e));
+	});
 
-		let total=await db.Employee.getAggregate("SUM(salary)");
-		expect(total).toEqual(13);
-
-		let total2=await db.Employee.getAggregate("SUM(salary)",{name: "Micke"});
-		expect(total2).toEqual(5);
+	it("refreshes",async ()=>{
+		let e=new db.Employee({name: "Micke",salary: 10});
+		await e.save();
 
 		let a=await db.Employee.findOne({name: "Micke"});
 		let b=await db.Employee.findOne({name: "Micke"});
@@ -55,9 +79,25 @@ describe("db",()=>{
 		await b.refresh();
 
 		expect(a.salary).toEqual(b.salary);
+	});
 
-		//let stats=await db.Employee.getAggregate("SUM(salary), AVG(salary)");
-		//expect(total).toEqual([13,6.5]);
+	it("aggregate",async ()=>{
+		let e;
+
+		e=new db.Employee({name: "Micke",salary: 10});
+		await e.save();
+
+		e=new db.Employee({name: "Micke2",salary: 20});
+		await e.save();
+
+		let cnt=await db.Employee.getCount();
+		expect(cnt).toEqual(2);
+
+		let total=await db.Employee.getAggregate("SUM(salary)");
+		expect(total).toEqual(30);
+
+		let total2=await db.Employee.getAggregate("SUM(salary)",{name: "Micke"});
+		expect(total2).toEqual(10);
 	});
 
 	it("can create a where clause",()=>{
@@ -104,10 +144,10 @@ describe("db",()=>{
 			Extra: ''
 		});
 
-		/*console.log(fieldSpec3);
-		console.log(rowSpec);*/
+		//console.log(fieldSpec3);
+		//console.log(rowSpec);
 
 		expect(rowSpec.equals(fieldSpec3)).toEqual(true);
 		expect(rowSpec.equals(fieldSpec2)).toEqual(false);
-	});
+	});*/
 });

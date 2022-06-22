@@ -3,8 +3,12 @@ import FieldSpec from "./FieldSpec.js";
 
 export default class Model {
 	constructor(data={}) {
+		let cls=this.constructor;
+
 		for (let k in data)
 			this[k]=data[k];
+
+		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
 	}
 
 	async refresh() {
@@ -59,10 +63,6 @@ export default class Model {
 	static async getAggregate(sql, whereParams={}) {
 		let cls=this;
 		let q=createWhereClause(whereParams);
-//		let wherePart="";
-/*		if (q.query)
-			wherePart=" WHERE "+q.query;*/
-
 		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${q.query}`;
 		let dbRows=await cls.db.query(qs,q.vals);
 
@@ -102,7 +102,11 @@ export default class Model {
 		let upsert=this.getUpsertSql();
 		let qs=`INSERT INTO ${cls.getTableName()} SET ${upsert.qs}`;
 		await cls.db.query(qs,upsert.vals);
-		this[cls.getPrimaryKeyField()]=cls.db.lastInsertId();
+
+		if (cls.db.lastInsertId())
+			this[cls.getPrimaryKeyField()]=cls.db.lastInsertId();
+
+		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
 	}
 
 	async update() {
@@ -111,9 +115,12 @@ export default class Model {
 		let qs=`UPDATE ${cls.getTableName()} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
 		upsert.vals.push(this.getPrimaryKeyValue());
 		await cls.db.query(qs,upsert.vals);
+		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
 	}
 
 	async save() {
+		console.log("pk val:"+this.getPrimaryKeyValue());
+
 		if (this.getPrimaryKeyValue())
 			await this.update();
 
@@ -131,7 +138,7 @@ export default class Model {
 	}
 
 	getPrimaryKeyValue() {
-		return this[this.constructor.getPrimaryKeyField()];
+		return this.__primaryKeyValue;
 	}
 
 	static getTableName() {
@@ -204,5 +211,15 @@ export default class Model {
 				`);
 			}
 		}
+	}
+
+	toJSON() {
+		let cls=this.constructor;
+		let output={};
+
+		for (let fieldId in cls.fields)
+			output[fieldId]=this[fieldId];
+
+		return output;
 	}
 }
