@@ -72,13 +72,8 @@ class MainCatnip {
 			await this.db.connect(options.dsn);
 		},retryOptions);
 
-		if (!options.hasOwnProperty("dbinstall"))
-			options["dbinstall"]=true;
-
-		if (options["dbinstall"]) {
-			console.log("Installing database schema...");
-			await this.db.install();
-		}
+		console.log("Installing database schema...");
+		await this.db.install();
 
 		await this.sessionManager.loadSessions();
 		await this.settings.loadSettings();

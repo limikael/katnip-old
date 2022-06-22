@@ -92,7 +92,8 @@ export default class FieldSpec {
 		"char": {defaultSize: 1},
 		"varchar": {},
 		"text": {sizeFree: true},
-		"json": {sizeFree: true, sqlType: "text"}
+		"json": {sizeFree: true, sqlType: "text"},
+		"double": {sizeFree: true},
 	};
 
 	constructor(options) {
