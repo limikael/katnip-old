@@ -219,14 +219,4 @@ export default class Model {
 			}
 		}
 	}
-
-	/*toJSON() {
-		let cls=this.constructor;
-		let output={};
-
-		for (let fieldId in cls.fields)
-			output[fieldId]=this[fieldId];
-
-		return output;
-	}*/
 }

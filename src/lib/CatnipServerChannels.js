@@ -24,7 +24,7 @@ export default class CatnipServerChannels extends EventEmitter {
 		let [channelId,queryString]=channelUrl.split("?");
 		let query=decodeQueryString(queryString);
 
-		let settings=this.catnip.getSettings({id: channelId});
+		let settings=this.catnip.settingsManager.getSettings({id: channelId});
 		if (settings.length) {
 			let setting=settings[0];
 

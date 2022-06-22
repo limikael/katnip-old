@@ -6,11 +6,11 @@ class Setting extends Model {
 
 	static fields={
 		id: "VARCHAR(255) NOT NULL",
-		value: "TEXT"
+		value: "JSON"
 	}
 }
 
-export default class CatnipSettings {
+export default class SettingsManager {
 	constructor(catnip) {
 		this.catnip=catnip;
 		this.settings={};
@@ -48,7 +48,7 @@ export default class CatnipSettings {
 		this.settings[id].value=value;
 		await this.settings[id].save();
 
-		this.catnip.notifyChannel(id);
+		this.catnip.serverChannels.notifyChannel(id);
 	}
 
 	loadSettings=async ()=>{

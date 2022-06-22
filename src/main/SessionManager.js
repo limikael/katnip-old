@@ -4,9 +4,8 @@ class Session extends Model {
 	static tableName="Session";
 
 	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
-		cookie: "VARCHAR(255) NOT NULL",
-		value: "json"
+		id: "VARCHAR(255) NOT NULL",
+		value: "JSON"
 	}
 }
 
@@ -18,24 +17,31 @@ export default class SessionManager {
 	}
 
 	getSessionValue=(sessionId)=>{
-		return this.sessions[sessionId];
+		if (!this.sessions[sessionId])
+			return;
+
+		return this.sessions[sessionId].value;
 	}
 
 	setSessionValue=async (sessionId, value)=>{
-		this.sessions[sessionId]=value;
+		if (!value) {
+			if (this.sessions[sessionId]) {
+				await this.sessions[sessionId].delete();
+				delete this.sessions[sessionId];
+			}
 
-		let session=await Session.findOne({cookie: sessionId});
-		if (!session) {
-			session=new Session();
-			session.cookie=sessionId;
+			return;
 		}
 
-		session.value=value;
-		await session.save();
+		if (!this.sessions[sessionId])
+			this.sessions[sessionId]=new Session({id: sessionId});
+
+		this.sessions[sessionId].value=value;
+		await this.sessions[sessionId].save();
 	}
 
 	loadSessions=async ()=>{
 		for (let session of await Session.findMany()) 
-			this.sessions[session.cookie]=session.value;
+			this.sessions[session.id]=session;
 	}
 }

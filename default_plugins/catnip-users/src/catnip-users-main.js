@@ -1,4 +1,4 @@
-import {catnip, delay, buildUrl, apiFetch} from "catnip";
+import {catnip, delay, buildUrl, apiFetch, addSetting} from "catnip";
 import User from "./User.js";
 import {getCapsByRole} from "./rolecaps.js";
 import {createGoogleAuthClient} from "./auth.js";
