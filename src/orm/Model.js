@@ -7,8 +7,6 @@ export default class Model {
 
 		for (let k in data)
 			this[k]=data[k];
-
-		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
 	}
 
 	async refresh() {
@@ -23,6 +21,9 @@ export default class Model {
 
 		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
 		let dbRows=await cls.db.query(qs,q.vals);
+		if (!dbRows.length)
+			throw new Error("Can't refresh, doesn't exist");
+
 		let dbRow=dbRows[0];
 
 		for (let fieldName in cls.fields) {
@@ -84,7 +85,8 @@ export default class Model {
 		let cls=this.constructor;
 		let res={qs: "", vals: []};
 		for (let fieldName in cls.fields) {
-			if (fieldName!=cls.getPrimaryKeyField()) {
+			if (!cls.isAutoIncrementPrimaryKey() ||
+					fieldName!=cls.getPrimaryKeyField()) {
 				if (res.qs)
 					res.qs+=`,`;
 
@@ -101,12 +103,10 @@ export default class Model {
 		let cls=this.constructor;
 		let upsert=this.getUpsertSql();
 		let qs=`INSERT INTO ${cls.getTableName()} SET ${upsert.qs}`;
-		await cls.db.query(qs,upsert.vals);
+		let res=await cls.db.query(qs,upsert.vals);
 
-		if (cls.db.lastInsertId())
-			this[cls.getPrimaryKeyField()]=cls.db.lastInsertId();
-
-		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
+		if (res.insertId)
+			this[cls.getPrimaryKeyField()]=res.insertId;
 	}
 
 	async update() {
@@ -114,13 +114,13 @@ export default class Model {
 		let upsert=this.getUpsertSql();
 		let qs=`UPDATE ${cls.getTableName()} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
 		upsert.vals.push(this.getPrimaryKeyValue());
-		await cls.db.query(qs,upsert.vals);
-		this.__primaryKeyValue=this[cls.getPrimaryKeyField()];
+		let res=await cls.db.query(qs,upsert.vals);
+
+		if (!res.affectedRows && !cls.isAutoIncrementPrimaryKey())
+			await this.insert();
 	}
 
 	async save() {
-		console.log("pk val:"+this.getPrimaryKeyValue());
-
 		if (this.getPrimaryKeyValue())
 			await this.update();
 
@@ -137,8 +137,15 @@ export default class Model {
 		await cls.db.query(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
 	}
 
+	static isAutoIncrementPrimaryKey() {
+		let spec=this.getFieldSpec(this.getPrimaryKeyField())
+		return spec.auto_increment;
+	}
+
 	getPrimaryKeyValue() {
-		return this.__primaryKeyValue;
+		let cls=this.constructor;
+
+		return this[cls.getPrimaryKeyField()];
 	}
 
 	static getTableName() {
@@ -207,13 +214,13 @@ export default class Model {
 			if (!currentFieldNames.includes(existingField)) {
 				await this.db.query(`
 					ALTER TABLE ${cls.getTableName()}
-					DROP ${existingField}
+					DROP \`${existingField}\`
 				`);
 			}
 		}
 	}
 
-	toJSON() {
+	/*toJSON() {
 		let cls=this.constructor;
 		let output={};
 
@@ -221,5 +228,5 @@ export default class Model {
 			output[fieldId]=this[fieldId];
 
 		return output;
-	}
+	}*/
 }

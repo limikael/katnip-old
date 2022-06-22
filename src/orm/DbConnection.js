@@ -61,8 +61,10 @@ export default class DbConnection {
 						}
 
 						if (results.constructor.name=="OkPacket") {
-							this.mysqlInsertId=results.insertId;
-							resolve();
+							resolve({
+								affectedRows: results.affectedRows,
+								insertId: results.insertId
+							});
 							return;
 						}
 
@@ -79,16 +81,6 @@ export default class DbConnection {
 					});
 				});
 				break;
-
-			default:
-				throw new Error("Unknown protocol: "+this.url.protocol);
-		}
-	}
-
-	lastInsertId() {
-		switch (this.url.protocol) {
-			case "mysql:":
-				return this.mysqlInsertId;
 
 			default:
 				throw new Error("Unknown protocol: "+this.url.protocol);

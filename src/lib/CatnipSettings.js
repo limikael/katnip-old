@@ -5,8 +5,7 @@ class Setting extends Model {
 	static tableName="Setting";
 
 	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
-		key: "VARCHAR(255) NOT NULL",
+		id: "VARCHAR(255) NOT NULL",
 		value: "TEXT"
 	}
 }
@@ -32,38 +31,33 @@ export default class CatnipSettings {
 			throw new Error("Already a setting: "+name);
 	}
 
-	addSetting=(id, setting={})=>{
+	addSetting=(id, settingConf={})=>{
 		this.catnip.assertFreeName(id);
 
-		setting.id=id;
-		if (!setting.title)
-			setting.title=setting.id;
+		settingConf.id=id;
+		if (!settingConf.title)
+			settingConf.title=settingConf.id;
 
-		this.settings[id]=setting;
+		this.settings[id]=new Setting(settingConf);
 	}
 
 	setSetting=async (id, value)=>{
 		if (!this.settings[id])
-			throw new Error("No such setting: "+key);
+			throw new Error("No such setting: "+id);
 
 		this.settings[id].value=value;
-
-		let setting=await Setting.findOne({key: id});
-		if (!setting) {
-			setting=new Setting()
-			setting.key=id;
-		}
-
-		setting.value=JSON.stringify(this.settings[id].value);
-		await setting.save();
+		await this.settings[id].save();
 
 		this.catnip.notifyChannel(id);
 	}
 
 	loadSettings=async ()=>{
 		for (let setting of await Setting.findMany()) {
-			if (this.settings[setting.key])
-				this.settings[setting.key].value=JSON.parse(setting.value);
+			if (this.settings[setting.id])
+				this.settings[setting.id].value=setting.value;
+
+			else
+				console.log("Unknown setting in db: "+setting.id);
 		}
 	}
 

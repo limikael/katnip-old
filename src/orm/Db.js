@@ -52,8 +52,4 @@ export default class Db {
 
 		return await this.connection.query(qs,params);
 	}
-
-	lastInsertId() {
-		return this.connection.lastInsertId();
-	}
 }

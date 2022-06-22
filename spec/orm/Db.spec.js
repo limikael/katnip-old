@@ -47,9 +47,11 @@ describe("db",()=>{
 	it("doesn't need AUTO_INCREMENT",async ()=>{
 		let s=new TestSetting({setting: "test", value: 123});
 		await s.save();
+
+		expect(await TestSetting.getCount()).toEqual(1);
 	});
 
-	/*it("works",async ()=>{
+	it("works",async ()=>{
 		let e=new db.Employee({name: "Micke"});
 		e.meta={hello: "world"};
 		e.salary=5;
@@ -149,5 +151,5 @@ describe("db",()=>{
 
 		expect(rowSpec.equals(fieldSpec3)).toEqual(true);
 		expect(rowSpec.equals(fieldSpec2)).toEqual(false);
-	});*/
+	});
 });
