@@ -14,7 +14,7 @@ export default function SignupPage() {
 
 		let u=await catnip.apiFetch("/api/signup",formValues);
 
-		setCurrentUser(u.user);
+		setCurrentUser(u);
 		catnip.setLocation(postloginpath);
 	}
 

@@ -59,10 +59,7 @@ catnip.addChannel("user",async ({sessionId}, req)=>{
 	if (!req.user)
 		return null;
 
-	return {
-		id: req.user.id,
-		email: req.user.email
-	}
+	return req.user;
 });
 
 catnip.addChannel("redirect",({})=>{

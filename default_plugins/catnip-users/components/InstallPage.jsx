@@ -11,8 +11,8 @@ export default function InstallPage() {
 
 	async function write() {
 		setMessage();
-		let u=await apiFetch("/api/install",values);
-		setCurrentUser(u.user);
+		let user=await apiFetch("/api/install",values);
+		setCurrentUser(user);
 		setChannelValue("redirect",null);
 		catnip.setLocation("/admin");
 	}

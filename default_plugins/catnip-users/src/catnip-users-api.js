@@ -67,7 +67,7 @@ catnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
 	u.password=password;
 	await u.save();
 
-	return {id: u.id};
+	return u;
 });
 
 catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
@@ -77,37 +77,31 @@ catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 });
 
 catnip.addApi("/api/login",async ({login, password}, req)=>{
-	let u=await catnip.db.User.findOne({email: login});
+	let user=await catnip.db.User.findOne({email: login});
 
-	if (!u)
+	if (!user)
 		throw new Error("Bad credentials.");
 
-	u.assertPassword(password);
+	user.assertPassword(password);
+	await catnip.setSessionValue(req.sessionId,user.id);
 
-	await catnip.setSessionValue(req.sessionId,u.id);
-
-	return {
-		user: {
-			id: u.id,
-			email: u.email
-		}
-	}
+	return user;
 });
 
 catnip.addApi("/api/useToken",async ({token}, req)=>{
 	if (!token)
 		throw new Error("That's not a token");
 
-	let u=await catnip.db.User.findOne({token: token});
+	let user=await catnip.db.User.findOne({token: token});
 
-	if (!u) {
-		u=new User({token: token});
-		await u.save();
+	if (!user) {
+		user=new User({token: token});
+		await user.save();
 	}
 
-	await catnip.setSessionValue(req.sessionId,u.id);
+	await catnip.setSessionValue(req.sessionId,user.id);
 
-	return u;
+	return user;
 });
 
 catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
@@ -120,20 +114,14 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	let u=new catnip.db.User();
-	u.email=login;
-	u.setPassword(password);
-	u.role="user";
-	await u.save();
+	let user=new catnip.db.User();
+	user.email=login;
+	user.setPassword(password);
+	user.role="user";
+	await user.save();
+	await catnip.setSessionValue(req.sessionId,user.id);
 
-	await catnip.setSessionValue(req.sessionId,u.id);
-
-	return {
-		user: {
-			id: u.id,
-			email: u.email
-		}
-	}
+	return user;
 });
 
 catnip.addApi("/api/auth",async ({url}, req)=>{
@@ -157,12 +145,7 @@ catnip.addApi("/api/auth",async ({url}, req)=>{
 
 	await catnip.setSessionValue(req.sessionId,user.id);
 
-	return {
-		user: {
-			id: user.id,
-			email: user.email
-		}
-	}
+	return user;
 });
 
 catnip.addApi("/api/logout",async ({}, req)=>{
@@ -182,19 +165,13 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	let u=new catnip.db.User();
-	u.email=email;
-	u.setPassword(password);
-	u.role="admin";
-	await u.save();
-	await catnip.setSessionValue(req.sessionId,u.id);
-
+	let user=new catnip.db.User();
+	user.email=email;
+	user.setPassword(password);
+	user.role="admin";
+	await user.save();
+	await catnip.setSessionValue(req.sessionId,user.id);
 	await catnip.setSetting("install",false);
 
-	return {
-		user: {
-			id: u.id,
-			email: u.email
-		}
-	}
+	return user;
 });

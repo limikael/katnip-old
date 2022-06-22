@@ -13,12 +13,12 @@ export default function LoginPage() {
 		setMessage();
 
 		try {
-			let u=await catnip.apiFetch("/api/login",{
+			let user=await catnip.apiFetch("/api/login",{
 				login: loginRef.current.value,
 				password: passwordRef.current.value
 			});
 
-			catnip.setCurrentUser(u.user);
+			catnip.setCurrentUser(user);
 			catnip.setLocation(postloginpath);
 		}
 
