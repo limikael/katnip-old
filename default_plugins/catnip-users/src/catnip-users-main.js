@@ -4,6 +4,7 @@ import {getCapsByRole} from "./rolecaps.js";
 import "./catnip-users-api.js";
 
 import "../auth/google/auth-google-main.js";
+import "../auth/sessiontoken/auth-sessiontoken-main.js";
 
 catnip.addModel(User);
 

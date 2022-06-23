@@ -2,7 +2,6 @@ import {catnip, PromiseButton, useCurrentUser} from "catnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
 import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import DeleteAccountTab from "./DeleteAccountTab.jsx";
-import SessionTokenTab from "./SessionTokenTab.jsx";
 
 function AccordionItem({id, parent, children, show, title}) {
 	return (
@@ -45,14 +44,7 @@ export default function AccountPage() {
 	tc.setTitle("Account");
 
 	let accountTabs=[];
-	if (user.token)
-		accountTabs.push({
-			title: "Session Token",
-			component: SessionTokenTab,
-			priority: 20,
-		});
-
-	else {
+	if (user.email && user.password) {
 		accountTabs.push({
 			title: "Change Password",
 			component: ChangePasswordTab,
@@ -72,7 +64,7 @@ export default function AccountPage() {
 		});
 	}
 
-	catnip.doAction("getAccountTabs",accountTabs);
+	catnip.doAction("getAccountTabs",accountTabs,user);
 	accountTabs.sort((a,b)=>a.priority-b.priority);
 
 	let accordionItems=[];

@@ -56,9 +56,6 @@ export default function LoginPage() {
 				</div>
 			</div>
 			{loginPageItems}
-			<A class="btn btn-danger mb-3" style="width: 100%" href="/sessiontoken">
-				<b>Use Session Token</b>
-			</A>
 		</div>
 	);
 }

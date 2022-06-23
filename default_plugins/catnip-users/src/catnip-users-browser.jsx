@@ -3,18 +3,17 @@ import LoginPage from "../components/LoginPage.jsx";
 import SignupPage from "../components/SignupPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
 import UserAdmin from "../components/UserAdmin.jsx";
-import SessionTokenPage from "../components/SessionTokenPage.jsx";
 import InstallPage from "../components/InstallPage.jsx";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
 import User from "./User.js";
 
 import "../auth/google/auth-google-browser.jsx";
+import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
 
 catnip.addRoute("install",InstallPage);
 catnip.addRoute("login",LoginPage);
 catnip.addRoute("signup",SignupPage);
 catnip.addRoute("account",AccountPage);
-catnip.addRoute("sessiontoken",SessionTokenPage);
 catnip.addRoute("admin/user",UserAdmin);
 
 catnip.addAction("getAdminMenu",(items)=>{
