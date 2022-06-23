@@ -27,6 +27,23 @@ function SettingsTabs({request, categories}) {
 	);
 }
 
+function evaluateCondition(condition, values) {
+	for (let fieldId in condition)
+		if (String(values[fieldId])!=String(condition[fieldId]))
+			return false;
+
+	return true;
+}
+
+function SettingsInput({setting, field, values}) {
+	if (setting.condition && !evaluateCondition(setting.condition,values))
+		return null;
+
+	return (
+		<BsGroupInput {...setting} {...field(setting.id)}/>
+	);
+}
+
 export default function Settings({request}) {
 	let categoryId=request.query.category;
 
@@ -63,7 +80,7 @@ export default function Settings({request}) {
 		{(values && categories) &&
 			<form style="max-width: 40rem">
 				{categories[categoryId].settings.map(setting=>
-					<BsGroupInput {...setting} {...field(setting.id)}/>
+					<SettingsInput setting={setting} field={field} values={values} />
 				)}
 				<PromiseButton class="btn btn-primary" onclick={write} onerror={setMessage}>
 				Save Settings

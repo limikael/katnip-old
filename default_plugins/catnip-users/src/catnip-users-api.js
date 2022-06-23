@@ -1,6 +1,5 @@
 import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import {getCapsByRole} from "./rolecaps.js";
-import {createGoogleAuthClient} from "./auth.js";
 import User from "./User.js";
 
 catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
@@ -119,30 +118,6 @@ catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
 	user.setPassword(password);
 	user.role="user";
 	await user.save();
-	await catnip.setSessionValue(req.sessionId,user.id);
-
-	return user;
-});
-
-catnip.addApi("/api/auth",async ({url}, req)=>{
-	let res=await createGoogleAuthClient(req.origin).code.getToken(url);
-
-	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{
-		id_token: res.data.id_token
-	});
-
-	let tokenInfo=await apiFetch(googleApiUrl);
-	if (!tokenInfo.email)
-		throw new Error("Unable to login with google");
-
-	let user=await catnip.db.User.findOne({email: tokenInfo.email});
-	if (!user) {
-		user=new catnip.db.User();
-		user.email=tokenInfo.email;
-		user.role="user";
-		await user.save();
-	}
-
 	await catnip.setSessionValue(req.sessionId,user.id);
 
 	return user;

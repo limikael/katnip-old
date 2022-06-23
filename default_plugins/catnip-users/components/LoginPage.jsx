@@ -6,7 +6,6 @@ export default function LoginPage() {
 	const loginRef=useRef();
 	const passwordRef=useRef();
 	let [message, setMessage]=useState();
-	let googleAuthUrl=useChannel("googleAuthUrl");
 	let postloginpath=useChannel("postloginpath");
 
 	async function onLoginClick() {
@@ -33,6 +32,9 @@ export default function LoginPage() {
 			<div class="text-danger text-center"><b>{message}</b></div>
 		);
 
+	let loginPageItems=[];
+	catnip.doAction("loginPageItems",loginPageItems);
+
 	return (
 		<div class="mt-5 ms-auto me-auto" style="width: 100%; max-width: 20rem">
 			<div class="card border shadow mb-4">
@@ -53,11 +55,7 @@ export default function LoginPage() {
 					<A href="/signup" class="d-block small text-muted text-center" style="width: 100%"><b>No account? Sign Up!</b></A>
 				</div>
 			</div>
-			{googleAuthUrl &&
-				<a class="btn btn-danger mb-3" style="width: 100%" href={googleAuthUrl}>
-					<b>Sign in with Google</b>
-				</a>
-			}
+			{loginPageItems}
 			<A class="btn btn-danger mb-3" style="width: 100%" href="/sessiontoken">
 				<b>Use Session Token</b>
 			</A>

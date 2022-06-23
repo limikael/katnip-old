@@ -5,9 +5,10 @@ import AccountPage from "../components/AccountPage.jsx";
 import UserAdmin from "../components/UserAdmin.jsx";
 import SessionTokenPage from "../components/SessionTokenPage.jsx";
 import InstallPage from "../components/InstallPage.jsx";
-import Auth from "../components/Auth.jsx";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
 import User from "./User.js";
+
+import "../auth/google/auth-google-browser.jsx";
 
 catnip.addRoute("install",InstallPage);
 catnip.addRoute("login",LoginPage);
@@ -15,7 +16,6 @@ catnip.addRoute("signup",SignupPage);
 catnip.addRoute("account",AccountPage);
 catnip.addRoute("sessiontoken",SessionTokenPage);
 catnip.addRoute("admin/user",UserAdmin);
-catnip.addRoute("auth",Auth);
 
 catnip.addAction("getAdminMenu",(items)=>{
 	items.push({

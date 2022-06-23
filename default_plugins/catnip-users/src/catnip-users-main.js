@@ -1,16 +1,14 @@
 import {catnip, delay, buildUrl, apiFetch, addSetting} from "catnip";
 import User from "./User.js";
 import {getCapsByRole} from "./rolecaps.js";
-import {createGoogleAuthClient} from "./auth.js";
 import "./catnip-users-api.js";
+
+import "../auth/google/auth-google-main.js";
 
 catnip.addModel(User);
 
 catnip.addSetting("install");
-
 catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
-catnip.addSetting("googleClientId",{title: "Google Client Id", category: "auth"});
-catnip.addSetting("googleClientSecret",{title: "Google Client Secret", category: "auth"});
 
 catnip.addAction("initRequest",async (req)=>{
 	let uid=catnip.getSessionValue(req.sessionId);
@@ -40,16 +38,6 @@ catnip.addAction("initRequest",async (req)=>{
 
 catnip.addAction("initChannels",(channelIds, req)=>{
 	channelIds.push(buildUrl("user",{sessionId: req.sessionId}));
-
-	if (catnip.getSetting("googleClientId") &&
-			catnip.getSetting("googleClientSecret"))
-		channelIds.push("googleAuthUrl");
-});
-
-catnip.addChannel("googleAuthUrl",({}, req)=>{
-	//console.log("org: "+sessionRequest.origin);
-
-	return createGoogleAuthClient(req.origin).code.getUri();
 });
 
 catnip.addChannel("user",async ({sessionId}, req)=>{

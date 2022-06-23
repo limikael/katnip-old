@@ -24,6 +24,9 @@ export default function SignupPage() {
 			<div class="text-danger text-center"><b>{message.message}</b></div>
 		);
 
+	let loginPageItems=[];
+	catnip.doAction("loginPageItems",loginPageItems);
+
 	return (
 		<div class="mt-5 ms-auto me-auto" style="width: 100%; max-width: 20rem">
 			<div class="card border shadow mb-4">
@@ -51,11 +54,7 @@ export default function SignupPage() {
 					</A>
 				</div>
 			</div>
-			{googleAuthUrl &&
-				<a class="btn btn-danger mb-3" style="width: 100%" href={googleAuthUrl}>
-					<b>Sign in with Google</b>
-				</a>
-			}
+			{loginPageItems}
 			<A class="btn btn-danger mb-3" style="width: 100%" href="/sessiontoken">
 				<b>Use Session Token</b>
 			</A>
