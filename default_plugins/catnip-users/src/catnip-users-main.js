@@ -5,6 +5,7 @@ import "./catnip-users-api.js";
 
 import "../auth/google/auth-google-main.js";
 import "../auth/sessiontoken/auth-sessiontoken-main.js";
+import "../auth/lightning/auth-lightning-main.js";
 
 catnip.addModel(User);
 

@@ -9,6 +9,7 @@ import User from "./User.js";
 
 import "../auth/google/auth-google-browser.jsx";
 import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
+import "../auth/lightning/auth-lightning-browser.jsx";
 
 catnip.addRoute("install",InstallPage);
 catnip.addRoute("login",LoginPage);

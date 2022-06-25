@@ -1,5 +1,5 @@
 import {useTemplateContext, PromiseButton, apiFetch, useForm, setCurrentUser,
-		setLocation, useChannel} from "catnip";
+		setLocation, useChannel, useForceUpdate} from "catnip";
 import {useState} from "react";
 
 export default function SessionTokenPage({request}) {
@@ -12,9 +12,18 @@ export default function SessionTokenPage({request}) {
 	let [values, field]=useForm({token});
 	let tc=useTemplateContext();
 	let postloginpath=useChannel("postloginpath");
+	let forceUpdate=useForceUpdate();
 	tc.setTitle("Session Token");
 
 	async function onUseTokenClick() {
+		/*if (!values.token) {
+			token=crypto.randomUUID();
+			document.cookie=`token=${token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;
+			values.token=token;
+			forceUpdate();
+			return;
+		}*/
+
 		let userData=await apiFetch("/api/useToken",{token: values.token});
 
 		document.cookie=`token=${values.token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;

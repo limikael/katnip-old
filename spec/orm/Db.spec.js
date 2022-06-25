@@ -66,7 +66,7 @@ describe("db",()=>{
 
 		expect(await db.Employee.getCount()).toEqual(1);
 
-		console.log(JSON.stringify(e));
+		//console.log(JSON.stringify(e));
 	});
 
 	it("refreshes",async ()=>{

@@ -13,7 +13,7 @@ catnip.addSetting("authSessionTokenEnable",{
 });
 
 catnip.addApi("/api/useToken",async ({token}, req)=>{
-	if (!token)
+	if (!token || token.length!=36)
 		throw new Error("That's not a token");
 
 	let user=await User.findOne({token: token});
