@@ -1,8 +1,8 @@
 import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import {getCapsByRole} from "./rolecaps.js";
-import User from "./User.js";
+import User, {UserAuthMethod} from "./User.js";
 
-catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
+/*catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 	sreq.assertCap("user");
 	let u=sreq.getUser();
 
@@ -36,7 +36,7 @@ catnip.addApi("/api/changePassword",async (params, sreq)=>{
 
 	await u.setPassword(params.newPassword);
 	await u.save();
-});
+});*/
 
 catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
 	sess.assertCap("manage-users");
@@ -75,35 +75,60 @@ catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 	await u.delete();
 });
 
-catnip.addApi("/api/login",async ({login, password}, req)=>{
-	let user=await catnip.db.User.findOne({email: login});
+catnip.addApi("/api/authMethodStatus",async ({},req)=>{
+	let user=req.getUser();
+	if (!user)
+		throw new Error("Not logged in");
+
+	await user.populateAuthMethods();
+
+	let authMethods=[];
+	await catnip.doActionAsync("authMethods",authMethods,req);
+	for (let authMethod of authMethods) {
+		if (user.authMethods[authMethod.id])
+			authMethod.token=user.authMethods[authMethod.id].token;
+	}
+
+	return authMethods;
+});
+
+catnip.addApi("/api/login",async ({email, password}, req)=>{
+	let user=await catnip.db.User.findOneByAuth("email", email);
 
 	if (!user)
 		throw new Error("Bad credentials.");
 
-	user.assertPassword(password);
+	await user.populateAuthMethods();
+	user.authMethods["email"].assertPassword(password);
 	await catnip.setSessionValue(req.sessionId,user.id);
 
 	return user;
 });
 
-catnip.addApi("/api/signup",async ({login, password, repeatPassword}, req)=>{
-	if (await User.findOne({email: login}))
+catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
+	if (await User.findOneByAuth("email",email))
 		throw new Error("The email is already in use");
 
-	if (!login)
+	if (!email)
 		throw new Error("Invalid email");
 
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
 	let user=new catnip.db.User();
-	user.email=login;
-	user.setPassword(password);
 	user.role="user";
 	await user.save();
-	await catnip.setSessionValue(req.sessionId,user.id);
 
+	let userAuthMethod=new UserAuthMethod({
+		userId: user.id,
+		method: "email",
+		token: email
+	});
+
+	userAuthMethod.setPassword(password);
+	userAuthMethod.save();
+
+	await catnip.setSessionValue(req.sessionId,user.id);
 	return user;
 });
 
@@ -111,7 +136,7 @@ catnip.addApi("/api/logout",async ({}, req)=>{
 	await catnip.setSessionValue(req.sessionId,null);
 });
 
-catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
+/*catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	if (!catnip.getSetting("install"))
 		throw new Error("Not install mode");
 
@@ -133,4 +158,4 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	await catnip.setSetting("install",false);
 
 	return user;
-});
+});*/

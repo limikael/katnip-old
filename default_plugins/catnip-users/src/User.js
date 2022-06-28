@@ -5,15 +5,48 @@ function hash(v) {
 	return crypto.createHash("sha256").update(v).digest().toString("hex");			
 }
 
+export class UserAuthMethod extends Model {
+	static tableName="UserAuthMethod";
+
+	static fields={
+		id: "INTEGER NOT NULL AUTO_INCREMENT",
+		userId: "INTEGER NOT NULL",
+		method: "VARCHAR(255) NOT NULL",
+		token: "VARCHAR(225) NOT NULL",
+		meta: "JSON"
+	};
+
+	setPassword(newPassword) {
+		if (this.method!="email")
+			throw new Error("Wrong method");
+
+		if (!newPassword || newPassword.length<6)
+			throw new Error("The password is too short");
+
+		let salt=hash(crypto.randomBytes(64));
+		let password=hash(salt+newPassword);
+
+		this.meta={salt,password};
+	}
+
+	checkPassword(password) {
+		if (this.method!="email")
+			throw new Error("Wrong method");
+
+		return (this.meta.password==hash(this.meta.salt+password));
+	}
+
+	assertPassword(password) {
+		if (!this.checkPassword(password))
+			throw new Error("Wrong password.");
+	}
+}
+
 export default class User extends Model {
 	static tableName="User";
 
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT",
-		email: "VARCHAR(255) NULL",
-		password: "VARCHAR(255) NULL",
-		salt: "VARCHAR(255) NULL",
-		token: "VARCHAR(255) NULL",
 		role: "VARCHAR(64) NOT NULL"
 	};
 
@@ -24,23 +57,25 @@ export default class User extends Model {
 			this.role="user";
 	}
 
-	setPassword(newPassword) {
-		if (!newPassword || newPassword.length<6)
-			throw new Error("The password is too short");
+	static async findOneByAuth(method, token) {
+		let authMethod=await UserAuthMethod.findOne({
+			method: method,
+			token: token
+		});
 
-		this.salt=hash(crypto.randomBytes(64));
-		this.password=hash(this.salt+newPassword);
+		if (!authMethod)
+			return null;
+
+		return await User.findOne({id: authMethod.userId});
 	}
 
-	checkPassword(password) {
-		if (!this.password)
-			return false;
+	async populateAuthMethods() {
+		if (!this.id)
+			throw new Error("No pk");
 
-		return (this.password==hash(this.salt+password));
-	}
-
-	assertPassword(password) {
-		if (!this.checkPassword(password))
-			throw new Error("Wrong password.");
+		this.authMethods={};
+		let authMethods=await UserAuthMethod.findMany({userId: this.id});
+		for (let authMethod of authMethods)
+			this.authMethods[authMethod.method]=authMethod;
 	}
 }

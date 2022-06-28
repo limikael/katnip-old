@@ -2,6 +2,7 @@ import {catnip, PromiseButton, useCurrentUser} from "catnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
 import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import DeleteAccountTab from "./DeleteAccountTab.jsx";
+import AuthenticationTab from "./AuthenticationTab.jsx";
 
 function AccordionItem({id, parent, children, show, title}) {
 	return (
@@ -63,6 +64,12 @@ export default function AccountPage() {
 			priority: 30,
 		});
 	}
+
+	accountTabs.push({
+		title: "Authentication",
+		component: AuthenticationTab,
+		priority: 50
+	});
 
 	catnip.doAction("getAccountTabs",accountTabs,user);
 	accountTabs.sort((a,b)=>a.priority-b.priority);

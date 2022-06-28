@@ -1,6 +1,5 @@
 import {catnip, delay, buildUrl, apiFetch, useChannel, getSessionId} from "catnip";
 import LoginPage from "../components/LoginPage.jsx";
-import SignupPage from "../components/SignupPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
 import UserAdmin from "../components/UserAdmin.jsx";
 import InstallPage from "../components/InstallPage.jsx";
@@ -10,10 +9,10 @@ import User from "./User.js";
 import "../auth/google/auth-google-browser.jsx";
 import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
 import "../auth/lightning/auth-lightning-browser.jsx";
+import "../auth/password/auth-password-browser.jsx";
 
 catnip.addRoute("install",InstallPage);
 catnip.addRoute("login",LoginPage);
-catnip.addRoute("signup",SignupPage);
 catnip.addRoute("account",AccountPage);
 catnip.addRoute("admin/user",UserAdmin);
 

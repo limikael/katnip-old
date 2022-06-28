@@ -2,7 +2,7 @@ import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import {bech32, bech32m} from "bech32";
 import secp256k1 from "secp256k1";
 import ExpiringMap from "../../../../src/utils/ExpiringMap.js";
-import User from "../../src/User.js";
+import User,{UserAuthMethod} from "../../src/User.js";
 
 let k1BySessionId=new ExpiringMap(10*60*1000);
 let sessionIdByK1=new ExpiringMap(10*60*1000);
@@ -35,11 +35,18 @@ catnip.addApi("/api/lightningAuth",async (query, req)=>{
 	if (!sessionId)
 		throw new Error("Unknown session id. Expired?");
 
-	let user=await User.findOne({token: key});
-
+	let user=await User.findOneByAuth("lightning",key);
 	if (!user) {
-		user=new User({token: key});
+		user=new User();
 		await user.save();
+
+		let userAuthMethod=new UserAuthMethod({
+			userId: user.id,
+			method: "lightning",
+			token: key
+		});
+
+		await userAuthMethod.save();
 	}
 
 	await catnip.setSessionValue(sessionId,user.id);
@@ -66,4 +73,13 @@ catnip.addApi("/api/lightningAuthCode",async (params, req)=>{
 	let code=bech32.encode("lnurl",words,1023);
 
 	return code;
+});
+
+catnip.addAction("authMethods",(authMethods, req)=>{
+	authMethods.push({
+		id: "lightning",
+		title: "Lightning",
+		href: "/lightninglogin",
+		priority: 20
+	});
 });

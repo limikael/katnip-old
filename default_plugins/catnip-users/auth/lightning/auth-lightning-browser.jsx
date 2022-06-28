@@ -3,7 +3,7 @@ import LightningLoginPage from "./LightningLoginPage.jsx";
 
 catnip.addRoute("lightninglogin",LightningLoginPage);
 
-function LightningLoginButton() {
+/*function LightningLoginButton() {
 	let authLightningEnable=(String(useChannel("authLightningEnable"))=="true");
 
 	if (!authLightningEnable)
@@ -18,4 +18,4 @@ function LightningLoginButton() {
 
 catnip.addAction("loginPageItems",(items)=>{
 	items.push(<LightningLoginButton/>);
-});
+});*/

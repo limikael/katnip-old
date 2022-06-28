@@ -19,7 +19,7 @@ export default function GoogleAuth({request}) {
 
 catnip.addRoute("googleAuth",GoogleAuth);
 
-function GoogleLoginButton() {
+/*function GoogleLoginButton() {
 	let authGoogleEnable=(String(useChannel("authGoogleEnable"))=="true");
 	let googleAuthUrl=useChannel("googleAuthUrl");
 
@@ -35,4 +35,4 @@ function GoogleLoginButton() {
 
 catnip.addAction("loginPageItems",(items)=>{
 	items.push(<GoogleLoginButton/>);
-});
+});*/

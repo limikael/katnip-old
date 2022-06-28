@@ -72,3 +72,12 @@ catnip.addApi("/api/googleAuth",async ({url}, req)=>{
 
 	return user;
 });
+
+catnip.addAction("authMethods",(authMethods, req)=>{
+	authMethods.push({
+		id: "google",
+		title: "Google",
+		href: createGoogleAuthClient(req.origin).code.getUri(),
+		priority: 20
+	});
+});

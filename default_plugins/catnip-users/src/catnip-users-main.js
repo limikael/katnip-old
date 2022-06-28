@@ -1,13 +1,15 @@
 import {catnip, delay, buildUrl, apiFetch, addSetting} from "catnip";
-import User from "./User.js";
+import User, {UserAuthMethod} from "./User.js";
 import {getCapsByRole} from "./rolecaps.js";
 import "./catnip-users-api.js";
 
 import "../auth/google/auth-google-main.js";
 import "../auth/sessiontoken/auth-sessiontoken-main.js";
 import "../auth/lightning/auth-lightning-main.js";
+import "../auth/password/auth-password-main.js";
 
 catnip.addModel(User);
+catnip.addModel(UserAuthMethod);
 
 catnip.addSetting("install");
 catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
@@ -40,6 +42,14 @@ catnip.addAction("initRequest",async (req)=>{
 
 catnip.addAction("initChannels",(channelIds, req)=>{
 	channelIds.push(buildUrl("user",{sessionId: req.sessionId}));
+	channelIds.push("authMethods");
+});
+
+catnip.addChannel("authMethods",async ({}, req)=>{
+	let authMethods=[];
+	await catnip.doActionAsync("authMethods",authMethods,req);
+
+	return authMethods;
 });
 
 catnip.addChannel("user",async ({sessionId}, req)=>{
@@ -75,11 +85,11 @@ catnip.addAction("serverMain",async (options)=>{
 		}
 	}
 
-	if (!await User.findOne({role: "admin"})) {
+	/*if (!await User.findOne({role: "admin"})) {
 		console.log("No admin user, entering install mode.")
 		await catnip.setSetting("install",true);
 	}
 
 	else
-		await catnip.setSetting("install",false);
+		await catnip.setSetting("install",false);*/
 });
