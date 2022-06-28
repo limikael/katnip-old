@@ -35,10 +35,24 @@ catnip.addApi("/api/lightningAuth",async (query, req)=>{
 	if (!sessionId)
 		throw new Error("Unknown session id. Expired?");
 
-	let user=await User.findOneByAuth("lightning",key);
+	let user;
+	let uid=catnip.getSessionValue(sessionId);
+	if (uid)
+		user=await User.findOne(uid);
+
+	if (!user)
+		user=await User.findOneByAuth("lightning",key);
+
 	if (!user) {
 		user=new User();
 		await user.save();
+	}
+
+	await user.populateAuthMethods();
+	if (!user.authMethods["lightning"]) {
+		let existing=await User.findOneByAuth("lightning",key);
+		if (existing)
+			throw new Error("Already used for another user");
 
 		let userAuthMethod=new UserAuthMethod({
 			userId: user.id,

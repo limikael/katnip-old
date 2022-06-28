@@ -9,7 +9,7 @@ import User from "./User.js";
 import "../auth/google/auth-google-browser.jsx";
 import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
 import "../auth/lightning/auth-lightning-browser.jsx";
-import "../auth/password/auth-password-browser.jsx";
+import "../auth/email/auth-email-browser.jsx";
 
 catnip.addRoute("install",InstallPage);
 catnip.addRoute("login",LoginPage);
@@ -29,6 +29,9 @@ catnip.addAction("useCurrentUser",()=>{
 	let userData=useChannel(buildUrl("user",{sessionId: getSessionId()}));
 	if (!userData)
 		return null;
+
+	if (!userData.authMethods)
+		throw new Error("User data doesn't have populated auth methods");
 
 	return new User(userData);
 });

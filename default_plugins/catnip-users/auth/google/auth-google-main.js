@@ -1,5 +1,6 @@
 import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import ClientOAuth2 from "client-oauth2";
+import User, {UserAuthMethod} from "../../src/User.js";
 
 function createGoogleAuthClient(origin) {
 	return new ClientOAuth2({
@@ -60,12 +61,28 @@ catnip.addApi("/api/googleAuth",async ({url}, req)=>{
 	if (!tokenInfo.email)
 		throw new Error("Unable to login with google");
 
-	let user=await catnip.db.User.findOne({email: tokenInfo.email});
+	let user=req.getUser();
+	if (!user)
+		user=await User.findOneByAuth("google",tokenInfo.email);
+
 	if (!user) {
-		user=new catnip.db.User();
-		user.email=tokenInfo.email;
-		user.role="user";
+		user=new User();
 		await user.save();
+	}
+
+	await user.populateAuthMethods();
+	if (!user.authMethods["google"]) {
+		let existing=await User.findOneByAuth("google",tokenInfo.email);
+		if (existing)
+			throw new Error("Already used for another user");
+
+		let userAuthMethod=new UserAuthMethod({
+			userId: user.id,
+			method: "google",
+			token: tokenInfo.email
+		});
+
+		await userAuthMethod.save();
 	}
 
 	await catnip.setSessionValue(req.sessionId,user.id);

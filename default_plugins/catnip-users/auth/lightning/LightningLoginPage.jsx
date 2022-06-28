@@ -1,6 +1,6 @@
 import {catnip, useChannel, A, useTemplateContext, useApiFetch, useCurrentUser} from "catnip";
 import Qrious from "qrious";
-import {useMemo} from "preact/compat";
+import {useMemo, useState} from "preact/compat";
 
 function QrImg(props) {
 	let daqr=useMemo(()=>{
@@ -21,13 +21,25 @@ export default function LightningLoginPage() {
 	let code=useApiFetch("/api/lightningAuthCode");
 	let user=useCurrentUser();
 	let postloginpath=useChannel("postloginpath");
+	let [linking, setLinking]=useState();
 
-	if (user) {
-		catnip.setLocation(postloginpath);
+	if (user && user.authMethods["lightning"]) {
+		if (linking)
+			catnip.setLocation("/account");
+
+		else
+			catnip.setLocation(postloginpath);
+
 		return;
 	}
 
-	tc.setTitle("Lightning Login");
+	let title="Lightning Login";
+	if (user) {
+		title="Link Lightning To Account";
+		setLinking(true);
+	}
+
+	tc.setTitle(title);
 
 	if (code===undefined)
 		return <div class="spinner-border m-3"/>;
@@ -36,7 +48,7 @@ export default function LightningLoginPage() {
 
 	return (<>
 		<div class="card border-primary mt-4">
-			<div class="card-header">Lightning Login</div>
+			<div class="card-header">{title}</div>
 			<div class="card-body">
 				<p class="text-center mb-0">
 					<a href={url}>

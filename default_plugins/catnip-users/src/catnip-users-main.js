@@ -6,7 +6,7 @@ import "./catnip-users-api.js";
 import "../auth/google/auth-google-main.js";
 import "../auth/sessiontoken/auth-sessiontoken-main.js";
 import "../auth/lightning/auth-lightning-main.js";
-import "../auth/password/auth-password-main.js";
+import "../auth/email/auth-email-main.js";
 
 catnip.addModel(User);
 catnip.addModel(UserAuthMethod);
@@ -16,8 +16,14 @@ catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 
 catnip.addAction("initRequest",async (req)=>{
 	let uid=catnip.getSessionValue(req.sessionId);
-	if (uid)
-		req.user=await User.findOne(uid);
+	if (uid) {
+		let user=await User.findOne(uid);
+
+		if (user) {
+			req.user=user;
+			await req.user.populateAuthMethods();
+		}
+	}
 
 	req.getUser=()=>{
 		return req.user;

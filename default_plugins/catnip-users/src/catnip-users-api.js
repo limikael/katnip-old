@@ -92,48 +92,27 @@ catnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	return authMethods;
 });
 
-catnip.addApi("/api/login",async ({email, password}, req)=>{
-	let user=await catnip.db.User.findOneByAuth("email", email);
-
-	if (!user)
-		throw new Error("Bad credentials.");
-
-	await user.populateAuthMethods();
-	user.authMethods["email"].assertPassword(password);
-	await catnip.setSessionValue(req.sessionId,user.id);
-
-	return user;
-});
-
-catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
-	if (await User.findOneByAuth("email",email))
-		throw new Error("The email is already in use");
-
-	if (!email)
-		throw new Error("Invalid email");
-
-	if (password!=repeatPassword)
-		throw new Error("The passwords don't match");
-
-	let user=new catnip.db.User();
-	user.role="user";
-	await user.save();
-
-	let userAuthMethod=new UserAuthMethod({
-		userId: user.id,
-		method: "email",
-		token: email
-	});
-
-	userAuthMethod.setPassword(password);
-	userAuthMethod.save();
-
-	await catnip.setSessionValue(req.sessionId,user.id);
-	return user;
-});
-
 catnip.addApi("/api/logout",async ({}, req)=>{
 	await catnip.setSessionValue(req.sessionId,null);
+});
+
+catnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
+	let user=req.getUser();
+	if (!user)
+		throw new Error("Not logged in");
+
+	if (await UserAuthMethod.getCount({userId: user.id})<=1)
+		throw new Error("Can't unlink last method");
+
+	let userAuthMethod=await UserAuthMethod.findOne({
+		userId: user.id,
+		method: methodId
+	});
+
+	await userAuthMethod.delete();
+
+	await user.populateAuthMethods();
+	return user;
 });
 
 /*catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
