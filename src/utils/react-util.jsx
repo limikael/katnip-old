@@ -201,4 +201,36 @@ export function useEventUpdate(event, target=window) {
 	useEventListener(event,target,forceUpdate);
 }
 
+export function useModal() {
+	let forceUpdate=useForceUpdate();
+	let ref=useRef({});
 
+	function show(modal) {
+		ref.modal=modal;
+		let p=new Promise((resolve, reject)=>{
+			ref.resolve=resolve;
+			ref.reject=reject;
+		});
+
+		forceUpdate();
+		return p;
+	}
+
+	function resolve(v) {
+		ref.resolve(v);
+		ref.modal=null;
+		ref.resolve=null;
+		ref.reject=null;
+		forceUpdate();
+	}
+
+	function reject(v) {
+		ref.reject(v);
+		ref.modal=null;
+		ref.resolve=null;
+		ref.reject=null;
+		forceUpdate();
+	}
+
+	return [ref.modal, show, resolve, reject];
+}

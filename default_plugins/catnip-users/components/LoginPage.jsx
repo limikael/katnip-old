@@ -1,9 +1,15 @@
 import {catnip, A} from "catnip";
 
 export default function LoginPage() {
+	let user=catnip.useCurrentUser();
 	let authMethods=catnip.useChannel("authMethods");
-	let items=[];
 
+	if (user) {
+		catnip.setLocation("/account");
+		return;
+	}
+
+	let items=[];
 	authMethods.sort((a,b)=>a.priority-b.priority);
 	for (authMethod of authMethods) {
 		if (authMethod.element) {

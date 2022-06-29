@@ -2,16 +2,7 @@ import {catnip, delay, buildUrl, apiFetch} from "catnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
 
-/*catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
-	sreq.assertCap("user");
-	let u=sreq.getUser();
-
-	u.assertPassword(params.password);
-	await u.delete();
-	await catnip.setSessionValue(sreq.sessionId,null);
-});
-
-catnip.addApi("/api/changeEmail",async (params, sreq)=>{
+/*catnip.addApi("/api/changeEmail",async (params, sreq)=>{
 	sreq.assertCap("user");
 	let u=sreq.getUser();
 	u.assertPassword(params.password);
@@ -37,6 +28,21 @@ catnip.addApi("/api/changePassword",async (params, sreq)=>{
 	await u.setPassword(params.newPassword);
 	await u.save();
 });*/
+
+catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
+	sreq.assertCap("user");
+	let user=sreq.getUser();
+
+	let userAuthMethods=await UserAuthMethod.findMany({
+		userId: user.id
+	});
+
+	for (let userAuthMethod of userAuthMethods)
+		await userAuthMethod.delete();
+
+	await user.delete();
+	await catnip.setSessionValue(sreq.sessionId,null);
+});
 
 catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
 	sess.assertCap("manage-users");

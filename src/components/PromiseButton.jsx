@@ -1,15 +1,41 @@
 import {useState} from "preact/compat";
 import {BootstrapAlert} from "../utils/bs-util.jsx";
+import {useModal} from "../utils/react-util.jsx";
+
+function Modal({resolve, message}) {
+	return (
+		<div class="modal show fade" style={{display: "block", "background-color": "rgba(0,0,0,0.5)"}} aria-modal="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Error</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+								onclick={resolve}>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>{message}</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary"
+								onclick={resolve}>
+							Ok
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
 
 export function PromiseButton(props) {
 	let [busy, setBusy]=useState(false);
-	let [message, setMessage]=useState(false);
+	let [modal, showModal, resolveModal]=useModal();
 
 	async function onClick(ev) {
 		ev.preventDefault();
 
 		setBusy(true);
-		setMessage(null);
 
 		try {
 			if (props.action)
@@ -24,7 +50,7 @@ export function PromiseButton(props) {
 				props.onerror(e);
 
 			else
-				setMessage(e);
+				showModal(<Modal resolve={resolveModal} message={e.message}/>);
 		}
 
 		setBusy(false);
@@ -35,9 +61,7 @@ export function PromiseButton(props) {
 	propsCopy.onclick=null;
 
 	return (<>
-		{message &&
-			<BootstrapAlert message={message} class="mb-3" ondismiss={setMessage}/>
-		}
+		{modal}
 		<button  {...propsCopy} onclick={onClick}>
 			{busy &&
 				<span class="spinner-border spinner-border-sm me-2"/>
