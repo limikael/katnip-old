@@ -25,9 +25,9 @@ export default function AuthenticationTab() {
 		if (authMethod.token) {
 			items.push(
 				<div>
-					<PromiseButton class="btn btn-danger my-2"
+					<PromiseButton class="btn btn-primary my-2"
 							onclick={bindArgs(onUnlinkClick,authMethod.id)}>
-						<b>Unlink {authMethod.title}</b>
+						Unlink {authMethod.title}
 					</PromiseButton>
 				</div>
 			);
@@ -36,8 +36,8 @@ export default function AuthenticationTab() {
 		else {
 			items.push(
 				<div>
-					<A class="btn btn-danger my-2" href={authMethod.href}>
-						<b>Link {authMethod.title}</b>
+					<A class="btn btn-primary my-2" href={authMethod.href}>
+						Link {authMethod.title}
 					</A>
 				</div>
 			);
@@ -46,5 +46,9 @@ export default function AuthenticationTab() {
 
 	return (<>
 		{items}
+		<hr/>
+		<PromiseButton class="btn btn-danger my-2">
+			Delete Account
+		</PromiseButton>
 	</>);
 }

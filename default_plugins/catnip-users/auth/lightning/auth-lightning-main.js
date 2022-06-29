@@ -19,54 +19,60 @@ catnip.addSetting("authLightningEnable",{
 });
 
 catnip.addApi("/api/lightningAuth",async (query, req)=>{
-	let {k1, key, sig}=query;
+	try {
+		let {k1, key, sig}=query;
 
-	//console.log(query);
-	let sigData=Buffer.from(sig,'hex');
-	let k1Data=Buffer.from(k1,'hex');
-	let keyData=Buffer.from(key,'hex');
+		//console.log(query);
+		let sigData=Buffer.from(sig,'hex');
+		let k1Data=Buffer.from(k1,'hex');
+		let keyData=Buffer.from(key,'hex');
 
-	let signature=secp256k1.signatureImport(sigData);
-	let res=secp256k1.ecdsaVerify(signature, k1Data, keyData);
-	if (!res)
-		throw new Error("Unable to verify signature");
+		let signature=secp256k1.signatureImport(sigData);
+		let res=secp256k1.ecdsaVerify(signature, k1Data, keyData);
+		if (!res)
+			throw new Error("Unable to verify signature");
 
-	let sessionId=sessionIdByK1.get(k1);
-	if (!sessionId)
-		throw new Error("Unknown session id. Expired?");
+		let sessionId=sessionIdByK1.get(k1);
+		if (!sessionId)
+			throw new Error("Unknown session id. Expired?");
 
-	let user;
-	let uid=catnip.getSessionValue(sessionId);
-	if (uid)
-		user=await User.findOne(uid);
+		let user;
+		let uid=catnip.getSessionValue(sessionId);
+		if (uid)
+			user=await User.findOne(uid);
 
-	if (!user)
-		user=await User.findOneByAuth("lightning",key);
+		if (!user)
+			user=await User.findOneByAuth("lightning",key);
 
-	if (!user) {
-		user=new User();
-		await user.save();
+		if (!user) {
+			user=new User();
+			await user.save();
+		}
+
+		await user.populateAuthMethods();
+		if (!user.authMethods["lightning"]) {
+			let existing=await User.findOneByAuth("lightning",key);
+			if (existing)
+				throw new Error("Already used for another user");
+
+			let userAuthMethod=new UserAuthMethod({
+				userId: user.id,
+				method: "lightning",
+				token: key
+			});
+
+			await userAuthMethod.save();
+		}
+
+		await catnip.setSessionValue(sessionId,user.id);
+		catnip.notifyChannel("user",{sessionId: sessionId});
+
+		return {status: "OK"};
 	}
 
-	await user.populateAuthMethods();
-	if (!user.authMethods["lightning"]) {
-		let existing=await User.findOneByAuth("lightning",key);
-		if (existing)
-			throw new Error("Already used for another user");
-
-		let userAuthMethod=new UserAuthMethod({
-			userId: user.id,
-			method: "lightning",
-			token: key
-		});
-
-		await userAuthMethod.save();
+	catch (e) {
+		return {status: "ERROR", reason: e.message};
 	}
-
-	await catnip.setSessionValue(sessionId,user.id);
-	catnip.notifyChannel("user",{sessionId: sessionId});
-
-	return {status: "OK"};
 });
 
 catnip.addApi("/api/lightningAuthCode",async (params, req)=>{
