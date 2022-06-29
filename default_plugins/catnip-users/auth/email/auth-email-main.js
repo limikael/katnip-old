@@ -6,6 +6,7 @@ catnip.addAction("authMethods",(authMethods, req)=>{
 		id: "email",
 		title: "Email and Password",
 		element: "PasswordLoginElement",
+		href: "/linkemail",
 		priority: 10
 	});
 });
@@ -33,9 +34,12 @@ catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	let user=new catnip.db.User();
-	user.role="user";
-	await user.save();
+	let user=req.getUser();
+	if (!user) {
+		user=new catnip.db.User();
+		user.role="user";
+		await user.save();
+	}
 
 	let userAuthMethod=new UserAuthMethod({
 		userId: user.id,

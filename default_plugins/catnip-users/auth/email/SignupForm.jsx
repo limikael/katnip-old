@@ -7,7 +7,6 @@ export default function SignupForm(props) {
 	let [formValues, field]=useForm();
 	let [message, setMessage]=useState();
 	let postloginpath=useChannel("postloginpath");
-	let googleAuthUrl=useChannel("googleAuthUrl");
 
 	async function onSignupClick() {
 		setMessage();

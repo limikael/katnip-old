@@ -1,6 +1,7 @@
 import {catnip} from "catnip";
 import LoginForm from "./LoginForm.jsx";
 import SignupForm from "./SignupForm.jsx";
+import LinkEmailPage from "./LinkEmailPage.jsx";
 import {useState} from "react";
 
 function PasswordLoginElement() {
@@ -20,3 +21,5 @@ function PasswordLoginElement() {
 }
 
 catnip.addElement("PasswordLoginElement",PasswordLoginElement);
+
+catnip.addRoute("linkemail",LinkEmailPage);
