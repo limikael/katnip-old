@@ -1,4 +1,5 @@
-import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState} from "catnip";
+import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
+		ResourceBlocker} from "catnip";
 import CatnipRequest from "../lib/CatnipRequest.js";
 import {useState} from "preact/compat";
 
@@ -44,14 +45,17 @@ export function CatnipView() {
 	let Page=catnip.getPageComponentForRoute(request.pathname);
 
 	let [title,setTitle]=useRevertibleState(null,[request.href]);
+
 	let tc={title,setTitle};
 
 	let res=(<>
-		<TemplateContext.Provider value={tc}>
-			<Layout request={request}>
-				<Page request={request}/>
-			</Layout>
-		</TemplateContext.Provider>
+		<ResourceBlocker>
+			<TemplateContext.Provider value={tc}>
+				<Layout request={request}>
+					<Page request={request}/>
+				</Layout>
+			</TemplateContext.Provider>
+		</ResourceBlocker>
 	</>);
 
 	return res;

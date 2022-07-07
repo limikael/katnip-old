@@ -165,6 +165,7 @@ export default class CatnipRequestHandler {
 	}
 
 	handleRequest=async (nodeReq, res)=>{
+		//await delay(1000);
 		let req=new CatnipRequest();
 		req.processNodeRequest(nodeReq);
 		await req.processNodeRequestBody(nodeReq);

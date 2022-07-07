@@ -1,4 +1,4 @@
-import {A, catnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl} from "catnip";
+import {A, catnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl, Stylesheet} from "catnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
@@ -178,14 +178,16 @@ export default function BootswatchPageTemplate({request,children}) {
 	let topItems=[];
 	catnip.doAction("topItems",topItems,request);
 
+	//<link rel="stylesheet" href={cssUrl}/>
+
 	return (
 		<>
-			<link rel="stylesheet" href={cssUrl}/>
+			<Stylesheet href={cssUrl} />
 			<script
 				src={bsUrl}
 				async
 			/>
-			<style global jsx>{`
+			<style>{`
 				html, body, .page {
 					height: 100%;
 				}
