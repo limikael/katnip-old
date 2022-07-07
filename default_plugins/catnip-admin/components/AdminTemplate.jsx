@@ -1,4 +1,4 @@
-import {catnip, A, buildUrl, useCurrentUser, useChannel} from "catnip";
+import {catnip, A, buildUrl, useCurrentUser, useChannel, Stylesheet} from "catnip";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
@@ -110,7 +110,7 @@ export function AdminHead() {
 	let jsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	return (<>
-		<link rel="stylesheet" href={cssUrl}/>
+		<Stylesheet href={cssUrl}/>
 		<style>{`
 			html, body, .page {
 				height: 100%;
