@@ -1,5 +1,5 @@
-import {useContext, createContext, useRef, useEffect} from "react";
-import {useEventUpdate} from "./react-util.jsx";
+import {useContext, createContext, useRef, useEffect, useLayoutEffect} from "react";
+import {useEventUpdate, useImmediateEffect} from "./react-util.jsx";
 import {arrayRemove} from "./js-util.js";
 import EventEmitter from "events";
 
@@ -12,6 +12,8 @@ class ResourceManager extends EventEmitter {
 	}
 
 	addResourceId=(id)=>{
+		//console.log("adding: "+id);
+
 		if (id && !this.loadingResources.includes(id)) {
 			this.loadingResources.push(id);
 			this.emit("change");
@@ -19,8 +21,11 @@ class ResourceManager extends EventEmitter {
 	}
 
 	removeResourceId=(id)=>{
+		//console.log("removing: "+id);
+
 		if (id && this.loadingResources.includes(id)) {
 			arrayRemove(this.loadingResources,id);
+			//console.log("removed, len="+JSON.stringify(this.loadingResources));
 			this.emit("change");
 		}
 	}
@@ -51,21 +56,23 @@ export function ResourceBlocker({children}) {
 }
 
 export function useBlockingResource(id) {
-	let ref=useRef();
 	let resourceManager=useContext(BlockerContext);
-	useEffect(()=>{
+	let ref=useRef();
+	let removedRef=useRef();
+
+	ref.current=id;
+
+	useLayoutEffect(()=>{
+		if (ref.current!=removedRef.current)
+			resourceManager.addResourceId(ref.current);
+
 		return ()=>{
 			resourceManager.removeResourceId(ref.current);
 		}
-	},[]);
-
-	if (ref.current!=id) {
-		resourceManager.removeResourceId(ref.current);
-		ref.current=id;
-		resourceManager.addResourceId(ref.current);
-	}
+	},[ref.current,removedRef.current]);
 
 	return ()=>{
 		resourceManager.removeResourceId(ref.current);
+		removedRef.current=ref.current;
 	}
 }
