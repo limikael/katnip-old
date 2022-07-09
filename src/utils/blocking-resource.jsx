@@ -57,22 +57,24 @@ export function ResourceBlocker({children}) {
 
 export function useBlockingResource(id) {
 	let resourceManager=useContext(BlockerContext);
-	let ref=useRef();
-	let removedRef=useRef();
+	let ref=useRef({});
 
-	ref.current=id;
+	if (id!=ref.current.id) {
+		resourceManager.removeResourceId(ref.current.id);
+		ref.current={id: id};
+	}
 
 	useLayoutEffect(()=>{
-		if (ref.current!=removedRef.current)
-			resourceManager.addResourceId(ref.current);
+		if (!ref.current.complete)
+			resourceManager.addResourceId(ref.current.id);
 
 		return ()=>{
-			resourceManager.removeResourceId(ref.current);
+			resourceManager.removeResourceId(ref.current.id);
 		}
-	},[ref.current,removedRef.current]);
+	},[ref.current.id]);
 
 	return ()=>{
-		resourceManager.removeResourceId(ref.current);
-		removedRef.current=ref.current;
+		ref.current.complete=true;
+		resourceManager.removeResourceId(ref.current.id);
 	}
 }
