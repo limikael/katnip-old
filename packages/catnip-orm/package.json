@@ -1,0 +1,16 @@
+{
+  "name": "catnip-orm",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "devDependencies": {
+    "jasmine": "^4.1.0",
+    "mysql": "^2.18.1"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.0"
+  }
+}

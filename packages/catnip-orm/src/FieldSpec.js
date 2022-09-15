@@ -100,6 +100,9 @@ export default class FieldSpec {
 		for (let k in options)
 			this[k]=options[k];
 
+		this.primary_key=!!this.primary_key;
+		this.auto_increment=!!this.auto_increment;
+
 		if (!FieldSpec.types[this.type])
 			throw new Error("Unknown sql type: "+this.type);
 
@@ -114,11 +117,15 @@ export default class FieldSpec {
 	}
 
 	equals(that) {
+		/*console.log(this);
+		console.log(that);*/
+
 		return (
 			(this.getSqlType()==that.getSqlType()) &&
 			(this.size==that.size) &&
 			(this.null==that.null) &&
-			(this.auto_increment==that.auto_increment)
+			(this.auto_increment==that.auto_increment) &&
+			(this.primary_key==that.primary_key)
 		);
 	}
 
@@ -161,6 +168,15 @@ export default class FieldSpec {
 					sqlDef.shift();
 					break;
 
+				case "primary":
+					sqlDef.shift();
+					if (sqlDef[0]!="key")
+						throw new Error("Sql syntax error at "+sqlDef[0]);
+
+					options.primary_key=true;
+					sqlDef.shift();
+					break;
+
 				default:
 					throw new Error("Sql syntax error at "+sqlDef[0]);
 					break;
@@ -171,6 +187,8 @@ export default class FieldSpec {
 	}
 
 	static fromDescribeRow(row) {
+		//console.log(row);
+
 		let options={};
 
 		let typeDef=parseSqlDef(row.Type);
@@ -193,6 +211,9 @@ export default class FieldSpec {
 		if (row.Extra.includes("auto_increment"))
 			options.auto_increment=true;
 
+		if (row.Key=="PRI")
+			options.primary_key=true;
+
 		return new FieldSpec(options);
 	}
 
@@ -214,6 +235,10 @@ export default class FieldSpec {
 
 		if (this.auto_increment)
 			s+=" auto_increment";
+//			s+=" AUTOINCREMENT";
+
+		if (this.primary_key)
+			s+=" primary key";
 
 		return s;
 	}

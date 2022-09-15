@@ -20,7 +20,7 @@ export default class Model {
 		let q=createWhereClause(o);
 
 		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.query(qs,q.vals);
+		let dbRows=await cls.db.readQuery(qs,q.vals);
 		if (!dbRows.length)
 			throw new Error("Can't refresh, doesn't exist");
 
@@ -46,7 +46,7 @@ export default class Model {
 		}
 
 		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.query(qs,q.vals);
+		let dbRows=await cls.db.readQuery(qs,q.vals);
 
 		let res=[];
 		for (let dbRow of dbRows) {
@@ -65,7 +65,7 @@ export default class Model {
 		let cls=this;
 		let q=createWhereClause(whereParams);
 		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.query(qs,q.vals);
+		let dbRows=await cls.db.readQuery(qs,q.vals);
 
 		let firstKey=Object.keys(dbRows[0])[0];
 		return dbRows[0][firstKey];
@@ -103,7 +103,7 @@ export default class Model {
 		let cls=this.constructor;
 		let upsert=this.getUpsertSql();
 		let qs=`INSERT INTO ${cls.getTableName()} SET ${upsert.qs}`;
-		let res=await cls.db.query(qs,upsert.vals);
+		let res=await cls.db.writeQuery(qs,upsert.vals);
 
 		if (res.insertId)
 			this[cls.getPrimaryKeyField()]=res.insertId;
@@ -114,7 +114,7 @@ export default class Model {
 		let upsert=this.getUpsertSql();
 		let qs=`UPDATE ${cls.getTableName()} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
 		upsert.vals.push(this.getPrimaryKeyValue());
-		let res=await cls.db.query(qs,upsert.vals);
+		let res=await cls.db.writeQuery(qs,upsert.vals);
 
 		if (!res.affectedRows && !cls.isAutoIncrementPrimaryKey())
 			await this.insert();
@@ -134,7 +134,7 @@ export default class Model {
 			throw new Error("No PK value.");
 
 		let cls=this.constructor;
-		await cls.db.query(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
+		await cls.db.writeQuery(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
 	}
 
 	static isAutoIncrementPrimaryKey() {
@@ -175,17 +175,22 @@ export default class Model {
 		let qs=`CREATE TABLE IF NOT EXISTS ${cls.getTableName()} (`;
 
 		// Create if it doesn't exist.
+		let first=true;
 		for (let fieldName in cls.fields) {
-			let fieldSpec=cls.getFieldSpec(fieldName).getSql();
-			qs+=`\`${fieldName}\` ${fieldSpec},`;
+			if (!first)
+				qs+=",";
+
+			first=false;
+			qs+=`\`${fieldName}\` ${cls.getFieldSpec(fieldName).getSql()}`;
 		}
 
-		qs+=`PRIMARY KEY (${this.getPrimaryKeyField()}))`;
-		await this.db.query(qs);
+		qs+=")";
+
+		//qs+=`PRIMARY KEY (${this.getPrimaryKeyField()}))`;
+		await this.db.writeQuery(qs);
 
 		// Check current state of database.
-		let describeResult=await this.db.query("DESCRIBE ??",[cls.getTableName()]);
-		//console.log(describeResult);
+		let describeResult=await this.db.describe(cls.getTableName());
 
 		let existing={};
 		for (let describeRow of describeResult)
@@ -196,13 +201,13 @@ export default class Model {
 	        let fieldSpec=cls.getFieldSpec(fieldName);
 
 			if (!Object.keys(existing).includes(fieldName))
-				await this.db.query(`
+				await this.db.writeQuery(`
 					ALTER TABLE ${cls.getTableName()}
 					ADD \`${fieldName}\` ${fieldSpec.getSql()}
 				`);
 
 			else if (!fieldSpec.equals(existing[fieldName]))
-				await this.db.query(`
+				await this.db.writeQuery(`
 					ALTER TABLE ${cls.getTableName()}
 					MODIFY \`${fieldName}\` ${fieldSpec.getSql()}
 				`);
@@ -212,7 +217,7 @@ export default class Model {
 		let currentFieldNames=Object.keys(cls.fields);
 		for (let existingField of Object.keys(existing)) {
 			if (!currentFieldNames.includes(existingField)) {
-				await this.db.query(`
+				await this.db.writeQuery(`
 					ALTER TABLE ${cls.getTableName()}
 					DROP \`${existingField}\`
 				`);

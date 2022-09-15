@@ -1,0 +1,32 @@
+import FieldSpec from "../src/FieldSpec.js";
+
+describe("FieldSpec",()=>{
+	it("can create a field spec",()=>{
+		let fieldSpec1=FieldSpec.fromSqlDef("text not null");
+		//console.log(fieldSpec1.getSql());
+
+		let fieldSpec2=FieldSpec.fromSqlDef("integer not null");
+		//console.log(fieldSpec2.getSql());
+
+		let fieldSpec3=FieldSpec.fromSqlDef("varchar(64) null");
+		//console.log(fieldSpec3.getSql());
+
+		let fieldSpec4=FieldSpec.fromSqlDef("integer not null auto_increment primary key");
+		console.log(fieldSpec4.getSql());
+
+		let rowSpec=FieldSpec.fromDescribeRow({
+			Field: 'name',
+			Type: 'varchar(64)',
+			Null: 'YES',
+			Key: '',
+			Default: null,
+			Extra: ''
+		});
+
+		//console.log(fieldSpec3);
+		//console.log(rowSpec);
+
+		expect(rowSpec.equals(fieldSpec3)).toEqual(true);
+		expect(rowSpec.equals(fieldSpec2)).toEqual(false);
+	});
+});
