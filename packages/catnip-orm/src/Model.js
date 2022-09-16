@@ -191,11 +191,10 @@ export default class Model {
 		return this.fieldSpecs[fieldId];
 	}
 
-	static async install() {
+	static async createTable() {
 		let cls=this;
-		let qs=`CREATE TABLE IF NOT EXISTS ${cls.getTableName()} (`;
+		let qs=`CREATE TABLE ${cls.getTableName()} (`;
 
-		// Create if it doesn't exist.
 		let first=true;
 		for (let fieldName in cls.fields) {
 			if (!first)
@@ -208,41 +207,52 @@ export default class Model {
 		qs+=")";
 
 		await this.db.writeQuery(qs);
+	}
 
-		// Check current state of database.
-		let describeResult=await this.db.describe(cls.getTableName());
-		//console.log(describeResult);
+	static checkDescribeResult(describeResult) {
+		let current={};
+		for (let fieldId in this.fields)
+			current[fieldId]=FieldSpec.fromSqlDef(this.fields[fieldId]);
 
-		let existing={};
+		let described={};
 		for (let describeRow of describeResult)
-			existing[describeRow["Field"]]=FieldSpec.fromDescribeRow(describeRow);
+			described[describeRow.Field]=FieldSpec.fromDescribeRow(describeRow);
 
-		// Create or modify existing fields.
-		for (let fieldName in cls.fields) {
-	        let fieldSpec=cls.getFieldSpec(fieldName);
+		for (let k in current)
+			if (!current[k].equals(described[k]))
+				return false;
 
-			if (!Object.keys(existing).includes(fieldName))
-				await this.db.writeQuery(`
-					ALTER TABLE ${cls.getTableName()}
-					ADD \`${fieldName}\` ${fieldSpec.getSql(this.db.getFlavour())}
-				`);
+		for (let k in described)
+			if (!described[k].equals(current[k]))
+				return false;
 
-			else if (!fieldSpec.equals(existing[fieldName]))
-				await this.db.writeQuery(`
-					ALTER TABLE ${cls.getTableName()}
-					MODIFY \`${fieldName}\` ${fieldSpec.getSql(this.db.getFlavour())}
-				`);
+		return true;
+	}
+
+	static async install() {
+		let describeResult=await this.db.describe(this.getTableName());
+
+		// If it doesn't exist, just create it.
+		if (!describeResult)
+			return await this.createTable();
+
+		// If it is up to date, don't do anything.
+		if (this.checkDescribeResult(describeResult))
+			return;
+
+		// Create a new table, and copy old data.
+		let n=this.getTableName();
+		await this.db.writeQuery(`ALTER TABLE ${n} RENAME TO ${n+"_tmp"}`);
+		await this.createTable();
+
+		let describedNames=describeResult.map(o=>o.Field);
+		let copyFields=Object.keys(this.fields).filter(value=>describedNames.includes(value));
+		if (copyFields.length) {
+			let copyS=copyFields.join(",");
+			let sq=`INSERT INTO ${n} (${copyS}) SELECT ${copyS} FROM ${n+"_tmp"}`;
+			await this.db.writeQuery(sq);
 		}
 
-		// Drup unused fields.
-		let currentFieldNames=Object.keys(cls.fields);
-		for (let existingField of Object.keys(existing)) {
-			if (!currentFieldNames.includes(existingField)) {
-				await this.db.writeQuery(`
-					ALTER TABLE ${cls.getTableName()}
-					DROP \`${existingField}\`
-				`);
-			}
-		}
+		await this.db.writeQuery(`DROP TABLE ${n+"_tmp"}`);
 	}
 }

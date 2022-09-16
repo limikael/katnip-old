@@ -117,6 +117,9 @@ export default class FieldSpec {
 	}
 
 	equals(that) {
+		if (!that)
+			return false;
+
 		/*console.log(this);
 		console.log(that);*/
 

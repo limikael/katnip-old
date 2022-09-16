@@ -12,6 +12,9 @@ class SqliteConnection {
 
 	async describe(tableName) {
 		let srows=await this.readQuery("SELECT sql FROM sqlite_master WHERE tbl_name=?",[tableName]);
+		if (!srows.length)
+			return undefined;
+
 		let statement=srows[0].sql;
 		let isAutoIncrement=statement.toLowerCase().includes("autoincrement");
 
@@ -91,6 +94,10 @@ class MySqlConnection {
 	}
 
 	async describe(tableName) {
+		let show=await this.readQuery("SHOW TABLES LIKE ?",[tableName]);
+		if (!show.length)
+			return undefined;
+
 		return await this.readQuery("DESCRIBE ??",[tableName]);
 	}
 
