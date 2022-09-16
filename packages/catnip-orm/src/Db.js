@@ -41,14 +41,9 @@ export default class Db {
 			await cls.install();
 	}
 
-	async writeQuery(qs, params=[]) {
+	async query(qs, params=[]) {
 		await this.connect();
-		return await this.connection.writeQuery(qs,params);
-	}
-
-	async readQuery(qs, params=[]) {
-		await this.connect();
-		return await this.connection.readQuery(qs,params);
+		return await this.connection.query(qs,params);
 	}
 
 	async describe(tableName) {

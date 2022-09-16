@@ -63,6 +63,28 @@ class SqliteConnection {
 			});
 		});
 	}
+
+	query(qs, params=[]) {
+		let first=qs.split(/\s/)[0].toLowerCase();
+
+		switch (first) {
+			case "select":
+				return this.readQuery(qs,params);
+				break;
+
+			case "insert":
+			case "update":
+			case "drop":
+			case "create":
+			case "delete":
+			case "alter":
+				return this.writeQuery(qs,params);
+				break;
+
+			default:
+				throw new Error("unknown query type: "+first);
+		}
+	}
 }
 
 class MySqlConnection {
@@ -94,14 +116,14 @@ class MySqlConnection {
 	}
 
 	async describe(tableName) {
-		let show=await this.readQuery("SHOW TABLES LIKE ?",[tableName]);
+		let show=await this.query("SHOW TABLES LIKE ?",[tableName]);
 		if (!show.length)
 			return undefined;
 
-		return await this.readQuery("DESCRIBE ??",[tableName]);
+		return await this.query("DESCRIBE ??",[tableName]);
 	}
 
-	readQuery(qs, params=[]) {
+	query(qs, params=[]) {
 		return new Promise((resolve, reject)=>{
 			this.mysql.query(qs,params,(error, results, fields)=>{
 				if (error) {
@@ -109,8 +131,13 @@ class MySqlConnection {
 					return;
 				}
 
-				if (results.constructor.name!="Array")
-					throw new Error("This is not a read query");
+				if (results.constructor.name=="OkPacket") {
+					resolve({
+						affectedRows: results.affectedRows,
+						insertId: results.insertId
+					});
+					return;
+				}
 
 				let rows=[];
 				for (let result of results) {
@@ -122,25 +149,6 @@ class MySqlConnection {
 				}
 
 				resolve(rows);
-			});
-		});
-	}
-
-	writeQuery(qs, params=[]) {
-		return new Promise((resolve, reject)=>{
-			this.mysql.query(qs,params,(error, results, fields)=>{
-				if (error) {
-					reject(error);
-					return;
-				}
-
-				if (results.constructor.name!="OkPacket")
-					throw new Error("This is not a write query");
-
-				resolve({
-					affectedRows: results.affectedRows,
-					insertId: results.insertId
-				});
 			});
 		});
 	}

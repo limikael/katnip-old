@@ -20,7 +20,7 @@ export default class Model {
 		let q=createWhereClause(o);
 
 		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.readQuery(qs,q.vals);
+		let dbRows=await cls.db.query(qs,q.vals);
 		if (!dbRows.length)
 			throw new Error("Can't refresh, doesn't exist");
 
@@ -46,7 +46,7 @@ export default class Model {
 		}
 
 		let qs=`SELECT * FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.readQuery(qs,q.vals);
+		let dbRows=await cls.db.query(qs,q.vals);
 
 		let res=[];
 		for (let dbRow of dbRows) {
@@ -65,7 +65,7 @@ export default class Model {
 		let cls=this;
 		let q=createWhereClause(whereParams);
 		let qs=`SELECT ${sql} FROM ${cls.getTableName()} ${q.query}`;
-		let dbRows=await cls.db.readQuery(qs,q.vals);
+		let dbRows=await cls.db.query(qs,q.vals);
 
 		let firstKey=Object.keys(dbRows[0])[0];
 		return dbRows[0][firstKey];
@@ -115,7 +115,7 @@ export default class Model {
 		}
 
 		let qs=`INSERT INTO ${cls.getTableName()} (${names.join(",")}) VALUES (${vq.join(",")})`;
-		let res=await cls.db.writeQuery(qs,vals);
+		let res=await cls.db.query(qs,vals);
 
 		if (res.insertId)
 			this[cls.getPrimaryKeyField()]=res.insertId;
@@ -126,7 +126,7 @@ export default class Model {
 		let upsert=this.getUpsertSql();
 		let qs=`UPDATE ${cls.getTableName()} SET ${upsert.qs} WHERE ${cls.getPrimaryKeyField()}=?`;
 		upsert.vals.push(this.getPrimaryKeyValue());
-		let res=await cls.db.writeQuery(qs,upsert.vals);
+		let res=await cls.db.query(qs,upsert.vals);
 
 		if (!res.affectedRows && !cls.isAutoIncrementPrimaryKey())
 			await this.insert();
@@ -146,7 +146,7 @@ export default class Model {
 			throw new Error("No PK value.");
 
 		let cls=this.constructor;
-		await cls.db.writeQuery(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
+		await cls.db.query(`DELETE FROM ${cls.getTableName()} WHERE ${cls.getPrimaryKeyField()}=?`,[id]);
 	}
 
 	static isAutoIncrementPrimaryKey() {
@@ -206,7 +206,7 @@ export default class Model {
 
 		qs+=")";
 
-		await this.db.writeQuery(qs);
+		await this.db.query(qs);
 	}
 
 	static checkDescribeResult(describeResult) {
@@ -242,7 +242,7 @@ export default class Model {
 
 		// Create a new table, and copy old data.
 		let n=this.getTableName();
-		await this.db.writeQuery(`ALTER TABLE ${n} RENAME TO ${n+"_tmp"}`);
+		await this.db.query(`ALTER TABLE ${n} RENAME TO ${n+"_tmp"}`);
 		await this.createTable();
 
 		let describedNames=describeResult.map(o=>o.Field);
@@ -250,9 +250,9 @@ export default class Model {
 		if (copyFields.length) {
 			let copyS=copyFields.join(",");
 			let sq=`INSERT INTO ${n} (${copyS}) SELECT ${copyS} FROM ${n+"_tmp"}`;
-			await this.db.writeQuery(sq);
+			await this.db.query(sq);
 		}
 
-		await this.db.writeQuery(`DROP TABLE ${n+"_tmp"}`);
+		await this.db.query(`DROP TABLE ${n+"_tmp"}`);
 	}
 }
