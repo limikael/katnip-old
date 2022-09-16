@@ -1,6 +1,7 @@
 class SqliteConnection {
 	constructor(url) {
 		this.url=new URL(url);
+		this.flavour="sqlite3";
 	}
 
 	async connect() {
@@ -10,16 +11,27 @@ class SqliteConnection {
 	}
 
 	async describe(tableName) {
+		let srows=await this.readQuery("SELECT sql FROM sqlite_master WHERE tbl_name=?",[tableName]);
+		let statement=srows[0].sql;
+		let isAutoIncrement=statement.toLowerCase().includes("autoincrement");
+
 		let rows=await this.readQuery("pragma table_info ("+tableName+")");
 		let res=[];
 
-		for (let row of rows)
-			res.push({
+		for (let row of rows) {
+			let describeRow={
 				Field: row.name,
 				Type: row.type,
 				Null: row.notnull?"NO":"YES",
-				Extra: ""
-			});
+				Extra: "",
+				Key: row.pk?"PRI":""
+			};
+
+			if (isAutoIncrement && row.pk)
+				describeRow.Extra="auto_increment";
+
+			res.push(describeRow);
+		}
 
 		return res;
 	}
@@ -53,6 +65,7 @@ class SqliteConnection {
 class MySqlConnection {
 	constructor(url) {
 		this.url=new URL(url);
+		this.flavour="mysql";
 	}
 
 	async connect() {

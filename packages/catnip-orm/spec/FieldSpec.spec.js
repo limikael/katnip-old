@@ -11,8 +11,8 @@ describe("FieldSpec",()=>{
 		let fieldSpec3=FieldSpec.fromSqlDef("varchar(64) null");
 		//console.log(fieldSpec3.getSql());
 
-		let fieldSpec4=FieldSpec.fromSqlDef("integer not null auto_increment primary key");
-		console.log(fieldSpec4.getSql());
+		let fieldSpec4=FieldSpec.fromSqlDef("integer not null autoincrement primary key");
+		//console.log(fieldSpec4.getSql("sqlite3"));
 
 		let rowSpec=FieldSpec.fromDescribeRow({
 			Field: 'name',

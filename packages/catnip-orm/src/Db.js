@@ -55,4 +55,8 @@ export default class Db {
 		await this.connect();
 		return await this.connection.describe(tableName);
 	}
+
+	getFlavour() {
+		return this.connection.flavour;
+	}
 }

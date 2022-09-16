@@ -87,8 +87,8 @@ function parseSqlDef(s) {
 
 export default class FieldSpec {
 	static types={
-		"integer": {aliasFor: "int"},
-		"int": {defaultSize: 11},
+		"integer": {sizeFree: true},
+		"int": {aliasFor: "integer"},
 		"char": {defaultSize: 1},
 		"varchar": {},
 		"text": {sizeFree: true},
@@ -164,6 +164,7 @@ export default class FieldSpec {
 					break;
 
 				case "auto_increment":
+				case "autoincrement":
 					options.auto_increment=true;
 					sqlDef.shift();
 					break;
@@ -225,7 +226,10 @@ export default class FieldSpec {
 		return this.type;
 	}
 
-	getSql() {
+	getSql(flavour) {
+		if (!flavour)
+			flavour="mysql";
+
 		let s=this.getSqlType();
 
 		if (!FieldSpec.types[this.type].sizeFree)
@@ -233,12 +237,16 @@ export default class FieldSpec {
 
 		s+=(this.null?" null":" not null");
 
-		if (this.auto_increment)
-			s+=" auto_increment";
-//			s+=" AUTOINCREMENT";
-
 		if (this.primary_key)
 			s+=" primary key";
+
+		if (this.auto_increment) {
+			if (flavour=="sqlite3")
+				s+=" autoincrement";
+
+			else
+				s+=" auto_increment";
+		}
 
 		return s;
 	}

@@ -39,8 +39,8 @@ describe("db",()=>{
 
 	beforeEach(async ()=>{
 		if (!db) {
-			db=new Db("mysql://mysql:mysql@localhost/catniptest");
-			//db=new Db("sqlite3:test");
+			//db=new Db("mysql://mysql:mysql@localhost/catniptest");
+			db=new Db("sqlite3:test.sqlite3");
 
 			db.addModel(Employee);
 			db.addModel(TestSetting);
@@ -61,6 +61,9 @@ describe("db",()=>{
 		e.salary=5;
 		await e.save();
 
+		let g=await db.Employee.findOne({name: "Micke"});
+		expect(g.salary).toEqual(5);
+
 		e.salary=6;
 		await e.save();
 
@@ -73,7 +76,7 @@ describe("db",()=>{
 		//console.log(JSON.stringify(e));
 	});
 
-	/*it("doesn't need AUTO_INCREMENT",async ()=>{
+	it("doesn't need AUTO_INCREMENT",async ()=>{
 		let s=new TestSetting({setting: "test", value: 123});
 		await s.save();
 
@@ -136,5 +139,5 @@ describe("db",()=>{
 			$order: "bla"
 		});
 		//console.log(w);
-	});*/
+	});
 });

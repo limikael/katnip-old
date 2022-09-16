@@ -101,9 +101,21 @@ export default class Model {
 
 	async insert() {
 		let cls=this.constructor;
-		let upsert=this.getUpsertSql();
-		let qs=`INSERT INTO ${cls.getTableName()} SET ${upsert.qs}`;
-		let res=await cls.db.writeQuery(qs,upsert.vals);
+		let vq=[],names=[],vals=[];
+
+		for (let fieldName in cls.fields) {
+			if (!cls.isAutoIncrementPrimaryKey() ||
+					fieldName!=cls.getPrimaryKeyField()) {
+				vq.push("?");
+				names.push(fieldName);
+
+				let spec=cls.getFieldSpec(fieldName);
+				vals.push(spec.serialize(this[fieldName]));
+			}
+		}
+
+		let qs=`INSERT INTO ${cls.getTableName()} (${names.join(",")}) VALUES (${vq.join(",")})`;
+		let res=await cls.db.writeQuery(qs,vals);
 
 		if (res.insertId)
 			this[cls.getPrimaryKeyField()]=res.insertId;
@@ -157,7 +169,16 @@ export default class Model {
 	}
 
 	static getPrimaryKeyField() {
-		return Object.keys(this.fields)[0];
+		if (!this.primaryKeyField) {
+			for (let fieldId in this.fields)
+				if (this.getFieldSpec(fieldId).primary_key)
+					this.primaryKeyField=fieldId;
+		}
+
+		if (!this.primaryKeyField)
+			throw new Error("No primary key field");
+
+		return this.primaryKeyField;
 	}
 
 	static getFieldSpec(fieldId) {
@@ -181,16 +202,16 @@ export default class Model {
 				qs+=",";
 
 			first=false;
-			qs+=`\`${fieldName}\` ${cls.getFieldSpec(fieldName).getSql()}`;
+			qs+=`\`${fieldName}\` ${cls.getFieldSpec(fieldName).getSql(this.db.getFlavour())}`;
 		}
 
 		qs+=")";
 
-		//qs+=`PRIMARY KEY (${this.getPrimaryKeyField()}))`;
 		await this.db.writeQuery(qs);
 
 		// Check current state of database.
 		let describeResult=await this.db.describe(cls.getTableName());
+		//console.log(describeResult);
 
 		let existing={};
 		for (let describeRow of describeResult)
@@ -203,13 +224,13 @@ export default class Model {
 			if (!Object.keys(existing).includes(fieldName))
 				await this.db.writeQuery(`
 					ALTER TABLE ${cls.getTableName()}
-					ADD \`${fieldName}\` ${fieldSpec.getSql()}
+					ADD \`${fieldName}\` ${fieldSpec.getSql(this.db.getFlavour())}
 				`);
 
 			else if (!fieldSpec.equals(existing[fieldName]))
 				await this.db.writeQuery(`
 					ALTER TABLE ${cls.getTableName()}
-					MODIFY \`${fieldName}\` ${fieldSpec.getSql()}
+					MODIFY \`${fieldName}\` ${fieldSpec.getSql(this.db.getFlavour())}
 				`);
 		}
 
