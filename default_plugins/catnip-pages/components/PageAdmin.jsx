@@ -16,6 +16,7 @@ function PageEdit({request}) {
 		if (!pageId)
 			return {};
 
+		console.log("doing api fetch...");
 		let fetchedPage=await apiFetch("/api/page/get",{id: pageId});
 		setPage(fetchedPage);
 
