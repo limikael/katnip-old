@@ -100,8 +100,8 @@ export default class CatnipRequestHandler {
 	}
 
 	handleApi=async (req, res)=>{
-		if (this.options.apidelay)
-			await delay(1000);
+//		if (this.options.apidelay)
+			await delay(100);
 
 		let func=this.catnip.apis[req.pathname];
 		if (func) {

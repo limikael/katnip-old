@@ -1,4 +1,4 @@
-import {ItemForm, apiFetch, useChannel, useForm, BsGroupInput, 
+import {apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BootstrapAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch} from "catnip";
 import {useState} from "preact/compat";

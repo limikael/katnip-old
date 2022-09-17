@@ -11,15 +11,18 @@ export function usePromise(fn, deps) {
 	let [result,setResult]=useState();
 
 	useMemo(async ()=>{
-		setResult(undefined);
-		result=undefined;
-
 		try {
-			if (typeof fn=="function")
-				setResult(await fn());
+			if (typeof fn=="function") {
+				setResult(undefined);
+				result=undefined;
+				result=await fn();
+			}
 
-			else
-				setResult(fn);
+			else {
+				result=fn;
+			}
+
+			setResult(result);
 		}
 
 		catch (e){

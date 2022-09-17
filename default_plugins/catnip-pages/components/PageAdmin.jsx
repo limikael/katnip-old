@@ -1,5 +1,6 @@
-import {catnip, A, ItemList, ItemForm, setLocation, buildUrl, ItemContext, BootstrapAlert} from "catnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "catnip";
+import {catnip, A, ItemList, setLocation, buildUrl, ItemContext, BootstrapAlert} from "catnip";
+import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "catnip";
+import {BsInput} from "catnip";
 import {useState, useContext} from "preact/compat";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
@@ -8,65 +9,52 @@ dayjs.extend(relativeTime);
 
 function PageEdit({request}) {
 	let pageId=request.query.id;
-	let [page,setPage]=useState();
-
-	//console.log("here..");
+	let [message, setMessage]=useState();
+	let [count, invalidate]=useCounter();
 
 	async function read() {
 		if (!pageId)
 			return {};
 
-		console.log("doing api fetch...");
-		let fetchedPage=await apiFetch("/api/page/get",{id: pageId});
-		setPage(fetchedPage);
-
-		return fetchedPage;
+		return await apiFetch("/api/page/get",{id: pageId});
 	}
 
-	async function write(data) {
-		let saved=await apiFetch("/api/page/save",data);
+	let [values, field]=useForm(read,[pageId,count]);
+	if (values instanceof Error)
+		setMessage(values);
 
-		setPage(saved);
+	async function write() {
+		setMessage();
+		let saved=await apiFetch("/api/page/save",values);
+		setMessage("Page saved...");
 		setLocation(buildUrl("/admin/page",{id: saved.id}));
-
-		return "Saved...";
+		invalidate();
 	}
 
 	let pageLink;
-	if (page && page.slug) {
+	if (pageId && values && !(values instanceof Error)) {
 		let o=window.location.origin;
-		let url=o+"/page/"+page.slug;
+		let url=o+"/page/"+values.slug;
 
 		pageLink=<div class="form-text mt-1"><b>Permalink:</b> <A href={url}>{url}</A></div>
 	}
 
 	return (<>
 		<h1 class="mb-3">{pageId?"Edit Page":"Add New Page"}</h1>
-		<ItemForm
-				item={read}
-				save={write}
-				deps={[pageId]}>
+		{message && <BootstrapAlert message={message} ondismiss={setMessage}/>}
+		{(pageId && !values) && <div class="spinner-border m-3"/>}
+		{(values && !(values instanceof Error)) && 
 			<div class="container-fluid border rounded p-3 bg-light">
 				<div class="mb-3">
-					<ItemForm.Input
-							name="title"
-							type="text"
-							class="form-control"
-							placeholder="Page Title"/>
+					<BsInput {...field("title")} placeholder="Page Title"/>
 					{pageLink}
 				</div>
-				<div class="mb-3">
-					<ItemForm.Input
-							name="content"
-							input="textarea"
-							rows={10}
-							class="form-control font-monospace"/>
-				</div>
-				<ItemForm.Submit class="btn btn-primary">
+				<BsInput class="font-monospace mb-3" rows={10} type="textarea" {...field("content")} />
+				<PromiseButton class="btn btn-primary" onclick={write}>
 					{pageId?"Update Page":"Create New Page"}
-				</ItemForm.Submit>
+				</PromiseButton>
 			</div>
-		</ItemForm>
+		}
 	</>);
 }
 

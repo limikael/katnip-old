@@ -29,16 +29,23 @@ export function BootstrapAlert({message, ondismiss}) {
 export function BsInput({...props}) {
 	let options=usePromise(props.options,[props.options]);
 
-	if (props.type=="textarea")
+	if (!props.class)
+		props.class="";
+
+	if (props.type=="textarea") {
+		props.class+=" form-control";
 		return (
-			<textarea class="form-control" {...props}>{props.value}</textarea>
+			<textarea {...props}>{props.value}</textarea>
 		);
+	}
 
 	if (props.type=="select") {
 		let optionElements=null;
+
 		if (options)
 			optionElements=optionsFromObject(options);
 
+		props.class+=" form-select";
 		return (
 			<select class="form-select" {...props}>
 				{optionElements}
@@ -47,8 +54,9 @@ export function BsInput({...props}) {
 		);
 	}
 
+	props.class+=" form-control";
 	return (
-		<input class="form-control" {...props} />
+		<input {...props} />
 	);
 
 }

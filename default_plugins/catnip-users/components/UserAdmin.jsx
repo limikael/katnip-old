@@ -1,11 +1,12 @@
-import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl} from "catnip";
+import {catnip, A, ItemList, apiFetch, setLocation, buildUrl} from "catnip";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
+import {BsInput, PromiseButton} from "catnip";
 import {useRef, useState} from "preact/compat";
 import {getRoles} from "../src/rolecaps.js";
 
 export function UserList() {
 	let columns={
-		email: {label: "E-Mail"},
+		id: {label: "User ID"},
 		role: {label: "Role"}
 	};
 
@@ -37,6 +38,7 @@ export function UserList() {
 }
 
 export function UserEdit({request}) {
+	let [message, setMessage]=useState();
 	let userId=request.query.id;
 
 	async function read() {
@@ -46,7 +48,9 @@ export function UserEdit({request}) {
 		return await apiFetch("/api/getUser",{id: userId});
 	}
 
-	async function write(data) {
+	let [data, field]=useForm(read,[userId]);
+
+	async function write() {
 		let saved=await apiFetch("/api/saveUser",data);
 		setLocation(buildUrl("/admin/user",{id: saved.id}));
 
@@ -61,39 +65,27 @@ export function UserEdit({request}) {
 	return (
 		<>
 			<h1 class="mb-3">{userId?"Edit User":"Add New User"}</h1>
-			<ItemForm
+			<form
 					style="max-width: 40rem"
 					item={read}
 					save={write}
 					deps={[userId]}>
 				<div class="container border rounded p-3 bg-light">
 					<div class="mb-3">
-						<label class="form-label">Email</label>
-						<ItemForm.Input
-								name="email"
-								type="text"
-								class="form-control"/>
+						<label class="form-label">User ID</label>
+						<BsInput type="text" disabled value={userId}/>
 					</div>
 					<div class="mb-3">
 						<label class="form-label">Role</label>
-						<ItemForm.Input
-								name="role"
-								type="select"
-								class="form-select"
-								options={roleOptions}/>
+						<BsInput type="select"
+								options={roleOptions}
+								{...field("role")}/>
 					</div>
-					<div class="mb-3">
-						<label class="form-label">Password</label>
-						<ItemForm.Input
-								name="password"
-								type="text"
-								class="form-control"/>
-					</div>
-					<ItemForm.Submit class="btn btn-primary">
+					<PromiseButton class="btn btn-primary" onclick={write}>
 						{userId?"Update User":"Create New User"}
-					</ItemForm.Submit>
+					</PromiseButton>
 				</div>
-			</ItemForm>
+			</form>
 		</>
 	);
 }
