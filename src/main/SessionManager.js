@@ -1,10 +1,10 @@
-import Model from "../orm/Model.js";
+import Model from "../../packages/catnip-orm/src/Model.js";
 
 class Session extends Model {
 	static tableName="Session";
 
 	static fields={
-		id: "VARCHAR(255) NOT NULL",
+		id: "VARCHAR(255) NOT NULL PRIMARY KEY",
 		value: "JSON"
 	}
 }

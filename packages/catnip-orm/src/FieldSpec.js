@@ -114,6 +114,9 @@ export default class FieldSpec {
 
 		if (!this.size && !FieldSpec.types[this.type].sizeFree)
 			throw new Error("Need size for type: "+this.type);
+
+		if (FieldSpec.types[this.type].sizeFree)
+			this.size=undefined;
 	}
 
 	equals(that) {

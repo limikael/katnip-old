@@ -9,7 +9,7 @@ export class UserAuthMethod extends Model {
 	static tableName="UserAuthMethod";
 
 	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
+		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		userId: "INTEGER NOT NULL",
 		method: "VARCHAR(255) NOT NULL",
 		token: "VARCHAR(225) NOT NULL",
@@ -46,7 +46,7 @@ export default class User extends Model {
 	static tableName="User";
 
 	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
+		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		role: "VARCHAR(64) NOT NULL"
 	};
 

@@ -29,4 +29,19 @@ describe("FieldSpec",()=>{
 		expect(rowSpec.equals(fieldSpec3)).toEqual(true);
 		expect(rowSpec.equals(fieldSpec2)).toEqual(false);
 	});
+
+	it("works with alias",()=>{
+		let s=FieldSpec.fromSqlDef("integer not null autoincrement primary key");
+		let t=FieldSpec.fromDescribeRow({
+			Field: 'id',
+			Type: 'int(11)',
+			Null: 'NO',
+			Key: 'PRI',
+			Default: null,
+			Extra: 'auto_increment'
+		});
+
+		expect(s.equals(t)).toEqual(true);
+		expect(t.equals(s)).toEqual(true);
+	});
 });

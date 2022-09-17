@@ -5,7 +5,7 @@ class Page extends catnip.Model {
 	static tableName="Page";
 
 	static fields={
-		id: "INTEGER NOT NULL AUTO_INCREMENT",
+		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		title: "TEXT NOT NULL",
 		stamp: "INTEGER NOT NULL",
 		content: "TEXT NOT NULL",

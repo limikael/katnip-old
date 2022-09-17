@@ -176,7 +176,7 @@ export default class Model {
 		}
 
 		if (!this.primaryKeyField)
-			throw new Error("No primary key field");
+			throw new Error("No primary key field for "+this.getTableName());
 
 		return this.primaryKeyField;
 	}
@@ -219,17 +219,22 @@ export default class Model {
 			described[describeRow.Field]=FieldSpec.fromDescribeRow(describeRow);
 
 		for (let k in current)
-			if (!current[k].equals(described[k]))
+			if (!current[k].equals(described[k])) {
+				//console.log("diff: "+k)
 				return false;
+			}
 
 		for (let k in described)
-			if (!described[k].equals(current[k]))
+			if (!described[k].equals(current[k])) {
+				//console.log("diff: "+k)
 				return false;
+			}
 
 		return true;
 	}
 
 	static async install() {
+		this.getPrimaryKeyField();
 		let describeResult=await this.db.describe(this.getTableName());
 
 		// If it doesn't exist, just create it.
@@ -241,9 +246,18 @@ export default class Model {
 			return;
 
 		// Create a new table, and copy old data.
+		//console.log("copying...");
 		let n=this.getTableName();
 		await this.db.query(`ALTER TABLE ${n} RENAME TO ${n+"_tmp"}`);
-		await this.createTable();
+
+		try {
+			await this.createTable();
+		}
+
+		catch (e) {
+			await this.db.query(`ALTER TABLE ${n+"_tmp"} RENAME TO ${n}`);
+			throw e;
+		}
 
 		let describedNames=describeResult.map(o=>o.Field);
 		let copyFields=Object.keys(this.fields).filter(value=>describedNames.includes(value));

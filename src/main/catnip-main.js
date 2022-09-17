@@ -2,7 +2,7 @@ import CatnipActions from "../lib/CatnipActions.js";
 import CatnipServerChannels from "../lib/CatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
-import Db from "../orm/Db.js";
+import Db from "../../packages/catnip-orm/src/Db.js";
 import {isClient, isServer, retry} from "../utils/js-util.js";
 import fetch from "node-fetch";
 import crypto from "crypto";
