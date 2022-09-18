@@ -1,10 +1,10 @@
-import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl,
+import {catnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
 		setCurrentUser, useChannel, useTemplateContext} from "catnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LinkEmailPage(props) {
-	let [formValues, field]=useForm();
+	let form=useForm({initial: {}});
 	let [message, setMessage]=useState();
 	let tc=useTemplateContext();
 
@@ -13,7 +13,7 @@ export default function LinkEmailPage(props) {
 	async function onSignupClick() {
 		setMessage();
 
-		let u=await catnip.apiFetch("/api/signup",formValues);
+		let u=await catnip.apiFetch("/api/signup",form.getCurrent());
 
 		setCurrentUser(u);
 		catnip.setLocation("/account");
@@ -25,11 +25,11 @@ export default function LinkEmailPage(props) {
 				<div class="card-body">
 					<form class="mb-2">
 						<input type="text" class="form-control mb-3" placeholder="Username / Email"
-								{...field("email")}/>
+								{...form.field("email")}/>
 						<input type="password" class="form-control mb-3" placeholder="Password"
-								{...field("password")}/>
+								{...from.field("password")}/>
 						<input type="password" class="form-control" placeholder="Repeat Password" 
-								{...field("repeatPassword")}/>
+								{...from.field("repeatPassword")}/>
 					</form>
 
 					{message &&

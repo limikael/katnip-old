@@ -1,4 +1,4 @@
-import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter,
+import {catnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
 		useCurrentUser, setCurrentUser} from "catnip";
 import {useState} from "preact/compat";
 
@@ -17,7 +17,7 @@ export default function DeleteAccountTab() {
 
 	return (
 		<form>
-			<BootstrapAlert message={message} ondismiss={setMessage}/>
+			<BsAlert message={message} ondismiss={setMessage}/>
 			<div class="mb-3" >
 				<label class="form-label">
 					If you Are <b>absolutely sure</b> you want to delete your account, enter your password here.

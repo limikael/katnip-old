@@ -1,5 +1,4 @@
-import {useState} from "preact/compat";
-import {BootstrapAlert} from "../utils/bs-util.jsx";
+import {useState} from "react";
 import {useModal} from "../utils/react-util.jsx";
 
 function Modal({resolve, message}) {

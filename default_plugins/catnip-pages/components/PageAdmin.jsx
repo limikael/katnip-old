@@ -1,4 +1,4 @@
-import {catnip, A, ItemList, setLocation, buildUrl, ItemContext, BootstrapAlert, BsLoader} from "catnip";
+import {catnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader} from "catnip";
 import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "catnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "catnip";
@@ -48,7 +48,7 @@ function PageEdit({request}) {
 
 	return (<>
 		<h1 class="mb-3">{request.query.id?"Edit Page":"Add New Page"}</h1>
-		<BootstrapAlert message={message} ondismiss={setMessage}/>
+		<BsAlert message={message} ondismiss={setMessage}/>
 		<BsLoader resource={form.getCurrent()}>
 			<div class="container-fluid border rounded p-3 bg-light">
 				<div class="mb-3">

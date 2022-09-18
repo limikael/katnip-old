@@ -1,7 +1,7 @@
-import {catnip, A, ItemList, apiFetch, setLocation, buildUrl} from "catnip";
-import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
-import {BsInput, PromiseButton} from "catnip";
-import {useRef, useState} from "preact/compat";
+import {catnip, A, ItemList, apiFetch, setLocation, buildUrl,
+		useForm, useCounter, useApiFetch, useValueChanged,
+		BsInput, PromiseButton, BsLoader} from "catnip";
+import {useRef, useState} from "react";
 import {getRoles} from "../src/rolecaps.js";
 
 export function UserList() {
@@ -48,13 +48,11 @@ export function UserEdit({request}) {
 		return await apiFetch("/api/getUser",{id: userId});
 	}
 
-	let [data, field]=useForm(read,[userId]);
+	let form=useForm({deps: [userId], initial: read});
 
 	async function write() {
-		let saved=await apiFetch("/api/saveUser",data);
+		let saved=await apiFetch("/api/saveUser",form.getCurrent());
 		setLocation(buildUrl("/admin/user",{id: saved.id}));
-
-		return "Saved...";
 	}
 
 	let roleOptions={};
@@ -65,27 +63,25 @@ export function UserEdit({request}) {
 	return (
 		<>
 			<h1 class="mb-3">{userId?"Edit User":"Add New User"}</h1>
-			<form
-					style="max-width: 40rem"
-					item={read}
-					save={write}
-					deps={[userId]}>
-				<div class="container border rounded p-3 bg-light">
-					<div class="mb-3">
-						<label class="form-label">User ID</label>
-						<BsInput type="text" disabled value={userId}/>
+			<BsLoader resource={form.getCurrent()}>
+				<form style="max-width: 40rem">
+					<div class="container border rounded p-3 bg-light">
+						<div class="mb-3">
+							<label class="form-label">User ID</label>
+							<BsInput type="text" disabled value={userId}/>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Role</label>
+							<BsInput type="select"
+									options={roleOptions}
+									{...form.field("role")}/>
+						</div>
+						<PromiseButton class="btn btn-primary" onclick={write}>
+							{userId?"Update User":"Create New User"}
+						</PromiseButton>
 					</div>
-					<div class="mb-3">
-						<label class="form-label">Role</label>
-						<BsInput type="select"
-								options={roleOptions}
-								{...field("role")}/>
-					</div>
-					<PromiseButton class="btn btn-primary" onclick={write}>
-						{userId?"Update User":"Create New User"}
-					</PromiseButton>
-				</div>
-			</form>
+				</form>
+			</BsLoader>
 		</>
 	);
 }

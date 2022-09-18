@@ -1,4 +1,4 @@
-import {catnip, A, ItemList, ItemForm, setLocation, buildUrl, ItemContext, BootstrapAlert} from "catnip";
+import {catnip, A, ItemList, setLocation, buildUrl} from "catnip";
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "catnip";
 import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
@@ -25,7 +25,7 @@ export default function PageView({request}) {
 		return;
 
 	if (page instanceof Error)
-		return <div class="mt-5"><BootstrapAlert message={page}/></div>;
+		return <div class="mt-5"><BsAlert message={page}/></div>;
 
 	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr","small","br"];
 	let options={};

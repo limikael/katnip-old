@@ -1,4 +1,4 @@
-import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch,
+import {catnip, PromiseButton, useForm, delay, apiFetch,
 		useCurrentUser, setCurrentUser, useApiFetch, A, bindArgs,
 		useCounter, useForceUpdate, useModal, setLocation} from "catnip";
 import {useState, useRef} from "preact/compat";

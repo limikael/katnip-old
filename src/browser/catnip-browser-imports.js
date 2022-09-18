@@ -1,6 +1,5 @@
 export * from "../components/A.jsx";
 export * from "../components/CatnipView.jsx";
-export * from "../components/ItemForm.jsx";
 export * from "../components/ItemList.jsx";
 export * from "../components/PromiseButton.jsx";
 export * from "../components/Stylesheet.jsx";

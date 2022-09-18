@@ -1,4 +1,4 @@
-import {catnip, buildUrl, usePromise, useCounter, BootstrapAlert, bindArgs} from "catnip";
+import {catnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs} from "catnip";
 import {useState} from "preact/compat";
 
 function DeleteConfirmation({onclose, onconfirm}) {
@@ -98,7 +98,7 @@ export function ItemList({columns, items, href, ondelete}) {
 
 	else if (resolvedItems===undefined) {
 		tableContent=(<>
-			<BootstrapAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
+			<BsAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
 			<div class="spinner-border m-3"/>
 		</>);
 	}
@@ -130,7 +130,7 @@ export function ItemList({columns, items, href, ondelete}) {
 		}
 
 		tableContent=(<>
-			<BootstrapAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
+			<BsAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
 			<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
 				<thead>
 					<tr class="table-light">

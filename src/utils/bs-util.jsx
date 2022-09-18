@@ -1,6 +1,6 @@
 import {optionsFromObject, usePromise} from "./react-util.jsx";
 
-export function BootstrapAlert({message, ondismiss}) {
+export function BsAlert({message, ondismiss}) {
 	let alertClass="alert-success";
 
 	function onCloseClick() {
@@ -83,7 +83,7 @@ export function BsLoader({resource, children}) {
 		return <div class="spinner-border m-3"/>;
 
 	else if (resource instanceof Error)
-		return <BootstrapAlert message={resource}/>
+		return <BsAlert message={resource}/>
 
 	else
 		return <>{children}</>

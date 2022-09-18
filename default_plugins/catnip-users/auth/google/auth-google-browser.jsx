@@ -1,4 +1,4 @@
-import {catnip, useApiFetch, useTemplateContext, BootstrapAlert, useChannel, useCurrentUser} from "catnip";
+import {catnip, useApiFetch, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "catnip";
 import {useMemo} from "react";
 
 export default function GoogleAuth({request}) {
@@ -20,7 +20,7 @@ export default function GoogleAuth({request}) {
 		return <div class="spinner-border m-3"/>;
 
 	if (newUser instanceof Error)
-		return <BootstrapAlert message={newUser}/>
+		return <BsAlert message={newUser}/>
 
 	catnip.setCurrentUser(newUser);
 	if (linking)

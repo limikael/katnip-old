@@ -1,5 +1,5 @@
 import {apiFetch, useChannel, useForm, BsGroupInput, 
-		PromiseButton, BootstrapAlert, A, setLocation,
+		PromiseButton, BsAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch,
 		BsLoader} from "catnip";
 import {useState} from "react";
@@ -75,7 +75,7 @@ export default function Settings({request}) {
 
 	return (<>
 		<h1 class="mb-3">Settings</h1>
-		<BootstrapAlert message={message} ondismiss={setMessage}/>
+		<BsAlert message={message} ondismiss={setMessage}/>
 		{categories && <>
 			<SettingsTabs request={request} categories={categories}/>
 			<BsLoader resource={categories && form.getCurrent()}>

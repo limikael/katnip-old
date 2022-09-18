@@ -1,4 +1,4 @@
-import {catnip, A, ItemList, apiFetch, ItemForm, setLocation, buildUrl, useChannel} from "catnip";
+import {catnip, A, ItemList, apiFetch, setLocation, buildUrl, useChannel} from "catnip";
 import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
 import {useRef, useState} from "preact/compat";
 

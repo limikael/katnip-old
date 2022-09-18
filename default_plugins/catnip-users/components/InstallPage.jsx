@@ -1,4 +1,4 @@
-import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BootstrapAlert, apiFetch,
+import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
 		setChannelValue, setCurrentUser} from "catnip";
 import {useState} from "preact/compat";
 
@@ -20,7 +20,7 @@ export default function InstallPage() {
 	return (<>
 		<p>Let's get things set up!</p>
 
-		<BootstrapAlert message={message} ondismiss={setMessage}/>
+		<BsAlert message={message} ondismiss={setMessage}/>
 
 		<form style="max-width: 40rem">
 			<BsGroupInput title="Admin Email" {...field("email")}/>

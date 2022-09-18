@@ -1,4 +1,4 @@
-import {catnip, PromiseButton, BootstrapAlert, useForm, delay, apiFetch, useCounter} from "catnip";
+import {catnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter} from "catnip";
 import {useState} from "preact/compat";
 
 export default function ChangePasswordTab() {
@@ -15,7 +15,7 @@ export default function ChangePasswordTab() {
 
 	return (
 		<form>
-			<BootstrapAlert message={message} ondismiss={setMessage}/>
+			<BsAlert message={message} ondismiss={setMessage}/>
 			<div class="mb-3" >
 				<label class="form-label">Old Password</label>
 				<input type="password" class="form-control"
