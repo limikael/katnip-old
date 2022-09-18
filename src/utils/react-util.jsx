@@ -7,6 +7,15 @@ export function useForceUpdate() {
 	return forceUpdate;
 }
 
+export function useInstance(cls, ...params) {
+	let ref=useRef();
+
+	if (!ref.current)
+		ref.current=new cls(...params);
+
+	return ref.current;
+}
+
 export function usePromise(fn, deps) {
 	let [result,setResult]=useState();
 
@@ -63,7 +72,11 @@ export function useRevertibleState(initial, deps=[]) {
 	return [state,setState,state!=initial];
 }
 
-export function useForm(getInitial, deps=[], options={}) {
+/*export function useForm() {
+	throw new Error("wrong");
+}*/
+
+/*export function useForm(getInitial, deps=[], options={}) {
 	if (!getInitial)
 		getInitial={};
 
@@ -97,7 +110,7 @@ export function useForm(getInitial, deps=[], options={}) {
 	}
 
 	return [current,field,modified];
-}
+}*/
 
 export function useCounter() {
 	let res=useReducer((x) => x + 1, 1);
@@ -106,10 +119,24 @@ export function useCounter() {
 }
 
 export function useValueChanged(value) {
-	let [state,setState]=useState(value);
+	let ref=useRef(value);
 
-	if (value!=state) {
-		setState(value);
+	if (Array.isArray(value) && Array.isArray(ref.current)) {
+		function depsDiff(deps1, deps2) {
+			return !((Array.isArray(deps1) && Array.isArray(deps2)) &&
+				deps1.length === deps2.length &&
+				deps1.every((dep, idx) => Object.is(dep, deps2[idx]))
+			);
+		}
+
+		if (depsDiff(ref.current,value)) {
+			ref.current=[...value];
+			return true;
+		}
+	}
+
+	else if (value!=ref.current) {
+		ref.current=value;
 		return true;
 	}
 

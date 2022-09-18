@@ -1,4 +1,5 @@
-import {catnip, A, buildUrl, ItemForm, optionsFromObject, apiFetch} from "catnip";
+import {catnip, A, buildUrl, useForm, BsInput, PromiseButton, optionsFromObject, apiFetch,
+		useEventListener} from "catnip";
 import {useState, useRef, useEffect} from "preact/compat";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
@@ -28,18 +29,21 @@ function getThemeOptionsFromSession() {
 }
 
 export function CustomizerSidebar({request, iframeRef}) {
-	let [viewSettings, setViewSettings]=useState(getThemeOptionsFromSession());
-	let items=[];
+	console.log(getThemeOptionsFromSession());
 
-	function postValues(values) {
+	let form=useForm({initial: getThemeOptionsFromSession});
+
+	function postValues() {
 		iframeRef.current.contentWindow.postMessage({
 			type: "setSession",
-			values: values
+			values: form.getCurrent()
 		});
 	}
 
+	useEventListener("change",form,postValues);
+
 	function onLoad() {
-		postValues(viewSettings);
+		postValues();
 	}
 
 	useEffect(()=>{
@@ -56,21 +60,12 @@ export function CustomizerSidebar({request, iframeRef}) {
 		catnip.setLocation("/admin");
 	}
 
-	function read() {
-		return getThemeOptionsFromSession();
-	}
-
-	async function write(values) {
-		await apiFetch("/api/saveSettings",values);
-		for (let k in values)
-			catnip.setChannelValue(k,values[k]);
-
-		return "Saved.";
-	}
-
-	function onChange(values) {
-		setViewSettings(values);
-		postValues(values);
+	async function write() {
+		await apiFetch("/api/saveSettings",form.getCurrent());
+		for (let k in form.getCurrent()) {
+			catnip.setChannelPersistence(k,true);
+			catnip.setChannelValue(k,form.getCurrent()[k]);
+		}
 	}
 
 	let customizerOptions=[];
@@ -81,10 +76,9 @@ export function CustomizerSidebar({request, iframeRef}) {
 		customizerControls.push(
 			<div class="form-group mb-3">
 				<label class="form-label mb-1">{customizerOption.title}</label>
-				<ItemForm.Input class="form-select bg-light" input="select"
-						name={customizerOption.setting}>
-					{optionsFromObject(customizerOption.options)}
-				</ItemForm.Input>
+				<BsInput class="bg-light" type="select"
+						{...form.field(customizerOption.setting)}
+						options={customizerOption.options}/>
 			</div>
 		);
 	}
@@ -99,13 +93,10 @@ export function CustomizerSidebar({request, iframeRef}) {
 			<a class="btn btn-secondary" onclick={onBackClick}>&lt;&lt; Back</a>
 			<hr/>
 			<div class="mb-auto">
-				<ItemForm
-						item={read}
-						save={write}
-						onchange={onChange}>
-					{customizerControls}
-					<ItemForm.Submit class="btn btn-primary mt-3">Save</ItemForm.Submit>
-				</ItemForm>
+				{customizerControls}
+				<PromiseButton class="btn btn-primary mt-3" onclick={write}>
+					Save
+				</PromiseButton>
 			</div>
 			<hr/>
 		</div>

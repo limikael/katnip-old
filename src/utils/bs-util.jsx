@@ -18,8 +18,10 @@ export function BootstrapAlert({message, ondismiss}) {
 	return (
 		<div class="mb-2">
 			<div class={`alert alert-dismissible ${alertClass}`}>
-				<button type="button" class="btn-close"
+				{ondismiss &&
+					<button type="button" class="btn-close"
 						onclick={onCloseClick}></button>
+				}
 				{message}
 			</div>
 		</div>
@@ -46,6 +48,10 @@ export function BsInput({...props}) {
 			optionElements=optionsFromObject(options);
 
 		props.class+=" form-select";
+
+		if (!props.value)
+			delete props.value;
+
 		return (
 			<select class="form-select" {...props}>
 				{optionElements}
@@ -70,4 +76,15 @@ export function BsGroupInput({title, ...props}) {
 			</div>
 		</div>
 	);
+}
+
+export function BsLoader({resource, children}) {
+	if (resource===undefined)
+		return <div class="spinner-border m-3"/>;
+
+	else if (resource instanceof Error)
+		return <BootstrapAlert message={resource}/>
+
+	else
+		return <>{children}</>
 }

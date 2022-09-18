@@ -1,5 +1,6 @@
-import {catnip, A, ItemList, setLocation, buildUrl, ItemContext, BootstrapAlert} from "catnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "catnip";
+import {catnip, A, ItemList, setLocation, buildUrl, ItemContext, BootstrapAlert, BsLoader} from "catnip";
+import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "catnip";
+import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "catnip";
 import {useState, useContext} from "preact/compat";
 import dayjs from "dayjs";
@@ -8,53 +9,58 @@ import relativeTime from "dayjs/plugin/relativeTime.js";
 dayjs.extend(relativeTime);
 
 function PageEdit({request}) {
-	let pageId=request.query.id;
 	let [message, setMessage]=useState();
-	let [count, invalidate]=useCounter();
+	let form=useForm({
+		initial: async ()=>{
+			if (!request.query.id)
+				return {};
 
-	async function read() {
-		if (!pageId)
-			return {};
-
-		return await apiFetch("/api/page/get",{id: pageId});
-	}
-
-	let [values, field]=useForm(read,[pageId,count]);
-	if (values instanceof Error)
-		setMessage(values);
+			return await apiFetch("/api/page/get",{id: request.query.id});
+		},
+		deps: [request.query.id]
+	});
 
 	async function write() {
 		setMessage();
-		let saved=await apiFetch("/api/page/save",values);
-		setMessage("Page saved...");
-		setLocation(buildUrl("/admin/page",{id: saved.id}));
-		invalidate();
+		try {
+			let saved=await apiFetch("/api/page/save",form.getCurrent());
+			setLocation(buildUrl("/admin/page",{id: saved.id}));
+			form.setCurrent(saved);
+			setMessage("Saved...");
+		}
+
+		catch (e) {
+			setMessage(e);
+		}
 	}
 
-	let pageLink;
-	if (pageId && values && !(values instanceof Error)) {
-		let o=window.location.origin;
-		let url=o+"/page/"+values.slug;
+	function PageLink({page}) {
+		if (!page.slug)
+			return;
 
-		pageLink=<div class="form-text mt-1"><b>Permalink:</b> <A href={url}>{url}</A></div>
+		let url=window.location.origin+"/page/"+page.slug;
+		return (
+			<div class="form-text mt-1">
+				<b>Permalink:</b> <A href={url}>{url}</A>
+			</div>
+		);
 	}
 
 	return (<>
-		<h1 class="mb-3">{pageId?"Edit Page":"Add New Page"}</h1>
-		{message && <BootstrapAlert message={message} ondismiss={setMessage}/>}
-		{(pageId && !values) && <div class="spinner-border m-3"/>}
-		{(values && !(values instanceof Error)) && 
+		<h1 class="mb-3">{request.query.id?"Edit Page":"Add New Page"}</h1>
+		<BootstrapAlert message={message} ondismiss={setMessage}/>
+		<BsLoader resource={form.getCurrent()}>
 			<div class="container-fluid border rounded p-3 bg-light">
 				<div class="mb-3">
-					<BsInput {...field("title")} placeholder="Page Title"/>
-					{pageLink}
+					<BsInput {...form.field("title")} placeholder="Page Title"/>
+					<PageLink page={form.getCurrent()}/>
 				</div>
-				<BsInput class="font-monospace mb-3" rows={10} type="textarea" {...field("content")} />
+				<BsInput class="font-monospace mb-3" rows={10} type="textarea" {...form.field("content")} />
 				<PromiseButton class="btn btn-primary" onclick={write}>
-					{pageId?"Update Page":"Create New Page"}
+					{request.query.id?"Update Page":"Create New Page"}
 				</PromiseButton>
 			</div>
-		}
+		</BsLoader>
 	</>);
 }
 

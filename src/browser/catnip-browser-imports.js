@@ -8,6 +8,7 @@ export * from "../utils/react-util.jsx";
 export * from "../utils/blocking-resource.jsx";
 export * from "../utils/js-util.js";
 export * from "../utils/bs-util.jsx";
+export * from "../utils/use-form.jsx";
 export * from "../lib/catnip-util.js";
 export * from "./catnip-browser.jsx";
 export * from "./Model.js";

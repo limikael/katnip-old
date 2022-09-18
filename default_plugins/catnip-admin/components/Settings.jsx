@@ -1,7 +1,8 @@
 import {apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BootstrapAlert, A, setLocation,
-		useRevertibleState, buildUrl, useApiFetch} from "catnip";
-import {useState} from "preact/compat";
+		useRevertibleState, buildUrl, useApiFetch,
+		BsLoader} from "catnip";
+import {useState} from "react";
 
 function SettingsTabs({request, categories}) {
 	let categoryKey=request.query.category;
@@ -46,23 +47,23 @@ function SettingsInput({setting, field, values}) {
 
 export default function Settings({request}) {
 	let categoryId=request.query.category;
-
 	let categories=useApiFetch("/api/getSettingCategories");
 	let [message, setMessage]=useRevertibleState("",[categoryId]);
 
-	async function read() {
-		return apiFetch("/api/getSettings",{category: categoryId});
-	}
-
-	let [values, field]=useForm(read,[categoryId]);
+	let form=useForm({
+		deps: [categoryId],
+		initial: async()=>{
+			return apiFetch("/api/getSettings",{category: categoryId});
+		}
+	});
 
 	async function write() {
 		setMessage();
-		await apiFetch("/api/saveSettings",values);
+		await apiFetch("/api/saveSettings",form.getCurrent());
 
 		for (let setting of categories[categoryId].settings)
 			if (setting.session)
-				catnip.setChannelValue(setting.id,values[setting.id]);
+				catnip.setChannelValue(setting.id,form.getCurrent()[setting.id]);
 
 		setMessage("Settings saved...");
 	}
@@ -74,18 +75,19 @@ export default function Settings({request}) {
 
 	return (<>
 		<h1 class="mb-3">Settings</h1>
-		{categories && <SettingsTabs request={request} categories={categories}/>}
-		{message && <BootstrapAlert message={message} ondismiss={setMessage}/>}
-		{(!values || !categories) && <div class="spinner-border m-3"/>}
-		{(values && categories) &&
-			<form style="max-width: 40rem">
-				{categories[categoryId].settings.map(setting=>
-					<SettingsInput setting={setting} field={field} values={values} />
-				)}
-				<PromiseButton class="btn btn-primary" onclick={write} onerror={setMessage}>
-				Save Settings
-				</PromiseButton>
-			</form>
-		}
+		<BootstrapAlert message={message} ondismiss={setMessage}/>
+		{categories && <>
+			<SettingsTabs request={request} categories={categories}/>
+			<BsLoader resource={categories && form.getCurrent()}>
+				<form style="max-width: 40rem">
+					{categories[categoryId].settings.map(setting=>
+						<SettingsInput setting={setting} field={form.field} values={form.getCurrent()} />
+					)}
+					<PromiseButton class="btn btn-primary" onclick={write} onerror={setMessage}>
+						Save Settings
+					</PromiseButton>
+				</form>
+			</BsLoader>
+		</>}
 	</>);
 }
