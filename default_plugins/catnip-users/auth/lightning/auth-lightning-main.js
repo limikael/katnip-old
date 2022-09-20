@@ -13,8 +13,8 @@ catnip.addSetting("authLightningEnable",{
 	type: "select",
 	session: true,
 	options: {
-		false: "Disabled", 
-		true: "Enabled"
+		"": "Disabled", 
+		"true": "Enabled"
 	}
 });
 
@@ -96,10 +96,11 @@ catnip.addApi("/api/lightningAuthCode",async (params, req)=>{
 });
 
 catnip.addAction("authMethods",(authMethods, req)=>{
-	authMethods.push({
-		id: "lightning",
-		title: "Lightning",
-		href: "/lightninglogin",
-		priority: 20
-	});
+	if (catnip.getSetting("authLightningEnable"))
+		authMethods.push({
+			id: "lightning",
+			title: "Lightning",
+			href: "/lightninglogin",
+			priority: 20
+		});
 });

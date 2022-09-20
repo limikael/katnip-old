@@ -72,46 +72,6 @@ export function useRevertibleState(initial, deps=[]) {
 	return [state,setState,state!=initial];
 }
 
-/*export function useForm() {
-	throw new Error("wrong");
-}*/
-
-/*export function useForm(getInitial, deps=[], options={}) {
-	if (!getInitial)
-		getInitial={};
-
-	let initial=usePromise(getInitial,deps);
-	let [current,setCurrent,modified]=useRevertibleState(initial,[...deps,initial]);
-
-	function onFieldChange(ev) {
-		if (!current)
-			current={};
-
-		current[ev.target.dataset.field]=ev.target.value;
-		setCurrent({...current});
-
-		if (options.onchange)
-			options.onchange(current);
-	}
-
-	function field(name) {
-		if (!current)
-			current={};
-
-		let v=current[name];
-		if (!v)
-			v="";
-
-		return {
-			value: v,
-			onchange: onFieldChange,
-			"data-field": name
-		}
-	}
-
-	return [current,field,modified];
-}*/
-
 export function useCounter() {
 	let res=useReducer((x) => x + 1, 1);
 

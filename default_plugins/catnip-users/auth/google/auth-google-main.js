@@ -19,8 +19,8 @@ catnip.addSetting("authGoogleEnable",{
 	type: "select",
 	session: true,
 	options: {
-		false: "Disabled", 
-		true: "Enabled"
+		"": "Disabled", 
+		"true": "Enabled"
 	}
 });
 
@@ -41,13 +41,17 @@ catnip.addSetting("googleClientSecret",{
 });
 
 catnip.addAction("initChannels",(channelIds, req)=>{
-	if (catnip.getSetting("googleClientId") &&
+	if (catnip.getSetting("authGoogleEnable") &&
+			catnip.getSetting("googleClientId") &&
 			catnip.getSetting("googleClientSecret"))
 		channelIds.push("googleAuthUrl");
 });
 
 catnip.addChannel("googleAuthUrl",({}, req)=>{
-	return createGoogleAuthClient(req.origin).code.getUri();
+	if (catnip.getSetting("authGoogleEnable") &&
+			catnip.getSetting("googleClientId") &&
+			catnip.getSetting("googleClientSecret"))
+		return createGoogleAuthClient(req.origin).code.getUri();
 });
 
 catnip.addApi("/api/googleAuth",async ({url}, req)=>{
@@ -91,10 +95,11 @@ catnip.addApi("/api/googleAuth",async ({url}, req)=>{
 });
 
 catnip.addAction("authMethods",(authMethods, req)=>{
-	authMethods.push({
-		id: "google",
-		title: "Google",
-		href: createGoogleAuthClient(req.origin).code.getUri(),
-		priority: 20
-	});
+	if (catnip.getSetting("authGoogleEnable"))
+		authMethods.push({
+			id: "google",
+			title: "Google",
+			href: createGoogleAuthClient(req.origin).code.getUri(),
+			priority: 20
+		});
 });
