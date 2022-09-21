@@ -29,8 +29,6 @@ function getThemeOptionsFromSession() {
 }
 
 export function CustomizerSidebar({request, iframeRef}) {
-	console.log(getThemeOptionsFromSession());
-
 	let form=useForm({initial: getThemeOptionsFromSession});
 
 	function postValues() {

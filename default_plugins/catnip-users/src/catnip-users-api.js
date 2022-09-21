@@ -94,11 +94,11 @@ catnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 	return user;
 });
 
-/*catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
+catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	if (!catnip.getSetting("install"))
 		throw new Error("Not install mode");
 
-	if (await catnip.db.User.findOne({email: email}))
+	if (await catnip.db.User.findOneByAuth("email",email))
 		throw new Error("The email is already in use");
 
 	if (!email)
@@ -109,11 +109,21 @@ catnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 
 	let user=new catnip.db.User();
 	user.email=email;
-	user.setPassword(password);
 	user.role="admin";
 	await user.save();
+
+	let userAuthMethod=new UserAuthMethod({
+		userId: user.id,
+		method: "email",
+		token: email
+	});
+
+	userAuthMethod.setPassword(password);
+	await userAuthMethod.save();
+
 	await catnip.setSessionValue(req.sessionId,user.id);
+	await user.populateAuthMethods();
 	await catnip.setSetting("install",false);
 
 	return user;
-});*/
+});

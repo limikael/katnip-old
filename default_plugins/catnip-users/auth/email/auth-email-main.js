@@ -48,7 +48,7 @@ catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 	});
 
 	userAuthMethod.setPassword(password);
-	userAuthMethod.save();
+	await userAuthMethod.save();
 
 	await catnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();

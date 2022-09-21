@@ -29,6 +29,7 @@ catnip.addApi("/api/getSettings",async ({category},sreq)=>{
 
 catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 	sreq.assertCap("manage-settings");
+
 	for (let k in settings)
 		await catnip.setSetting(k,settings[k]);
 

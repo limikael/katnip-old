@@ -117,7 +117,7 @@ export default class Model {
 		let qs=`INSERT INTO ${cls.getTableName()} (${names.join(",")}) VALUES (${vq.join(",")})`;
 		let res=await cls.db.query(qs,vals);
 
-		if (res.insertId)
+		if (cls.isAutoIncrementPrimaryKey() && res.insertId)
 			this[cls.getPrimaryKeyField()]=res.insertId;
 	}
 

@@ -49,6 +49,7 @@ catnip.addAction("initRequest",async (req)=>{
 catnip.addAction("initChannels",(channelIds, req)=>{
 	channelIds.push(buildUrl("user",{sessionId: req.sessionId}));
 	channelIds.push("authMethods");
+	channelIds.push("redirect");
 });
 
 catnip.addChannel("authMethods",async ({}, req)=>{
@@ -91,11 +92,11 @@ catnip.addAction("serverMain",async (options)=>{
 		}
 	}
 
-	/*if (!await User.findOne({role: "admin"})) {
+	if (!await User.findOne({role: "admin"})) {
 		console.log("No admin user, entering install mode.")
 		await catnip.setSetting("install",true);
 	}
 
 	else
-		await catnip.setSetting("install",false);*/
+		await catnip.setSetting("install",false);
 });
