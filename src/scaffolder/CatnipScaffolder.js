@@ -1,4 +1,4 @@
-import * as readline from 'node:readline/promises';
+import * as readline from 'node:readline';
 import fs from "fs";
 import child_process from "child_process";
 
@@ -10,12 +10,14 @@ export default class CatnipScaffolder {
 			this.projectName=options._[1];
 	}
 
-	async question(prompt) {
-		let rl=readline.createInterface({input: process.stdin,output: process.stdout});
-		let answer=await rl.question(prompt);
-		rl.close();
-
-		return answer;
+	question(prompt) {
+		return new Promise((resolve)=>{
+			let rl=readline.createInterface({input: process.stdin,output: process.stdout});
+			rl.question(prompt,(answer)=>{
+				rl.close();
+				resolve(answer);
+			});
+		})
 	}	
 
 	generatePackageJson() {
