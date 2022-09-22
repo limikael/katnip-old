@@ -42,7 +42,7 @@ class MainCatnip {
 	}
 
 	serverMain=async (options)=>{
-		console.log("Installing database schema...");
+		console.log("Reconciling database schema...");
 		await this.db.connect(options.dsn);
 		await this.db.install();
 
