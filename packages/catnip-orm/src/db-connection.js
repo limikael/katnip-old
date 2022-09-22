@@ -1,5 +1,8 @@
-class SqliteConnection {
+import EventDispatcher from "events";
+
+class SqliteConnection extends EventDispatcher {
 	constructor(url) {
+		super();
 		this.url=new URL(url);
 		this.flavour="sqlite3";
 	}
@@ -87,8 +90,9 @@ class SqliteConnection {
 	}
 }
 
-class MySqlConnection {
+class MySqlConnection extends EventDispatcher {
 	constructor(url) {
+		super();
 		this.url=new URL(url);
 		this.flavour="mysql";
 	}
@@ -101,6 +105,11 @@ class MySqlConnection {
 			user: this.url.username,
 			password: this.url.password,
 			database: this.url.pathname.replace("/","")
+		});
+
+		this.mysql.on("error",(e)=>{
+			console.log("got error...")
+			this.emit("error",e);
 		});
 
 		return new Promise((resolve, reject)=>{

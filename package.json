@@ -6,7 +6,7 @@
   },
   "scripts": {
     "test": "jasmine",
-    "dev": "./src/server/catnip-cli.js"
+    "dev": "link-module-alias && ./src/server/catnip-cli.js dev"
   },
   "main": "src/main/catnip-main-exports.js",
   "browser": "src/browser/catnip-browser-exports.js",
@@ -29,7 +29,9 @@
   },
   "devDependencies": {
     "jasmine": "^4.1.0",
-    "mysql": "^2.18.1"
+    "link-module-alias": "^1.2.0",
+    "mysql": "^2.18.1",
+    "sqlite3": "^5.1.1"
   },
   "_moduleAliases": {
     "catnip": "."

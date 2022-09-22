@@ -3,7 +3,7 @@ import CatnipServerChannels from "../lib/CatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
 import Db from "../../packages/catnip-orm/src/Db.js";
-import {isClient, isServer, retry} from "../utils/js-util.js";
+import {isClient, isServer} from "../utils/js-util.js";
 import fetch from "node-fetch";
 import crypto from "crypto";
 
@@ -42,19 +42,8 @@ class MainCatnip {
 	}
 
 	serverMain=async (options)=>{
-		let retryOptions={
-			times: 6*2,
-			delay: 10000,
-			onerror: (e)=>{
-				console.log("Connection failed, trying again: "+e.message)
-			}
-		};
-
-		await retry(async ()=>{
-			await this.db.connect(options.dsn);
-		},retryOptions);
-
 		console.log("Installing database schema...");
+		await this.db.connect(options.dsn);
 		await this.db.install();
 
 		await this.sessionManager.loadSessions();

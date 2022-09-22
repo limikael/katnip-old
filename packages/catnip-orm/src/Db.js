@@ -1,6 +1,6 @@
 export {default as Model} from "./Model.js";
-
 import {createConnection} from "./db-connection.js";
+import {retry} from "./js-util.js";
 
 export default class Db {
 	constructor(url) {
@@ -28,10 +28,40 @@ export default class Db {
 
 		if (!this.connectPromise) {
 			this.connection=createConnection(this.url);
-			this.connectPromise=this.connection.connect();
+			this.connection.on("error",this.onError);
+
+			let retryOptions={
+				times: 10,
+				delay: 5000,
+				onerror: (e)=>{
+					if (e.code=="ECONNREFUSED") {
+						console.log("Connection failed, trying again: "+e.message)
+					}
+
+					else 
+						throw e;
+				}
+			};
+
+			this.connectPromise=retry(async ()=>{
+				await this.connection.connect();
+			},retryOptions);
 		}
 
 		await this.connectPromise;
+	}
+
+	onError=(e)=>{
+		if (e.code=="PROTOCOL_CONNECTION_LOST") {
+			console.log("db connection lost...");
+			this.connection=null;
+			this.connectPromise=null;
+		}
+
+		else {
+			console.log("unexpected db error...");
+			throw e;
+		}
 	}
 
 	async install() {
@@ -43,7 +73,15 @@ export default class Db {
 
 	async query(qs, params=[]) {
 		await this.connect();
-		return await this.connection.query(qs,params);
+
+		try {
+			return await this.connection.query(qs,params);
+		}
+
+		catch (e) {
+			console.log(e);
+			process.exit();
+		}
 	}
 
 	async describe(tableName) {
