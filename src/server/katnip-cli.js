@@ -3,11 +3,11 @@
 
 import "dotenv/config";
 import minimist from "minimist";
-import CatnipServer from "./CatnipServer.js";
-import CatnipScaffolder from "../scaffolder/CatnipScaffolder.js";
+import KatnipServer from "./KatnipServer.js";
+import KatnipScaffolder from "../scaffolder/KatnipScaffolder.js";
 
 function usage() {
-	console.log("Usage: catnip [options] <command>");
+	console.log("Usage: katnip [options] <command>");
 	console.log("");
 	console.log("Commands:");
 	console.log("  dev      - Start server in development mode.");
@@ -36,13 +36,13 @@ Object.assign(options,minimist(process.argv.slice(2)));
 
 switch (options._[0]) {
 	case "create":
-		let scaffolder=new CatnipScaffolder(options);
+		let scaffolder=new KatnipScaffolder(options);
 		scaffolder.run();
 		break;
 
 	case "dev":
 	case "start":
-		let server=new CatnipServer(options);
+		let server=new KatnipServer(options);
 		server.run();
 		break;
 

@@ -1,16 +1,16 @@
 import {WebSocketServer} from "ws";
 import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
-import CatnipRequest from "../lib/CatnipRequest.js";
+import KatnipRequest from "../lib/KatnipRequest.js";
 
-export default class CatnipChannelHandler {
-	constructor(catnip, server) {
-		this.catnip=catnip;
+export default class KatnipChannelHandler {
+	constructor(katnip, server) {
+		this.katnip=katnip;
 		this.wss=new WebSocketServer({server}); 
 		this.wss.on("connection",this.onConnection)
 
 		this.connections=[];
-		this.catnip.serverChannels.on("notification",this.onNotification);
+		this.katnip.serverChannels.on("notification",this.onNotification);
 	}
 
 	onConnection=(ws, req)=>{
@@ -33,12 +33,12 @@ export default class CatnipChannelHandler {
 
 	sendChannelData=async (ws, channelId)=>{
 		try {
-			let req=new CatnipRequest();
+			let req=new KatnipRequest();
 			req.processNodeRequest(ws.req);
 			req.processUrl(channelId);
-			await this.catnip.doActionAsync("initRequest",req);
+			await this.katnip.doActionAsync("initRequest",req);
 
-			let channelData=await this.catnip.getChannelData(channelId,req);
+			let channelData=await this.katnip.getChannelData(channelId,req);
 			ws.send(JSON.stringify({
 				channel: channelId,
 				data: channelData

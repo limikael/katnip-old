@@ -1,14 +1,14 @@
-import CatnipActions from "../lib/CatnipActions.js";
+import KatnipActions from "../lib/KatnipActions.js";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
-import {CatnipView} from "../components/CatnipView.jsx";
+import {KatnipView} from "../components/KatnipView.jsx";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
 import {parseCookieString} from "../utils/js-util.js";
 
-class BrowserCatnip {
+class BrowserKatnip {
 	constructor() {
-		this.actions=new CatnipActions();
+		this.actions=new KatnipActions();
 		this.composeFunctions(this.actions);
 
 		this.TemplateContext=createContext();
@@ -78,8 +78,8 @@ class BrowserCatnip {
 	clientMain=()=>{
 		this.doAction("clientMain");
 
-		let el=document.getElementById("catnip-root");
-		render(<CatnipView />,el);
+		let el=document.getElementById("katnip-root");
+		render(<KatnipView />,el);
 	}
 
 	useCurrentUser=()=>{
@@ -92,33 +92,33 @@ class BrowserCatnip {
 
 	getSessionId=()=>{
 		let cookies=parseCookieString(document.cookie);
-		return cookies.catnip;
+		return cookies.katnip;
 	}
 }
 
-const catnip=new BrowserCatnip();
+const katnip=new BrowserKatnip();
 
-export const elements=catnip.elements;
-export const TemplateContext=catnip.TemplateContext;
+export const elements=katnip.elements;
+export const TemplateContext=katnip.TemplateContext;
 
-export const addElement=catnip.addElement;
-export const clientMain=catnip.clientMain;
-export const addAction=catnip.addAction;
-export const doAction=catnip.doAction;
-export const doActionAsync=catnip.doActionAsync;
-export const useTemplateContext=catnip.useTemplateContext;
-export const addRoute=catnip.addRoute;
-export const addTemplate=catnip.addTemplate;
-export const getTemplateForRoute=catnip.getTemplateForRoute;
-export const getPageComponentForRoute=catnip.getPageComponentForRoute;
+export const addElement=katnip.addElement;
+export const clientMain=katnip.clientMain;
+export const addAction=katnip.addAction;
+export const doAction=katnip.doAction;
+export const doActionAsync=katnip.doActionAsync;
+export const useTemplateContext=katnip.useTemplateContext;
+export const addRoute=katnip.addRoute;
+export const addTemplate=katnip.addTemplate;
+export const getTemplateForRoute=katnip.getTemplateForRoute;
+export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 
-export const useCurrentUser=catnip.useCurrentUser;
-export const setCurrentUser=catnip.setCurrentUser;
+export const useCurrentUser=katnip.useCurrentUser;
+export const setCurrentUser=katnip.setCurrentUser;
 
-export const useChannel=catnip.channelManager.useChannel;
-export const setChannelPersistence=catnip.channelManager.setChannelPersistence;
-export const getChannelValue=catnip.channelManager.getChannelValue;
-export const setChannelValue=catnip.channelManager.setChannelValue;
-export const useWebSocketStatus=catnip.channelConnector.useWebSocketStatus;
+export const useChannel=katnip.channelManager.useChannel;
+export const setChannelPersistence=katnip.channelManager.setChannelPersistence;
+export const getChannelValue=katnip.channelManager.getChannelValue;
+export const setChannelValue=katnip.channelManager.setChannelValue;
+export const useWebSocketStatus=katnip.channelConnector.useWebSocketStatus;
 
-export const getSessionId=catnip.getSessionId;
+export const getSessionId=katnip.getSessionId;

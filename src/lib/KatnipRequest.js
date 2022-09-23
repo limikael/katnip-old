@@ -1,6 +1,6 @@
 import {parseCookieString} from "../utils/js-util.js";
 
-export default class CatnipRequest {
+export default class KatnipRequest {
 	constructor() {
 	}
 
@@ -36,7 +36,7 @@ export default class CatnipRequest {
 
 		this.headers=request.headers;
 
-		this.sessionId=this.cookies.catnip;
+		this.sessionId=this.cookies.katnip;
 		if (!this.sessionId)
 			this.sessionId=crypto.randomUUID();
 	}
@@ -56,6 +56,6 @@ export default class CatnipRequest {
 	processBrowserDocument() {
 		this.processUrl(window.location);
 		this.processCookieString(window.document.cookie)
-		this.sessionId=this.cookies.catnip;
+		this.sessionId=this.cookies.katnip;
 	}
 }

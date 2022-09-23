@@ -1,4 +1,4 @@
-import Model from "../../packages/catnip-orm/src/Model.js";
+import Model from "../../packages/katnip-orm/src/Model.js";
 
 class Session extends Model {
 	static tableName="Session";
@@ -10,9 +10,9 @@ class Session extends Model {
 }
 
 export default class SessionManager {
-	constructor(catnip) {
-		this.catnip=catnip;
-		this.catnip.db.addModel(Session);
+	constructor(katnip) {
+		this.katnip=katnip;
+		this.katnip.db.addModel(Session);
 		this.sessions={};
 	}
 

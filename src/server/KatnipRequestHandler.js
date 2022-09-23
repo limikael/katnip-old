@@ -1,12 +1,12 @@
 import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
-import {getPluginPaths} from "./catnip-server-util.js";
+import {getPluginPaths} from "./katnip-server-util.js";
 import fs from "fs";
 import crypto from "crypto";
-import CatnipRequest from "../lib/CatnipRequest.js";
+import KatnipRequest from "../lib/KatnipRequest.js";
 
-export default class CatnipRequestHandler {
-	constructor(catnip, options) {
-		this.catnip=catnip;
+export default class KatnipRequestHandler {
+	constructor(katnip, options) {
+		this.katnip=katnip;
 		this.options=options;
 		this.startTime=Date.now();
 	}
@@ -103,7 +103,7 @@ export default class CatnipRequestHandler {
 		if (this.options.apidelay)
 			await delay(1000);
 
-		let func=this.catnip.apis[req.pathname];
+		let func=this.katnip.apis[req.pathname];
 		if (func) {
 			try {
 				let data=await func(req.query,req);
@@ -133,23 +133,23 @@ export default class CatnipRequestHandler {
 
 	handleDefault=async (req, res, cookie)=>{
 		let initChannelIds=[];
-		await this.catnip.doActionAsync("initChannels",initChannelIds,req);
-		for (let channel of this.catnip.getSettings({session: true}))
+		await this.katnip.doActionAsync("initChannels",initChannelIds,req);
+		for (let channel of this.katnip.getSettings({session: true}))
 			initChannelIds.push(channel.id);
 
 		let initChannels={};
 		for (let channelId of initChannelIds)
-			initChannels[channelId]=await this.catnip.getChannelData(channelId,req);
+			initChannels[channelId]=await this.katnip.getChannelData(channelId,req);
 
 		//console.log(JSON.stringify(initChannels));
 
 		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 
 		res.writeHead(200,{
-			"Set-Cookie": `catnip=${req.sessionId}`
+			"Set-Cookie": `katnip=${req.sessionId}`
 		});
 
-		let bundleUrl=buildUrl("/catnip-bundle.js",{
+		let bundleUrl=buildUrl("/katnip-bundle.js",{
 			bundleHash: this.bundleHash
 		});
 
@@ -157,7 +157,7 @@ export default class CatnipRequestHandler {
 		clientPage+=`<head>`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
 		clientPage+=`</head>`;
-		clientPage+=`<div id="catnip-root"></div>`;
+		clientPage+=`<div id="katnip-root"></div>`;
 		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
 		clientPage+=`</html></body>`;
 
@@ -166,13 +166,13 @@ export default class CatnipRequestHandler {
 
 	handleRequest=async (nodeReq, res)=>{
 		//await delay(1000);
-		let req=new CatnipRequest();
+		let req=new KatnipRequest();
 		req.processNodeRequest(nodeReq);
 		await req.processNodeRequestBody(nodeReq);
-		await this.catnip.doActionAsync("initRequest",req);
+		await this.katnip.doActionAsync("initRequest",req);
 
 		try {
-			if (req.pathname=="/catnip-bundle.js") {
+			if (req.pathname=="/katnip-bundle.js") {
 				let headers={
 					"Content-Type": "application/javascript",
 					"Last-Modified": new Date(this.startTime).toUTCString()

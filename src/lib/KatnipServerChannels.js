@@ -1,16 +1,16 @@
 import EventEmitter from "events";
 import {buildUrl, decodeQueryString} from "../utils/js-util.js";
 
-export default class CatnipServerChannels extends EventEmitter {
-	constructor(catnip) {
+export default class KatnipServerChannels extends EventEmitter {
+	constructor(katnip) {
 		super();
 
-		this.catnip=catnip;
+		this.katnip=katnip;
 		this.channels={};
 	}
 
 	addChannel=(channelId, func)=>{
-		this.catnip.assertFreeName(channelId);
+		this.katnip.assertFreeName(channelId);
 		this.channels[channelId]=func;
 	}
 
@@ -24,7 +24,7 @@ export default class CatnipServerChannels extends EventEmitter {
 		let [channelId,queryString]=channelUrl.split("?");
 		let query=decodeQueryString(queryString);
 
-		let settings=this.catnip.settingsManager.getSettings({id: channelId});
+		let settings=this.katnip.settingsManager.getSettings({id: channelId});
 		if (settings.length) {
 			let setting=settings[0];
 

@@ -1,15 +1,15 @@
 {
-  "name": "catnip",
+  "name": "katnip",
   "version": "0.0.1",
   "bin": {
-    "catnip": "src/server/catnip-cli.js"
+    "katnip": "src/server/katnip-cli.js"
   },
   "scripts": {
     "test": "jasmine",
-    "dev": "link-module-alias && ./src/server/catnip-cli.js dev"
+    "dev": "link-module-alias && ./src/server/katnip-cli.js dev"
   },
-  "main": "src/main/catnip-main-exports.js",
-  "browser": "src/browser/catnip-browser-exports.js",
+  "main": "src/main/katnip-main-exports.js",
+  "browser": "src/browser/katnip-browser-exports.js",
   "type": "module",
   "dependencies": {
     "bech32": "^2.0.0",
@@ -34,6 +34,6 @@
     "sqlite3": "^5.1.1"
   },
   "_moduleAliases": {
-    "catnip": "."
+    "katnip": "."
   }
 }

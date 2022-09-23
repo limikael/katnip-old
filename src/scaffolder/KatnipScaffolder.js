@@ -2,7 +2,7 @@ import * as readline from 'node:readline';
 import fs from "fs";
 import child_process from "child_process";
 
-export default class CatnipScaffolder {
+export default class KatnipScaffolder {
 	constructor(options) {
 		this.options=options;
 
@@ -24,11 +24,11 @@ export default class CatnipScaffolder {
 		return {
 			"name": this.projectName,
 			"scripts": {
-				"start": "catnip start",
-				"dev": "catnip dev"
+				"start": "katnip start",
+				"dev": "katnip dev"
 			},
 			"dependencies": {
-				"catnip": "git+https://github.com/limikael/catnip.git",
+				"katnip": "git+https://github.com/limikael/katnip.git",
 				"sqlite3": "^5.1.1"
 			}
 		}

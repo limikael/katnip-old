@@ -1,9 +1,9 @@
-import {catnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
-		ResourceBlocker} from "catnip";
-import CatnipRequest from "../lib/CatnipRequest.js";
+import {katnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
+		ResourceBlocker} from "katnip";
+import KatnipRequest from "../lib/KatnipRequest.js";
 import {useState} from "preact/compat";
 
-export function CatnipView() {
+export function KatnipView() {
 	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
 
@@ -15,7 +15,7 @@ export function CatnipView() {
 				//setSession(ev.data.values);
 
 				for (let k in ev.data.values)
-					catnip.setChannelValue(k,ev.data.values[k]);
+					katnip.setChannelValue(k,ev.data.values[k]);
 
 				break;
 
@@ -25,24 +25,24 @@ export function CatnipView() {
 		}
 	});
 
-	let request=new CatnipRequest();
+	let request=new KatnipRequest();
 	request.processBrowserDocument();
 
 	if (redirect && request.pathname!=redirect) {
-		catnip.setLocation(redirect);
+		katnip.setLocation(redirect);
 		return;
 	}
 
 	if (homepath && request.pathname==homepath) {
-		catnip.setLocation("/");
+		katnip.setLocation("/");
 		request.processBrowserDocument();
 	}
 
 	if (request.pathname=="/")
 		request.processUrl(homepath);
 
-	let Layout=catnip.getTemplateForRoute(request.pathname);
-	let Page=catnip.getPageComponentForRoute(request.pathname);
+	let Layout=katnip.getTemplateForRoute(request.pathname);
+	let Page=katnip.getPageComponentForRoute(request.pathname);
 
 	let [title,setTitle]=useRevertibleState(null,[request.href]);
 

@@ -1,4 +1,4 @@
-import Model from "../../packages/catnip-orm/src/Model.js";
+import Model from "../../packages/katnip-orm/src/Model.js";
 import {isServer} from "../utils/js-util.js";
 
 class Setting extends Model {
@@ -11,12 +11,12 @@ class Setting extends Model {
 }
 
 export default class SettingsManager {
-	constructor(catnip) {
-		this.catnip=catnip;
+	constructor(katnip) {
+		this.katnip=katnip;
 		this.settings={};
 		this.categories={};
 
-		this.catnip.db.addModel(Setting);
+		this.katnip.db.addModel(Setting);
 	}
 
 	getSetting=(id)=>{
@@ -32,7 +32,7 @@ export default class SettingsManager {
 	}
 
 	addSetting=(id, settingConf={})=>{
-		this.catnip.assertFreeName(id);
+		this.katnip.assertFreeName(id);
 
 		settingConf.id=id;
 		if (!settingConf.title)
@@ -48,7 +48,7 @@ export default class SettingsManager {
 		this.settings[id].value=value;
 		await this.settings[id].save();
 
-		this.catnip.serverChannels.notifyChannel(id);
+		this.katnip.serverChannels.notifyChannel(id);
 	}
 
 	loadSettings=async ()=>{

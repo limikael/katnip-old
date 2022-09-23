@@ -1,4 +1,4 @@
-import {catnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs} from "catnip";
+import {katnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs} from "katnip";
 import {useState} from "preact/compat";
 
 function DeleteConfirmation({onclose, onconfirm}) {
@@ -50,7 +50,7 @@ export function ItemList({columns, items, href, ondelete}) {
 			let newHref=buildUrl(href,{
 				id: tr.dataset.id
 			});
-			catnip.setLocation(newHref);
+			katnip.setLocation(newHref);
 		}
 	}
 

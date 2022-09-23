@@ -32,9 +32,9 @@ export function	getPluginPaths() {
 	for (let pluginName of pluginsNames)
 		pluginPaths.push(`${process.cwd()}/node_modules/${pluginName}`);
 
-	let defaultPlugins=getDirectories(`${process.cwd()}/node_modules/catnip/default_plugins/`);
+	let defaultPlugins=getDirectories(`${process.cwd()}/node_modules/katnip/default_plugins/`);
 	for (let defaultPlugin of defaultPlugins)
-		pluginPaths.push(`${process.cwd()}/node_modules/catnip/default_plugins/${defaultPlugin}`);
+		pluginPaths.push(`${process.cwd()}/node_modules/katnip/default_plugins/${defaultPlugin}`);
 
 	return pluginPaths;		
 }
