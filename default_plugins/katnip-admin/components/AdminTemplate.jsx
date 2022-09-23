@@ -1,4 +1,4 @@
-import {catnip, A, buildUrl, useCurrentUser, useChannel, Stylesheet} from "catnip";
+import {katnip, A, buildUrl, useCurrentUser, useChannel, Stylesheet} from "katnip";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
@@ -6,20 +6,20 @@ import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
 function Nav() {
-	let webSocketStatus=catnip.useWebSocketStatus();
+	let webSocketStatus=katnip.useWebSocketStatus();
 	let user=useCurrentUser();
 
 	if (!user) {
 		console.log("no user, redirecting");
-		catnip.setLocation("/login");
+		katnip.setLocation("/login");
 		return;
 	}
 
 	async function onLogoutClick(ev) {
 		ev.preventDefault();
 
-		await catnip.apiFetch("/api/logout");
-		catnip.setCurrentUser(null);
+		await katnip.apiFetch("/api/logout");
+		katnip.setCurrentUser(null);
 	}
 
 	let userLink=buildUrl("/admin/user",{id: user.id});
@@ -59,7 +59,7 @@ function Nav() {
 
 function Sidebar({request}) {
 	let items=[];
-	catnip.doAction("getAdminMenu",items);
+	katnip.doAction("getAdminMenu",items);
 
 	items.sort((a,b)=>a.priority-b.priority);
 
@@ -92,7 +92,7 @@ function Sidebar({request}) {
 		<div class="d-flex flex-column flex-shrink-0 text-white bg-dark p-2" style="width: 12rem;">
 			<h4 class="opacity-50 mb-1 mt-0">
 				<img src={FLOWER} style={`width: 1.5rem; ${whiteFilter}`} class="align-middle ms-3 me-2"/>
-				<span class="align-middle">Catnip</span>
+				<span class="align-middle">Katnip</span>
 			</h4>
 			<hr class="mt-1"/>
 			<ul class="nav nav-pills flex-column mb-auto">

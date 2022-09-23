@@ -1,4 +1,4 @@
-import {catnip, useApiFetch, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "catnip";
+import {katnip, useApiFetch, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
 import {useMemo} from "react";
 
 export default function GoogleAuth({request}) {
@@ -22,12 +22,12 @@ export default function GoogleAuth({request}) {
 	if (newUser instanceof Error)
 		return <BsAlert message={newUser}/>
 
-	catnip.setCurrentUser(newUser);
+	katnip.setCurrentUser(newUser);
 	if (linking)
-		catnip.setLocation("/account");
+		katnip.setLocation("/account");
 
 	else
-		catnip.setLocation(postloginpath);
+		katnip.setLocation(postloginpath);
 }
 
-catnip.addRoute("googleAuth",GoogleAuth);
+katnip.addRoute("googleAuth",GoogleAuth);

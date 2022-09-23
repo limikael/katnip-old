@@ -1,9 +1,9 @@
 import {useTemplateContext, PromiseButton, apiFetch, useForm, setCurrentUser,
-		setLocation, useChannel, useForceUpdate} from "catnip";
+		setLocation, useChannel, useForceUpdate} from "katnip";
 import {useState} from "react";
 
 export default function SessionTokenPage({request}) {
-	let token=catnip.parseCookieString(document.cookie).token;
+	let token=katnip.parseCookieString(document.cookie).token;
 	if (!token) {
 		token=crypto.randomUUID();
 		document.cookie=`token=${token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;

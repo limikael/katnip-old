@@ -1,4 +1,4 @@
-import {catnip, useChannel, A, useTemplateContext, useApiFetch, useCurrentUser} from "catnip";
+import {katnip, useChannel, A, useTemplateContext, useApiFetch, useCurrentUser} from "katnip";
 import Qrious from "qrious";
 import {useMemo, useState} from "preact/compat";
 
@@ -25,10 +25,10 @@ export default function LightningLoginPage() {
 
 	if (user && user.authMethods["lightning"]) {
 		if (linking)
-			catnip.setLocation("/account");
+			katnip.setLocation("/account");
 
 		else
-			catnip.setLocation(postloginpath);
+			katnip.setLocation(postloginpath);
 
 		return;
 	}

@@ -1,7 +1,7 @@
 import {apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BsAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch,
-		BsLoader} from "catnip";
+		BsLoader} from "katnip";
 import {useState} from "react";
 
 function SettingsTabs({request, categories}) {
@@ -63,7 +63,7 @@ export default function Settings({request}) {
 
 		for (let setting of categories[categoryId].settings)
 			if (setting.session)
-				catnip.setChannelValue(setting.id,form.getCurrent()[setting.id]);
+				katnip.setChannelValue(setting.id,form.getCurrent()[setting.id]);
 
 		setMessage("Settings saved...");
 	}

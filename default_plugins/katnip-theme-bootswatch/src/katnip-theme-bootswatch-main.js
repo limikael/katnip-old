@@ -1,16 +1,16 @@
-import catnip from "catnip";
+import katnip from "katnip";
 
-catnip.addSetting("menuHeader",{session: true});
-catnip.addSetting("menuFooter",{session: true});
+katnip.addSetting("menuHeader",{session: true});
+katnip.addSetting("menuFooter",{session: true});
 
-catnip.addSetting("bootswatchTheme",{session: true});
-catnip.addSetting("bootswatchNavColor",{session: true});
-catnip.addSetting("bootswatchNavStyle",{session: true});
-catnip.addSetting("bootswatchFooter",{session: true});
+katnip.addSetting("bootswatchTheme",{session: true});
+katnip.addSetting("bootswatchNavColor",{session: true});
+katnip.addSetting("bootswatchNavStyle",{session: true});
+katnip.addSetting("bootswatchFooter",{session: true});
 
-catnip.addAction("serverMain",async ()=>{
-	if (!catnip.getSetting("sitename")) {
+katnip.addAction("serverMain",async ()=>{
+	if (!katnip.getSetting("sitename")) {
 		console.log("No site name, setting...")
-		await catnip.setSetting("sitename","My Site");
+		await katnip.setSetting("sitename","My Site");
 	}
 });

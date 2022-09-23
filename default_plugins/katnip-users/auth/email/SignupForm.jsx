@@ -1,6 +1,6 @@
-import {catnip, A, ItemList, apiFetch, setLocation, buildUrl,
+import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
-		setCurrentUser, useChannel} from "catnip";
+		setCurrentUser, useChannel} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function SignupForm(props) {
@@ -11,10 +11,10 @@ export default function SignupForm(props) {
 	async function onSignupClick() {
 		setMessage();
 
-		let u=await catnip.apiFetch("/api/signup",form.getCurrent());
+		let u=await katnip.apiFetch("/api/signup",form.getCurrent());
 
 		setCurrentUser(u);
-		catnip.setLocation(postloginpath);
+		katnip.setLocation(postloginpath);
 	}
 
 	let messageEl;
@@ -24,7 +24,7 @@ export default function SignupForm(props) {
 		);
 
 	let loginPageItems=[];
-	catnip.doAction("loginPageItems",loginPageItems);
+	katnip.doAction("loginPageItems",loginPageItems);
 
 	return (
 		<div class="card border shadow mb-4">

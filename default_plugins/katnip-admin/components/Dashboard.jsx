@@ -1,10 +1,10 @@
-import {A} from "catnip";
+import {A} from "katnip";
 
 export default function Dashboard({request}) {
 	return (
   <div class="px-4 py-5 text-center">
     <img class="d-block mx-auto mb-4" src="public/cat.jpg" alt="" width="200" height="200"/>
-    <h1 class="display-5 fw-bold">Catnip</h1>
+    <h1 class="display-5 fw-bold">Katnip</h1>
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">
         Like WordPress, but not quite...

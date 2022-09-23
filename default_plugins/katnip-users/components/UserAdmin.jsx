@@ -1,6 +1,6 @@
-import {catnip, A, ItemList, apiFetch, setLocation, buildUrl,
+import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged,
-		BsInput, PromiseButton, BsLoader} from "catnip";
+		BsInput, PromiseButton, BsLoader} from "katnip";
 import {useRef, useState} from "react";
 import {getRoles} from "../src/rolecaps.js";
 

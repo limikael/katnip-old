@@ -1,7 +1,7 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 import User, {UserAuthMethod} from "../../src/User.js";
 
-catnip.addAction("authMethods",(authMethods, req)=>{
+katnip.addAction("authMethods",(authMethods, req)=>{
 	authMethods.push({
 		id: "email",
 		title: "Email and Password",
@@ -11,20 +11,20 @@ catnip.addAction("authMethods",(authMethods, req)=>{
 	});
 });
 
-catnip.addApi("/api/login",async ({email, password}, req)=>{
-	let user=await catnip.db.User.findOneByAuth("email", email);
+katnip.addApi("/api/login",async ({email, password}, req)=>{
+	let user=await katnip.db.User.findOneByAuth("email", email);
 
 	if (!user)
 		throw new Error("Bad credentials.");
 
 	await user.populateAuthMethods();
 	user.authMethods["email"].assertPassword(password);
-	await catnip.setSessionValue(req.sessionId,user.id);
+	await katnip.setSessionValue(req.sessionId,user.id);
 
 	return user;
 });
 
-catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
+katnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 	if (await User.findOneByAuth("email",email))
 		throw new Error("The email is already in use");
 
@@ -36,7 +36,7 @@ catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 
 	let user=req.getUser();
 	if (!user) {
-		user=new catnip.db.User();
+		user=new katnip.db.User();
 		user.role="user";
 		await user.save();
 	}
@@ -50,7 +50,7 @@ catnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 	userAuthMethod.setPassword(password);
 	await userAuthMethod.save();
 
-	await catnip.setSessionValue(req.sessionId,user.id);
+	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();
 
 	return user;

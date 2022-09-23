@@ -1,9 +1,9 @@
-import catnip from "catnip";
+import katnip from "katnip";
 import BootswatchPageTemplate from "../components/BootswatchPageTemplate.jsx";
 
-catnip.addTemplate("**",BootswatchPageTemplate);
+katnip.addTemplate("**",BootswatchPageTemplate);
 
-catnip.addAction("getMenuLocations",(items)=>{
+katnip.addAction("getMenuLocations",(items)=>{
 	items.push({
 		title: "Header Menu",
 		setting: "menuHeader"
@@ -15,7 +15,7 @@ catnip.addAction("getMenuLocations",(items)=>{
 	});
 })
 
-catnip.addAction("getCustomizerOptions",(items)=>{
+katnip.addAction("getCustomizerOptions",(items)=>{
 	let themes=[
 		"cerulean", "cosmo", "cyborg", "darkly", "flatly",
 		"journal", "litera", "lumen", "lux", "materia",

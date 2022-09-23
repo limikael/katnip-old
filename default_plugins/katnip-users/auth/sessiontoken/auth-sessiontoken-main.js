@@ -1,7 +1,7 @@
-import {catnip, delay, buildUrl, apiFetch} from "catnip";
+import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import User from "../../src/User.js";
 
-catnip.addSetting("authSessionTokenEnable",{
+katnip.addSetting("authSessionTokenEnable",{
 	title: "Login with Session Token", 
 	category: "auth",
 	type: "select",
@@ -12,7 +12,7 @@ catnip.addSetting("authSessionTokenEnable",{
 	}
 });
 
-catnip.addApi("/api/useToken",async ({token}, req)=>{
+katnip.addApi("/api/useToken",async ({token}, req)=>{
 	if (!token || token.length!=36)
 		throw new Error("That's not a token");
 
@@ -23,7 +23,7 @@ catnip.addApi("/api/useToken",async ({token}, req)=>{
 		await user.save();
 	}
 
-	await catnip.setSessionValue(req.sessionId,user.id);
+	await katnip.setSessionValue(req.sessionId,user.id);
 
 	return user;
 });

@@ -1,6 +1,6 @@
-import {catnip, PromiseButton, useForm, delay, apiFetch,
+import {katnip, PromiseButton, useForm, delay, apiFetch,
 		useCurrentUser, setCurrentUser, useApiFetch, A, bindArgs,
-		useCounter, useForceUpdate, useModal, setLocation} from "catnip";
+		useCounter, useForceUpdate, useModal, setLocation} from "katnip";
 import {useState, useRef} from "preact/compat";
 
 function DeleteAccountModal({resolve}) {

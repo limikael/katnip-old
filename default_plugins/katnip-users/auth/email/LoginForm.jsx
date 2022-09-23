@@ -1,5 +1,5 @@
-import {catnip, A, ItemList, apiFetch, setLocation, buildUrl, useChannel} from "catnip";
-import {useForm, useCounter, useApiFetch, useValueChanged} from "catnip";
+import {katnip, A, ItemList, apiFetch, setLocation, buildUrl, useChannel} from "katnip";
+import {useForm, useCounter, useApiFetch, useValueChanged} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LoginForm(props) {
@@ -12,13 +12,13 @@ export default function LoginForm(props) {
 		setMessage();
 
 		try {
-			let user=await catnip.apiFetch("/api/login",{
+			let user=await katnip.apiFetch("/api/login",{
 				email: emailRef.current.value,
 				password: passwordRef.current.value
 			});
 
-			catnip.setCurrentUser(user);
-			catnip.setLocation(postloginpath);
+			katnip.setCurrentUser(user);
+			katnip.setLocation(postloginpath);
 		}
 
 		catch (e) {

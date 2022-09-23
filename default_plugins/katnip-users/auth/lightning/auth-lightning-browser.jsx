@@ -1,4 +1,4 @@
-import {catnip, useChannel, A} from "catnip";
+import {katnip, useChannel, A} from "katnip";
 import LightningLoginPage from "./LightningLoginPage.jsx";
 
-catnip.addRoute("lightninglogin",LightningLoginPage);
+katnip.addRoute("lightninglogin",LightningLoginPage);

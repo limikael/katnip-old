@@ -1,4 +1,4 @@
-import {catnip, Model} from "catnip";
+import {katnip, Model} from "katnip";
 //import crypto from "crypto";
 
 function hash(v) {

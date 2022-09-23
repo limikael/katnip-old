@@ -1,6 +1,6 @@
 {
-  "name": "catnip-users",
+  "name": "katnip-users",
   "type": "module",
-  "main": "src/catnip-users-main.js",
-  "browser": "src/catnip-users-browser.jsx"
+  "main": "src/katnip-users-main.js",
+  "browser": "src/katnip-users-browser.jsx"
 }

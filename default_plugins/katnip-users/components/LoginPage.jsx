@@ -1,11 +1,11 @@
-import {catnip, A} from "catnip";
+import {katnip, A} from "katnip";
 
 export default function LoginPage() {
-	let user=catnip.useCurrentUser();
-	let authMethods=catnip.useChannel("authMethods");
+	let user=katnip.useCurrentUser();
+	let authMethods=katnip.useChannel("authMethods");
 
 	if (user) {
-		catnip.setLocation("/account");
+		katnip.setLocation("/account");
 		return;
 	}
 
@@ -13,7 +13,7 @@ export default function LoginPage() {
 	authMethods.sort((a,b)=>a.priority-b.priority);
 	for (authMethod of authMethods) {
 		if (authMethod.element) {
-			let Element=catnip.elements[authMethod.element];
+			let Element=katnip.elements[authMethod.element];
 			items.push(<Element/>);
 		}
 

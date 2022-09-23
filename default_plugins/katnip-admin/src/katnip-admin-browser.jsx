@@ -1,4 +1,4 @@
-import catnip from "catnip";
+import katnip from "katnip";
 import AdminTemplate from "../components/AdminTemplate.jsx";
 import Dashboard from "../components/Dashboard.jsx";
 import Settings from "../components/Settings.jsx";
@@ -6,12 +6,12 @@ import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 
-catnip.addTemplate("admin/**",AdminTemplate);
+katnip.addTemplate("admin/**",AdminTemplate);
 
-catnip.addRoute("admin",Dashboard);
-catnip.addRoute("admin/settings/**",Settings);
+katnip.addRoute("admin",Dashboard);
+katnip.addRoute("admin/settings/**",Settings);
 
-catnip.addAction("getAdminMenu",(items)=>{
+katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Dashboard",
 		href: "/admin",

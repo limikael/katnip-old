@@ -1,6 +1,6 @@
-import {catnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
-		useCurrentUser, setCurrentUser} from "catnip";
-import {useState} from "preact/compat";
+import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
+		useCurrentUser, setCurrentUser} from "katnip";
+import {useState} from "react";
 
 export default function ChangeEmailTab() {
 	let user=useCurrentUser();

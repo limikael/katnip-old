@@ -1,5 +1,5 @@
-import {catnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
-		useCurrentUser, setCurrentUser} from "catnip";
+import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
+		useCurrentUser, setCurrentUser} from "katnip";
 import {useState} from "preact/compat";
 
 export default function DeleteAccountTab() {
@@ -12,7 +12,7 @@ export default function DeleteAccountTab() {
 		await apiFetch("/api/deleteAccount",values);
 
 		setCurrentUser(null);
-		catnip.setLocation("/");
+		katnip.setLocation("/");
 	}
 
 	return (

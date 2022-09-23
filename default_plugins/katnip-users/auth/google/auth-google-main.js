@@ -1,11 +1,11 @@
-import {catnip, delay, buildUrl, apiFetch} from "catnip";
+import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import ClientOAuth2 from "client-oauth2";
 import User, {UserAuthMethod} from "../../src/User.js";
 
 function createGoogleAuthClient(origin) {
 	return new ClientOAuth2({
-		clientId: catnip.getSetting("googleClientId"),
-		clientSecret: catnip.getSetting("googleClientSecret"),
+		clientId: katnip.getSetting("googleClientId"),
+		clientSecret: katnip.getSetting("googleClientSecret"),
 		accessTokenUri: 'https://oauth2.googleapis.com/token',
 		authorizationUri: 'https://accounts.google.com/o/oauth2/auth',
 		redirectUri: origin+'/googleAuth',
@@ -13,7 +13,7 @@ function createGoogleAuthClient(origin) {
 	});
 }
 
-catnip.addSetting("authGoogleEnable",{
+katnip.addSetting("authGoogleEnable",{
 	title: "Login with Google", 
 	category: "auth", 
 	type: "select",
@@ -24,7 +24,7 @@ catnip.addSetting("authGoogleEnable",{
 	}
 });
 
-catnip.addSetting("googleClientId",{
+katnip.addSetting("googleClientId",{
 	title: "Google Client Id",
 	category: "auth",
 	condition: {
@@ -32,7 +32,7 @@ catnip.addSetting("googleClientId",{
 	}
 });
 
-catnip.addSetting("googleClientSecret",{
+katnip.addSetting("googleClientSecret",{
 	title: "Google Client Secret",
 	category: "auth",
 	condition: {
@@ -40,21 +40,21 @@ catnip.addSetting("googleClientSecret",{
 	}
 });
 
-catnip.addAction("initChannels",(channelIds, req)=>{
-	if (catnip.getSetting("authGoogleEnable") &&
-			catnip.getSetting("googleClientId") &&
-			catnip.getSetting("googleClientSecret"))
+katnip.addAction("initChannels",(channelIds, req)=>{
+	if (katnip.getSetting("authGoogleEnable") &&
+			katnip.getSetting("googleClientId") &&
+			katnip.getSetting("googleClientSecret"))
 		channelIds.push("googleAuthUrl");
 });
 
-catnip.addChannel("googleAuthUrl",({}, req)=>{
-	if (catnip.getSetting("authGoogleEnable") &&
-			catnip.getSetting("googleClientId") &&
-			catnip.getSetting("googleClientSecret"))
+katnip.addChannel("googleAuthUrl",({}, req)=>{
+	if (katnip.getSetting("authGoogleEnable") &&
+			katnip.getSetting("googleClientId") &&
+			katnip.getSetting("googleClientSecret"))
 		return createGoogleAuthClient(req.origin).code.getUri();
 });
 
-catnip.addApi("/api/googleAuth",async ({url}, req)=>{
+katnip.addApi("/api/googleAuth",async ({url}, req)=>{
 	let res=await createGoogleAuthClient(req.origin).code.getToken(url);
 
 	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{
@@ -89,13 +89,13 @@ catnip.addApi("/api/googleAuth",async ({url}, req)=>{
 		await userAuthMethod.save();
 	}
 
-	await catnip.setSessionValue(req.sessionId,user.id);
+	await katnip.setSessionValue(req.sessionId,user.id);
 
 	return user;
 });
 
-catnip.addAction("authMethods",(authMethods, req)=>{
-	if (catnip.getSetting("authGoogleEnable"))
+katnip.addAction("authMethods",(authMethods, req)=>{
+	if (katnip.getSetting("authGoogleEnable"))
 		authMethods.push({
 			id: "google",
 			title: "Google",

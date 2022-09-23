@@ -1,4 +1,4 @@
-import {useCurrentUser} from "catnip";
+import {useCurrentUser} from "katnip";
 
 export default function SessionTokenTab() {
 	let u=useCurrentUser();

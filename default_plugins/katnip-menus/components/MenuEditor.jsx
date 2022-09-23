@@ -1,4 +1,4 @@
-import {catnip, A, useApiFetch, useRevertibleState} from "catnip";
+import {katnip, A, useApiFetch, useRevertibleState} from "katnip";
 import {useState} from "preact/compat";
 import TRASH_ICON from "bootstrap-icons/icons/x-lg.svg";
 import ARROW_UP from "bootstrap-icons/icons/caret-up-fill.svg";
@@ -10,11 +10,11 @@ const filterPrimay="filter: invert(26%) sepia(100%) saturate(1970%) hue-rotate(2
 function MenuTabs({request}) {
 	let tabs=[];
 	let menuLocations=[];
-	catnip.doAction("getMenuLocations",menuLocations);
+	katnip.doAction("getMenuLocations",menuLocations);
 
 	let menuTabs=[];
 	for (let menuLocation of menuLocations) {
-		let href=catnip.buildUrl("/admin/menus",{
+		let href=katnip.buildUrl("/admin/menus",{
 			setting: menuLocation.setting
 		});
 
@@ -30,7 +30,7 @@ function MenuTabs({request}) {
 	}
 
 	if (!request.query.setting) {
-		catnip.setLocation(catnip.buildUrl("/admin/menus",{
+		katnip.setLocation(katnip.buildUrl("/admin/menus",{
 			setting: menuLocations[0].setting
 		}));
 		return;
@@ -113,7 +113,7 @@ export default function MenuEditor({request}) {
 		if (index<=0)
 			return;
 
-		menus=catnip.arrayMove(menus,index,index-1);
+		menus=katnip.arrayMove(menus,index,index-1);
 		setMenus([...menus]);
 		setActiveIndex(index-1);
 	}
@@ -124,14 +124,14 @@ export default function MenuEditor({request}) {
 		if (index>=menus.length-1)
 			return;
 
-		menus=catnip.arrayMove(menus,index,index+1);
+		menus=katnip.arrayMove(menus,index,index+1);
 		setMenus([...menus]);
 		setActiveIndex(index+1);
 	}
 
 	async function onSaveClick() {
 		setSaving(true);
-		await catnip.apiFetch("/api/saveMenu",{
+		await katnip.apiFetch("/api/saveMenu",{
 			setting: menuSetting,
 			value: menus
 		});

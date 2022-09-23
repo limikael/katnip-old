@@ -1,7 +1,7 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 
-catnip.addApi("/api/getPageView",async ({query})=>{
-	let page=await catnip.db.Page.findOne({
+katnip.addApi("/api/getPageView",async ({query})=>{
+	let page=await katnip.db.Page.findOne({
 		$op: "or",
 		slug: query,
 		id: query
@@ -13,10 +13,10 @@ catnip.addApi("/api/getPageView",async ({query})=>{
 	return page;
 })
 
-catnip.addChannel("numPages",async ()=>{
-	return await catnip.db.Page.getCount();
+katnip.addChannel("numPages",async ()=>{
+	return await katnip.db.Page.getCount();
 });
 
-catnip.addChannel("pageContent",async ({id})=>{
-	return await catnip.db.Page.findOne(id);
+katnip.addChannel("pageContent",async ({id})=>{
+	return await katnip.db.Page.findOne(id);
 });

@@ -1,7 +1,7 @@
-import {catnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader} from "catnip";
-import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "catnip";
+import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader} from "katnip";
+import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
-import {BsInput} from "catnip";
+import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";

@@ -1,22 +1,22 @@
-import {catnip, A, ItemList, setLocation, buildUrl} from "catnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "catnip";
+import {katnip, A, ItemList, setLocation, buildUrl} from "katnip";
+import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "katnip";
 import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
 
 const XMLToReact=XMLToReactModule.default;
 
-catnip.addElement("HideTitle",()=>{
-	let tc=catnip.useTemplateContext();
+katnip.addElement("HideTitle",()=>{
+	let tc=katnip.useTemplateContext();
 
 	tc.setTitle("");
 })
 
-catnip.addElement("Img",(props)=>{
+katnip.addElement("Img",(props)=>{
 	return <img {...props}/>
 });
 
 export default function PageView({request}) {
-	let tc=catnip.useTemplateContext();
+	let tc=katnip.useTemplateContext();
 	let pageQuery=request.pathargs[1];
 	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
@@ -37,8 +37,8 @@ export default function PageView({request}) {
 
 	options["a"]=(attrs)=>({type: A, props: attrs});
 
-	for (elementName in catnip.elements) {
-		let elementFunc=catnip.elements[elementName];
+	for (elementName in katnip.elements) {
+		let elementFunc=katnip.elements[elementName];
 		options[elementName]=(attrs)=>({type: elementFunc, props: attrs});
 	}
 

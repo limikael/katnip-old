@@ -1,21 +1,21 @@
-import {catnip, delay, buildUrl, apiFetch, addSetting} from "catnip";
+import {katnip, delay, buildUrl, apiFetch, addSetting} from "katnip";
 import User, {UserAuthMethod} from "./User.js";
 import {getCapsByRole} from "./rolecaps.js";
-import "./catnip-users-api.js";
+import "./katnip-users-api.js";
 
 import "../auth/google/auth-google-main.js";
 import "../auth/sessiontoken/auth-sessiontoken-main.js";
 import "../auth/lightning/auth-lightning-main.js";
 import "../auth/email/auth-email-main.js";
 
-catnip.addModel(User);
-catnip.addModel(UserAuthMethod);
+katnip.addModel(User);
+katnip.addModel(UserAuthMethod);
 
-catnip.addSetting("install");
-catnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
+katnip.addSetting("install");
+katnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 
-catnip.addAction("initRequest",async (req)=>{
-	let uid=catnip.getSessionValue(req.sessionId);
+katnip.addAction("initRequest",async (req)=>{
+	let uid=katnip.getSessionValue(req.sessionId);
 	if (uid) {
 		let user=await User.findOne(uid);
 
@@ -46,20 +46,20 @@ catnip.addAction("initRequest",async (req)=>{
 	}
 });
 
-catnip.addAction("initChannels",(channelIds, req)=>{
+katnip.addAction("initChannels",(channelIds, req)=>{
 	channelIds.push(buildUrl("user",{sessionId: req.sessionId}));
 	channelIds.push("authMethods");
 	channelIds.push("redirect");
 });
 
-catnip.addChannel("authMethods",async ({}, req)=>{
+katnip.addChannel("authMethods",async ({}, req)=>{
 	let authMethods=[];
-	await catnip.doActionAsync("authMethods",authMethods,req);
+	await katnip.doActionAsync("authMethods",authMethods,req);
 
 	return authMethods;
 });
 
-catnip.addChannel("user",async ({sessionId}, req)=>{
+katnip.addChannel("user",async ({sessionId}, req)=>{
 	if (req.sessionId!=sessionId)
 		throw new Error("Wrong session");
 
@@ -69,12 +69,12 @@ catnip.addChannel("user",async ({sessionId}, req)=>{
 	return req.user;
 });
 
-catnip.addChannel("redirect",({})=>{
-	if (catnip.getSetting("install"))
+katnip.addChannel("redirect",({})=>{
+	if (katnip.getSetting("install"))
 		return "/install";
 });
 
-catnip.addAction("serverMain",async (options)=>{
+katnip.addAction("serverMain",async (options)=>{
 	if (options.createadmin) {
 		let [email,password]=options.createadmin.split(":");
 		if (await User.findOne({email: email})) {
@@ -94,9 +94,9 @@ catnip.addAction("serverMain",async (options)=>{
 
 	if (!await User.findOne({role: "admin"})) {
 		console.log("No admin user, entering install mode.")
-		await catnip.setSetting("install",true);
+		await katnip.setSetting("install",true);
 	}
 
 	else
-		await catnip.setSetting("install",false);
+		await katnip.setSetting("install",false);
 });

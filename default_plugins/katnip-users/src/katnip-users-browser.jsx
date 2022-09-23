@@ -1,4 +1,4 @@
-import {catnip, delay, buildUrl, apiFetch, useChannel, getSessionId} from "catnip";
+import {katnip, delay, buildUrl, apiFetch, useChannel, getSessionId} from "katnip";
 import LoginPage from "../components/LoginPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
 import UserAdmin from "../components/UserAdmin.jsx";
@@ -11,12 +11,12 @@ import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
 import "../auth/lightning/auth-lightning-browser.jsx";
 import "../auth/email/auth-email-browser.jsx";
 
-catnip.addRoute("install",InstallPage);
-catnip.addRoute("login",LoginPage);
-catnip.addRoute("account",AccountPage);
-catnip.addRoute("admin/user",UserAdmin);
+katnip.addRoute("install",InstallPage);
+katnip.addRoute("login",LoginPage);
+katnip.addRoute("account",AccountPage);
+katnip.addRoute("admin/user",UserAdmin);
 
-catnip.addAction("getAdminMenu",(items)=>{
+katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Users",
 		href: "/admin/user",
@@ -25,7 +25,7 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addAction("useCurrentUser",()=>{
+katnip.addAction("useCurrentUser",()=>{
 	let userData=useChannel(buildUrl("user",{sessionId: getSessionId()}));
 	if (!userData)
 		return null;
@@ -36,11 +36,11 @@ catnip.addAction("useCurrentUser",()=>{
 	return new User(userData);
 });
 
-catnip.addAction("setCurrentUser",(userData)=>{
+katnip.addAction("setCurrentUser",(userData)=>{
 	let channelId=buildUrl("user",{sessionId: getSessionId()});
 
 	if (userData && !userData.id)
 		throw new Error("This is not user data");
 
-	catnip.setChannelValue(channelId,userData);
+	katnip.setChannelValue(channelId,userData);
 });

@@ -15,7 +15,7 @@ class MyModel extends Model {
 }
 
 async function main() {
-	let db=new Db("mysql://mysql:mysql@localhost/catniptest");
+	let db=new Db("mysql://mysql:mysql@localhost/katniptest");
 	db.addModel(MyModel);
 	await db.install();
 

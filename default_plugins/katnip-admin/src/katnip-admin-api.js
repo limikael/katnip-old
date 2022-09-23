@@ -1,12 +1,12 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 
-catnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
+katnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
 	sreq.assertCap("manage-settings");
 
-	let categories=catnip.getSettingCategories();
+	let categories=katnip.getSettingCategories();
 	for (let categoryId in categories) {
 		let category=categories[categoryId];
-		category.settings=catnip.getSettings({category: categoryId})
+		category.settings=katnip.getSettings({category: categoryId})
 
 		for (let setting of category.settings) {
 			if (setting.options instanceof Function)
@@ -17,24 +17,24 @@ catnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
 	return categories;
 });
 
-catnip.addApi("/api/getSettings",async ({category},sreq)=>{
+katnip.addApi("/api/getSettings",async ({category},sreq)=>{
 	sreq.assertCap("manage-settings");
 	let res={};
 
-	for (let setting of catnip.getSettings({category: category}))
+	for (let setting of katnip.getSettings({category: category}))
 		res[setting.id]=setting.value;
 
 	return res;
 });
 
-catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
+katnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 	sreq.assertCap("manage-settings");
 
 	for (let k in settings)
-		await catnip.setSetting(k,settings[k]);
+		await katnip.setSetting(k,settings[k]);
 
 	let affectedCategories=[];
-	for (let setting of catnip.getSettings()) {
+	for (let setting of katnip.getSettings()) {
 		if (Object.keys(settings).includes(setting.id)) {
 			if (setting.category &&
 					!affectedCategories.includes(setting.category))
@@ -42,8 +42,8 @@ catnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 		}
 	}
 
-	for (let k in catnip.getSettingCategories()) {
-		let category=catnip.getSettingCategories()[k];
+	for (let k in katnip.getSettingCategories()) {
+		let category=katnip.getSettingCategories()[k];
 		if (affectedCategories.includes(category.id)) {
 			if (category.postsave) {
 				await category.postsave();

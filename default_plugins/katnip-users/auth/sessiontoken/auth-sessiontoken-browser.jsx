@@ -1,8 +1,8 @@
-import {catnip, useChannel, A} from "catnip";
+import {katnip, useChannel, A} from "katnip";
 import SessionTokenPage from "./SessionTokenPage.jsx";
 import SessionTokenTab from "./SessionTokenTab.jsx";
 
-catnip.addRoute("sessiontoken",SessionTokenPage);
+katnip.addRoute("sessiontoken",SessionTokenPage);
 
 function SessionTokenLoginButton() {
 	let authSessionTokenEnable=(String(useChannel("authSessionTokenEnable"))=="true");
@@ -17,11 +17,11 @@ function SessionTokenLoginButton() {
 	);
 }
 
-catnip.addAction("loginPageItems",(items)=>{
+katnip.addAction("loginPageItems",(items)=>{
 	items.push(<SessionTokenLoginButton/>);
 });
 
-catnip.addAction("getAccountTabs",(accountTabs, user)=>{
+katnip.addAction("getAccountTabs",(accountTabs, user)=>{
 	if (user.token)
 		accountTabs.push({
 			title: "Session Token",

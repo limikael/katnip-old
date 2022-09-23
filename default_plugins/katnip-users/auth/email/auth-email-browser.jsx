@@ -1,4 +1,4 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 import LoginForm from "./LoginForm.jsx";
 import SignupForm from "./SignupForm.jsx";
 import LinkEmailPage from "./LinkEmailPage.jsx";
@@ -20,6 +20,6 @@ function PasswordLoginElement() {
 		return <LoginForm onswitchmode={onSwitchMode}/>
 }
 
-catnip.addElement("PasswordLoginElement",PasswordLoginElement);
+katnip.addElement("PasswordLoginElement",PasswordLoginElement);
 
-catnip.addRoute("linkemail",LinkEmailPage);
+katnip.addRoute("linkemail",LinkEmailPage);

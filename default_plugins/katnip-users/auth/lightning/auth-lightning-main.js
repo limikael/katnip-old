@@ -1,4 +1,4 @@
-import {catnip, delay, buildUrl, apiFetch} from "catnip";
+import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import {bech32, bech32m} from "bech32";
 import secp256k1 from "secp256k1";
 import ExpiringMap from "../../../../src/utils/ExpiringMap.js";
@@ -7,7 +7,7 @@ import User,{UserAuthMethod} from "../../src/User.js";
 let k1BySessionId=new ExpiringMap(10*60*1000);
 let sessionIdByK1=new ExpiringMap(10*60*1000);
 
-catnip.addSetting("authLightningEnable",{
+katnip.addSetting("authLightningEnable",{
 	title: "Login with Lightning", 
 	category: "auth",
 	type: "select",
@@ -18,7 +18,7 @@ catnip.addSetting("authLightningEnable",{
 	}
 });
 
-catnip.addApi("/api/lightningAuth",async (query, req)=>{
+katnip.addApi("/api/lightningAuth",async (query, req)=>{
 	try {
 		let {k1, key, sig}=query;
 
@@ -37,7 +37,7 @@ catnip.addApi("/api/lightningAuth",async (query, req)=>{
 			throw new Error("Unknown session id. Expired?");
 
 		let user;
-		let uid=catnip.getSessionValue(sessionId);
+		let uid=katnip.getSessionValue(sessionId);
 		if (uid)
 			user=await User.findOne(uid);
 
@@ -64,8 +64,8 @@ catnip.addApi("/api/lightningAuth",async (query, req)=>{
 			await userAuthMethod.save();
 		}
 
-		await catnip.setSessionValue(sessionId,user.id);
-		catnip.notifyChannel("user",{sessionId: sessionId});
+		await katnip.setSessionValue(sessionId,user.id);
+		katnip.notifyChannel("user",{sessionId: sessionId});
 
 		return {status: "OK"};
 	}
@@ -75,7 +75,7 @@ catnip.addApi("/api/lightningAuth",async (query, req)=>{
 	}
 });
 
-catnip.addApi("/api/lightningAuthCode",async (params, req)=>{
+katnip.addApi("/api/lightningAuthCode",async (params, req)=>{
 	let k1=k1BySessionId.get(req.sessionId);
 
 	if (!k1)
@@ -95,8 +95,8 @@ catnip.addApi("/api/lightningAuthCode",async (params, req)=>{
 	return code;
 });
 
-catnip.addAction("authMethods",(authMethods, req)=>{
-	if (catnip.getSetting("authLightningEnable"))
+katnip.addAction("authMethods",(authMethods, req)=>{
+	if (katnip.getSetting("authLightningEnable"))
 		authMethods.push({
 			id: "lightning",
 			title: "Lightning",

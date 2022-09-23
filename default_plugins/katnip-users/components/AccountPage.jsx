@@ -1,4 +1,4 @@
-import {catnip, PromiseButton, useCurrentUser} from "catnip";
+import {katnip, PromiseButton, useCurrentUser} from "katnip";
 import ChangePasswordTab from "./ChangePasswordTab.jsx";
 import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import DeleteAccountTab from "./DeleteAccountTab.jsx";
@@ -31,14 +31,14 @@ function AccordionItem({id, parent, children, show, title}) {
 }
 
 export default function AccountPage() {
-	let tc=catnip.useTemplateContext();
+	let tc=katnip.useTemplateContext();
 	let user=useCurrentUser();
 
 	//console.log(user);
 
 	if (!user) {
 		console.log("no user, redirecting");
-		catnip.setLocation("/login");
+		katnip.setLocation("/login");
 		return;
 	}
 
@@ -71,7 +71,7 @@ export default function AccountPage() {
 		priority: 50
 	});
 
-	catnip.doAction("getAccountTabs",accountTabs,user);
+	katnip.doAction("getAccountTabs",accountTabs,user);
 	accountTabs.sort((a,b)=>a.priority-b.priority);
 
 	let accordionItems=[];
@@ -88,8 +88,8 @@ export default function AccountPage() {
 	}
 
 	async function onLogoutClick() {
-		await catnip.apiFetch("/api/logout");
-		catnip.setCurrentUser(null);
+		await katnip.apiFetch("/api/logout");
+		katnip.setCurrentUser(null);
 		//setSession({user: null});
 	}
 

@@ -1,5 +1,5 @@
-import {catnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter} from "catnip";
-import {useState} from "preact/compat";
+import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter} from "katnip";
+import {useState} from "react";
 
 export default function ChangePasswordTab() {
 	let [counter, invalidate]=useCounter();

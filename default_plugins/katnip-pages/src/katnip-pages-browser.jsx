@@ -1,11 +1,11 @@
-import {catnip, convertToSlug, useChannel} from "catnip";
+import {katnip, convertToSlug, useChannel} from "katnip";
 import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
-//catnip.setChannelPersistence("numPages",true);
+//katnip.setChannelPersistence("numPages",true);
 
-catnip.addElement("PageCounter",()=>{
+katnip.addElement("PageCounter",()=>{
 	let numPages=useChannel("numPages");
 
 	if (numPages===undefined)
@@ -14,7 +14,7 @@ catnip.addElement("PageCounter",()=>{
 	return <div>Num pages: {numPages}</div>
 });
 
-catnip.addAction("getAdminMenu",(items)=>{
+katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Pages",
 		href: "/admin/page",
@@ -23,5 +23,5 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addRoute("admin/page",PageAdmin);
-catnip.addRoute("page/*",PageView);
+katnip.addRoute("admin/page",PageAdmin);
+katnip.addRoute("page/*",PageView);

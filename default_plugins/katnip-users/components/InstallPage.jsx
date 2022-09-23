@@ -1,5 +1,5 @@
 import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
-		setChannelValue, setCurrentUser} from "catnip";
+		setChannelValue, setCurrentUser} from "katnip";
 import {useState} from "preact/compat";
 
 export default function InstallPage() {
@@ -14,7 +14,7 @@ export default function InstallPage() {
 		let user=await apiFetch("/api/install",form.getCurrent());
 		setCurrentUser(user);
 		setChannelValue("redirect",null);
-		catnip.setLocation("/admin");
+		katnip.setLocation("/admin");
 	}	
 
 	return (<>

@@ -1,6 +1,6 @@
 {
-  "name": "catnip-menus",
+  "name": "katnip-menus",
   "type": "module",
-  "main": "./src/catnip-menus-main.js",
-  "browser": "./src/catnip-menus-browser.jsx"
+  "main": "./src/katnip-menus-main.js",
+  "browser": "./src/katnip-menus-browser.jsx"
 }

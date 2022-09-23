@@ -1,8 +1,8 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 import MenuEditor from "../components/MenuEditor.jsx";
 import MENU_DOWN from "bootstrap-icons/icons/menu-down.svg";
 
-catnip.addAction("getAdminMenu",(items)=>{
+katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Menus",
 		href: "/admin/menus",
@@ -11,4 +11,4 @@ catnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-catnip.addRoute("admin/menus",MenuEditor);
+katnip.addRoute("admin/menus",MenuEditor);

@@ -1,8 +1,8 @@
-import {A, catnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl, Stylesheet} from "catnip";
+import {A, katnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl, Stylesheet} from "katnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize}) {
-	let webSocketStatus=catnip.useWebSocketStatus();
+	let webSocketStatus=katnip.useWebSocketStatus();
 	let brandRef=useRef();
 	let navRef=useRef();
 	let [reportedHeight,setReportedHeight]=useState(0);
@@ -176,7 +176,7 @@ export default function BootswatchPageTemplate({request,children}) {
 	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	let topItems=[];
-	catnip.doAction("topItems",topItems,request);
+	katnip.doAction("topItems",topItems,request);
 
 	//<link rel="stylesheet" href={cssUrl}/>
 

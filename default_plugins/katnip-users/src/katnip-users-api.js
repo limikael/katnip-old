@@ -1,8 +1,8 @@
-import {catnip, delay, buildUrl, apiFetch} from "catnip";
+import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
 
-catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
+katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 	sreq.assertCap("user");
 	let user=sreq.getUser();
 
@@ -14,31 +14,31 @@ catnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 		await userAuthMethod.delete();
 
 	await user.delete();
-	await catnip.setSessionValue(sreq.sessionId,null);
+	await katnip.setSessionValue(sreq.sessionId,null);
 });
 
-catnip.addApi("/api/getAllUsers",async ({}, sess)=>{
+katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
 	sess.assertCap("manage-users");
 
-	return catnip.db.User.findMany();
+	return katnip.db.User.findMany();
 });
 
-catnip.addApi("/api/getUser",async ({id}, sess)=>{
+katnip.addApi("/api/getUser",async ({id}, sess)=>{
 	sess.assertCap("manage-users");
-	let u=await catnip.db.User.findOne({id: id});
+	let u=await katnip.db.User.findOne({id: id});
 
 	return u;
 });
 
-catnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
+katnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
 	sess.assertCap("manage-users");
 	let u;
 
 	if (id)
-		u=await catnip.db.User.findOne({id: id});
+		u=await katnip.db.User.findOne({id: id});
 
 	else
-		u=new catnip.db.User();
+		u=new katnip.db.User();
 
 	u.role=role;
 	u.email=email;
@@ -48,13 +48,13 @@ catnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
 	return u;
 });
 
-catnip.addApi("/api/deleteUser",async ({id}, sess)=>{
+katnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 	sess.assertCap("manage-users");
-	let u=await catnip.db.User.findOne({id: id});
+	let u=await katnip.db.User.findOne({id: id});
 	await u.delete();
 });
 
-catnip.addApi("/api/authMethodStatus",async ({},req)=>{
+katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	let user=req.getUser();
 	if (!user)
 		throw new Error("Not logged in");
@@ -62,7 +62,7 @@ catnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	await user.populateAuthMethods();
 
 	let authMethods=[];
-	await catnip.doActionAsync("authMethods",authMethods,req);
+	await katnip.doActionAsync("authMethods",authMethods,req);
 	for (let authMethod of authMethods) {
 		if (user.authMethods[authMethod.id])
 			authMethod.token=user.authMethods[authMethod.id].token;
@@ -71,11 +71,11 @@ catnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	return authMethods;
 });
 
-catnip.addApi("/api/logout",async ({}, req)=>{
-	await catnip.setSessionValue(req.sessionId,null);
+katnip.addApi("/api/logout",async ({}, req)=>{
+	await katnip.setSessionValue(req.sessionId,null);
 });
 
-catnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
+katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 	let user=req.getUser();
 	if (!user)
 		throw new Error("Not logged in");
@@ -94,11 +94,11 @@ catnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 	return user;
 });
 
-catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
-	if (!catnip.getSetting("install"))
+katnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
+	if (!katnip.getSetting("install"))
 		throw new Error("Not install mode");
 
-	if (await catnip.db.User.findOneByAuth("email",email))
+	if (await katnip.db.User.findOneByAuth("email",email))
 		throw new Error("The email is already in use");
 
 	if (!email)
@@ -107,7 +107,7 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	if (password!=repeatPassword)
 		throw new Error("The passwords don't match");
 
-	let user=new catnip.db.User();
+	let user=new katnip.db.User();
 	user.email=email;
 	user.role="admin";
 	await user.save();
@@ -121,9 +121,9 @@ catnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
 	userAuthMethod.setPassword(password);
 	await userAuthMethod.save();
 
-	await catnip.setSessionValue(req.sessionId,user.id);
+	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();
-	await catnip.setSetting("install",false);
+	await katnip.setSetting("install",false);
 
 	return user;
 });

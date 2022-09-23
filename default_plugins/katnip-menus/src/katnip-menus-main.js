@@ -1,11 +1,11 @@
-import {catnip} from "catnip";
+import {katnip} from "katnip";
 
-catnip.addApi("/api/getMenu",async ({setting}, sreq)=>{
+katnip.addApi("/api/getMenu",async ({setting}, sreq)=>{
 	sreq.assertCap("manage-settings");
-	return await catnip.getSetting(setting);
+	return await katnip.getSetting(setting);
 });
 
-catnip.addApi("/api/saveMenu",async ({setting, value}, sreq)=>{
+katnip.addApi("/api/saveMenu",async ({setting, value}, sreq)=>{
 	sreq.assertCap("manage-settings");
-	return await catnip.setSetting(setting,value);
+	return await katnip.setSetting(setting,value);
 });

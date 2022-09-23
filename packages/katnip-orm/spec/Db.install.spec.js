@@ -3,7 +3,7 @@ import fs from "fs";
 
 describe("db install",()=>{
 	let dbUrls=[
-		"mysql://mysql:mysql@localhost/catniptest",
+		"mysql://mysql:mysql@localhost/katniptest",
 		"sqlite3:test.sqlite3"
 	];
 
