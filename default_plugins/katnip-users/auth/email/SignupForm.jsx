@@ -35,9 +35,9 @@ export default function SignupForm(props) {
 					<input type="text" class="form-control mb-3" placeholder="Username / Email"
 							{...form.field("email")}/>
 					<input type="password" class="form-control mb-3" placeholder="Password"
-							{...from.field("password")}/>
+							{...form.field("password")}/>
 					<input type="password" class="form-control" placeholder="Repeat Password" 
-							{...from.field("repeatPassword")}/>
+							{...form.field("repeatPassword")}/>
 				</form>
 
 				{messageEl}
