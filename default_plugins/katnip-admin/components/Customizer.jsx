@@ -39,19 +39,14 @@ export function CustomizerSidebar({request, iframeRef}) {
 	}
 
 	useEventListener(form,"change",postValues);
-
-	function onLoad() {
-		postValues();
-	}
-
 	useEffect(()=>{
 		let el=iframeRef.current.contentWindow;
-		el.addEventListener("load",onLoad);
+		el.addEventListener("load",postValues);
 
 		return (()=>{
-			el.removeEventListener("load",onLoad)
+			el.removeEventListener("load",postValues)
 		});
-	},[]);
+	},[iframeRef.current,iframeRef.current?.contentWindow]);
 
 	function onBackClick(ev) {
 		ev.preventDefault();

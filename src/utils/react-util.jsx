@@ -160,27 +160,30 @@ export function useImmediateEffect(effect, deps) {
 
 export function useEventListener(target, event, func) {
 	useImmediateEffect(()=>{
-		function onEvent(...params) {
-			func(...params);
+		if (target) {
+			function onEvent(...params) {
+				func(...params);
+			}
+
+			if (target.on)
+				target.on(event,onEvent);
+
+			else if (target.addEventListener)
+				target.addEventListener(event,onEvent);
+
+			else
+				throw new Error("not an event dispatcher: "+target);
+
+			return (()=>{
+				if (target.off)
+					target.off(event,onEvent);
+
+				else if (target.removeEventListener)
+					target.removeEventListener(event,onEvent);
+
+				else throw new Error("not an event dispatcher");
+			});
 		}
-
-		if (target.on)
-			target.on(event,onEvent);
-
-		else if (target.addEventListener)
-			target.addEventListener(event,onEvent);
-
-		else throw new Error("not an event dispatcher: "+target);
-
-		return (()=>{
-			if (target.off)
-				target.off(event,onEvent);
-
-			else if (target.removeEventListener)
-				target.removeEventListener(event,onEvent);
-
-			else throw new Error("not an event dispatcher");
-		});
 	},[target,event]);
 }
 
