@@ -7,9 +7,9 @@ export function KatnipView() {
 	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
 
-	useEventUpdate("locationchange");
-	useEventUpdate("popstate");
-	useEventListener("message",window,(ev)=>{
+	useEventUpdate(window,"locationchange");
+	useEventUpdate(window,"popstate");
+	useEventListener(window,"message",(ev)=>{
 		switch (ev.data.type) {
 			case "setSession":
 				//setSession(ev.data.values);

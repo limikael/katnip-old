@@ -158,37 +158,35 @@ export function useImmediateEffect(effect, deps) {
 	}, []);
 };
 
-export function useEventListener(event, target, func) {
+export function useEventListener(target, event, func) {
 	useImmediateEffect(()=>{
 		function onEvent(...params) {
 			func(...params);
 		}
 
-		if (target) {
-			if (target.on)
-				target.on(event,onEvent);
+		if (target.on)
+			target.on(event,onEvent);
 
-			else if (target.addEventListener)
-				target.addEventListener(event,onEvent);
+		else if (target.addEventListener)
+			target.addEventListener(event,onEvent);
+
+		else throw new Error("not an event dispatcher: "+target);
+
+		return (()=>{
+			if (target.off)
+				target.off(event,onEvent);
+
+			else if (target.removeEventListener)
+				target.removeEventListener(event,onEvent);
 
 			else throw new Error("not an event dispatcher");
-
-			return (()=>{
-				if (target.off)
-					target.off(event,onEvent);
-
-				else if (target.removeEventListener)
-					target.removeEventListener(event,onEvent);
-
-				else throw new Error("not an event dispatcher");
-			});
-		}
+		});
 	},[target,event]);
 }
 
-export function useEventUpdate(event, target=window) {
+export function useEventUpdate(target, event) {
 	let forceUpdate=useForceUpdate();
-	useEventListener(event,target,forceUpdate);
+	useEventListener(target,event,forceUpdate);
 }
 
 export function useModal() {

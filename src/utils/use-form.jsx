@@ -77,7 +77,7 @@ export function useForm(conf) {
 
 	let form=useInstance(Form,conf);
 	form.updateConf(conf);
-	useEventUpdate("change",form);
+	useEventUpdate(form,"change");
 	let changed=useValueChanged(form.deps);
 	if (changed)
 		form.load();

@@ -38,7 +38,7 @@ export function CustomizerSidebar({request, iframeRef}) {
 		});
 	}
 
-	useEventListener("change",form,postValues);
+	useEventListener(form,"change",postValues);
 
 	function onLoad() {
 		postValues();

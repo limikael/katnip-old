@@ -57,7 +57,7 @@ export default class ChannelManager extends EventEmitter {
 			}
 		},[channelId]);
 
-		useEventUpdate("change",this.channelData[channelId]);
+		useEventUpdate(this.channelData[channelId],"change");
 
 		if (dontUse)
 			throw new Error("don't use this param");

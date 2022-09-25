@@ -40,7 +40,7 @@ export function ResourceBlocker({children}) {
 	if (!managerRef.current)
 		managerRef.current=new ResourceManager();
 
-	useEventUpdate("change",managerRef.current);
+	useEventUpdate(managerRef.current,"change");
 
 	let style={};
 	if (managerRef.current.isLoading())

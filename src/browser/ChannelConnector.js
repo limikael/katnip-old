@@ -49,7 +49,7 @@ export default class ChannelConnector extends EventEmitter {
 	}
 
 	useWebSocketStatus=()=>{
-		useEventUpdate("statusChange",this);
+		useEventUpdate(this,"statusChange");
 		return this.isConnected();
 	}
 
