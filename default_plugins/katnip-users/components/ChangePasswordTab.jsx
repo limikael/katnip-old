@@ -1,14 +1,14 @@
-import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter} from "katnip";
+import {katnip, PromiseButton, BsAlert, useForm, delay, quest, useCounter} from "katnip";
 import {useState} from "react";
 
 export default function ChangePasswordTab() {
 	let [counter, invalidate]=useCounter();
-	let [values, field]=useForm({},[counter]);
+	let form=useForm({imitial: {}, deps: [counter]});
 	let [message, setMessage]=useState();
 
 	async function onChangePasswordClick() {
 		setMessage();
-		await apiFetch("/api/changePassword",values);
+		await quest("/api/changePassword",{query: form.getCurrent()});
 		setMessage("Your password has been changed.");
 		invalidate();
 	}
@@ -19,17 +19,17 @@ export default function ChangePasswordTab() {
 			<div class="mb-3" >
 				<label class="form-label">Old Password</label>
 				<input type="password" class="form-control"
-						{...field("oldPassword")}/>
+						{...form.field("oldPassword")}/>
 			</div>
 			<div class="mb-3" >
 				<label class="form-label">New Password</label>
 				<input type="password" class="form-control"
-					{...field("newPassword")}/>
+					{...form.field("newPassword")}/>
 			</div>
 			<div class="mb-3" >
 				<label class="form-label">Repeat New Password</label>
 				<input type="password" class="form-control"
-					{...field("repeatNewPassword")}/>
+					{...form.field("repeatNewPassword")}/>
 			</div>
 			<PromiseButton class="btn btn-primary mt-3"
 					onclick={onChangePasswordClick}

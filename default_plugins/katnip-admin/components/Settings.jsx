@@ -1,6 +1,6 @@
-import {apiFetch, useChannel, useForm, BsGroupInput, 
+import {quest, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BsAlert, A, setLocation,
-		useRevertibleState, buildUrl, useApiFetch,
+		useRevertibleState, buildUrl, useQuest,
 		BsLoader} from "katnip";
 import {useState} from "react";
 
@@ -47,19 +47,19 @@ function SettingsInput({setting, field, values}) {
 
 export default function Settings({request}) {
 	let categoryId=request.query.category;
-	let categories=useApiFetch("/api/getSettingCategories");
+	let categories=useQuest("/api/getSettingCategories");
 	let [message, setMessage]=useRevertibleState("",[categoryId]);
 
 	let form=useForm({
 		deps: [categoryId],
 		initial: async()=>{
-			return apiFetch("/api/getSettings",{category: categoryId});
+			return quest("/api/getSettings",{query: {category: categoryId}});
 		}
 	});
 
 	async function write() {
 		setMessage();
-		await apiFetch("/api/saveSettings",form.getCurrent());
+		await quest("/api/saveSettings",{query: form.getCurrent()});
 
 		for (let setting of categories[categoryId].settings)
 			if (setting.session)

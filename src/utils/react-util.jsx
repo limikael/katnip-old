@@ -1,5 +1,5 @@
 import {useRef, useReducer, useState, useEffect, useLayoutEffect, useMemo, useCallback} from "preact/compat";
-import {apiFetch} from "./js-util.js";
+import {quest} from "./js-util.js";
 
 export function useForceUpdate() {
 	const [_, forceUpdate] = useReducer((x) => x + 1, 1);
@@ -43,15 +43,18 @@ export function usePromise(fn, deps) {
 	return result;
 }
 
-export function useApiFetch(url, query={}, deps=[]) {
+export function useQuest(url, options={}, deps=[]) {
 	//console.log("useFetch: "+url+" "+JSON.stringify(query)+" "+JSON.stringify(deps));
+
+	if (options.deps)
+		deps=[...deps,...options.deps];
 
 	let result=usePromise(async ()=>{
 		if (!url)
 			return url;
 
 		try {
-			return await apiFetch(url,query);
+			return await quest(url,options);
 		}
 
 		catch (e) {

@@ -1,4 +1,4 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl, quest} from "katnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
 

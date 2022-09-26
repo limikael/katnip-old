@@ -1,5 +1,5 @@
-import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
-		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
+import {katnip, A, ItemList, quest, setLocation, buildUrl,
+		useForm, useCounter, useQuest, useValueChanged, PromiseButton,
 		setCurrentUser, useChannel} from "katnip";
 import {useRef, useState} from "preact/compat";
 
@@ -11,7 +11,7 @@ export default function SignupForm(props) {
 	async function onSignupClick() {
 		setMessage();
 
-		let u=await katnip.apiFetch("/api/signup",form.getCurrent());
+		let u=await katnip.quest("/api/signup",{query: form.getCurrent()});
 
 		setCurrentUser(u);
 		katnip.setLocation(postloginpath);

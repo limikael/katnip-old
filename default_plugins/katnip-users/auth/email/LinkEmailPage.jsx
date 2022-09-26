@@ -1,5 +1,5 @@
-import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
-		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
+import {katnip, A, ItemList, quest, setLocation, buildUrl,
+		useForm, useCounter, useQuest, useValueChanged, PromiseButton,
 		setCurrentUser, useChannel, useTemplateContext} from "katnip";
 import {useRef, useState} from "preact/compat";
 
@@ -13,7 +13,7 @@ export default function LinkEmailPage(props) {
 	async function onSignupClick() {
 		setMessage();
 
-		let u=await katnip.apiFetch("/api/signup",form.getCurrent());
+		let u=await katnip.quest("/api/signup",{query: form.getCurrent()});
 
 		setCurrentUser(u);
 		katnip.setLocation("/account");
@@ -27,9 +27,9 @@ export default function LinkEmailPage(props) {
 						<input type="text" class="form-control mb-3" placeholder="Username / Email"
 								{...form.field("email")}/>
 						<input type="password" class="form-control mb-3" placeholder="Password"
-								{...from.field("password")}/>
+								{...form.field("password")}/>
 						<input type="password" class="form-control" placeholder="Repeat Password" 
-								{...from.field("repeatPassword")}/>
+								{...form.field("repeatPassword")}/>
 					</form>
 
 					{message &&

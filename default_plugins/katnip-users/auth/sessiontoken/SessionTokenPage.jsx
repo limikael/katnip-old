@@ -1,4 +1,4 @@
-import {useTemplateContext, PromiseButton, apiFetch, useForm, setCurrentUser,
+import {useTemplateContext, PromiseButton, quest, useForm, setCurrentUser,
 		setLocation, useChannel, useForceUpdate} from "katnip";
 import {useState} from "react";
 
@@ -24,7 +24,7 @@ export default function SessionTokenPage({request}) {
 			return;
 		}*/
 
-		let userData=await apiFetch("/api/useToken",{token: values.token});
+		let userData=await quest("/api/useToken",{query: {token: values.token}});
 
 		document.cookie=`token=${values.token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;
 		setCurrentUser(userData);

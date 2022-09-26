@@ -88,7 +88,7 @@ export default function AccountPage() {
 	}
 
 	async function onLogoutClick() {
-		await katnip.apiFetch("/api/logout");
+		await katnip.quest("/api/logout");
 		katnip.setCurrentUser(null);
 		//setSession({user: null});
 	}

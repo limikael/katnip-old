@@ -1,5 +1,5 @@
-import {katnip, A, ItemList, setLocation, buildUrl} from "katnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel} from "katnip";
+import {katnip, A, ItemList, setLocation, buildUrl, BsAlert} from "katnip";
+import {useQuest, quest, useForm, useCounter, useValueChanged, useChannel} from "katnip";
 import {useState, useContext} from "preact/compat";
 import XMLToReactModule from 'xml-to-react';
 
@@ -18,8 +18,7 @@ katnip.addElement("Img",(props)=>{
 export default function PageView({request}) {
 	let tc=katnip.useTemplateContext();
 	let pageQuery=request.pathargs[1];
-	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
-	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
+	let page=useQuest("/api/getPageView",{query: {query: pageQuery}},[pageQuery]);
 
 	if (!page)
 		return;

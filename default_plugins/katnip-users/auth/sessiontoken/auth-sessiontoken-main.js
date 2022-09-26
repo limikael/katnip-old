@@ -1,4 +1,4 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl} from "katnip";
 import User from "../../src/User.js";
 
 katnip.addSetting("authSessionTokenEnable",{

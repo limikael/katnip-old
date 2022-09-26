@@ -1,5 +1,5 @@
 import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader} from "katnip";
-import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "katnip";
+import {useQuest, quest, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
@@ -15,7 +15,7 @@ function PageEdit({request}) {
 			if (!request.query.id)
 				return {};
 
-			return await apiFetch("/api/page/get",{id: request.query.id});
+			return await quest("/api/page/get",{query: {id: request.query.id}});
 		},
 		deps: [request.query.id]
 	});
@@ -23,7 +23,7 @@ function PageEdit({request}) {
 	async function write() {
 		setMessage();
 		try {
-			let saved=await apiFetch("/api/page/save",form.getCurrent());
+			let saved=await quest("/api/page/save",{query: form.getCurrent()});
 			setLocation(buildUrl("/admin/page",{id: saved.id}));
 			form.setCurrent(saved);
 			setMessage("Saved...");
@@ -75,11 +75,11 @@ function PageList({request}) {
 	};
 
 	async function getPages() {
-		return await apiFetch("/api/page/list");
+		return await quest("/api/page/list");
 	}
 
 	async function onDelete(id) {
-		await apiFetch("/api/page/delete",{id: id});
+		await quest("/api/page/delete",{query: {id: id}});
 		return "Page deleted.";
 	}
 

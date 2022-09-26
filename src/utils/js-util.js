@@ -64,18 +64,21 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
-export async function apiFetch(url, query={}, extraHeaders={}) {
-	let	headers={
-		"Content-Type": "application/json"
-	};
+export async function quest(url, options={}) {
+	if (!options.query)
+		options.query={};
 
-	headers={...headers,...extraHeaders};
+	if (!options.headers)
+		options.headers={};
+
+	if (!options.headers["Content-Type"])
+		options.headers["Content-Type"]="application/json";
 
 	let response=await fetch(url,{
 		method: "POST",
-		headers: headers,
+		headers: options.headers,
 		cache: "no-cache",
-		body: JSON.stringify(query)
+		body: JSON.stringify(options.query)
 	});
 	let text=await response.text();
 	let data;

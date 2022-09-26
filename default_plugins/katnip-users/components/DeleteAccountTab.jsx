@@ -1,15 +1,15 @@
-import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
+import {katnip, PromiseButton, BsAlert, useForm, delay, quest, useCounter,
 		useCurrentUser, setCurrentUser} from "katnip";
 import {useState} from "preact/compat";
 
 export default function DeleteAccountTab() {
-	let [values, field]=useForm({});
+	let form=useForm({initial: {}});
 	let [message, setMessage]=useState();
 	let user=useCurrentUser();
 
 	async function onDeleteAccountClick() {
 		setMessage();
-		await apiFetch("/api/deleteAccount",values);
+		await quest("/api/deleteAccount",{query: form.getCurrent()});
 
 		setCurrentUser(null);
 		katnip.setLocation("/");
@@ -24,7 +24,7 @@ export default function DeleteAccountTab() {
 					This cannot be undone!
 				</label>
 				<input type="password" class="form-control"
-					{...field("password")}/>
+					{...form.field("password")}/>
 			</div>
 			<PromiseButton class="btn btn-danger mt-3"
 					onclick={onDeleteAccountClick}

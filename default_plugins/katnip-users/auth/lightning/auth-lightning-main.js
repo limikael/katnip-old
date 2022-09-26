@@ -1,4 +1,4 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl} from "katnip";
 import {bech32, bech32m} from "bech32";
 import secp256k1 from "secp256k1";
 import ExpiringMap from "../../../../src/utils/ExpiringMap.js";

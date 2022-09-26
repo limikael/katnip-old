@@ -1,4 +1,4 @@
-import {katnip, useChannel, A, useTemplateContext, useApiFetch, useCurrentUser} from "katnip";
+import {katnip, useChannel, A, useTemplateContext, useQuest, useCurrentUser} from "katnip";
 import Qrious from "qrious";
 import {useMemo, useState} from "preact/compat";
 
@@ -18,7 +18,7 @@ function QrImg(props) {
 
 export default function LightningLoginPage() {
 	let tc=useTemplateContext();
-	let code=useApiFetch("/api/lightningAuthCode");
+	let code=useQuest("/api/lightningAuthCode");
 	let user=useCurrentUser();
 	let postloginpath=useChannel("postloginpath");
 	let [linking, setLinking]=useState();

@@ -1,4 +1,4 @@
-import {katnip, A, useApiFetch, useRevertibleState} from "katnip";
+import {katnip, A, useQuest, useRevertibleState} from "katnip";
 import {useState} from "preact/compat";
 import TRASH_ICON from "bootstrap-icons/icons/x-lg.svg";
 import ARROW_UP from "bootstrap-icons/icons/caret-up-fill.svg";
@@ -46,7 +46,10 @@ function MenuTabs({request}) {
 export default function MenuEditor({request}) {
 	let menuSetting=request.query.setting;
 	let url=menuSetting?"/api/getMenu":undefined;
-	let serverState=useApiFetch(url,{setting: menuSetting},[url,menuSetting]);
+	let serverState=useQuest(url,{
+		query: {setting: menuSetting}, 
+		deps: [url,menuSetting]
+	});
 	let [menus,setMenus,modified]=useRevertibleState(serverState,[serverState,url,menuSetting]);
 	let [activeIndex,setActiveIndex]=useRevertibleState(-1,[serverState,url,menuSetting]);
 	let [saving,setSaving]=useState();
@@ -131,10 +134,10 @@ export default function MenuEditor({request}) {
 
 	async function onSaveClick() {
 		setSaving(true);
-		await katnip.apiFetch("/api/saveMenu",{
+		await katnip.quest("/api/saveMenu",{query: {
 			setting: menuSetting,
 			value: menus
-		});
+		}});
 		setSaving(false);
 	}
 

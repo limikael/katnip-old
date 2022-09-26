@@ -18,7 +18,7 @@ function Nav() {
 	async function onLogoutClick(ev) {
 		ev.preventDefault();
 
-		await katnip.apiFetch("/api/logout");
+		await katnip.quest("/api/logout");
 		katnip.setCurrentUser(null);
 	}
 

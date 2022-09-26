@@ -1,4 +1,4 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl, quest} from "katnip";
 import ClientOAuth2 from "client-oauth2";
 import User, {UserAuthMethod} from "../../src/User.js";
 
@@ -63,7 +63,7 @@ katnip.addApi("/api/googleAuth",async (req)=>{
 		id_token: res.data.id_token
 	});
 
-	let tokenInfo=await apiFetch(googleApiUrl);
+	let tokenInfo=await quest(googleApiUrl);
 	if (!tokenInfo.email)
 		throw new Error("Unable to login with google");
 

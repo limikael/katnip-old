@@ -1,5 +1,5 @@
-import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
-		useForm, useCounter, useApiFetch, useValueChanged,
+import {katnip, A, ItemList, quest, setLocation, buildUrl,
+		useForm, useCounter, useQuest, useValueChanged,
 		BsInput, PromiseButton, BsLoader} from "katnip";
 import {useRef, useState} from "react";
 import {getRoles} from "../src/rolecaps.js";
@@ -11,11 +11,11 @@ export function UserList() {
 	};
 
 	async function getUsers() {
-		return await apiFetch("/api/getAllUsers");
+		return await quest("/api/getAllUsers");
 	}
 
 	async function onDelete(id) {
-		await apiFetch("/api/deleteUser",{id: id});
+		await quest("/api/deleteUser",{query: {id: id}});
 		return "Deleted";
 	}
 
@@ -45,13 +45,13 @@ export function UserEdit({request}) {
 		if (!userId)
 			return {};
 
-		return await apiFetch("/api/getUser",{id: userId});
+		return await quest("/api/getUser",{query: {id: userId}});
 	}
 
 	let form=useForm({deps: [userId], initial: read});
 
 	async function write() {
-		let saved=await apiFetch("/api/saveUser",form.getCurrent());
+		let saved=await quest("/api/saveUser",{query: form.getCurrent()});
 		setLocation(buildUrl("/admin/user",{id: saved.id}));
 	}
 

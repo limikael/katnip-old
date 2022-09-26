@@ -1,5 +1,5 @@
-import {katnip, PromiseButton, useForm, delay, apiFetch,
-		useCurrentUser, setCurrentUser, useApiFetch, A, bindArgs,
+import {katnip, PromiseButton, useForm, delay, quest,
+		useCurrentUser, setCurrentUser, useQuest, A, bindArgs,
 		useCounter, useForceUpdate, useModal, setLocation} from "katnip";
 import {useState, useRef} from "preact/compat";
 
@@ -36,14 +36,14 @@ function DeleteAccountModal({resolve}) {
 export default function AuthenticationTab() {
 	let [counter, invalidate]=useCounter();
 	let user=useCurrentUser();
-	let authMethods=useApiFetch("/api/authMethodStatus",{},[counter]);
+	let authMethods=useQuest("/api/authMethodStatus",{deps: [counter]});
 	let [modal, showModal, resolveModal]=useModal();
 
 	if (authMethods===undefined)
 		return <div class="spinner-border m-3"/>;
 
 	async function onUnlinkClick(methodId) {
-		let user=await apiFetch("/api/unlinkAuthMethod",{methodId});
+		let user=await quest("/api/unlinkAuthMethod",{query: {methodId}});
 
 		setCurrentUser(user);
 		invalidate();
@@ -78,7 +78,7 @@ export default function AuthenticationTab() {
 	async function onDeleteClick() {
 		let res=await showModal(<DeleteAccountModal resolve={resolveModal}/>);
 		if (res) {
-			await apiFetch("/api/deleteAccount");
+			await quest("/api/deleteAccount");
 			console.log("deleting");
 			setCurrentUser(null);
 			setLocation();

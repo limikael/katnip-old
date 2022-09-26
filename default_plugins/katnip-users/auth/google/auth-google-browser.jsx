@@ -1,9 +1,9 @@
-import {katnip, useApiFetch, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
+import {katnip, quest, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
 import {useMemo} from "react";
 
 export default function GoogleAuth({request}) {
 	let tc=useTemplateContext();
-	let newUser=useApiFetch("/api/googleAuth",{url: request.href});
+	let newUser=useQuest("/api/googleAuth",{query: {url: request.href}});
 	let postloginpath=useChannel("postloginpath");
 	let user=useCurrentUser();
 	let linking=useMemo(()=>{

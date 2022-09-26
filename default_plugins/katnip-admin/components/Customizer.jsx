@@ -1,4 +1,4 @@
-import {katnip, A, buildUrl, useForm, BsInput, PromiseButton, optionsFromObject, apiFetch,
+import {katnip, A, buildUrl, useForm, BsInput, PromiseButton, optionsFromObject, quest,
 		useEventListener} from "katnip";
 import {useState, useRef, useEffect} from "react";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
@@ -54,7 +54,7 @@ export function CustomizerSidebar({request, iframeRef}) {
 	}
 
 	async function write() {
-		await apiFetch("/api/saveSettings",form.getCurrent());
+		await quest("/api/saveSettings",{query:form.getCurrent()});
 		for (let k in form.getCurrent()) {
 			katnip.setChannelPersistence(k,true);
 			katnip.setChannelValue(k,form.getCurrent()[k]);
