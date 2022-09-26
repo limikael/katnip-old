@@ -4,7 +4,7 @@ export default class KatnipRequest {
 	constructor() {
 	}
 
-	matchPath() {
+	pathmatch() {
 	}
 
 	processUrl(url) {
@@ -12,6 +12,7 @@ export default class KatnipRequest {
 		this.query=Object.fromEntries(new URLSearchParams(l.search));
 		this.pathargs=l.pathname.split("/").filter(s=>s.length>0);
 		this.pathname="/"+this.pathargs.join("/");
+		this.path=this.pathname;
 		this.href=l.href;
 		this.url=l.pathname+l.search;
 		this.origin=l.origin;

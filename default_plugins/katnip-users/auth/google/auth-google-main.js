@@ -54,7 +54,9 @@ katnip.addChannel("googleAuthUrl",({}, req)=>{
 		return createGoogleAuthClient(req.origin).code.getUri();
 });
 
-katnip.addApi("/api/googleAuth",async ({url}, req)=>{
+katnip.addApi("/api/googleAuth",async (req)=>{
+	let {url}=req.query;
+
 	let res=await createGoogleAuthClient(req.origin).code.getToken(url);
 
 	let googleApiUrl=buildUrl("https://oauth2.googleapis.com/tokeninfo",{

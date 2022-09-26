@@ -11,7 +11,9 @@ katnip.addAction("authMethods",(authMethods, req)=>{
 	});
 });
 
-katnip.addApi("/api/login",async ({email, password}, req)=>{
+katnip.addApi("/api/login",async (req)=>{
+	let {email, password}=req.query;
+
 	let user=await katnip.db.User.findOneByAuth("email", email);
 
 	if (!user)
@@ -24,7 +26,9 @@ katnip.addApi("/api/login",async ({email, password}, req)=>{
 	return user;
 });
 
-katnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
+katnip.addApi("/api/signup",async (req)=>{
+	let {email, password, repeatPassword}=req.query;
+
 	if (await User.findOneByAuth("email",email))
 		throw new Error("The email is already in use");
 

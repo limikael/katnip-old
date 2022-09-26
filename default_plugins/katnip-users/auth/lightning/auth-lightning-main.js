@@ -18,9 +18,9 @@ katnip.addSetting("authLightningEnable",{
 	}
 });
 
-katnip.addApi("/api/lightningAuth",async (query, req)=>{
+katnip.addApi("/api/lightningAuth",async (req)=>{
 	try {
-		let {k1, key, sig}=query;
+		let {k1, key, sig}=req.query;
 
 		//console.log(query);
 		let sigData=Buffer.from(sig,'hex');
@@ -75,7 +75,7 @@ katnip.addApi("/api/lightningAuth",async (query, req)=>{
 	}
 });
 
-katnip.addApi("/api/lightningAuthCode",async (params, req)=>{
+katnip.addApi("/api/lightningAuthCode",async (req)=>{
 	let k1=k1BySessionId.get(req.sessionId);
 
 	if (!k1)

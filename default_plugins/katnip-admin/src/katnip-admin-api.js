@@ -1,7 +1,7 @@
 import {katnip} from "katnip";
 
-katnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
-	sreq.assertCap("manage-settings");
+katnip.addApi("/api/getSettingCategories",async (req)=>{
+	req.assertCap("manage-settings");
 
 	let categories=katnip.getSettingCategories();
 	for (let categoryId in categories) {
@@ -17,8 +17,10 @@ katnip.addApi("/api/getSettingCategories",async ({},sreq)=>{
 	return categories;
 });
 
-katnip.addApi("/api/getSettings",async ({category},sreq)=>{
-	sreq.assertCap("manage-settings");
+katnip.addApi("/api/getSettings",async (req)=>{
+	let {category}=req.query;
+
+	req.assertCap("manage-settings");
 	let res={};
 
 	for (let setting of katnip.getSettings({category: category}))
@@ -27,8 +29,9 @@ katnip.addApi("/api/getSettings",async ({category},sreq)=>{
 	return res;
 });
 
-katnip.addApi("/api/saveSettings",async (settings, sreq)=>{
-	sreq.assertCap("manage-settings");
+katnip.addApi("/api/saveSettings",async (req)=>{
+	let settings=req.query;
+	req.assertCap("manage-settings");
 
 	for (let k in settings)
 		await katnip.setSetting(k,settings[k]);

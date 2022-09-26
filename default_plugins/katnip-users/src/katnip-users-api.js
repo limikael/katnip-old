@@ -2,9 +2,9 @@ import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
 
-katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
-	sreq.assertCap("user");
-	let user=sreq.getUser();
+katnip.addApi("/api/deleteAccount",async (req)=>{
+	req.assertCap("user");
+	let user=req.getUser();
 
 	let userAuthMethods=await UserAuthMethod.findMany({
 		userId: user.id
@@ -14,24 +14,28 @@ katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 		await userAuthMethod.delete();
 
 	await user.delete();
-	await katnip.setSessionValue(sreq.sessionId,null);
+	await katnip.setSessionValue(req.sessionId,null);
 });
 
-katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
-	sess.assertCap("manage-users");
+katnip.addApi("/api/getAllUsers",async (req)=>{
+	req.assertCap("manage-users");
 
 	return katnip.db.User.findMany();
 });
 
-katnip.addApi("/api/getUser",async ({id}, sess)=>{
-	sess.assertCap("manage-users");
+katnip.addApi("/api/getUser",async (req)=>{
+	let {id}=req.query;
+
+	req.assertCap("manage-users");
 	let u=await katnip.db.User.findOne({id: id});
 
 	return u;
 });
 
-katnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
-	sess.assertCap("manage-users");
+katnip.addApi("/api/saveUser",async (req)=>{
+	let {id, email, password, role}=req.query;
+
+	req.assertCap("manage-users");
 	let u;
 
 	if (id)
@@ -48,13 +52,15 @@ katnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
 	return u;
 });
 
-katnip.addApi("/api/deleteUser",async ({id}, sess)=>{
-	sess.assertCap("manage-users");
+katnip.addApi("/api/deleteUser",async (req)=>{
+	let {id}=req.query;
+
+	req.assertCap("manage-users");
 	let u=await katnip.db.User.findOne({id: id});
 	await u.delete();
 });
 
-katnip.addApi("/api/authMethodStatus",async ({},req)=>{
+katnip.addApi("/api/authMethodStatus",async (req)=>{
 	let user=req.getUser();
 	if (!user)
 		throw new Error("Not logged in");
@@ -71,11 +77,13 @@ katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	return authMethods;
 });
 
-katnip.addApi("/api/logout",async ({}, req)=>{
+katnip.addApi("/api/logout",async (req)=>{
 	await katnip.setSessionValue(req.sessionId,null);
 });
 
-katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
+katnip.addApi("/api/unlinkAuthMethod",async (req)=>{
+	let {methodId}=req.query;
+
 	let user=req.getUser();
 	if (!user)
 		throw new Error("Not logged in");
@@ -94,7 +102,9 @@ katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 	return user;
 });
 
-katnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
+katnip.addApi("/api/install",async (req)=>{
+	let {email, password, repeatPassword}=req.query;
+
 	if (!katnip.getSetting("install"))
 		throw new Error("Not install mode");
 

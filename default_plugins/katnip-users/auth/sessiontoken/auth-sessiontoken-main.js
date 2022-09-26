@@ -12,7 +12,9 @@ katnip.addSetting("authSessionTokenEnable",{
 	}
 });
 
-katnip.addApi("/api/useToken",async ({token}, req)=>{
+katnip.addApi("/api/useToken",async (req)=>{
+	let {token}=req.query;
+
 	if (!token || token.length!=36)
 		throw new Error("That's not a token");
 

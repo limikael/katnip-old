@@ -106,7 +106,8 @@ export default class KatnipRequestHandler {
 		let func=this.katnip.apis[req.pathname];
 		if (func) {
 			try {
-				let data=await func(req.query,req);
+//				let data=await func(req.query,req);
+				let data=await func(req);
 
 				res.writeHead(200);
 				if (!data)

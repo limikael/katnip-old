@@ -6,13 +6,15 @@ export function createCrudApi(model, options={}) {
 	if (!options.cap)
 		options.cap="manage-settings";
 
-	katnip.addApi(`/api/${name}/list`,async ({}, sreq)=>{
-		sreq.assertCap(options.cap);
+	katnip.addApi(`/api/${name}/list`,async (req)=>{
+		req.assertCap(options.cap);
 		return model.findMany();
 	});
 
-	katnip.addApi(`/api/${name}/get`,async ({id}, sreq)=>{
-		sreq.assertCap(options.cap);
+	katnip.addApi(`/api/${name}/get`,async (req)=>{
+		let {id}=req.query;
+
+		req.assertCap(options.cap);
 		let item=await model.findOne({id: id});
 
 		if (!item)
@@ -21,7 +23,9 @@ export function createCrudApi(model, options={}) {
 		return item;
 	});
 
-	katnip.addApi(`/api/${name}/save`,async (query, sreq)=>{
+	katnip.addApi(`/api/${name}/save`,async (req)=>{
+		let query=req.query;
+
 		sreq.assertCap(options.cap);
 		let item;
 
@@ -46,8 +50,9 @@ export function createCrudApi(model, options={}) {
 		return item;
 	});
 
-	katnip.addApi(`/api/${name}/delete`,async ({id}, sreq)=>{
-		sreq.assertCap(options.cap);
+	katnip.addApi(`/api/${name}/delete`,async (req)=>{
+		let {id}=req.query;
+		req.assertCap(options.cap);
 
 		let item=await model.findOne({id: id});
 		if (!item)

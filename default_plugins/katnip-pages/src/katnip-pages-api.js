@@ -1,6 +1,8 @@
 import {katnip} from "katnip";
 
-katnip.addApi("/api/getPageView",async ({query})=>{
+katnip.addApi("/api/getPageView",async (req)=>{
+	let {query}=req.query;
+
 	let page=await katnip.db.Page.findOne({
 		$op: "or",
 		slug: query,
@@ -17,6 +19,8 @@ katnip.addChannel("numPages",async ()=>{
 	return await katnip.db.Page.getCount();
 });
 
-katnip.addChannel("pageContent",async ({id})=>{
+katnip.addChannel("pageContent",async (req)=>{
+	let {id}=req.query;
+
 	return await katnip.db.Page.findOne(id);
 });
