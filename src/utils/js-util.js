@@ -64,12 +64,12 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
-export async function apiFetch(url, query={}, extraHeaders={}) {
+export async function apiFetch(url, query={}, options={}) {
 	let	headers={
 		"Content-Type": "application/json"
 	};
 
-	headers={...headers,...extraHeaders};
+	headers={...headers,...options.headers};
 
 	let response=await fetch(url,{
 		method: "POST",

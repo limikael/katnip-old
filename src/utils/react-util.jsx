@@ -43,7 +43,22 @@ export function usePromise(fn, deps) {
 	return result;
 }
 
-export function useApiFetch(url, query={}, deps=[]) {
+export function useApiFetch(url, query={}, third, fourth) {
+	let options={};
+	let deps=[];
+
+	if (Array.isArray(third))
+		deps=third;
+
+	if (Array.isArray(fourth))
+		deps=fourth;
+
+	if (third && Object(third)==third)
+		options=third;
+
+	if (fourth && Object(fourth)==fourth)
+		options=fourth;
+
 	//console.log("useFetch: "+url+" "+JSON.stringify(query)+" "+JSON.stringify(deps));
 
 	let result=usePromise(async ()=>{
@@ -51,7 +66,7 @@ export function useApiFetch(url, query={}, deps=[]) {
 			return url;
 
 		try {
-			return await apiFetch(url,query);
+			return await apiFetch(url,query,options);
 		}
 
 		catch (e) {
