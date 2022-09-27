@@ -5,10 +5,11 @@ import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
+import PageEdit from "./PageEdit.jsx";
 
 dayjs.extend(relativeTime);
 
-function PageEdit({request}) {
+/*function PageEdit({request}) {
 	let [message, setMessage]=useState();
 	let form=useForm({
 		initial: async ()=>{
@@ -62,7 +63,7 @@ function PageEdit({request}) {
 			</div>
 		</BsLoader>
 	</>);
-}
+}*/
 
 function PageList({request}) {
 	function formatStamp(item) {

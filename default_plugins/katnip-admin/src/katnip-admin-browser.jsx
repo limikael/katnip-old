@@ -11,6 +11,14 @@ katnip.addTemplate("admin/**",AdminTemplate);
 katnip.addRoute("admin",Dashboard);
 katnip.addRoute("admin/settings/**",Settings);
 
+katnip.addRoute("admin/test",()=>{
+	let els=[];
+	for (let i=0; i<100; i++)
+		els.push(<div>{"el"+i}</div>);
+
+	return <>{els}</>;
+});
+
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Dashboard",
@@ -33,4 +41,11 @@ katnip.addAction("getAdminMenu",(items)=>{
 		icon: GEAR
 	});
 
+	items.push({
+		title: "Test",
+		href: "/admin/test",
+		priority: 100,
+		icon: GEAR
+	});
 });
+

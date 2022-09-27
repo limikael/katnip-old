@@ -56,6 +56,15 @@ export default class KatnipServer {
 		return packageDir+"/"+pkg.main;
 	}
 
+	linkAlias(pkg, target) {
+		if (!fs.existsSync(`node_modules/${pkg}`))
+			fs.symlinkSync("preact/compat",`node_modules/${pkg}`,"dir");
+
+		let stat=fs.lstatSync(`node_modules/${pkg}`);
+		if (!stat.isSymbolicLink())
+			throw new Error(`${pkg} is not a link`);
+	}
+
 	async build() {
 		if (!this.options.minify)
 			this.options.minify=false;
@@ -63,12 +72,8 @@ export default class KatnipServer {
 		this.outDir=await createOutDir();
 		console.log("Building in: "+this.outDir+" minify: "+this.options.minify);
 
-		if (!fs.existsSync("node_modules/react"))
-			fs.symlinkSync("preact/compat","node_modules/react","dir");
-
-		let stat=fs.lstatSync("node_modules/react");
-		if (!stat.isSymbolicLink())
-			throw new Error("react is not a link");
+		this.linkAlias("react","preact/compat");
+		this.linkAlias("react-dom","preact/compat");
 
 		try {
 			await build({

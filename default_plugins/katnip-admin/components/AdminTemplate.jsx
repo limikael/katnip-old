@@ -126,16 +126,21 @@ export default function AdminTemplate({request, children}) {
 	if (request.pathname=="/admin/customize")
 		content=<Customizer request={request}/>;
 
-	else
+	else {
+		let m="m-3";
+		if (request.pathname=="/admin/page" && (request.query.id || request.query.new))
+			m="";
+
 		content=(<>
 			<Sidebar request={request}/>
 			<div style="width: 100%">
 				<Nav/>
-				<div className="flex-grow-1 m-3">
+				<div className={"flex-grow-1 "+m}>
 					{children}
 				</div>
 			</div>
 		</>);
+	}
 
 	return (
 		<>
