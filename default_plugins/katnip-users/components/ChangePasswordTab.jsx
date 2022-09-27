@@ -3,7 +3,7 @@ import {useState} from "react";
 
 export default function ChangePasswordTab() {
 	let [counter, invalidate]=useCounter();
-	let [values, field]=useForm({},[counter]);
+	let form=useForm({initial: {}, deps: [counter]});
 	let [message, setMessage]=useState();
 
 	async function onChangePasswordClick() {
@@ -19,17 +19,17 @@ export default function ChangePasswordTab() {
 			<div class="mb-3" >
 				<label class="form-label">Old Password</label>
 				<input type="password" class="form-control"
-						{...field("oldPassword")}/>
+						{...form.field("oldPassword")}/>
 			</div>
 			<div class="mb-3" >
 				<label class="form-label">New Password</label>
 				<input type="password" class="form-control"
-					{...field("newPassword")}/>
+					{...form.field("newPassword")}/>
 			</div>
 			<div class="mb-3" >
 				<label class="form-label">Repeat New Password</label>
 				<input type="password" class="form-control"
-					{...field("repeatNewPassword")}/>
+					{...form.field("repeatNewPassword")}/>
 			</div>
 			<PromiseButton class="btn btn-primary mt-3"
 					onclick={onChangePasswordClick}

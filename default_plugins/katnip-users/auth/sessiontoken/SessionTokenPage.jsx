@@ -9,7 +9,7 @@ export default function SessionTokenPage({request}) {
 		document.cookie=`token=${token};expires=Fri, 31 Dec 9999 23:59:59 GMT;path=/`;
 	}
 
-	let [values, field]=useForm({token});
+	let useForm=useForm({initial: {token}});
 	let tc=useTemplateContext();
 	let postloginpath=useChannel("postloginpath");
 	let forceUpdate=useForceUpdate();
@@ -41,7 +41,7 @@ export default function SessionTokenPage({request}) {
 				If you have a session token from another device or browser, you can restore the
 				previous session by entering that session token here.
 			</p>
-			<input type="text" class="form-control mb-3" {...field("token")}/>
+			<input type="text" class="form-control mb-3" {...form.field("token")}/>
 			<p>
 				<PromiseButton class="btn btn-primary" onclick={onUseTokenClick}>
 					Use This Token

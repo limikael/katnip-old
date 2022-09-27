@@ -5,13 +5,13 @@ import {useState} from "react";
 export default function ChangeEmailTab() {
 	let user=useCurrentUser();
 	let [counter, invalidate]=useCounter();
-	let [values, field]=useForm({email: user.email},[counter]);
+	let form=useForm({initial: {email: user.email}, deps: [counter]});
 	let [message, setMessage]=useState();
 
 	async function onChangeEmailClick() {
 		setMessage();
-		let newEmail=values.email;
-		await apiFetch("/api/changeEmail",values);
+		let newEmail=form.getCurrent().email;
+		await apiFetch("/api/changeEmail",form.getCurrent());
 		setMessage("Your email has been changed.");
 
 		user.email=newEmail;
@@ -25,12 +25,12 @@ export default function ChangeEmailTab() {
 			<div class="mb-3" >
 				<label class="form-label">New Email</label>
 				<input type="text" class="form-control"
-						{...field("email")}/>
+						{...form.field("email")}/>
 			</div>
 			<div class="mb-3" >
 				<label class="form-label">Password</label>
 				<input type="password" class="form-control"
-					{...field("password")}/>
+					{...form.field("password")}/>
 			</div>
 			<PromiseButton class="btn btn-primary mt-3"
 					onclick={onChangeEmailClick}
