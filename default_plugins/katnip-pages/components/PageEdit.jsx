@@ -3,10 +3,12 @@ import {useState} from "react";
 import StarterKit from '@tiptap/starter-kit';
 import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
-import {bindArgs} from "katnip";
+import {katnip, bindArgs} from "katnip";
 import { mergeAttributes, Node } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
+
+// ref: https://tiptap.dev/guide/node-views/react
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
@@ -37,41 +39,6 @@ function EditorStructure({tree}) {
 	</>)
 }
 
-function WrappedPageCounter() {
-	return (<>
-		<NodeViewWrapper className="react-component-with-content">
-			<katnip.elements.PageCounter/>
-
-			{/*<NodeViewContent className="content" />*/}
-		</NodeViewWrapper>
-	</>);
-}
-
-
-let PageCounterComponent=Node.create({
-  name: 'PageCounter',
-
-  group: 'block',
-
-  content: 'inline*',
-
-  parseHTML() {
-    return [
-      {
-        tag: 'page-counter',
-      },
-    ]
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['page-counter', mergeAttributes(HTMLAttributes), 0]
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(WrappedPageCounter)
-  },
-});
-
 function ComponentList({editor}) {
 	if (!editor)
 		return;
@@ -83,11 +50,9 @@ function ComponentList({editor}) {
 		{name: "Heading", fn: ()=>editor.chain().focus().toggleHeading({ level: 2 }).run()}
 	];
 
-	function addClicked() {
-		console.log("adding...");
-		//editor.commands.insertContent('<page-counter />');
+	function addComponent(name) {
 		editor.commands.insertContent({
-			type: "PageCounter"
+			type: name
 		});
 	}
 
@@ -101,19 +66,62 @@ function ComponentList({editor}) {
 		<b>Components</b>
 		<p>
 		{Object.entries(katnip.elements).map(([name,fn])=>
-			<button class="btn btn-secondary btn-sm m-1" onclick={addClicked}>{name}</button>
+			<button class="btn btn-secondary btn-sm m-1"
+					onclick={bindArgs(addComponent,name)}>
+				{name}
+			</button>
 		)}
 		</p>
 	</>);
 }
 
+function createElementEditor(elementName) {
+	let Element=katnip.elements[elementName];
+
+	function WrappedNode() {
+		return (
+			<NodeViewWrapper className="react-component">
+				<Element/>
+			</NodeViewWrapper>
+		);
+	}
+
+	return Node.create({
+		name: elementName,
+		group: 'block',
+		content: 'inline*',
+
+		parseHTML() {
+			return [{
+				tag: elementName,
+			}];
+		},
+
+		renderHTML({ HTMLAttributes }) {
+			return [elementName,mergeAttributes(HTMLAttributes),0];
+		},
+
+		addNodeView() {
+			return ReactNodeViewRenderer(WrappedNode);
+		},
+	});
+}
+
+let elementEditors;
+
 export default function PageEdit({request}) {
+	if (!elementEditors) {
+		elementEditors=[];
+
+		for (let k in katnip.elements)
+			elementEditors.push(createElementEditor(k));
+	}
+
 	let [leftMode,setLeftMode]=useState();
 	let editor=useEditor({
-		content: "<div>hello <b>world</b><ul><li>test</li></ul><page-counter /></div> ",
+		content: "<div>hello <b>world</b><ul><li>test</li></ul><PageCounter /></div> ",
 		extensions: [
-			StarterKit,
-			PageCounterComponent
+			StarterKit, ...elementEditors
 		]
 	});
 
@@ -124,6 +132,9 @@ export default function PageEdit({request}) {
 		else
 			setLeftMode(mode);
 	}
+
+	/*if (editor)
+		console.log(editor.getHTML());*/
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">

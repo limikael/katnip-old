@@ -14,6 +14,12 @@ katnip.addElement("PageCounter",()=>{
 	return <div>Num pages: {numPages}</div>
 });
 
+katnip.addElement("Box",()=><>
+	<div class="bg-primary p-5">
+		I'm a box
+	</div>
+</>);
+
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Pages",

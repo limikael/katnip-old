@@ -15,7 +15,7 @@ export default class ChannelConnector extends EventEmitter {
 	}
 
 	initWebSocket=()=>{
-		console.log("WebSocket connecting...");
+		//console.log("WebSocket connecting...");
 		let protocol;
 
 		switch (window.location.protocol) {
@@ -74,7 +74,7 @@ export default class ChannelConnector extends EventEmitter {
 	}
 
 	onClose=()=>{
-		console.log("WebSocket closed")
+		//console.log("WebSocket closed")
 
 		this.channelManager.clearNonPersistent();
 
@@ -88,7 +88,7 @@ export default class ChannelConnector extends EventEmitter {
 	}
 
 	onOpen=()=>{
-		console.log("WebSocket open");
+		//console.log("WebSocket open");
 		for (let channelId of this.channelManager.getChannelIds()) {
 			this.sendMessage({subscribe: channelId});
 		}
