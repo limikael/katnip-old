@@ -11,6 +11,7 @@ import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 // ref: https://tiptap.dev/guide/node-views/react
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
+let elementEditors;
 
 function TreeNode({tree}) {
 	return (<>
@@ -107,7 +108,22 @@ function createElementEditor(elementName) {
 	});
 }
 
-let elementEditors;
+function EditorPath({editor}) {
+	if (!editor)
+		return;
+
+	let headPos=editor.state.selection.$head;
+	let els=[];
+
+	for (let i=0; i<headPos.depth+1; i++) {
+		if (i)
+			els.push(<span class="mx-1">&raquo;</span>);
+
+		els.push(<span>{headPos.node(i).type.name}</span>)
+	}
+
+	return els;
+}
 
 export default function PageEdit({request}) {
 	if (!elementEditors) {
@@ -134,7 +150,7 @@ export default function PageEdit({request}) {
 	}
 
 	/*if (editor)
-		console.log(editor.getHTML());*/
+		console.log(editor.state.selection.$head.path);*/
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
@@ -175,7 +191,7 @@ export default function PageEdit({request}) {
 				<div class="bg-light border-start" style="width: 25%">hello</div>
 			</div>
 			<div class="bg-light border-top px-3 py-1 small">
-				Page &gt; Paragraph
+				<EditorPath editor={editor}/>
 			</div>
 		</div>
 	);
