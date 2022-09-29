@@ -1,14 +1,20 @@
 import {useEditor, EditorContent} from '@tiptap/react';
-import {useState} from "react";
+import {useState, useEffect, useRef} from "react";
 import StarterKit from '@tiptap/starter-kit';
 import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
+import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
-import {katnip, bindArgs} from "katnip";
-import { mergeAttributes, Node } from '@tiptap/core'
-import { ReactNodeViewRenderer } from '@tiptap/react'
-import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
+import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
+import {katnip, bindArgs, BsInput, useForm, PromiseButton, apiFetch, setLocation, buildUrl} from "katnip";
+import {mergeAttributes, Node} from '@tiptap/core'
+import {ReactNodeViewRenderer} from '@tiptap/react'
+import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
 
 // ref: https://tiptap.dev/guide/node-views/react
+// https://tiptap.dev/guide/node-views/js
+// https://tiptap.dev/guide/node-views/react#render-a-react-component
+// https://tiptap.dev/guide/custom-extensions
+// https://tiptap.dev/api/schema#the-node-schema
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 let elementEditors;
@@ -79,10 +85,10 @@ function ComponentList({editor}) {
 function createElementEditor(elementName) {
 	let Element=katnip.elements[elementName];
 
-	function WrappedNode() {
+	function WrappedNode(props) {
 		return (
 			<NodeViewWrapper className="react-component">
-				<Element/>
+				<Element {...props.node.attrs}/>
 			</NodeViewWrapper>
 		);
 	}
@@ -91,6 +97,18 @@ function createElementEditor(elementName) {
 		name: elementName,
 		group: 'block',
 		content: 'inline*',
+
+		addAttributes() {
+			let attrs={};
+
+			if (Element.options && Element.options.controls) {
+				for (let k in Element.options.controls) {
+					attrs[k]={};
+				}
+			}
+
+			return attrs;
+		},
 
 		parseHTML() {
 			return [{
@@ -125,6 +143,55 @@ function EditorPath({editor}) {
 	return els;
 }
 
+function getCurrentNode(editor) {
+	let headPos=editor.state.selection.$head;
+	let node=headPos.node(headPos.depth);
+
+	return node;
+}
+
+function ComponentProperties({editor}) {
+	let node=getCurrentNode(editor);
+
+	if (!node || !katnip.elements[node.type.name])
+		return;
+
+	let controls={};
+	if (katnip.elements[node.type.name].options?.controls)
+		controls=katnip.elements[node.type.name].options.controls;
+
+	function onAttrChange(ev) {
+		let id=ev.target.dataset.id;
+		let update={};
+		update[id]=ev.target.value;
+
+		editor.commands.updateAttributes(node.type,update);
+	}
+
+	return <>
+		<div class="mb-3"><b>{node.type.name}</b></div>
+		{Object.entries(controls).map(([id,control])=>
+			<div class="form-group mb-3">
+				<label class="form-label mb-1">{control.title}</label>
+				<BsInput {...control} 
+						value={node.attrs[id]}
+						onchange={onAttrChange}
+						data-id={id}/>
+			</div>
+		)}
+	</>;
+}
+
+function DocumentProperties({editor, documentForm}) {
+	return <>
+		<div class="mb-3"><b>Document</b></div>
+		<div class="form-group mb-3">
+			<label class="form-label mb-1">Title</label>
+			<BsInput {...documentForm.field("title")} />
+		</div>
+	</>;
+}
+
 export default function PageEdit({request}) {
 	if (!elementEditors) {
 		elementEditors=[];
@@ -134,12 +201,38 @@ export default function PageEdit({request}) {
 	}
 
 	let [leftMode,setLeftMode]=useState();
+	let [rightMode,setRightMode]=useState("document");
+
 	let editor=useEditor({
-		content: "<div>hello <b>world</b><ul><li>test</li></ul><PageCounter /></div> ",
 		extensions: [
 			StarterKit, ...elementEditors
 		]
 	});
+
+	let editorRef=useRef();
+	editorRef.current=editor;
+
+	let documentForm=useForm({
+		initial: async ()=>{
+			let data={content: "", title: "New Page"};
+
+			if (request.query.id)
+				data=await apiFetch("/api/page/get",{id: request.query.id});
+
+			if (editorRef.current)
+				editorRef.current.commands.setContent(data.content);
+
+			return data;
+		},
+		deps: [request.query.id]
+	});
+
+	let initializedRef=useRef();
+	if (editor && !initializedRef.current) {
+		initializedRef.current=true;
+		if (documentForm.getCurrent())
+			editorRef.current.commands.setContent(documentForm.getCurrent().content);
+	}
 
 	function toggleLeftMode(mode) {
 		if (leftMode==mode)
@@ -148,6 +241,28 @@ export default function PageEdit({request}) {
 		else
 			setLeftMode(mode);
 	}
+
+	function toggleRightMode(mode) {
+		if (rightMode==mode)
+			setRightMode(null);
+
+		else
+			setRightMode(mode);
+	}
+
+	async function write() {
+		console.log("saving...");
+
+		let saveData=documentForm.getCurrent();
+		saveData.content=editor.getHTML();
+
+		let saved=await apiFetch("/api/page/save",saveData);
+		setLocation(buildUrl("/admin/page",{id: saved.id}));
+		documentForm.setCurrent(saved);
+	}
+
+	if (!editor || !documentForm.getCurrent())
+		return;
 
 	/*if (editor)
 		console.log(editor.state.selection.$head.path);*/
@@ -162,17 +277,31 @@ export default function PageEdit({request}) {
 					outline: none;
 				}
 			`}</style>
-			<div class="bg-light p-3 border-bottom">
-				<button class={`btn btn-primary me-2 ${leftMode=="tree"?"active":""}`}
+			<div class="bg-light p-3 border-bottom d-flex flex-row">
+				<button class={`btn btn-primary me-2 ${leftMode=="tree"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
 						onclick={bindArgs(toggleLeftMode,"tree")}>
 					<img src={LIST_NESTED} style={`${whiteFilter}`}/>
 				</button>
-				<button class={`btn btn-primary me-2 ${leftMode=="components"?"active":""}`}
+				<button class={`btn btn-primary me-2 ${leftMode=="components"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
 						onclick={bindArgs(toggleLeftMode,"components")}>
+					<img src={PLUS_LG} style={`${whiteFilter}`}/>
+				</button>
+				<h2 class="d-inline-block mb-0 me-auto">{documentForm.getCurrent().title}</h2>
+				<button class={`btn btn-primary ms-2 ${rightMode=="component"?"active":""} align-text-bottom`}
+						style="height: 2.4em"
+						onclick={bindArgs(toggleRightMode,"component")}>
 					<img src={PUZZLE_FILL} style={`${whiteFilter}`}/>
 				</button>
+				<button class={`btn btn-primary ms-2 ${rightMode=="document"?"active":""} align-text-bottom`}
+						style="height: 2.4em"
+						onclick={bindArgs(toggleRightMode,"document")}>
+					<img src={FILE_EARMARK_TEXT_FILL} style={`${whiteFilter}`}/>
+				</button>
+				<PromiseButton class={`btn btn-primary ms-2`} onclick={write}>
+					{request.query.id?"Update Page":"Create New Page"}
+				</PromiseButton>
 			</div>
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{leftMode=="tree" &&
@@ -188,7 +317,16 @@ export default function PageEdit({request}) {
 				<div class="flex-grow-1 p-3" style="overflow-y: scroll;">
 					<EditorContent editor={editor}/>
 				</div>
-				<div class="bg-light border-start" style="width: 25%">hello</div>
+				{rightMode=="component" &&
+					<div class="bg-light border-start p-3" style="width: 25%">
+						<ComponentProperties editor={editor}/>
+					</div>
+				}
+				{rightMode=="document" &&
+					<div class="bg-light border-start p-3" style="width: 25%">
+						<DocumentProperties editor={editor} documentForm={documentForm}/>
+					</div>
+				}
 			</div>
 			<div class="bg-light border-top px-3 py-1 small">
 				<EditorPath editor={editor}/>

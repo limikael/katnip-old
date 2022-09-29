@@ -14,11 +14,28 @@ katnip.addElement("PageCounter",()=>{
 	return <div>Num pages: {numPages}</div>
 });
 
-katnip.addElement("Box",()=><>
-	<div class="bg-primary p-5">
-		I'm a box
-	</div>
-</>);
+function Box({label, color, round}) {
+	if (!color)
+		color="#f00";
+
+	let rad="1em";
+	if (round=="much")
+		rad="2em";
+
+	return <>
+		<div class="p-5" style={{"background-color": color, "border-radius": rad}}>
+			I'm a box: {label}
+		</div>
+	</>;
+};
+
+katnip.addElement("Box",Box,{
+	controls: {
+		label: {title: "The Label"},
+		color: {title: "The Color"},
+		round: {title: "Rounded", type: "select", "options": {little: "Little", much: "Much"}}
+	}
+});
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
