@@ -5,7 +5,7 @@ import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
-import {katnip, bindArgs, BsInput, useForm, PromiseButton} from "katnip";
+import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext} from "katnip";
 import {mergeAttributes, Node} from '@tiptap/core'
 import {ReactNodeViewRenderer} from '@tiptap/react'
 import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
@@ -183,6 +183,9 @@ function ComponentProperties({editor}) {
 }
 
 export default function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
+	let tc=useTemplateContext();
+	tc.set({tight: true});
+
 	if (!elementEditors) {
 		elementEditors=[];
 

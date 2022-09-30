@@ -44,9 +44,24 @@ export function KatnipView() {
 	let Layout=katnip.getTemplateForRoute(request.pathname);
 	let Page=katnip.getPageComponentForRoute(request.pathname);
 
-	let [title,setTitle]=useRevertibleState(null,[request.href]);
+	let [tcVals,setTcVals]=useRevertibleState(null,[request.href]);
+	if (!tcVals)
+		tcVals={};
 
-	let tc={title,setTitle};
+	function tcSet(o) {
+		let changed=false;
+
+		for (let k in o)
+			if (tcVals[k]!=o[k]) {
+				tcVals[k]=o[k];
+				changed=true;
+			}
+
+		if (changed)
+			setTcVals(tcVals);
+	}
+
+	let tc={...tcVals, set: tcSet};
 
 	let res=(<>
 		<ResourceBlocker>

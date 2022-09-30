@@ -1,4 +1,4 @@
-import {katnip, A, buildUrl, useCurrentUser, useChannel, Stylesheet} from "katnip";
+import {katnip, A, buildUrl, useCurrentUser, useChannel, Stylesheet, useTemplateContext} from "katnip";
 import FLOWER from "bootstrap-icons/icons/flower1.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 import {Customizer, CustomizerSidebar} from "./Customizer.jsx";
@@ -122,14 +122,20 @@ export function AdminHead() {
 }
 
 export default function AdminTemplate({request, children}) {
+	let tc=useTemplateContext();
+
 	let content;
 	if (request.pathname=="/admin/customize")
 		content=<Customizer request={request}/>;
 
 	else {
 		let m="m-3";
-		if (request.pathname=="/admin/page" && (request.query.id || request.query.new))
+
+		if (tc.tight)
 			m="";
+
+//		if (request.pathname=="/admin/page" && (request.query.id || request.query.new))
+//			m="";
 
 		content=(<>
 			<Sidebar request={request}/>

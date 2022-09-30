@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader,
 		useApiFetch, apiFetch, useCounter, useValueChanged, useChannel,
-		PromiseButton, usePromise} from "katnip";
+		PromiseButton, usePromise, useTemplateContext} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
@@ -104,6 +104,8 @@ function PageList({request}) {
 }
 
 export default function PageAdmin({request}) {
+	let tc=useTemplateContext();
+
 	if (request.query.id || request.query.new)
 		return <PageEdit request={request}/>
 

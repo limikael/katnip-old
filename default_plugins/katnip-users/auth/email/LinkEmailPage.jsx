@@ -8,7 +8,7 @@ export default function LinkEmailPage(props) {
 	let [message, setMessage]=useState();
 	let tc=useTemplateContext();
 
-	tc.setTitle("Link Email And Password");
+	tc.set({title: "Link Email And Password"});
 
 	async function onSignupClick() {
 		setMessage();

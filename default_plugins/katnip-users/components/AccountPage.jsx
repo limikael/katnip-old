@@ -41,7 +41,7 @@ export default function AccountPage() {
 		return;
 	}
 
-	tc.setTitle("Account");
+	tc.set({title: "Account"});
 
 	let accountTabs=[];
 	if (user.authMethods["email"]) {

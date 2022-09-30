@@ -5,12 +5,6 @@ import XMLToReactModule from 'xml-to-react';
 
 const XMLToReact=XMLToReactModule.default;
 
-katnip.addElement("HideTitle",()=>{
-	let tc=katnip.useTemplateContext();
-
-	tc.setTitle("");
-})
-
 katnip.addElement("Img",(props)=>{
 	return <img {...props}/>
 });
@@ -46,8 +40,7 @@ export default function PageView({request}) {
 	const xmlToReact=new XMLToReact(options);
 	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
 
-	if (tc.title===null)
-		tc.setTitle(page.title);
+	tc.set({title: page.title});
 
 	return (<>
 		{reactTree}

@@ -11,10 +11,10 @@ export default function GoogleAuth({request}) {
 	},[]);
 
 	if (linking)
-		tc.setTitle("Linking Google account...");
+		tc.set({title: "Linking Google account..."});
 
 	else
-		tc.setTitle("Logging in with Google...");
+		tc.set({title: "Logging in with Google..."});
 
 	if (newUser===undefined)
 		return <div class="spinner-border m-3"/>;

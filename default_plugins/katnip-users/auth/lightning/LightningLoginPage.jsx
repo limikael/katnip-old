@@ -39,7 +39,7 @@ export default function LightningLoginPage() {
 		setLinking(true);
 	}
 
-	tc.setTitle(title);
+	tc.set({title: title});
 
 	if (code===undefined)
 		return <div class="spinner-border m-3"/>;

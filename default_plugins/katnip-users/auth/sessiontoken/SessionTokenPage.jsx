@@ -13,7 +13,7 @@ export default function SessionTokenPage({request}) {
 	let tc=useTemplateContext();
 	let postloginpath=useChannel("postloginpath");
 	let forceUpdate=useForceUpdate();
-	tc.setTitle("Session Token");
+	tc.set({title: "Session Token"});
 
 	async function onUseTokenClick() {
 		/*if (!values.token) {

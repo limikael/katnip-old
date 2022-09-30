@@ -7,7 +7,7 @@ export default function InstallPage() {
 	let form=useForm({initial: {email: "admin"}});
 	let [message, setMessage]=useState();
 
-	tc.setTitle("Install");
+	tc.set({title: "Install"});
 
 	async function write() {
 		setMessage();
