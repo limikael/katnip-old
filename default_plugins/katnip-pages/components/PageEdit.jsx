@@ -182,37 +182,7 @@ function ComponentProperties({editor}) {
 	</>;
 }
 
-function DocumentProperties({editor, documentForm}) {
-	let page=documentForm.getCurrent();
-
-	let url;
-	if (page.slug)
-		url=window.location.origin+"/page/"+page.slug;
-
-	let urlStyle={
-		"white-space": "nowrap",
-		"overflow": "hidden",
-		"text-overflow": "ellipsis",
-		display: "block",
-		direction: "rtl"
-	};
-
-	return <>
-		<div class="mb-3"><b>Document</b></div>
-		<div class="form-group mb-3">
-			<label class="form-label mb-1">Title</label>
-			<BsInput {...documentForm.field("title")} />
-		</div>
-		{url &&
-			<div class="form-group mb-3">
-				<label class="form-label mb-0">Permalink</label>
-				<A style={urlStyle} href={url}>{url}</A>
-			</div>
-		}
-	</>;
-}
-
-export default function PageEdit({request}) {
+function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
 	if (!elementEditors) {
 		elementEditors=[];
 
@@ -234,17 +204,14 @@ export default function PageEdit({request}) {
 
 	let documentForm=useForm({
 		initial: async ()=>{
-			let data={content: "", title: "New Page"};
-
-			if (request.query.id)
-				data=await apiFetch("/api/page/get",{id: request.query.id});
+			let data=await read();
 
 			if (editorRef.current)
 				editorRef.current.commands.setContent(data.content);
 
 			return data;
 		},
-		deps: [request.query.id]
+		deps: deps
 	});
 
 	let initializedRef=useRef();
@@ -270,17 +237,18 @@ export default function PageEdit({request}) {
 			setRightMode(mode);
 	}
 
-	async function write() {
+	async function writeClick() {
 		let saveData=documentForm.getCurrent();
 		saveData.content=editor.getHTML();
 
-		let saved=await apiFetch("/api/page/save",saveData);
-		setLocation(buildUrl("/admin/page",{id: saved.id}));
+		let saved=await write(saveData);
 		documentForm.setCurrent(saved);
 	}
 
 	if (!editor || !documentForm.getCurrent())
 		return;
+
+	let MetaEditor=metaEditor;
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
@@ -314,8 +282,8 @@ export default function PageEdit({request}) {
 						onclick={bindArgs(toggleRightMode,"document")}>
 					<img src={FILE_EARMARK_TEXT_FILL} style={`${whiteFilter}`}/>
 				</button>
-				<PromiseButton class={`btn btn-primary ms-2`} onclick={write}>
-					{request.query.id?"Update Page":"Create New Page"}
+				<PromiseButton class={`btn btn-primary ms-2`} onclick={writeClick}>
+					{saveLabel}
 				</PromiseButton>
 			</div>
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
@@ -339,7 +307,7 @@ export default function PageEdit({request}) {
 				}
 				{rightMode=="document" &&
 					<div class="bg-light border-start p-3" style="width: 25%">
-						<DocumentProperties editor={editor} documentForm={documentForm}/>
+						<MetaEditor form={documentForm}/>
 					</div>
 				}
 			</div>
@@ -347,5 +315,61 @@ export default function PageEdit({request}) {
 				<EditorPath editor={editor}/>
 			</div>
 		</div>
+	);
+}
+
+function DocumentProperties({form}) {
+	let page=form.getCurrent();
+
+	let url;
+	if (page.slug)
+		url=window.location.origin+"/page/"+page.slug;
+
+	let urlStyle={
+		"white-space": "nowrap",
+		"overflow": "hidden",
+		"text-overflow": "ellipsis",
+		display: "block",
+		direction: "rtl"
+	};
+
+	return <>
+		<div class="mb-3"><b>Document</b></div>
+		<div class="form-group mb-3">
+			<label class="form-label mb-1">Title</label>
+			<BsInput {...form.field("title")} />
+		</div>
+		{url &&
+			<div class="form-group mb-3">
+				<label class="form-label mb-0">Permalink</label>
+				<A style={urlStyle} href={url}>{url}</A>
+			</div>
+		}
+	</>;
+}
+
+export default function PageEdit({request}) {
+	async function read() {
+		let data={content: "", title: "New Page"};
+
+		if (request.query.id)
+			data=await apiFetch("/api/page/get",{id: request.query.id});
+
+		return data;
+	}
+
+	async function write(data) {
+		let saved=await apiFetch("/api/page/save",data);
+		setLocation(buildUrl("/admin/page",{id: saved.id}));
+		return saved;
+	}
+
+	return (
+		<ContentEditor
+				saveLabel={request.query.id?"Update Page":"Create New Page"}
+				metaEditor={DocumentProperties} 
+				read={read}
+				write={write}
+				deps={[request.query.id]}/>
 	);
 }
