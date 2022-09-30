@@ -1,69 +1,70 @@
-import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader} from "katnip";
-import {useApiFetch, apiFetch, useCounter, useValueChanged, useChannel, PromiseButton, usePromise} from "katnip";
+import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader,
+		useApiFetch, apiFetch, useCounter, useValueChanged, useChannel,
+		PromiseButton, usePromise} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
-import PageEdit from "./PageEdit.jsx";
+import ContentEditor from "./ContentEditor.jsx";
 
 dayjs.extend(relativeTime);
 
-/*function PageEdit({request}) {
-	let [message, setMessage]=useState();
-	let form=useForm({
-		initial: async ()=>{
-			if (!request.query.id)
-				return {};
+function PageProperties({form}) {
+	let page=form.getCurrent();
 
-			return await apiFetch("/api/page/get",{id: request.query.id});
-		},
-		deps: [request.query.id]
-	});
+	let url;
+	if (page.slug)
+		url=window.location.origin+"/page/"+page.slug;
 
-	async function write() {
-		setMessage();
-		try {
-			let saved=await apiFetch("/api/page/save",form.getCurrent());
-			setLocation(buildUrl("/admin/page",{id: saved.id}));
-			form.setCurrent(saved);
-			setMessage("Saved...");
+	let urlStyle={
+		"white-space": "nowrap",
+		"overflow": "hidden",
+		"text-overflow": "ellipsis",
+		display: "block",
+		direction: "rtl"
+	};
+
+	return <>
+		<div class="mb-3"><b>Document</b></div>
+		<div class="form-group mb-3">
+			<label class="form-label mb-1">Title</label>
+			<BsInput {...form.field("title")} />
+		</div>
+		{url &&
+			<div class="form-group mb-3">
+				<label class="form-label mb-0">Permalink</label>
+				<A style={urlStyle} href={url}>{url}</A>
+			</div>
 		}
+	</>;
+}
 
-		catch (e) {
-			setMessage(e);
-		}
+function PageEdit({request}) {
+	async function read() {
+		let data={content: "", title: "New Page"};
+
+		if (request.query.id)
+			data=await apiFetch("/api/page/get",{id: request.query.id});
+
+		return data;
 	}
 
-	function PageLink({page}) {
-		if (!page.slug)
-			return;
-
-		let url=window.location.origin+"/page/"+page.slug;
-		return (
-			<div class="form-text mt-1">
-				<b>Permalink:</b> <A href={url}>{url}</A>
-			</div>
-		);
+	async function write(data) {
+		let saved=await apiFetch("/api/page/save",data);
+		setLocation(buildUrl("/admin/page",{id: saved.id}));
+		return saved;
 	}
 
-	return (<>
-		<h1 class="mb-3">{request.query.id?"Edit Page":"Add New Page"}</h1>
-		<BsAlert message={message} ondismiss={setMessage}/>
-		<BsLoader resource={form.getCurrent()}>
-			<div class="container-fluid border rounded p-3 bg-light">
-				<div class="mb-3">
-					<BsInput {...form.field("title")} placeholder="Page Title"/>
-					<PageLink page={form.getCurrent()}/>
-				</div>
-				<BsInput class="font-monospace mb-3" rows={10} type="textarea" {...form.field("content")} />
-				<PromiseButton class="btn btn-primary" onclick={write}>
-					{request.query.id?"Update Page":"Create New Page"}
-				</PromiseButton>
-			</div>
-		</BsLoader>
-	</>);
-}*/
+	return (
+		<ContentEditor
+				saveLabel={request.query.id?"Update Page":"Create New Page"}
+				metaEditor={PageProperties} 
+				read={read}
+				write={write}
+				deps={[request.query.id]}/>
+	);
+}
 
 function PageList({request}) {
 	function formatStamp(item) {

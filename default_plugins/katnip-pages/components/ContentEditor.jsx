@@ -5,7 +5,7 @@ import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
-import {katnip, bindArgs, BsInput, useForm, PromiseButton, apiFetch, setLocation, buildUrl, A} from "katnip";
+import {katnip, bindArgs, BsInput, useForm, PromiseButton} from "katnip";
 import {mergeAttributes, Node} from '@tiptap/core'
 import {ReactNodeViewRenderer} from '@tiptap/react'
 import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
@@ -182,7 +182,7 @@ function ComponentProperties({editor}) {
 	</>;
 }
 
-function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
+export default function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
 	if (!elementEditors) {
 		elementEditors=[];
 
@@ -315,61 +315,5 @@ function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
 				<EditorPath editor={editor}/>
 			</div>
 		</div>
-	);
-}
-
-function DocumentProperties({form}) {
-	let page=form.getCurrent();
-
-	let url;
-	if (page.slug)
-		url=window.location.origin+"/page/"+page.slug;
-
-	let urlStyle={
-		"white-space": "nowrap",
-		"overflow": "hidden",
-		"text-overflow": "ellipsis",
-		display: "block",
-		direction: "rtl"
-	};
-
-	return <>
-		<div class="mb-3"><b>Document</b></div>
-		<div class="form-group mb-3">
-			<label class="form-label mb-1">Title</label>
-			<BsInput {...form.field("title")} />
-		</div>
-		{url &&
-			<div class="form-group mb-3">
-				<label class="form-label mb-0">Permalink</label>
-				<A style={urlStyle} href={url}>{url}</A>
-			</div>
-		}
-	</>;
-}
-
-export default function PageEdit({request}) {
-	async function read() {
-		let data={content: "", title: "New Page"};
-
-		if (request.query.id)
-			data=await apiFetch("/api/page/get",{id: request.query.id});
-
-		return data;
-	}
-
-	async function write(data) {
-		let saved=await apiFetch("/api/page/save",data);
-		setLocation(buildUrl("/admin/page",{id: saved.id}));
-		return saved;
-	}
-
-	return (
-		<ContentEditor
-				saveLabel={request.query.id?"Update Page":"Create New Page"}
-				metaEditor={DocumentProperties} 
-				read={read}
-				write={write}
-				deps={[request.query.id]}/>
 	);
 }
