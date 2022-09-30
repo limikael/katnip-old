@@ -27,7 +27,7 @@ export default function PageView({request}) {
 	if (page instanceof Error)
 		return <div class="mt-5"><BsAlert message={page}/></div>;
 
-	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr","small","br"];
+	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr","small","br","ul","li"];
 	let options={};
 
 	for (let tag of tags)
@@ -40,6 +40,7 @@ export default function PageView({request}) {
 	for (elementName in katnip.elements) {
 		let elementFunc=katnip.elements[elementName];
 		options[elementName]=(attrs)=>({type: elementFunc, props: attrs});
+		options[elementName.toLowerCase()]=(attrs)=>({type: elementFunc, props: attrs});
 	}
 
 	const xmlToReact=new XMLToReact(options);

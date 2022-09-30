@@ -5,7 +5,7 @@ import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
-import {katnip, bindArgs, BsInput, useForm, PromiseButton, apiFetch, setLocation, buildUrl} from "katnip";
+import {katnip, bindArgs, BsInput, useForm, PromiseButton, apiFetch, setLocation, buildUrl, A} from "katnip";
 import {mergeAttributes, Node} from '@tiptap/core'
 import {ReactNodeViewRenderer} from '@tiptap/react'
 import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
@@ -183,12 +183,32 @@ function ComponentProperties({editor}) {
 }
 
 function DocumentProperties({editor, documentForm}) {
+	let page=documentForm.getCurrent();
+
+	let url;
+	if (page.slug)
+		url=window.location.origin+"/page/"+page.slug;
+
+	let urlStyle={
+		"white-space": "nowrap",
+		"overflow": "hidden",
+		"text-overflow": "ellipsis",
+		display: "block",
+		direction: "rtl"
+	};
+
 	return <>
 		<div class="mb-3"><b>Document</b></div>
 		<div class="form-group mb-3">
 			<label class="form-label mb-1">Title</label>
 			<BsInput {...documentForm.field("title")} />
 		</div>
+		{url &&
+			<div class="form-group mb-3">
+				<label class="form-label mb-0">Permalink</label>
+				<A style={urlStyle} href={url}>{url}</A>
+			</div>
+		}
 	</>;
 }
 
@@ -251,8 +271,6 @@ export default function PageEdit({request}) {
 	}
 
 	async function write() {
-		console.log("saving...");
-
 		let saveData=documentForm.getCurrent();
 		saveData.content=editor.getHTML();
 
@@ -263,9 +281,6 @@ export default function PageEdit({request}) {
 
 	if (!editor || !documentForm.getCurrent())
 		return;
-
-	/*if (editor)
-		console.log(editor.state.selection.$head.path);*/
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
