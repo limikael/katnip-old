@@ -23,9 +23,9 @@ function Box({label, color, round, children}) {
 		rad="2em";
 
 	return <>
-		<div class="p-5" style={{"background-color": color, "border-radius": rad}}>
-			<span contentEditable={false}>I'm a box: {label}</span>
-			<div class="border">
+		<div class="p-5 component" style={{"background-color": color, "border-radius": rad}}>
+			<span>I'm a box: {label}</span>
+			<div class="border child-container">
 				{children}
 			</div>
 		</div>
@@ -39,6 +39,48 @@ katnip.addElement("Box",Box,{
 		round: {title: "Rounded", type: "select", "options": {little: "Little", much: "Much"}}
 	}
 });
+
+function MyComp({label, children, ...props}) {
+	return (<>
+		<div class="bg-primary p-3 component">
+			<div class="bg-light p-3">
+				<b>hello world, don't edit</b><br/>
+				<b>{label}</b>
+				<div class="border p-3 child-container">
+					{children}
+				</div>
+			</div>
+		</div>
+	</>)
+}
+
+katnip.addElement("MyComp",MyComp,{
+	controls: {
+		label: {title: "The Label"},
+	}	
+});
+
+function Heading({children}) {
+	let empty;
+	if (!children || !children.length)
+		empty=<span class="text-muted">&lt;Empty Heading&gt;</span>;
+
+	return <h2 class="component">{empty}<span class="child-container">{children}</span></h2>
+}
+
+katnip.addElement("Heading",Heading);
+
+function Paragraph({children}) {
+	let empty;
+	if (!children || !children.length)
+		empty=<span class="text-muted">&lt;Empty Paragraph&gt;</span>;
+
+	return <p class="component">{empty}<span class="child-container">{children}</span></p>
+}
+
+katnip.addElement("Paragraph",Paragraph);
+
+katnip.addElement("Div","div");
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({

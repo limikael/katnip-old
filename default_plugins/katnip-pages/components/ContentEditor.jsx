@@ -1,204 +1,117 @@
-import {useEditor, EditorContent} from '@tiptap/react';
 import {useState, useEffect, useRef} from "react";
-import StarterKit from '@tiptap/starter-kit';
 import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
-import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext} from "katnip";
-import {mergeAttributes, Node} from '@tiptap/core'
-import {ReactNodeViewRenderer} from '@tiptap/react'
-import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
-
-// ref: https://tiptap.dev/guide/node-views/react
-// https://tiptap.dev/guide/node-views/js
-// https://tiptap.dev/guide/node-views/react#render-a-react-component
-// https://tiptap.dev/guide/custom-extensions
-// https://tiptap.dev/api/schema#the-node-schema
+import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
+		Editor, useEditor} from "katnip";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 let elementEditors;
 
-function EditorStructure({editor}) {
-	if (!editor)
-		return;
+function EditorStructure({editor, path}) {
+	if (!path)
+		path=[];
 
-	function onNodeClick(index) {
-		editor.commands.setNodeSelection(index);
+	function onClick(ev) {
+		ev.preventDefault();
+		editor.selectPath(path);
+		editor.focus();
 	}
 
-	let res=[];
-	editor.state.doc.descendants((node, pos, parent)=>{
-		let s=node.type.name;
-		if (editor.state.selection.node==node)
-			s=<b>{node.type.name}</b>
+	node=editor.getDocNode(path);
+	let name=node.type;
+	if (typeof node=="string")
+		name="text";
 
-		let d=editor.state.doc.resolve(pos).depth;
-		res.push(
-			<div style={{"margin-left": d+"em"}}>
-				<a href="#" onclick={bindArgs(onNodeClick,pos)}>{s}</a>
-			</div>
-		);
-
-		return true;
-	});
-
-	return res;
-}
-
-function ComponentList({editor}) {
-	if (!editor)
-		return;
-
-	let buttons=[
-		{name: "Bold", fn: ()=>editor.chain().focus().toggleBold().run()},
-		{name: "Italic", fn: ()=>editor.chain().focus().toggleItalic().run()},
-		{name: "List", fn: ()=>editor.chain().focus().toggleBulletList().run()},
-		{name: "Heading", fn: ()=>editor.chain().focus().toggleHeading({ level: 2 }).run()}
-	];
-
-	function addComponent(name) {
-		editor.commands.insertContent({
-			type: name
-		});
-		/*editor.commands.insertContentAt(1,{
-			type: name
-		});*/
-	}
+	let cls="";
+	if (JSON.stringify(editor.path)==JSON.stringify(path))
+		cls="fw-bold text-body text-decoration-none";
 
 	return (<>
-		<b>Text</b>
-		<p>
-		{buttons.map(button=>
-			<button class="btn btn-secondary btn-sm m-1" onclick={button.fn}>{button.name}</button>
-		)}
-		</p>
-		<b>Components</b>
-		<p>
-		{Object.entries(katnip.elements).map(([name,fn])=>
-			<button class="btn btn-secondary btn-sm m-1"
-					onclick={bindArgs(addComponent,name)}>
-				{name}
-			</button>
-		)}
-		</p>
+		<li><a href="#" onclick={onClick} class={cls}>{name}</a></li>
+		<ul>
+			{editor.getDocChildPaths(path).map((childPath)=>
+				<EditorStructure editor={editor} path={childPath} />
+			)}
+		</ul>
 	</>);
 }
 
-function createElementEditor(elementName) {
-	let Element=katnip.elements[elementName];
+function ComponentLibrary({editor}) {
+	function onAddClick(componentName) {
+		editor.addDocNodeAtCursor({
+			"type": componentName,
+			"props": {},
+			"children": []
+		});
 
-	function WrappedNode(props) {
-		return (
-			<NodeViewWrapper className="component-wrapper">
-				<Element {...props.node.attrs}>
-					<NodeViewContent className="component-content"/>
-				</Element>
-			</NodeViewWrapper>
-		);
+		editor.focus();
 	}
 
-	return Node.create({
-		name: elementName,
-		group: 'block',
-		content: 'inline*',
-//		content: 'block*',
-//		isolating: true,
-		//defining: true,
-		//selectable: true,
-		//atom: true,
-
-		addAttributes() {
-			let attrs={};
-
-			if (Element.options && Element.options.controls) {
-				for (let k in Element.options.controls) {
-					attrs[k]={};
-				}
-			}
-
-			return attrs;
-		},
-
-		parseHTML() {
-			return [{
-				tag: elementName,
-			}];
-		},
-
-		renderHTML({ HTMLAttributes }) {
-			return [elementName,mergeAttributes(HTMLAttributes),0];
-		},
-
-		addNodeView() {
-			return ReactNodeViewRenderer(WrappedNode);
-		},
-	});
+	return (<>
+		<div class="mb-3"><b>Components</b></div>
+		{Object.keys(katnip.elements).map((componentName)=>
+			<button class="btn btn-primary me-2 mb-2"
+					onclick={bindArgs(onAddClick,componentName)}>
+				{componentName}
+			</button>
+		)}
+	</>);
 }
 
 function EditorPath({editor}) {
-	if (!editor)
-		return;
+	function pathClick(path, ev) {
+		ev.preventDefault();
+		editor.selectPath(path);
+	}
 
-	let headPos=editor.state.selection.$head;
+	let path=editor.path;
+	if (!path)
+		path=[];
+
 	let els=[];
+	for (let i=0; i<path.length+1; i++) {
+		let nodePath=path.slice(0,i);
+		let node=editor.getDocNode(nodePath);
+		let type="text";
+		if (typeof node!="string")
+			type=node.type;
 
-	for (let i=0; i<headPos.depth+1; i++) {
 		if (i)
 			els.push(<span class="mx-1">&raquo;</span>);
 
-		els.push(<span>{headPos.node(i).type.name}</span>)
+		els.push(<a href="#" onclick={bindArgs(pathClick,nodePath)}>{type}</a>)
 	}
-
-	// Node selection
-	if (editor.state.selection.node) {
-		let n=editor.state.selection.node;
-		els.push(<span class="mx-1">&raquo;</span>);
-		els.push(<span>{n.type.name}</span>);
-	}
-
-	els.push(<span>{headPos.pos}</span>);
 
 	return els;
 }
 
-function getCurrentNode(editor) {
-	// Node selection
-	if (editor.state.selection.node)
-		return editor.state.selection.node;
-
-	let headPos=editor.state.selection.$head;
-	let node=headPos.node(headPos.depth);
-
-	return node;
-}
-
 function ComponentProperties({editor}) {
-	let node=getCurrentNode(editor);
+	let node=editor.getDocNode(editor.path);
 
-	if (!node || !katnip.elements[node.type.name])
+	if (!node || !katnip.elements[node.type])
 		return;
 
 	let controls={};
-	if (katnip.elements[node.type.name].options?.controls)
-		controls=katnip.elements[node.type.name].options.controls;
+	if (katnip.elements[node.type].options?.controls)
+		controls=katnip.elements[node.type].options.controls;
 
-	function onAttrChange(ev) {
-		let id=ev.target.dataset.id;
-		let update={};
-		update[id]=ev.target.value;
+	function onPropChange(ev) {
+		let props=editor.getDocNode(editor.path).props;
+		props[ev.target.dataset.id]=ev.target.value;
 
-		editor.commands.updateAttributes(node.type,update);
+		editor.setDocNodeProps(editor.path,props);
 	}
 
 	return <>
-		<div class="mb-3"><b>{node.type.name}</b></div>
+		<div class="mb-3"><b>{node.type}</b></div>
 		{Object.entries(controls).map(([id,control])=>
 			<div class="form-group mb-3">
 				<label class="form-label mb-1">{control.title}</label>
 				<BsInput {...control} 
-						value={node.attrs[id]}
-						onchange={onAttrChange}
+						value={node.props[id]?node.props[id]:""}
+						onchange={onPropChange}
 						data-id={id}/>
 			</div>
 		)}
@@ -209,46 +122,37 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 	let tc=useTemplateContext();
 	tc.set({tight: true});
 
-	if (!elementEditors) {
-		elementEditors=[];
-
-		for (let k in katnip.elements)
-			elementEditors.push(createElementEditor(k));
-	}
-
 	let [leftMode,setLeftMode]=useState();
 	let [rightMode,setRightMode]=useState("document");
 
 	let editor=useEditor({
-		extensions: [
-			StarterKit, ...elementEditors
-		]
+		elements: katnip.elements,
+		doc: {
+			type: "Div",
+			children: [
+				{type: "Heading", props: {}, children: ["This is the article"]},
+				{type: "Paragraph", props: {}, children: [
+					"Lorem ipsum dolor sit amet, consectetur adipiscing elit. "+
+					"Proin cursus elementum neque, quis auctor nisl rhoncus quis. "+
+					"Proin id pulvinar ligula. Nam eleifend lobortis neque sed fermentum. "+
+					"Sed egestas hendrerit nisi, quis sollicitudin magna. Maecenas in magna nisl. "+
+					"Quisque dictum accumsan ex. Etiam a euismod massa, eget sodales quam. "+
+					"Aliquam vehicula metus viverra nisi imperdiet, id interdum mauris laoreet. "+
+					"Curabitur facilisis gravida lacus vitae elementum. xx",
+				]},
+			],
+			props: {}
+		}
 	});
-
-	let editorRef=useRef();
-	editorRef.current=editor;
 
 	let documentForm=useForm({
 		initial: async ()=>{
 			let data=await read();
-			/*data={
-				content: "<box></box><box><ul><li>test</li><li>test2<box>x</box></li></ul></box><box></box>"
-			}*/
-
-			if (editorRef.current)
-				editorRef.current.commands.setContent(data.content);
 
 			return data;
 		},
 		deps: deps
 	});
-
-	let initializedRef=useRef();
-	if (editor && !initializedRef.current) {
-		initializedRef.current=true;
-		if (documentForm.getCurrent())
-			editorRef.current.commands.setContent(documentForm.getCurrent().content);
-	}
 
 	function toggleLeftMode(mode) {
 		if (leftMode==mode)
@@ -274,27 +178,17 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 		documentForm.setCurrent(saved);
 	}
 
-	if (!editor || !documentForm.getCurrent())
+	if (!documentForm.getCurrent())
 		return;
 
 	let MetaEditor=metaEditor;
 
 	function debug() {
-		editor.commands.insertContentAt(1,{
-			type: "Box",
-		});
+		console.log("debug");
 	}
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
-			<style>{`
-				.ProseMirror {
-					height: 100%;
-				}
-				.ProseMirror:focus {
-					outline: none;
-				}
-			`}</style>
 			<div class="bg-light p-3 border-bottom d-flex flex-row">
 				<button class={`btn btn-primary me-2 ${leftMode=="tree"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
@@ -327,25 +221,26 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 			</div>
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{leftMode=="tree" &&
-					<div class="bg-light border-end p-3" style="width: 25%">
-						<EditorStructure editor={editor} tree={editor?.getJSON()}/>
+					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%">
+						<div class="mb-3"><b>Document</b></div>
+						<EditorStructure editor={editor} />
 					</div>
 				}
 				{leftMode=="components" &&
-					<div class="bg-light border-end p-3" style="width: 25%">
-						<ComponentList editor={editor}/>
+					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%">
+						<ComponentLibrary editor={editor}/>
 					</div>
 				}
-				<div class="flex-grow-1 p-3" style="overflow-y: scroll;">
-					<EditorContent editor={editor}/>
+				<div class="flex-grow-1" style="overflow: scroll;">
+					<Editor class="m-3" editor={editor}/>
 				</div>
 				{rightMode=="component" &&
-					<div class="bg-light border-start p-3" style="width: 25%">
+					<div class="bg-light border-start p-3 flex-shrink-0" style="width: 25%">
 						<ComponentProperties editor={editor}/>
 					</div>
 				}
 				{rightMode=="document" &&
-					<div class="bg-light border-start p-3" style="width: 25%">
+					<div class="bg-light border-start p-3 flex-shrink-0" style="width: 25%">
 						<MetaEditor form={documentForm}/>
 					</div>
 				}
