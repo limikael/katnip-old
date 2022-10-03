@@ -40,7 +40,8 @@ export default function PageView({request}) {
 	const xmlToReact=new XMLToReact(options);
 	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
 
-	tc.set({title: page.title});
+	if (!page.meta || !page.meta.hideTitle)
+		tc.set({title: page.title});
 
 	return (<>
 		{reactTree}

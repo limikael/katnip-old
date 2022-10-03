@@ -9,7 +9,8 @@ class Page extends katnip.Model {
 		title: "TEXT NOT NULL",
 		stamp: "INTEGER NOT NULL",
 		content: "TEXT NOT NULL",
-		slug: "VARCHAR(255) NOT NULL"
+		slug: "VARCHAR(255) NOT NULL",
+		meta: "JSON"
 	};
 }
 

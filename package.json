@@ -12,8 +12,8 @@
   "browser": "src/browser/katnip-browser-exports.js",
   "type": "module",
   "dependencies": {
-    "@tiptap/react": "^2.0.0-beta.197",
-    "@tiptap/starter-kit": "^2.0.0-beta.197",
+    "@tiptap/react": "^2.0.0-beta.199",
+    "@tiptap/starter-kit": "^2.0.0-beta.199",
     "bech32": "^2.0.0",
     "bootstrap-icons": "^1.8.1",
     "client-oauth2": "^4.3.3",

@@ -19,31 +19,31 @@ import {NodeViewContent, NodeViewWrapper} from '@tiptap/react'
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 let elementEditors;
 
-function TreeNode({tree}) {
-	return (<>
-		<li>{tree.type}</li>
-		{tree.content &&
-			<ul>
-				{tree.content.map((node)=><TreeNode tree={node}/>)}
-			</ul>
-		}
-	</>);
-}
-
-function EditorStructure({tree}) {
-	if (!tree)
+function EditorStructure({editor}) {
+	if (!editor)
 		return;
 
-	//console.log(tree);
+	function onNodeClick(index) {
+		editor.commands.setNodeSelection(index);
+	}
 
-	return (<>
-		<b>Structure</b>
-		{tree.content &&
-			<ul>
-				{tree.content.map((node)=><TreeNode tree={node}/>)}
-			</ul>
-		}
-	</>)
+	let res=[];
+	editor.state.doc.descendants((node, pos, parent)=>{
+		let s=node.type.name;
+		if (editor.state.selection.node==node)
+			s=<b>{node.type.name}</b>
+
+		let d=editor.state.doc.resolve(pos).depth;
+		res.push(
+			<div style={{"margin-left": d+"em"}}>
+				<a href="#" onclick={bindArgs(onNodeClick,pos)}>{s}</a>
+			</div>
+		);
+
+		return true;
+	});
+
+	return res;
 }
 
 function ComponentList({editor}) {
@@ -61,6 +61,9 @@ function ComponentList({editor}) {
 		editor.commands.insertContent({
 			type: name
 		});
+		/*editor.commands.insertContentAt(1,{
+			type: name
+		});*/
 	}
 
 	return (<>
@@ -87,8 +90,10 @@ function createElementEditor(elementName) {
 
 	function WrappedNode(props) {
 		return (
-			<NodeViewWrapper className="react-component">
-				<Element {...props.node.attrs}/>
+			<NodeViewWrapper className="component-wrapper">
+				<Element {...props.node.attrs}>
+					<NodeViewContent className="component-content"/>
+				</Element>
 			</NodeViewWrapper>
 		);
 	}
@@ -97,6 +102,11 @@ function createElementEditor(elementName) {
 		name: elementName,
 		group: 'block',
 		content: 'inline*',
+//		content: 'block*',
+//		isolating: true,
+		//defining: true,
+		//selectable: true,
+		//atom: true,
 
 		addAttributes() {
 			let attrs={};
@@ -140,10 +150,23 @@ function EditorPath({editor}) {
 		els.push(<span>{headPos.node(i).type.name}</span>)
 	}
 
+	// Node selection
+	if (editor.state.selection.node) {
+		let n=editor.state.selection.node;
+		els.push(<span class="mx-1">&raquo;</span>);
+		els.push(<span>{n.type.name}</span>);
+	}
+
+	els.push(<span>{headPos.pos}</span>);
+
 	return els;
 }
 
 function getCurrentNode(editor) {
+	// Node selection
+	if (editor.state.selection.node)
+		return editor.state.selection.node;
+
 	let headPos=editor.state.selection.$head;
 	let node=headPos.node(headPos.depth);
 
@@ -208,6 +231,9 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 	let documentForm=useForm({
 		initial: async ()=>{
 			let data=await read();
+			/*data={
+				content: "<box></box><box><ul><li>test</li><li>test2<box>x</box></li></ul></box><box></box>"
+			}*/
 
 			if (editorRef.current)
 				editorRef.current.commands.setContent(data.content);
@@ -253,6 +279,12 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 
 	let MetaEditor=metaEditor;
 
+	function debug() {
+		editor.commands.insertContentAt(1,{
+			type: "Box",
+		});
+	}
+
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
 			<style>{`
@@ -275,6 +307,10 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 					<img src={PLUS_LG} style={`${whiteFilter}`}/>
 				</button>
 				<h2 class="d-inline-block mb-0 me-auto">{documentForm.getCurrent().title}</h2>
+				<button class={`btn btn-primary ms-2`}
+						onclick={debug}>
+					DEBUG
+				</button>
 				<button class={`btn btn-primary ms-2 ${rightMode=="component"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
 						onclick={bindArgs(toggleRightMode,"component")}>
@@ -292,7 +328,7 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{leftMode=="tree" &&
 					<div class="bg-light border-end p-3" style="width: 25%">
-						<EditorStructure tree={editor?.getJSON()}/>
+						<EditorStructure editor={editor} tree={editor?.getJSON()}/>
 					</div>
 				}
 				{leftMode=="components" &&

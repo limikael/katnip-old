@@ -22,7 +22,8 @@ function PageProperties({form}) {
 		"overflow": "hidden",
 		"text-overflow": "ellipsis",
 		display: "block",
-		direction: "rtl"
+		direction: "rtl",
+		"text-align": "left",
 	};
 
 	return <>
@@ -37,6 +38,12 @@ function PageProperties({form}) {
 				<A style={urlStyle} href={url}>{url}</A>
 			</div>
 		}
+		<div class="form-group mb-3">
+			<label class="form-label mb-1">Page Title</label>
+			<BsInput type="select"
+					{...form.field("hideTitle")} 
+					options={{"":"Show Page Title","true":"Hide Page Title"}}/>
+		</div>
 	</>;
 }
 
@@ -47,10 +54,17 @@ function PageEdit({request}) {
 		if (request.query.id)
 			data=await apiFetch("/api/page/get",{id: request.query.id});
 
+		if (!data.meta)
+			data.meta={};
+
+		data.hideTitle=data.meta.hideTitle;
+
 		return data;
 	}
 
 	async function write(data) {
+		data.meta.hideTitle=data.hideTitle;
+
 		let saved=await apiFetch("/api/page/save",data);
 		setLocation(buildUrl("/admin/page",{id: saved.id}));
 		return saved;

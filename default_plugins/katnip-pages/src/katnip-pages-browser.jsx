@@ -14,7 +14,7 @@ katnip.addElement("PageCounter",()=>{
 	return <div>Num pages: {numPages}</div>
 });
 
-function Box({label, color, round}) {
+function Box({label, color, round, children}) {
 	if (!color)
 		color="#f00";
 
@@ -24,7 +24,10 @@ function Box({label, color, round}) {
 
 	return <>
 		<div class="p-5" style={{"background-color": color, "border-radius": rad}}>
-			I'm a box: {label}
+			<span contentEditable={false}>I'm a box: {label}</span>
+			<div class="border">
+				{children}
+			</div>
 		</div>
 	</>;
 };
