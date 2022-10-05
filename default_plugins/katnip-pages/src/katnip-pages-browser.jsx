@@ -78,6 +78,11 @@ function Paragraph({children}) {
 	return <p class="component">{empty}<span class="child-container">{children}</span></p>
 }
 
+katnip.addElement("Bold",({children})=>{
+	return <span class="component"><b><span class="child-container">{children}</span></b></span>
+});
+
+
 katnip.addElement("Paragraph",Paragraph);
 
 katnip.addElement("Div","div");
