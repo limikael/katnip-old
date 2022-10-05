@@ -36,7 +36,10 @@ katnip.addAction("serverMain",async ()=>{
 		console.log("No pages, will create one...");
 		let p=new Page({
 			title: "Hello",
-			content: "<p>Hello and welcome!</p><p>This is a page...</p>",
+			content: [
+				{type: "Paragraph", props: {}, children: ["Hello and welcome!"]},
+				{type: "Paragraph", props: {}, children: ["This is a page..."]},
+			],
 			stamp: Date.now()/1000,
 			slug: convertToSlug("Hello")
 		});

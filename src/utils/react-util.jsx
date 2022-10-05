@@ -121,10 +121,11 @@ export function useValueChanged(value) {
 export function optionsFromObject(o) {
 	let options=[];
 
-	for (let k in o)
+	for (let k in o) {
 		options.push(
-			<option value={k}>{o[k]}</option>
+			<option value={String(k)}>{o[k]}</option>
 		);
+	}
 
 	return options;
 }
