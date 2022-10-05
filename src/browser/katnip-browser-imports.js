@@ -12,3 +12,4 @@ export * from "../lib/katnip-util.js";
 export * from "./katnip-browser.jsx";
 export * from "./Model.js";
 export * from "../richedit/Editor.jsx";
+export * from "../treeview/TreeView.jsx";

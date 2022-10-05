@@ -4,12 +4,12 @@ import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
 import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
-		Editor, useEditor} from "katnip";
+		Editor, useEditor, TreeView} from "katnip";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 let elementEditors;
 
-function EditorStructure({editor, path}) {
+/*function EditorStructure({editor, path}) {
 	if (!path)
 		path=[];
 
@@ -36,6 +36,65 @@ function EditorStructure({editor, path}) {
 			)}
 		</ul>
 	</>);
+}*/
+
+function EditorStructure({editor}) {
+	let data=editor.getDocNode([]).children;
+
+	function ItemRenderer({data, path}) {
+		let label;
+		if (typeof data=="string")
+			label="#text"
+
+		else
+			label=data.type;
+
+		let cls="border border-primary bg-white shadow-sm text-primary px-2 position-relative ";
+
+		if (JSON.stringify(editor.path)==JSON.stringify(path))
+			cls+="fw-bold"
+
+		function onClick(ev) {
+			ev.preventDefault();
+			ev.stopPropagation();
+			editor.selectPath(path);
+		}
+
+		let linkStyle={
+			userSelect: "none",
+			WebkitUserDrag: "none"
+		};
+
+		return (
+			<div class={cls}>
+				<a href="#"
+						onclick={onClick}
+						class="text-decoration-none stretched-link"
+						draggable="false"
+						style={linkStyle}>
+					{label}
+				</a>
+			</div>
+		);
+	}
+
+	function onChange(newData) {
+		let root=editor.getDocNode();
+		root.children=newData;
+		editor.setDoc(root);
+		editor.selectPath(null);
+	}
+
+	return (<>
+		<TreeView
+			data={data}
+			itemHeight={25}
+			itemSpacing={5}
+			itemIndent={30}
+			itemRenderer={ItemRenderer}
+			itemWidth={100}
+			onchange={onChange} />
+	</>)
 }
 
 function ComponentLibrary({editor}) {

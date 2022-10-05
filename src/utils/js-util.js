@@ -122,8 +122,8 @@ export function delay(millis) {
 	});
 }
 
-export function arrayMove(array, initialIndex, finalIndex) {
-	array.splice(finalIndex,0,array.splice(initialIndex,1)[0]);
+export function arrayMove(array, initialIndex, finalIndex, num=1) {
+	array.splice(finalIndex,0,...array.splice(initialIndex,num));
 
 	return array;
 }
