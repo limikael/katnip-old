@@ -1,4 +1,4 @@
-import {katnip, convertToSlug, useChannel} from "katnip";
+import {katnip, convertToSlug, useChannel, A} from "katnip";
 import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
@@ -67,12 +67,30 @@ function Paragraph({children}) {
 	return <p class="component">{empty}<span class="child-container">{children}</span></p>
 }
 
+katnip.addElement("Paragraph",Paragraph);
+
 katnip.addElement("Bold",({children})=>{
 	return <span class="component"><b><span class="child-container">{children}</span></b></span>
 });
 
+katnip.addElement("Link",({href, children, renderMode})=>{
+	function onClick(ev) {
+		if (renderMode=="editor")
+			ev.preventDefault();
+	}
 
-katnip.addElement("Paragraph",Paragraph);
+	return (
+		<span class="component">
+			<A href={href} onclick={onClick} class="child-container">
+				{children}
+			</A>
+		</span>
+	);
+},{
+	controls: {
+		href: {title: "href"}
+	}
+});
 
 katnip.addElement("Div","div");
 
