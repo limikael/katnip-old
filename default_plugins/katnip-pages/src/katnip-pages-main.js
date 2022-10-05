@@ -8,7 +8,7 @@ class Page extends katnip.Model {
 		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		title: "TEXT NOT NULL",
 		stamp: "INTEGER NOT NULL",
-		content: "TEXT NOT NULL",
+		content: "JSON NOT NULL",
 		slug: "VARCHAR(255) NOT NULL",
 		meta: "JSON"
 	};

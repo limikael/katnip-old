@@ -1,9 +1,6 @@
-import {katnip, A, ItemList, setLocation, buildUrl} from "katnip";
+import {katnip, A, ItemList, setLocation, buildUrl, renderElementContent} from "katnip";
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel, BsAlert} from "katnip";
-import {useState, useContext} from "preact/compat";
-import XMLToReactModule from 'xml-to-react';
-
-const XMLToReact=XMLToReactModule.default;
+import {useState, useContext, createElement, Fragment} from "react";
 
 katnip.addElement("Img",(props)=>{
 	return <img {...props}/>
@@ -12,8 +9,7 @@ katnip.addElement("Img",(props)=>{
 export default function PageView({request}) {
 	let tc=katnip.useTemplateContext();
 	let pageQuery=request.pathargs[1];
-	let pageInfo=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
-	let page=pageInfo;//useChannel(pageInfo?"pageContent":null,{id: pageInfo?.id});
+	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 
 	if (!page)
 		return;
@@ -21,29 +17,8 @@ export default function PageView({request}) {
 	if (page instanceof Error)
 		return <div class="mt-5"><BsAlert message={page}/></div>;
 
-	let tags=["h1","h2","h3","h4","h5","div","span","b","p","hr","small","br","ul","li"];
-	let options={};
-
-	for (let tag of tags)
-		options[tag]=(attrs)=>({type: tag, props: attrs});
-
-	options["Fragment"]=(attrs)=>({type: Fragment, props: attrs});
-
-	options["a"]=(attrs)=>({type: A, props: attrs});
-
-	for (elementName in katnip.elements) {
-		let elementFunc=katnip.elements[elementName];
-		options[elementName]=(attrs)=>({type: elementFunc, props: attrs});
-		options[elementName.toLowerCase()]=(attrs)=>({type: elementFunc, props: attrs});
-	}
-
-	const xmlToReact=new XMLToReact(options);
-	const reactTree=xmlToReact.convert(`<Fragment>${page.content}</Fragment>`);
-
-	if (!page.meta || !page.meta.hideTitle)
+	if (!page.meta.hideTitle)
 		tc.set({title: page.title});
 
-	return (<>
-		{reactTree}
-	</>);
+	return renderElementContent(page.content);
 }

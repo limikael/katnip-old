@@ -6,7 +6,7 @@ export default class EditorModel extends EventEmitter {
 	constructor(options) {
 		super();
 
-		this.doc=options.doc;
+		this.setDoc(options.doc);
 		this.path=undefined;
 		this.cursorPos=-1;
 		this.rangeLen=0;
@@ -51,6 +51,12 @@ export default class EditorModel extends EventEmitter {
 	}
 
 	setDoc(doc) {
+		if (!doc)
+			doc={"type": "Div", props:{}, children: []};
+
+		if (Array.isArray(doc))
+			doc={"type": "Div", props:{}, children: doc};
+
 		this.doc=doc;
 		this.emit("change");
 	}

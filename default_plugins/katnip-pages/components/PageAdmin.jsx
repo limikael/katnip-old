@@ -49,7 +49,7 @@ function PageProperties({form}) {
 
 function PageEdit({request}) {
 	async function read() {
-		let data={content: "", title: "New Page"};
+		let data={content: [], title: "New Page"};
 
 		if (request.query.id)
 			data=await apiFetch("/api/page/get",{id: request.query.id});

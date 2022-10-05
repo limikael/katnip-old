@@ -7,36 +7,6 @@ import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
 		Editor, useEditor, TreeView} from "katnip";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
-let elementEditors;
-
-/*function EditorStructure({editor, path}) {
-	if (!path)
-		path=[];
-
-	function onClick(ev) {
-		ev.preventDefault();
-		editor.selectPath(path);
-		editor.focus();
-	}
-
-	node=editor.getDocNode(path);
-	let name=node.type;
-	if (typeof node=="string")
-		name="text";
-
-	let cls="";
-	if (JSON.stringify(editor.path)==JSON.stringify(path))
-		cls="fw-bold text-body text-decoration-none";
-
-	return (<>
-		<li><a href="#" onclick={onClick} class={cls}>{name}</a></li>
-		<ul>
-			{editor.getDocChildPaths(path).map((childPath)=>
-				<EditorStructure editor={editor} path={childPath} />
-			)}
-		</ul>
-	</>);
-}*/
 
 function EditorStructure({editor}) {
 	let data=editor.getDocNode([]).children;
@@ -44,12 +14,12 @@ function EditorStructure({editor}) {
 	function ItemRenderer({data, path}) {
 		let label;
 		if (typeof data=="string")
-			label="#text"
+			label="\u00ABtext\u00BB"
 
 		else
 			label=data.type;
 
-		let cls="border border-primary bg-white shadow-sm text-primary px-2 position-relative ";
+		let cls="border border-primary bg-white shadow text-primary px-2 position-relative ";
 
 		if (JSON.stringify(editor.path)==JSON.stringify(path))
 			cls+="fw-bold"
@@ -177,7 +147,7 @@ function ComponentProperties({editor}) {
 	</>;
 }
 
-export default function ContentEditor({request, metaEditor, read, write, deps, saveLabel}) {
+export default function ContentEditor({metaEditor, read, write, deps, saveLabel}) {
 	let tc=useTemplateContext();
 	tc.set({tight: true});
 
@@ -186,27 +156,12 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 
 	let editor=useEditor({
 		elements: katnip.elements,
-		doc: {
-			type: "Div",
-			children: [
-				{type: "Heading", props: {}, children: ["This is the article"]},
-				{type: "Paragraph", props: {}, children: [
-					"Lorem ipsum dolor sit amet, consectetur adipiscing elit. "+
-					"Proin cursus elementum neque, quis auctor nisl rhoncus quis. "+
-					"Proin id pulvinar ligula. Nam eleifend lobortis neque sed fermentum. "+
-					"Sed egestas hendrerit nisi, quis sollicitudin magna. Maecenas in magna nisl. "+
-					"Quisque dictum accumsan ex. Etiam a euismod massa, eget sodales quam. "+
-					"Aliquam vehicula metus viverra nisi imperdiet, id interdum mauris laoreet. "+
-					"Curabitur facilisis gravida lacus vitae elementum. xx",
-				]},
-			],
-			props: {}
-		}
 	});
 
 	let documentForm=useForm({
 		initial: async ()=>{
 			let data=await read();
+			editor.setDoc(data.content);
 
 			return data;
 		},
@@ -231,7 +186,7 @@ export default function ContentEditor({request, metaEditor, read, write, deps, s
 
 	async function writeClick() {
 		let saveData=documentForm.getCurrent();
-		saveData.content=editor.getHTML();
+		saveData.content=editor.doc.children;
 
 		let saved=await write(saveData);
 		documentForm.setCurrent(saved);

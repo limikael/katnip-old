@@ -24,8 +24,7 @@
     "preact": "^10.7.1",
     "qrious": "^4.0.2",
     "secp256k1": "^4.0.3",
-    "ws": "^8.5.0",
-    "xml-to-react": "^1.0.10"
+    "ws": "^8.5.0"
   },
   "devDependencies": {
     "jasmine": "^4.1.0",

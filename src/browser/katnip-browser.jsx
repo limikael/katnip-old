@@ -5,6 +5,7 @@ import {KatnipView} from "../components/KatnipView.jsx";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
 import {parseCookieString} from "../utils/js-util.js";
+import {createElement, Fragment} from "react";
 
 class BrowserKatnip {
 	constructor() {
@@ -97,11 +98,40 @@ class BrowserKatnip {
 		let cookies=parseCookieString(document.cookie);
 		return cookies.katnip;
 	}
+
+	renderElementContent=(node, ref)=>{
+		if (typeof node=="string")
+			return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
+
+		let element;
+		if (Array.isArray(node)) {
+			element=Fragment;
+			node={props: {}, children: node};
+		}
+
+		else {
+			element=this.elements[node.type];
+			if (!element)
+				throw new Error("Unknown type: "+node.type);
+		}
+
+		let children=[];
+		if (node.children)
+			for (let child of node.children)
+				children.push(this.renderElementContent(child));
+
+		let props={...node.props};
+		if (ref)
+			props.ref=ref;
+
+		return createElement(element,props,...children);
+	}
 }
 
 const katnip=new BrowserKatnip();
 
 export const elements=katnip.elements;
+export const renderElementContent=katnip.renderElementContent;
 export const TemplateContext=katnip.TemplateContext;
 
 export const addElement=katnip.addElement;

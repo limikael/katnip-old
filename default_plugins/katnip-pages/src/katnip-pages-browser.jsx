@@ -3,17 +3,6 @@ import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
-//katnip.setChannelPersistence("numPages",true);
-
-katnip.addElement("PageCounter",()=>{
-	let numPages=useChannel("numPages");
-
-	if (numPages===undefined)
-		return "";
-
-	return <div>Num pages: {numPages}</div>
-});
-
 function Box({label, color, round, children}) {
 	if (!color)
 		color="#f00";
