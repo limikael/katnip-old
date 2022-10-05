@@ -2,10 +2,6 @@ import {katnip, A, ItemList, setLocation, buildUrl, renderElementContent} from "
 import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel, BsAlert} from "katnip";
 import {useState, useContext, createElement, Fragment} from "react";
 
-katnip.addElement("Img",(props)=>{
-	return <img {...props}/>
-});
-
 export default function PageView({request}) {
 	let tc=katnip.useTemplateContext();
 	let pageQuery=request.pathargs[1];

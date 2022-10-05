@@ -20,6 +20,8 @@ function PasswordLoginElement() {
 		return <LoginForm onswitchmode={onSwitchMode}/>
 }
 
-katnip.addElement("PasswordLoginElement",PasswordLoginElement);
+katnip.addElement("PasswordLoginElement",PasswordLoginElement,{
+	internal: true
+});
 
 katnip.addRoute("linkemail",LinkEmailPage);

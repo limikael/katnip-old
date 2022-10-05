@@ -81,10 +81,12 @@ function ComponentLibrary({editor}) {
 	return (<>
 		<div class="mb-3"><b>Components</b></div>
 		{Object.keys(katnip.elements).map((componentName)=>
-			<button class="btn btn-primary me-2 mb-2"
-					onclick={bindArgs(onAddClick,componentName)}>
-				{componentName}
-			</button>
+			(!katnip.elements[componentName].internal &&
+				<button class="btn btn-primary me-2 mb-2"
+						onclick={bindArgs(onAddClick,componentName)}>
+					{componentName}
+				</button>
+			)
 		)}
 	</>);
 }

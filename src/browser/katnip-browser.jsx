@@ -72,9 +72,12 @@ class BrowserKatnip {
 				this[k]=o[k];
 	}
 
-	addElement=(tag, func, options)=> {
-		if (typeof func!="string")
+	addElement=(tag, func, options={})=> {
+		if (typeof func!="string") {
 			func.options=options;
+			for (let k in options)
+				func[k]=options[k];
+		}
 
 		this.elements[tag]=func;
 	}

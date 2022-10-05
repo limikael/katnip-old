@@ -3,7 +3,7 @@ import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
-function Box({label, color, round, children}) {
+/*function Box({label, color, round, children}) {
 	if (!color)
 		color="#f00";
 
@@ -47,7 +47,7 @@ katnip.addElement("MyComp",MyComp,{
 	controls: {
 		label: {title: "The Label"},
 	}	
-});
+});*/
 
 function Heading({children}) {
 	let empty;
@@ -75,6 +75,33 @@ katnip.addElement("Bold",({children})=>{
 katnip.addElement("Paragraph",Paragraph);
 
 katnip.addElement("Div","div");
+
+katnip.addElement("CustomDiv",({children, ...props})=>{
+	return (
+		<div class={"component "+props.class} style={props.style}>
+			<div class="child-container">
+				{children}
+			</div>
+		</div>
+	);
+},{
+	controls: {
+		class: {title: "Class", type: "textarea"},
+		style: {title: "Style", type: "textarea"}
+	}
+});
+
+katnip.addElement("Img",(props)=>{
+	let cls="component "+props.class;
+
+	return <img class={cls} {...props}/>
+},{
+	controls: {
+		src: {title: "src"},
+		class: {title: "Class", type: "textarea"},
+		style: {title: "Style", type: "textarea"}
+	}
+});
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
