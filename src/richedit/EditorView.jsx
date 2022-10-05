@@ -15,6 +15,8 @@ function makeReactComponent(node, elements, ref) {
 	if (ref)
 		props.ref=ref;
 
+	props.renderMode="editor";
+
 	return createElement(elements[node.type],props,...children);
 }
 

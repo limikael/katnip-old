@@ -99,7 +99,7 @@ class BrowserKatnip {
 		return cookies.katnip;
 	}
 
-	renderElementContent=(node, ref)=>{
+	renderElementContent=(node, options={})=>{
 		if (typeof node=="string")
 			return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
 
@@ -118,11 +118,12 @@ class BrowserKatnip {
 		let children=[];
 		if (node.children)
 			for (let child of node.children)
-				children.push(this.renderElementContent(child));
+				children.push(this.renderElementContent(child,options));
 
-		let props={...node.props};
-		if (ref)
-			props.ref=ref;
+		if (!options.renderMode)
+			options.renderMode="browser";
+
+		let props={...node.props, renderMode: options.renderMode};
 
 		return createElement(element,props,...children);
 	}
