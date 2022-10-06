@@ -4,12 +4,38 @@ import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
 import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
-		Editor, useEditor, TreeView} from "katnip";
+		Editor, useEditor, TreeView, useEventListener} from "katnip";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
+function isNodeChildOf(parent, child) {
+	if (!child)
+		return false;
+
+	if (parent==child)
+		return true;
+
+	return isNodeChildOf(parent,child.parentNode);
+}
+
 function EditorStructure({editor}) {
 	let data=editor.getDocNode([]).children;
+	let ref=useRef();
+
+	useEventListener(window,"keydown",(ev)=>{
+		if (!isNodeChildOf(ref.current,document.activeElement))
+			return;
+
+		switch (ev.code) {
+			case "Delete":
+			case "Backspace":
+				editor.removeDocNode(editor.path);
+				editor.selectPath(null);
+				break;
+		}
+
+		console.log(ev.code);
+	});
 
 	function ItemRenderer({data, path}) {
 		let label;
@@ -56,14 +82,16 @@ function EditorStructure({editor}) {
 	}
 
 	return (<>
-		<TreeView
-			data={data}
-			itemHeight={25}
-			itemSpacing={5}
-			itemIndent={30}
-			itemRenderer={ItemRenderer}
-			itemWidth={100}
-			onchange={onChange} />
+		<div tabindex={0} ref={ref}>
+			<TreeView
+				data={data}
+				itemHeight={25}
+				itemSpacing={5}
+				itemIndent={30}
+				itemRenderer={ItemRenderer}
+				itemWidth={100}
+				onchange={onChange} />
+		</div>
 	</>)
 }
 
