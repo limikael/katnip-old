@@ -67,7 +67,7 @@ function Paragraph({children}) {
 	return <p class="component">{empty}<span class="child-container">{children}</span></p>
 }
 
-katnip.addElement("Paragraph",Paragraph);
+katnip.addElement("Paragraph",Paragraph,{allowChildren: ["Bold","Link","text"]});
 
 katnip.addElement("Bold",({children})=>{
 	return <span class="component"><b><span class="child-container">{children}</span></b></span>
@@ -87,12 +87,13 @@ katnip.addElement("Link",({href, children, renderMode})=>{
 		</span>
 	);
 },{
+	allowChildren: ["text","Img"],
 	controls: {
 		href: {title: "href"}
 	}
 });
 
-katnip.addElement("Div","div");
+katnip.addElement("Div","div",{allowChildren: true});
 
 katnip.addElement("CustomDiv",({children, ...props})=>{
 	return (
@@ -103,6 +104,7 @@ katnip.addElement("CustomDiv",({children, ...props})=>{
 		</div>
 	);
 },{
+	allowChildren: true,
 	controls: {
 		class: {title: "Class", type: "textarea"},
 		style: {title: "Style", type: "textarea"}
@@ -114,6 +116,7 @@ katnip.addElement("Img",(props)=>{
 
 	return <img class={cls} {...props}/>
 },{
+	allowChildren: false,
 	controls: {
 		src: {title: "src"},
 		class: {title: "Class", type: "textarea"},

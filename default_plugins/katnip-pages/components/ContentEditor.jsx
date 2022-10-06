@@ -22,21 +22,6 @@ function EditorStructure({editor}) {
 	let data=editor.getDocNode([]).children;
 	let ref=useRef();
 
-	useEventListener(window,"keydown",(ev)=>{
-		if (!isNodeChildOf(ref.current,document.activeElement))
-			return;
-
-		switch (ev.code) {
-			case "Delete":
-			case "Backspace":
-				editor.removeDocNode(editor.path);
-				editor.selectPath(null);
-				break;
-		}
-
-		console.log(ev.code);
-	});
-
 	function ItemRenderer({data, path}) {
 		let label;
 		if (typeof data=="string")
@@ -54,6 +39,7 @@ function EditorStructure({editor}) {
 			ev.preventDefault();
 			ev.stopPropagation();
 			editor.selectPath(path);
+			editor.focus();
 		}
 
 		let linkStyle={
@@ -81,8 +67,13 @@ function EditorStructure({editor}) {
 		editor.selectPath(null);
 	}
 
+	function onClickOutside() {
+		editor.selectPath(null);
+		editor.focus();
+	}
+
 	return (<>
-		<div tabindex={0} ref={ref}>
+		<div tabindex={0} ref={ref} onclick={onClickOutside} style={{height: "100%"}}>
 			<TreeView
 				data={data}
 				itemHeight={25}
@@ -95,7 +86,7 @@ function EditorStructure({editor}) {
 	</>)
 }
 
-function ComponentLibrary({editor}) {
+function ComponentLibrary({editor, toggleLeftMode}) {
 	function onAddClick(componentName) {
 		editor.addDocNodeAtCursor({
 			"type": componentName,
@@ -103,15 +94,24 @@ function ComponentLibrary({editor}) {
 			"children": []
 		});
 
+		toggleLeftMode("tree");
 		editor.focus();
 	}
+
+	let disabled=true;
+	let parent=editor.getDocNode(editor.path);
+	if (typeof parent=="string" ||
+			parent.type=="Div" ||
+			katnip.elements[parent.type].allowChildren)
+		disabled=false;
 
 	return (<>
 		<div class="mb-3"><b>Components</b></div>
 		{Object.keys(katnip.elements).map((componentName)=>
 			(!katnip.elements[componentName].internal &&
 				<button class="btn btn-primary me-2 mb-2"
-						onclick={bindArgs(onAddClick,componentName)}>
+						onclick={bindArgs(onAddClick,componentName)}
+						disabled={disabled}>
 					{componentName}
 				</button>
 			)
@@ -265,14 +265,14 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 			</div>
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{leftMode=="tree" &&
-					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%">
+					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%; overflow: scroll;">
 						<div class="mb-3"><b>Document</b></div>
 						<EditorStructure editor={editor} />
 					</div>
 				}
 				{leftMode=="components" &&
 					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%">
-						<ComponentLibrary editor={editor}/>
+						<ComponentLibrary editor={editor} toggleLeftMode={toggleLeftMode}/>
 					</div>
 				}
 				<div class="flex-grow-1" style="overflow: scroll;">

@@ -123,8 +123,7 @@ export function Editor({editor, ...props}) {
 			switch (ev.code) {
 				case "Backspace":
 				case "Delete":
-					editor.removeDocNode(editor.path);
-					editor.selectPath(null);
+					editor.deleteSelected();
 					break;
 			}
 		}
@@ -136,19 +135,7 @@ export function Editor({editor, ...props}) {
 
 		ev.preventDefault();
 		ev.stopPropagation();
-
-		switch (editor.getSelectionMode()) {
-			case "node":
-				navigator.clipboard.writeText(JSON.stringify(editor.getDocNode(editor.path)));
-				editor.removeDocNode(editor.path);
-				editor.selectPath(null);
-				break;
-
-			case "range":
-				navigator.clipboard.writeText(JSON.stringify(editor.getCurrentTextRange()));
-				editor.clearCurrentTextRange();
-				break;
-		}
+		editor.cutSelected();
 	});
 
 	useEventListener(window,"copy",(ev)=>{
@@ -157,42 +144,16 @@ export function Editor({editor, ...props}) {
 
 		ev.preventDefault();
 		ev.stopPropagation();
-
-		switch (editor.getSelectionMode()) {
-			case "node":
-				navigator.clipboard.writeText(JSON.stringify(editor.getDocNode(editor.path)));
-				break;
-
-			case "range":
-				navigator.clipboard.writeText(JSON.stringify(editor.getCurrentTextRange()));
-				break;
-		}
+		editor.copySelected();
 	});
 
 	useEventListener(window,"paste",(ev)=>{
-		function isValidJson(s) {
-			try {
-				JSON.parse(s);
-				return true;
-			}
-
-			catch (e) {
-				return false;
-			}
-		}
-
 		if (document.activeElement!=ref.current)
 			return;
 
 		ev.preventDefault();
 		ev.stopPropagation();
-
-		navigator.clipboard.readText().then((text)=>{
-			if (isValidJson(text))
-				text=JSON.parse(text);
-
-			editor.addDocNodeAtCursor(text);
-		});
+		editor.paste();
 	});
 
 	function onClick(newPath, newCursorPos) {

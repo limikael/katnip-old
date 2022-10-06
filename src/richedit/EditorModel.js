@@ -162,4 +162,56 @@ export default class EditorModel extends EventEmitter {
 	setDocNodeProps(path, props) {
 		this.setDoc(docSetNodeProps(this.doc,path,props));
 	}
+
+	deleteSelected() {
+		this.removeDocNode(this.path);
+		this.selectPath(null);
+	}
+
+	cutSelected() {
+		switch (this.getSelectionMode()) {
+			case "node":
+				navigator.clipboard.writeText(JSON.stringify(this.getDocNode(this.path)));
+				this.removeDocNode(this.path);
+				this.selectPath(null);
+				break;
+
+			case "range":
+				navigator.clipboard.writeText(JSON.stringify(this.getCurrentTextRange()));
+				this.clearCurrentTextRange();
+				break;
+		}
+	}
+
+	copySelected() {
+		switch (this.getSelectionMode()) {
+			case "node":
+				navigator.clipboard.writeText(JSON.stringify(this.getDocNode(this.path)));
+				break;
+
+			case "range":
+				navigator.clipboard.writeText(JSON.stringify(this.getCurrentTextRange()));
+				break;
+		}
+	}
+
+	paste() {
+		function isValidJson(s) {
+			try {
+				JSON.parse(s);
+				return true;
+			}
+
+			catch (e) {
+				return false;
+			}
+		}
+
+		navigator.clipboard.readText().then((text)=>{
+			if (isValidJson(text))
+				text=JSON.parse(text);
+
+			this.addDocNodeAtCursor(text);
+		});
+	}
 }
