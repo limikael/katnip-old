@@ -3,52 +3,6 @@ import PageView from "../components/PageView.jsx";
 import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 
-/*function Box({label, color, round, children}) {
-	if (!color)
-		color="#f00";
-
-	let rad="1em";
-	if (round=="much")
-		rad="2em";
-
-	return <>
-		<div class="p-5 component" style={{"background-color": color, "border-radius": rad}}>
-			<span>I'm a box: {label}</span>
-			<div class="border child-container">
-				{children}
-			</div>
-		</div>
-	</>;
-};
-
-katnip.addElement("Box",Box,{
-	controls: {
-		label: {title: "The Label"},
-		color: {title: "The Color"},
-		round: {title: "Rounded", type: "select", "options": {little: "Little", much: "Much"}}
-	}
-});
-
-function MyComp({label, children, ...props}) {
-	return (<>
-		<div class="bg-primary p-3 component">
-			<div class="bg-light p-3">
-				<b>hello world, don't edit</b><br/>
-				<b>{label}</b>
-				<div class="border p-3 child-container">
-					{children}
-				</div>
-			</div>
-		</div>
-	</>)
-}
-
-katnip.addElement("MyComp",MyComp,{
-	controls: {
-		label: {title: "The Label"},
-	}	
-});*/
-
 function Heading({children}) {
 	let empty;
 	if (!children || !children.length)
@@ -123,6 +77,26 @@ katnip.addElement("Img",(props)=>{
 		style: {title: "Style", type: "textarea"}
 	}
 });
+
+katnip.addElement("ul",({children})=>{
+	return (
+		<div class="component">
+			<ul class="child-container">
+				{children}
+			</ul>
+		</div>
+	);
+},{allowChildren:["li"]});
+
+katnip.addElement("li",({children})=>{
+	return (
+		<span class="component">
+			<li class="child-container">
+				{children}
+			</li>
+		</span>
+	);
+},{allowChildren: true});
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
