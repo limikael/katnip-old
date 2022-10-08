@@ -18,19 +18,28 @@ function makeReactComponent(node, elements) {
 		return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
 
 	let children=makeReactComponents(node.children,elements);
+	let component=UndefinedComponent;
+	if (elements[node.type])
+		component=elements[node.type].component;
+
 	let props={...node.props};
-	props.outer={
-		"data-type": node.type,
-		"data-outer": true
-	};
-	props.inner={
-		"data-inner": true
-	};
+	if (typeof component=="string") {
+		props["data-props"]=JSON.stringify(props);
+		props["data-type"]=component;
+	}
 
-	if (!elements[node.type])
-		return createElement(UndefinedComponent,props,...children);
+	else {
+		props.outer={
+			"data-props": JSON.stringify(props),
+			"data-type": node.type,
+			"data-outer": true,
+		};
+		props.inner={
+			"data-inner": true
+		};
+	}
 
-	return createElement(elements[node.type].component,props,...children);
+	return createElement(component,props,...children);
 }
 
 function makeReactComponents(nodes, elements) {
@@ -67,9 +76,13 @@ function getContentFromDom(el) {
 	if (!type)
 		type=el.nodeName.toLowerCase();
 
+	let props={};
+	if (el.dataset.props)
+		props=JSON.parse(el.dataset.props);
+
 	return {
 		type: type,
-		props: {},
+		props: props,
 		children: getContentFromDomChildren(el)
 	}
 }
@@ -93,6 +106,11 @@ function markDocNodes(el) {
 	let domParent=el;
 	if (el.dataset && el.dataset.outer)
 		domParent=findInner(el);
+
+	if (!domParent) {
+		el.docChildNodes=[];
+		return;
+	}
 
 	el.docChildNodes=Array.from(domParent.childNodes);
 	for (let ch of el.docChildNodes) {

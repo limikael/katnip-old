@@ -50,8 +50,12 @@ function PageProperties({form}) {
 function PageEdit({request}) {
 	async function read() {
 		let data={title: "New Page", content: [
-			{type: "p",children: ["hello"]},
-			{type: "p",children: ["world"]},
+			{type: "p", children: ["hello"]},
+			{type: "p", children: ["world"]},
+			{type: "Box", children:[
+				{type: "p", children: ["row1"]},
+				{type: "p", children: ["row2"]},
+			]}
 		]};
 
 		if (request.query.id)
