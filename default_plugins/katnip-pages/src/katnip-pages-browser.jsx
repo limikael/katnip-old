@@ -20,7 +20,7 @@ Box.controls={
 	color: {}
 }
 
-Box.default=["hello"];
+//Box.default=["hello"];
 
 katnip.addElement(Box);
 

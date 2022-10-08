@@ -86,30 +86,30 @@ function EditorStructure({editor}) {
 
 function ComponentLibrary({editor, toggleLeftMode}) {
 	function onAddClick(componentName) {
+		let c=[];
+		if (katnip.elements[componentName].default)
+			c=JSON.parse(JSON.stringify(katnip.elements[componentName].default));
+
 		editor.addDocNodeAtCursor({
 			"type": componentName,
 			"props": {},
-			"children": katnip.elements[componentName].default
+			"children": c
 		});
 
 		toggleLeftMode("tree");
 		editor.focus();
 	}
 
-	let disabled=true;
-	let parent=editor.getDocNode(editor.startPath);
-	/*if (typeof parent=="string" ||
-			parent.type=="Div" ||
-			katnip.elements[parent.type].allowChildren)*/
-		disabled=false;
+	//let disabled=true;
+	//let parent=editor.getDocNode(editor.startPath);
+	//	disabled=false;
 
 	return (<>
 		<div class="mb-3"><b>Components</b></div>
 		{Object.keys(katnip.elements).map((componentName)=>
 			(!katnip.elements[componentName].internal &&
 				<button class="btn btn-primary me-2 mb-2"
-						onclick={bindArgs(onAddClick,componentName)}
-						disabled={disabled}>
+						onclick={bindArgs(onAddClick,componentName)}>
 					{componentName}
 				</button>
 			)

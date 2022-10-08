@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import {docGetNode, docGetChildPaths, docReplaceNode, docAddNode, docAddNodeSibling,
-		docSetNodeProps} from "./doc-util.js";
+		docSetNodeProps, docGetStructure, docRemoveNode} from "./doc-util.js";
 
 export default class EditorState extends EventEmitter {
 	constructor(options) {
@@ -89,6 +89,10 @@ export default class EditorState extends EventEmitter {
 		]);
 	}
 
+	getDocumentStateHash() {
+		return JSON.stringify(docGetStructure(this.getWrappedDoc()));
+	}
+
 	setEl=(ref)=>{
 		this.el=ref;
 	}
@@ -143,16 +147,25 @@ export default class EditorState extends EventEmitter {
 		}
 	}
 
+	removeDocNode(path) {
+		if (!path)
+			return;
+
+		this.setWrappedDoc(docRemoveNode(this.getWrappedDoc(),path));
+	}
+
+	deleteSelected() {
+		this.removeDocNode(this.startPath);
+		this.select();
+	}
+
 	setDocNodeProps(path, props) {
 		this.setWrappedDoc(docSetNodeProps(this.getWrappedDoc(),path,props));
 	}
 
 	focus() {
+		console.log("focus..");
 		if (this.el)
 			this.el.focus();
-	}
-
-	notifyScroll=(ev)=>{
-		console.log("scroll");
 	}
 }

@@ -76,7 +76,6 @@ export function docAddNode(doc, path, node) {
 
 	let thisIndex=path[0];
 	let restPath=path.slice(1);
-
 	doc.children[thisIndex]=docAddNode(doc.children[thisIndex],restPath,node);
 	return doc;
 }
@@ -99,4 +98,16 @@ export function docAddNodeSibling(doc, path, node) {
 
 	doc.children[thisIndex]=docAddNodeSibling(doc.children[thisIndex],restPath,node);
 	return doc;
+}
+
+export function docGetStructure(doc) {
+	if (typeof doc=="string")
+		return "";
+
+	console.log(doc);
+
+	return {
+		type: doc.type,
+		children: doc.children.map(c=>docGetStructure(c))
+	}
 }

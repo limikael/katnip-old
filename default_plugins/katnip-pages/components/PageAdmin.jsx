@@ -49,16 +49,9 @@ function PageProperties({form}) {
 
 function PageEdit({request}) {
 	async function read() {
-		let data={title: "New Page", content: [
-			{type: "p", children: ["hello"]},
-			{type: "p", children: ["world"]},
-			{type: "Box", children:[
-				{type: "p", children: ["row1"]},
-				{type: "p", children: ["row2"]},
-			]}
-		]};
+		let data={title: "New Page", content: []};
 
-		for (let i=0; i<10; i++)
+/*		for (let i=0; i<10; i++)
 			data.content.push({type: "p", children: [
 				"Lorem ipsum dolor sit amet, consectetur adipiscing elit. "+
 				"Sed viverra, nisl eget bibendum fermentum, eros dui pellentesque elit, quis vestibulum nibh odio a quam. "+
@@ -71,7 +64,7 @@ function PageEdit({request}) {
 				"Aliquam ultrices accumsan dui, sit amet facilisis magna mattis sit amet. "+
 				"Interdum et malesuada fames ac ante ipsum primis in faucibus. "+
 				"Donec in imperdiet lectus, in finibus purus."
-			]});
+			]});*/
 
 		if (request.query.id)
 			data=await apiFetch("/api/page/get",{id: request.query.id});

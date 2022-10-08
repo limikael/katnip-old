@@ -165,9 +165,10 @@ export function useEditor(options) {
 
 export function Editor({editor, ...props}) {
 	let selRef=useRef();
-//	useEventUpdate(editor,"change");
 
 	useEventListener(window.document,"selectionchange",()=>{
+		markDocNodes(editor.el);
+
 		let sel=window.getSelection();
 		if (!sel.rangeCount)
 			return;
@@ -195,9 +196,9 @@ export function Editor({editor, ...props}) {
 	});
 
 	function onInput() {
-		let range=window.getSelection().getRangeAt(0);
-
 		markDocNodes(editor.el);
+
+		let range=window.getSelection().getRangeAt(0);
 		editor.setDoc(getContentFromDomChildren(editor.el));
 		editor.select(
 			getNodePath(editor.el,range.startContainer),
@@ -208,17 +209,10 @@ export function Editor({editor, ...props}) {
 	}
 
 	useLayoutEffect(()=>{
-		//editor.scrollEl.scrollTop=editor.scrollTop;
-		//console.log("Scrolltop: "+editor.scrollTop);
-
 		markDocNodes(editor.el);
 
 		switch (editor.getSelectionMode()) {
 			case "range":
-				/*if (!isNodeChildOf(editor.el,document.activeElement) &&
-						document.activeElement!=document.body)
-					return;*/
-
 				editor.el.contentEditable=true;
 
 				let sel=window.getSelection();
@@ -251,17 +245,38 @@ export function Editor({editor, ...props}) {
 				rect.x-=editorRect.x;
 
 				makeSelectionRect(selRef.current,rect);
+				editor.el.focus();
 				break;
 		}
 	},[editor.getSelectionStateHash()]);
 
-	function onKeyDown(ev) {
-		if (ev.key=="Enter") {
-			markDocNodes(editor.el);
+	function onKeyPress(ev) {
+		console.log("key: "+ev.charCode);
 
-			let range=window.getSelection().getRangeAt(0);
-			if (isInner(range.startContainer))
-				ev.preventDefault();
+		if (editor.getSelectionMode()!="block")
+			return;
+
+		editor.addDocNodeAtCursor(String.fromCharCode(ev.charCode));
+		editor.select(editor.startPath,1);
+	}
+
+	function onKeyDown(ev) {
+		switch (ev.key) {
+			case "Enter":
+				markDocNodes(editor.el);
+				let range=window.getSelection().getRangeAt(0);
+				if (isInner(range.startContainer))
+					ev.preventDefault();
+				break;
+
+			case "Delete":
+			case "Backspace":
+				console.log("del..");
+				if (editor.getSelectionMode()!="block")
+					return;
+
+				editor.deleteSelected();
+				break;
 		}
 	}
 
@@ -270,9 +285,11 @@ export function Editor({editor, ...props}) {
 			<div oninput={onInput} 
 					ref={editor.setEl} 
 					style="outline: none"
-					key={JSON.stringify(editor.doc)}
+					key={editor.getDocumentStateHash()}
 					onkeydown={onKeyDown}
-					contentEditable={true}>
+					onkeypress={onKeyPress}
+					contentEditable={true}
+					tabindex={0}>
 				{makeReactComponents(editor.doc,editor.elements)}
 			</div>
 			<div ref={selRef}/>
