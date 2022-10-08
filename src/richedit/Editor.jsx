@@ -1,6 +1,7 @@
 import {createElement, useRef, useEffect, useLayoutEffect, useState} from "react";
 import {useEventListener, useInstance, useEventUpdate} from "../utils/react-util.jsx";
 import EditorState from "./EditorState.js";
+import {getBoundingRectSafe} from "./dom-util.js";
 
 function UndefinedComponent({outer, inner, children}) {
 	return (
@@ -142,6 +143,19 @@ function isNodeChildOf(parent, child) {
 	return isNodeChildOf(parent,child.parentNode);
 }
 
+function makeSelectionRect(el, rect) {
+	el.style.position="absolute";
+	el.style.border="1px solid red";
+	el.style.backgroundColor="rgba(255, 0, 0, 0.25)";
+	el.style.left=rect.x+"px";
+	el.style.top=rect.y+"px";
+	el.style.width=rect.width+"px";
+	el.style.height=rect.height+"px";
+	el.style.boxSizing="border-box";
+	el.style.pointerEvents="none";
+	el.style.display="block";
+}
+
 export function useEditor(options) {
 	let editor=useInstance(EditorState,options);
 	useEventUpdate(editor,"change");
@@ -150,8 +164,14 @@ export function useEditor(options) {
 }
 
 export function Editor({editor, ...props}) {
+	let selRef=useRef();
+//	useEventUpdate(editor,"change");
+
 	useEventListener(window.document,"selectionchange",()=>{
 		let sel=window.getSelection();
+		if (!sel.rangeCount)
+			return;
+
 		let range=sel.getRangeAt(0);
 
 		if (!isNodeChildOf(editor.el,range.startContainer))
@@ -188,28 +208,52 @@ export function Editor({editor, ...props}) {
 	}
 
 	useLayoutEffect(()=>{
-		if (!isNodeChildOf(editor.el,document.activeElement) &&
-				document.activeElement!=document.body)
-			return;
+		//editor.scrollEl.scrollTop=editor.scrollTop;
+		//console.log("Scrolltop: "+editor.scrollTop);
 
 		markDocNodes(editor.el);
 
-		let sel=window.getSelection();
-		sel.removeAllRanges();
+		switch (editor.getSelectionMode()) {
+			case "range":
+				/*if (!isNodeChildOf(editor.el,document.activeElement) &&
+						document.activeElement!=document.body)
+					return;*/
 
-		let range=document.createRange();
-		if (editor.selectBackward) {
-			range.setStart(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
-			sel.addRange(range);
-			sel.extend(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
-		}
+				editor.el.contentEditable=true;
 
-		else {
-			range.setStart(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
-			sel.addRange(range);
-			sel.extend(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
+				let sel=window.getSelection();
+				sel.removeAllRanges();
+
+				let range=document.createRange();
+				if (editor.selectBackward) {
+					range.setStart(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
+					sel.addRange(range);
+					sel.extend(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
+				}
+
+				else {
+					range.setStart(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
+					sel.addRange(range);
+					sel.extend(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
+				}
+
+				selRef.current.style.display="none";
+				break;
+
+			case "block":
+				editor.el.contentEditable=false;
+
+				let selected=getChildNodeByPath(editor.el,editor.startPath);
+				let rect=getBoundingRectSafe(selected);
+				let editorRect=getBoundingRectSafe(editor.el);
+
+				rect.y-=editorRect.y;
+				rect.x-=editorRect.x;
+
+				makeSelectionRect(selRef.current,rect);
+				break;
 		}
-	});
+	},[editor.getSelectionStateHash()]);
 
 	function onKeyDown(ev) {
 		if (ev.key=="Enter") {
@@ -222,14 +266,16 @@ export function Editor({editor, ...props}) {
 	}
 
 	return (
-		<div contenteditable="true"
-				oninput={onInput} 
-				ref={editor.setEl} 
-				style="outline: none"
-				key={Math.random()}
-				onkeydown={onKeyDown}
-				class={props.class}>
-			{makeReactComponents(editor.doc,editor.elements)}
+		<div style="position: relative;" class={props.class}>
+			<div oninput={onInput} 
+					ref={editor.setEl} 
+					style="outline: none"
+					key={JSON.stringify(editor.doc)}
+					onkeydown={onKeyDown}
+					contentEditable={true}>
+				{makeReactComponents(editor.doc,editor.elements)}
+			</div>
+			<div ref={selRef}/>
 		</div>
 	);
 }

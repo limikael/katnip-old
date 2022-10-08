@@ -58,6 +58,21 @@ function PageEdit({request}) {
 			]}
 		]};
 
+		for (let i=0; i<10; i++)
+			data.content.push({type: "p", children: [
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit. "+
+				"Sed viverra, nisl eget bibendum fermentum, eros dui pellentesque elit, quis vestibulum nibh odio a quam. "+
+				"Cras gravida viverra dui ac mattis. "+
+				"Aenean velit metus, dapibus id nisl egestas, varius varius dui. "+
+				"Etiam vitae molestie libero. "+
+				"Quisque tempor condimentum tortor, vel gravida dolor luctus sed. "+
+				"Cras ullamcorper turpis et velit faucibus, sit amet hendrerit tellus laoreet. "+
+				"Praesent pharetra egestas metus ut ornare. "+
+				"Aliquam ultrices accumsan dui, sit amet facilisis magna mattis sit amet. "+
+				"Interdum et malesuada fames ac ante ipsum primis in faucibus. "+
+				"Donec in imperdiet lectus, in finibus purus."
+			]});
+
 		if (request.query.id)
 			data=await apiFetch("/api/page/get",{id: request.query.id});
 

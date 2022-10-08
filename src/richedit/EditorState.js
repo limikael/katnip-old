@@ -34,6 +34,13 @@ export default class EditorState extends EventEmitter {
 		this.setDoc(wrappedDoc.children);
 	}
 
+	getSelectionMode() {
+		if (this.startOffset>=0)
+			return "range";
+
+		return "block";
+	}
+
 	select(startPath, startOffset, endPath, endOffset, selectBackward) {
 		selectBackward=!!selectBackward;
 
@@ -49,6 +56,13 @@ export default class EditorState extends EventEmitter {
 			this.startOffset=0;
 			this.endPath=[];
 			this.endOffset=0;
+		}
+
+		else if (startOffset<0 || startOffset===undefined) {
+			this.startPath=startPath;
+			this.startOffset=-1;
+			this.endPath=startPath;
+			this.endOffset=-1;
 		}
 
 		else if (!endPath) {
@@ -69,9 +83,14 @@ export default class EditorState extends EventEmitter {
 		this.emit("change");
 	}
 
+	getSelectionStateHash() {
+		return JSON.stringify([
+			this.startPath,this.startOffset,this.endPath,this.endOffset,this.selectBackward
+		]);
+	}
+
 	setEl=(ref)=>{
-		if (ref)
-			this.el=ref;
+		this.el=ref;
 	}
 
 	getDoc() {
@@ -131,5 +150,9 @@ export default class EditorState extends EventEmitter {
 	focus() {
 		if (this.el)
 			this.el.focus();
+	}
+
+	notifyScroll=(ev)=>{
+		console.log("scroll");
 	}
 }
