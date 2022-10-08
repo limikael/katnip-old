@@ -1,4 +1,4 @@
-export function getClosestNodeWithClasses(node, classes) {
+/*export function getClosestNodeWithClasses(node, classes) {
 	if (!node)
 		return null;
 
@@ -35,7 +35,7 @@ export function getChildNodeByPath(el, path) {
 		el=el.querySelector(".child-container");
 
 	return getChildNodeByPath(el.childNodes[path[0]],path.slice(1));
-}
+}*/
 
 export function getBoundingRectSafe(el) {
 	if (el.nodeName=="#text") {

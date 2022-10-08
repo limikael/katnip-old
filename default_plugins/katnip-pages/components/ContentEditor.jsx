@@ -19,7 +19,7 @@ function isNodeChildOf(parent, child) {
 }
 
 function EditorStructure({editor}) {
-	let data=editor.getDocNode([]).children;
+	let data=editor.getDoc();
 	let ref=useRef();
 
 	function ItemRenderer({data, path}) {
@@ -32,13 +32,13 @@ function EditorStructure({editor}) {
 
 		let cls="border border-primary bg-white shadow text-primary px-2 position-relative ";
 
-		if (JSON.stringify(editor.path)==JSON.stringify(path))
+		if (JSON.stringify(editor.startPath)==JSON.stringify(path))
 			cls+="fw-bold"
 
 		function onClick(ev) {
 			ev.preventDefault();
 			ev.stopPropagation();
-			editor.selectPath(path);
+			editor.select(path);
 			editor.focus();
 		}
 
@@ -61,14 +61,12 @@ function EditorStructure({editor}) {
 	}
 
 	function onChange(newData) {
-		let root=editor.getDocNode();
-		root.children=newData;
-		editor.setDoc(root);
-		editor.selectPath(null);
+		editor.setDoc(newData);
+		editor.select();
 	}
 
 	function onClickOutside() {
-		editor.selectPath(null);
+		editor.select();
 		editor.focus();
 	}
 
@@ -91,7 +89,7 @@ function ComponentLibrary({editor, toggleLeftMode}) {
 		editor.addDocNodeAtCursor({
 			"type": componentName,
 			"props": {},
-			"children": []
+			"children": katnip.elements[componentName].default
 		});
 
 		toggleLeftMode("tree");
@@ -99,10 +97,10 @@ function ComponentLibrary({editor, toggleLeftMode}) {
 	}
 
 	let disabled=true;
-	let parent=editor.getDocNode(editor.path);
-	if (typeof parent=="string" ||
+	let parent=editor.getDocNode(editor.startPath);
+	/*if (typeof parent=="string" ||
 			parent.type=="Div" ||
-			katnip.elements[parent.type].allowChildren)
+			katnip.elements[parent.type].allowChildren)*/
 		disabled=false;
 
 	return (<>
@@ -122,10 +120,10 @@ function ComponentLibrary({editor, toggleLeftMode}) {
 function EditorPath({editor}) {
 	function pathClick(path, ev) {
 		ev.preventDefault();
-		editor.selectPath(path);
+		editor.select(path);
 	}
 
-	let path=editor.path;
+	let path=editor.startPath;
 	if (!path)
 		path=[];
 
@@ -147,21 +145,19 @@ function EditorPath({editor}) {
 }
 
 function ComponentProperties({editor}) {
-	let node=editor.getDocNode(editor.path);
+	let node=editor.getDocNode(editor.startPath);
 
 	if (!node || !katnip.elements[node.type])
 		return;
 
-	let controls={};
-	if (katnip.elements[node.type].options?.controls)
-		controls=katnip.elements[node.type].options.controls;
-
 	function onPropChange(ev) {
-		let props=editor.getDocNode(editor.path).props;
+		let props=editor.getDocNode(editor.startPath).props;
 		props[ev.target.dataset.id]=ev.target.value;
 
-		editor.setDocNodeProps(editor.path,props);
+		editor.setDocNodeProps(editor.startPath,props);
 	}
+
+	let controls=katnip.elements[node.type].controls;
 
 	return <>
 		<div class="mb-3"><b>{node.type}</b></div>
@@ -227,10 +223,6 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 
 	let MetaEditor=metaEditor;
 
-	function debug() {
-		console.log("debug");
-	}
-
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
 			<div class="bg-light p-3 border-bottom d-flex flex-row">
@@ -245,10 +237,6 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 					<img src={PLUS_LG} style={`${whiteFilter}`}/>
 				</button>
 				<h2 class="d-inline-block mb-0 me-auto">{documentForm.getCurrent().title}</h2>
-				<button class={`btn btn-primary ms-2`}
-						onclick={debug}>
-					DEBUG
-				</button>
 				<button class={`btn btn-primary ms-2 ${rightMode=="component"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
 						onclick={bindArgs(toggleRightMode,"component")}>

@@ -1,204 +1,217 @@
-import {useRef, useEffect, useState, createElement} from "react";
-import {useEventListener, useForceUpdate, useInstance, useEventUpdate} from "../utils/react-util.jsx";
-import EditorView from "./EditorView.jsx";
-import EditorModel from "./EditorModel.js";
+import {createElement, useRef, useEffect, useLayoutEffect, useState} from "react";
+import {useEventListener, useInstance, useEventUpdate} from "../utils/react-util.jsx";
+import EditorState from "./EditorState.js";
+
+function UndefinedComponent({outer, inner, children}) {
+	return (
+		<div {...outer} class="m-1 p-1 bg-warning rounded">
+			<span class="text-white fw-bold">Undefined: {outer["data-type"]}</span>
+			<div {...inner} class="p-1 bg-white rounded">
+				{children}
+			</div>
+		</div>
+	);
+}
+
+function makeReactComponent(node, elements) {
+	if (typeof node=="string")
+		return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
+
+	let children=makeReactComponents(node.children,elements);
+	let props={...node.props};
+	props.outer={
+		"data-type": node.type,
+		"data-outer": true
+	};
+	props.inner={
+		"data-inner": true
+	};
+
+	if (!elements[node.type])
+		return createElement(UndefinedComponent,props,...children);
+
+	return createElement(elements[node.type].component,props,...children);
+}
+
+function makeReactComponents(nodes, elements) {
+	if (!nodes || !nodes.length)
+		return [];
+
+	return nodes.map((n,i)=>makeReactComponent(n,elements));
+}
+
+function getNodePath(parent, child) {
+	if (parent==child)
+		return [];
+
+	if (!child.docParentNode)
+		return null;
+
+	let index=child.docParentNode.docChildNodes.indexOf(child);
+
+	return [...getNodePath(parent,child.docParentNode),index];
+}
+
+function getChildNodeByPath(el, path) {
+	if (!path.length)
+		return el;
+
+	return getChildNodeByPath(el.docChildNodes[path[0]],path.slice(1));
+}
+
+function getContentFromDom(el) {
+	if (el.nodeName=="#text" || el.dataset.type=="text")
+		return el.textContent;
+
+	let type=el.dataset.type;
+	if (!type)
+		type=el.nodeName.toLowerCase();
+
+	return {
+		type: type,
+		props: {},
+		children: getContentFromDomChildren(el)
+	}
+}
+
+function getContentFromDomChildren(el) {
+	return el.docChildNodes.map(childEl=>getContentFromDom(childEl));
+}
+
+function findInner(el) {
+	if (el.dataset && el.dataset.inner)
+		return el;
+
+	for (let childNode of el.childNodes) {
+		let cand=findInner(childNode);
+		if (cand)
+			return cand;
+	}
+}
+
+function markDocNodes(el) {
+	let domParent=el;
+	if (el.dataset && el.dataset.outer)
+		domParent=findInner(el);
+
+	el.docChildNodes=Array.from(domParent.childNodes);
+	for (let ch of el.docChildNodes) {
+		ch.docParentNode=el;
+		markDocNodes(ch);
+	}
+}
+
+function isInner(node) {
+	if (node.dataset && node.dataset.inner)
+		return true;
+
+	if (["#text","B","I"].includes(node.nodeName))
+		return isInner(node.parentNode);
+
+	return false;
+}
+
+function isNodeChildOf(parent, child) {
+	if (!child)
+		return false;
+
+	if (parent==child)
+		return true;
+
+	if (!child.parentNode)
+		return false;
+
+	return isNodeChildOf(parent,child.parentNode);
+}
 
 export function useEditor(options) {
-	let editor=useInstance(EditorModel,options);
+	let editor=useInstance(EditorState,options);
 	useEventUpdate(editor,"change");
 
 	return editor;
 }
 
 export function Editor({editor, ...props}) {
-	ref=useRef();
-	useEventUpdate(editor,"change");
+	useEventListener(window.document,"selectionchange",()=>{
+		let sel=window.getSelection();
+		let range=sel.getRangeAt(0);
 
-	if (editor.focusQueued && ref.current) {
-		editor.focusQueued=false;
-
-		let sc;
-		if (ref.current.parentNode)
-			sc=ref.current.parentNode.scrollTop;
-
-		ref.current.focus();
-
-		if (ref.current.parentNode)
-			ref.current.parentNode.scrollTop=sc;
-	}
-
-	useEventListener(window,"keypress",(ev)=>{
-		if (document.activeElement!=ref.current)
+		if (!isNodeChildOf(editor.el,range.startContainer))
 			return;
 
-		//console.log("key press...");
+		markDocNodes(editor.el);
 
-		if (ev.charCode==127)
-			return;
+		let backward=false;
+		if (sel.focusNode==range.startContainer &&
+				sel.focusOffset==range.startOffset &&
+				!range.collapsed)
+			backward=true;
 
-		ev.preventDefault();
-		ev.stopPropagation();
-
-		if (typeof editor.getDocNode(editor.path)!="string") {
-			let path=editor.path;
-			if (!path)
-				path=[];
-
-			while (editor.getDocChildPaths(path).length)
-				editor.removeDocNode([...path,0]);
-
-			editor.addDocNode(path,String.fromCharCode(ev.charCode));
-			editor.selectTextPos([...path,0],1);
-		}
-
-		else if (typeof editor.getDocNode(editor.path)=="string") {
-			editor.clearCurrentTextRange();
-
-			if (editor.cursorPos<0) {
-				editor.replaceDocNode(editor.path,String.fromCharCode(ev.charCode));
-				editor.selectTextPos(editor.path,1);
-			}
-
-			else {
-				let s=editor.getDocNode(editor.path);
-				s=s.slice(0,editor.cursorPos)+String.fromCharCode(ev.charCode)+s.slice(editor.cursorPos);
-				editor.replaceDocNode(editor.path,s);
-				editor.selectTextPos(editor.path,editor.cursorPos+1);
-			}
-		}
+		editor.select(
+			getNodePath(editor.el,range.startContainer),
+			range.startOffset,
+			getNodePath(editor.el,range.endContainer),
+			range.endOffset,
+			backward
+		);
 	});
 
-	useEventListener(window,"keydown",(ev)=>{
-		if (document.activeElement!=ref.current)
+	function onInput() {
+		let range=window.getSelection().getRangeAt(0);
+
+		markDocNodes(editor.el);
+		editor.setDoc(getContentFromDomChildren(editor.el));
+		editor.select(
+			getNodePath(editor.el,range.startContainer),
+			range.startOffset,
+			getNodePath(editor.el,range.endContainer),
+			range.endOffset
+		);
+	}
+
+	useLayoutEffect(()=>{
+		if (!isNodeChildOf(editor.el,document.activeElement) &&
+				document.activeElement!=document.body)
 			return;
 
-		//console.log("key down: "+ev.charCode);
+		markDocNodes(editor.el);
 
-		let s,node=editor.getDocNode(editor.path);
-		if (!node && typeof node!="string")
-			return;
+		let sel=window.getSelection();
+		sel.removeAllRanges();
 
-		if (editor.cursorPos>=0) {
-			if (typeof node!="string")
-				throw new Error("Expected a string!!!");
-
-			switch (ev.code) {
-				case "ArrowLeft":
-					editor.selectTextPos(editor.path,Math.max(0,editor.cursorPos-1));
-					break;
-
-				case "ArrowRight":
-					editor.selectTextPos(editor.path,Math.min(node.length,editor.cursorPos+1));
-					break;
-
-				case "Backspace":
-					if (editor.getSelectionMode()=="range")
-						editor.clearCurrentTextRange();
-
-					else {
-						if (editor.cursorPos>0) {
-							s=node.slice(0,editor.cursorPos-1)+node.slice(editor.cursorPos);
-							editor.replaceDocNode(editor.path,s);
-							editor.selectTextPos(editor.path,Math.min(node.length,editor.cursorPos-1));
-						}
-					}
-					break;
-
-				case "Delete":
-					if (editor.getSelectionMode()=="range")
-						editor.clearCurrentTextRange();
-
-					else {
-						s=node.slice(0,editor.cursorPos)+node.slice(editor.cursorPos+1);
-						editor.replaceDocNode(editor.path,s);
-					}
-					break;
-			}
+		let range=document.createRange();
+		if (editor.selectBackward) {
+			range.setStart(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
+			sel.addRange(range);
+			sel.extend(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
 		}
 
 		else {
-			if (!editor.path || !editor.path.length)
-				return;
-
-			switch (ev.code) {
-				case "Backspace":
-				case "Delete":
-					editor.deleteSelected();
-					break;
-			}
+			range.setStart(getChildNodeByPath(editor.el,editor.startPath),editor.startOffset);
+			sel.addRange(range);
+			sel.extend(getChildNodeByPath(editor.el,editor.endPath),editor.endOffset);
 		}
 	});
 
-	useEventListener(window,"cut",(ev)=>{
-		if (document.activeElement!=ref.current)
-			return;
+	function onKeyDown(ev) {
+		if (ev.key=="Enter") {
+			markDocNodes(editor.el);
 
-		ev.preventDefault();
-		ev.stopPropagation();
-		editor.cutSelected();
-	});
-
-	useEventListener(window,"copy",(ev)=>{
-		if (document.activeElement!=ref.current)
-			return;
-
-		ev.preventDefault();
-		ev.stopPropagation();
-		editor.copySelected();
-	});
-
-	useEventListener(window,"paste",(ev)=>{
-		if (document.activeElement!=ref.current)
-			return;
-
-		ev.preventDefault();
-		ev.stopPropagation();
-		editor.paste();
-	});
-
-	function onClick(newPath, newCursorPos) {
-		editor.focus();
-
-		if (JSON.stringify(newPath)==JSON.stringify(editor.path)) {
-			if (newCursorPos==editor.cursorPos)
-				editor.selectPath(newPath);
-
-			else
-				editor.selectTextPos(newPath, newCursorPos);
+			let range=window.getSelection().getRangeAt(0);
+			if (isInner(range.startContainer))
+				ev.preventDefault();
 		}
-
-		else {
-			editor.selectPath(newPath);
-
-			let node=editor.getDocNode(editor.path);
-			if (typeof node=="string")
-				editor.selectTextPos(editor.path,newCursorPos);
-
-			else
-				editor.selectPath(editor.path);
-		}
-	}
-
-	function onDrag(path, toCursorPos) {
-		if (JSON.stringify(editor.path)!=JSON.stringify(path)) {
-			//console.log("diff: "+JSON.stringify(path));
-			editor.selectTextRange(editor.path,editor.cursorPos,editor.rangeLen);
-			return;
-		}
-
-		editor.selectTextRange(editor.path,editor.cursorPos,toCursorPos-editor.cursorPos);
 	}
 
 	return (
-		<EditorView
-			doc={editor.doc}
-			path={editor.path}
-			cursorPos={editor.cursorPos}
-			rangeLen={editor.rangeLen}
-			elements={editor.elements}
-			onclick={onClick}
-			ondrag={onDrag}
-			forwardRef={ref}
-			class={props.class}/>
-	)
+		<div contenteditable="true"
+				oninput={onInput} 
+				ref={editor.setEl} 
+				style="outline: none"
+				key={Math.random()}
+				onkeydown={onKeyDown}
+				class={props.class}>
+			{makeReactComponents(editor.doc,editor.elements)}
+		</div>
+	);
 }

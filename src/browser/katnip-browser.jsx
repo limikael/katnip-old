@@ -72,14 +72,45 @@ class BrowserKatnip {
 				this[k]=o[k];
 	}
 
-	addElement=(tag, func, options={})=> {
-		if (typeof func!="string") {
-			func.options=options;
-			for (let k in options)
-				func[k]=options[k];
+	addElement=(...args)=> {
+		function itemOfType(a,t) {
+			for (let e of a)
+				if (typeof e==t)
+					return e;
 		}
 
-		this.elements[tag]=func;
+		let def=itemOfType(args,"object");
+		if (!def)
+			def={};
+
+		let s=itemOfType(args,"string");
+		if (s) {
+			if (!def.type) def.type=s;
+			if (!def.component) def.component=s;
+		}
+
+		let fn=itemOfType(args,"function");
+		if (fn) {
+			if (!def.type) def.type=fn.name;
+			if (!def.controls) def.controls=fn.controls;
+			if (!def.default) def.default=fn.default;
+			if (fn.internal) def.internal=fn.internal;
+
+			def.component=fn;
+		}
+
+		if (!def.controls)
+			def.controls={};
+
+		for (let k in def.controls)
+			if (!def.controls[k].title)
+				def.controls[k].title=k;
+
+		if (!def.type || !def.component)
+			throw new Error("Not enough info in component def.");
+
+		//console.log(def);
+		this.elements[def.type]=def;
 	}
 
 	clientMain=()=>{
