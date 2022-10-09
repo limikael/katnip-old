@@ -22,6 +22,6 @@ function PasswordLoginElement() {
 
 PasswordLoginElement.internal=true;
 
-katnip.addElement(PasswordLoginElement);
+katnip.addElement(PasswordLoginElement,"PasswordLoginElement");
 
 katnip.addRoute("linkemail",LinkEmailPage);

@@ -6,7 +6,8 @@
   },
   "scripts": {
     "test": "jasmine",
-    "dev": "link-module-alias && ./src/server/katnip-cli.js dev"
+    "dev": "link-module-alias && ./src/server/katnip-cli.js dev",
+    "start": "link-module-alias && ./src/server/katnip-cli.js start --minify"
   },
   "main": "src/main/katnip-main-exports.js",
   "browser": "src/browser/katnip-browser-exports.js",

@@ -22,7 +22,7 @@ Box.controls={
 
 //Box.default=["hello"];
 
-katnip.addElement(Box);
+katnip.addElement("Box",Box);
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({

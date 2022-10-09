@@ -35,7 +35,7 @@ export default class ContentRenderer {
 
 		let fn=itemOfType(args,"function");
 		if (fn) {
-			if (!def.type) def.type=fn.name;
+			//if (!def.type) def.type=fn.name;
 			if (!def.controls) def.controls=fn.controls;
 			if (!def.default) def.default=fn.default;
 			if (fn.internal) def.internal=fn.internal;
@@ -51,7 +51,7 @@ export default class ContentRenderer {
 				def.controls[k].title=k;
 
 		if (!def.type || !def.component)
-			throw new Error("Not enough info in component def.");
+			throw new Error("Not enough info in component def "+JSON.stringify(def));
 
 		//console.log(def);
 		this.elements[def.type]=def;
