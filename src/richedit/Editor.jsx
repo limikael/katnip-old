@@ -242,7 +242,7 @@ export function Editor({editor, ...props}) {
 					onkeypress={onKeyPress}
 					contentEditable={true}
 					tabindex={0}>
-				{editor.contentRenderer.renderFragment(editor.doc)}
+				{editor.contentRenderer.renderFragment(editor.doc,{renderMode: "editor"})}
 			</div>
 			<div ref={selRef}/>
 		</div>

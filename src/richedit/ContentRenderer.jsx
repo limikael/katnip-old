@@ -57,39 +57,49 @@ export default class ContentRenderer {
 		this.elements[def.type]=def;
 	}
 
-	renderNode=(node)=>{
+	renderNode=(node, options={})=>{
 		if (typeof node=="string")
 			return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
 
-		let children=this.renderFragment(node.children);
+		let children=this.renderFragment(node.children,options);
 		let component=UndefinedComponent;
 		if (this.elements[node.type])
 			component=this.elements[node.type].component;
 
-		let props={...node.props};
-		if (typeof component=="string") {
-			props["data-props"]=JSON.stringify(props);
-			props["data-type"]=component;
+		let props={...node.props, renderMode: options.renderMode};
+
+		if (props.renderMode=="editor") {
+			if (typeof component=="string") {
+				props["data-props"]=JSON.stringify(props);
+				props["data-type"]=component;
+			}
+
+			else {
+				props.outer={
+					"data-props": JSON.stringify(props),
+					"data-type": node.type,
+					"data-outer": true,
+				};
+				props.inner={
+					"data-inner": true
+				};
+			}
 		}
 
 		else {
-			props.outer={
-				"data-props": JSON.stringify(props),
-				"data-type": node.type,
-				"data-outer": true,
-			};
-			props.inner={
-				"data-inner": true
-			};
+			if (typeof component!="string") {
+				props.outer={};
+				props.inner={};
+			}			
 		}
 
 		return createElement(component,props,...children);
 	}
 
-	renderFragment=(nodes)=>{
+	renderFragment=(nodes, options={})=>{
 		if (!nodes || !nodes.length)
 			return [];
 
-		return nodes.map((n)=>this.renderNode(n));
+		return nodes.map((n)=>this.renderNode(n, options));
 	}
 }

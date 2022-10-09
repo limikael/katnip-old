@@ -71,6 +71,7 @@ function EditorStructure({editor}) {
 	}
 
 	return (<>
+		<div class="mb-3"><b>Document</b></div>
 		<div tabindex={0} ref={ref} onclick={onClickOutside} style={{height: "100%"}}>
 			<TreeView
 				data={data}
@@ -254,7 +255,6 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{leftMode=="tree" &&
 					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%; overflow: scroll;">
-						<div class="mb-3"><b>Document</b></div>
 						<EditorStructure editor={editor} />
 					</div>
 				}
