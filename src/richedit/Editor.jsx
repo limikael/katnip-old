@@ -3,53 +3,6 @@ import {useEventListener, useInstance, useEventUpdate} from "../utils/react-util
 import EditorState from "./EditorState.js";
 import {getBoundingRectSafe} from "./dom-util.js";
 
-function UndefinedComponent({outer, inner, children}) {
-	return (
-		<div {...outer} class="m-1 p-1 bg-warning rounded">
-			<span class="text-white fw-bold">Undefined: {outer["data-type"]}</span>
-			<div {...inner} class="p-1 bg-white rounded">
-				{children}
-			</div>
-		</div>
-	);
-}
-
-function makeReactComponent(node, elements) {
-	if (typeof node=="string")
-		return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
-
-	let children=makeReactComponents(node.children,elements);
-	let component=UndefinedComponent;
-	if (elements[node.type])
-		component=elements[node.type].component;
-
-	let props={...node.props};
-	if (typeof component=="string") {
-		props["data-props"]=JSON.stringify(props);
-		props["data-type"]=component;
-	}
-
-	else {
-		props.outer={
-			"data-props": JSON.stringify(props),
-			"data-type": node.type,
-			"data-outer": true,
-		};
-		props.inner={
-			"data-inner": true
-		};
-	}
-
-	return createElement(component,props,...children);
-}
-
-function makeReactComponents(nodes, elements) {
-	if (!nodes || !nodes.length)
-		return [];
-
-	return nodes.map((n,i)=>makeReactComponent(n,elements));
-}
-
 function getNodePath(parent, child) {
 	if (parent==child)
 		return [];
@@ -251,7 +204,7 @@ export function Editor({editor, ...props}) {
 	},[editor.getSelectionStateHash()]);
 
 	function onKeyPress(ev) {
-		console.log("key: "+ev.charCode);
+		//console.log("key: "+ev.charCode);
 
 		if (editor.getSelectionMode()!="block")
 			return;
@@ -271,7 +224,6 @@ export function Editor({editor, ...props}) {
 
 			case "Delete":
 			case "Backspace":
-				console.log("del..");
 				if (editor.getSelectionMode()!="block")
 					return;
 
@@ -290,7 +242,7 @@ export function Editor({editor, ...props}) {
 					onkeypress={onKeyPress}
 					contentEditable={true}
 					tabindex={0}>
-				{makeReactComponents(editor.doc,editor.elements)}
+				{editor.contentRenderer.renderFragment(editor.doc)}
 			</div>
 			<div ref={selRef}/>
 		</div>

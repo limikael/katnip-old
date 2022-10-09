@@ -1,9 +1,7 @@
-import {katnip, A, ItemList, setLocation, buildUrl, renderElementContent} from "katnip";
-import {useApiFetch, apiFetch, useForm, useCounter, useValueChanged, useChannel, BsAlert} from "katnip";
-import {useState, useContext, createElement, Fragment} from "react";
+import {useTemplateContext, useApiFetch, BsAlert, renderFragment} from "katnip";
 
 export default function PageView({request}) {
-	let tc=katnip.useTemplateContext();
+	let tc=useTemplateContext();
 	let pageQuery=request.pathargs[1];
 	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 
@@ -16,5 +14,5 @@ export default function PageView({request}) {
 	if (!page.meta.hideTitle)
 		tc.set({title: page.title});
 
-	return renderElementContent(page.content);
+	return renderFragment(page.content);
 }

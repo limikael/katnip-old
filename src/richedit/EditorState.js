@@ -7,7 +7,7 @@ export default class EditorState extends EventEmitter {
 		super();
 
 		this.doc=options.doc;
-		this.elements=options.elements;
+		this.contentRenderer=options.contentRenderer;
 		this.startPath=[];
 		this.startOffset=0;
 		this.endPath=[];
@@ -164,7 +164,6 @@ export default class EditorState extends EventEmitter {
 	}
 
 	focus() {
-		console.log("focus..");
 		if (this.el)
 			this.el.focus();
 	}

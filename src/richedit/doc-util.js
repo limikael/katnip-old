@@ -104,8 +104,6 @@ export function docGetStructure(doc) {
 	if (typeof doc=="string")
 		return "";
 
-	console.log(doc);
-
 	return {
 		type: doc.type,
 		children: doc.children.map(c=>docGetStructure(c))

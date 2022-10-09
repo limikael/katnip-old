@@ -6,6 +6,7 @@ import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
 import {parseCookieString} from "../utils/js-util.js";
 import {createElement, Fragment} from "react";
+import ContentRenderer from "../richedit/ContentRenderer.jsx";
 
 class BrowserKatnip {
 	constructor() {
@@ -16,6 +17,7 @@ class BrowserKatnip {
 
 		this.channelManager=new ChannelManager();
 		this.channelConnector=new ChannelConnector(this.channelManager);
+		this.contentRenderer=new ContentRenderer();
 
 		let channelTag=window.document.currentScript.dataset.channels;
 		let initChannels=JSON.parse(channelTag);
@@ -24,9 +26,6 @@ class BrowserKatnip {
 			this.channelManager.setChannelValue(k,initChannels[k]);
 		}
 
-		//console.log(initChannels);
-
-		this.elements={};
 		this.templates={};
 		this.routes={};
 	}
@@ -72,47 +71,6 @@ class BrowserKatnip {
 				this[k]=o[k];
 	}
 
-	addElement=(...args)=> {
-		function itemOfType(a,t) {
-			for (let e of a)
-				if (typeof e==t)
-					return e;
-		}
-
-		let def=itemOfType(args,"object");
-		if (!def)
-			def={};
-
-		let s=itemOfType(args,"string");
-		if (s) {
-			if (!def.type) def.type=s;
-			if (!def.component) def.component=s;
-		}
-
-		let fn=itemOfType(args,"function");
-		if (fn) {
-			if (!def.type) def.type=fn.name;
-			if (!def.controls) def.controls=fn.controls;
-			if (!def.default) def.default=fn.default;
-			if (fn.internal) def.internal=fn.internal;
-
-			def.component=fn;
-		}
-
-		if (!def.controls)
-			def.controls={};
-
-		for (let k in def.controls)
-			if (!def.controls[k].title)
-				def.controls[k].title=k;
-
-		if (!def.type || !def.component)
-			throw new Error("Not enough info in component def.");
-
-		//console.log(def);
-		this.elements[def.type]=def;
-	}
-
 	clientMain=()=>{
 		this.doAction("clientMain");
 
@@ -132,44 +90,18 @@ class BrowserKatnip {
 		let cookies=parseCookieString(document.cookie);
 		return cookies.katnip;
 	}
-
-	renderElementContent=(node, options={})=>{
-		if (typeof node=="string")
-			return node.replace(/\s$/,"\u00A0").replace(/^\s/,"\u00A0");
-
-		let element;
-		if (Array.isArray(node)) {
-			element=Fragment;
-			node={props: {}, children: node};
-		}
-
-		else {
-			element=this.elements[node.type];
-			if (!element)
-				throw new Error("Unknown type: "+node.type);
-		}
-
-		let children=[];
-		if (node.children)
-			for (let child of node.children)
-				children.push(this.renderElementContent(child,options));
-
-		if (!options.renderMode)
-			options.renderMode="browser";
-
-		let props={...node.props, renderMode: options.renderMode};
-
-		return createElement(element,props,...children);
-	}
 }
 
 const katnip=new BrowserKatnip();
 
-export const elements=katnip.elements;
-export const renderElementContent=katnip.renderElementContent;
+export const contentRenderer=katnip.contentRenderer;
+export const addElement=katnip.contentRenderer.addElement;
+export const renderNode=katnip.contentRenderer.renderNode;
+export const renderFragment=katnip.contentRenderer.renderFragment;
+export const elements=katnip.contentRenderer.elements;
+
 export const TemplateContext=katnip.TemplateContext;
 
-export const addElement=katnip.addElement;
 export const clientMain=katnip.clientMain;
 export const addAction=katnip.addAction;
 export const doAction=katnip.doAction;

@@ -181,7 +181,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	let [rightMode,setRightMode]=useState("document");
 
 	let editor=useEditor({
-		elements: katnip.elements,
+		contentRenderer: katnip.contentRenderer,
 	});
 
 	let documentForm=useForm({
@@ -212,7 +212,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 
 	async function writeClick() {
 		let saveData=documentForm.getCurrent();
-		saveData.content=editor.doc.children;
+		saveData.content=editor.doc;
 
 		let saved=await write(saveData);
 		documentForm.setCurrent(saved);
