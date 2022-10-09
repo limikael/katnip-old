@@ -1,4 +1,4 @@
-import {katnip, A} from "katnip";
+import {katnip, A, renderNode} from "katnip";
 
 export default function LoginPage() {
 	let user=katnip.useCurrentUser();
@@ -14,8 +14,9 @@ export default function LoginPage() {
 
 	for (authMethod of authMethods) {
 		if (authMethod.element) {
-			let Element=katnip.elements[authMethod.element].component;
-			items.push(<Element/>);
+			items.push(renderNode({type: authMethod.element}));
+//			let Element=katnip.elements[authMethod.element].component;
+//			items.push(<Element/>);
 		}
 
 		else {
