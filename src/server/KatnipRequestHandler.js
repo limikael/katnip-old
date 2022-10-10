@@ -1,5 +1,4 @@
 import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
-import {getPluginPaths} from "./katnip-server-util.js";
 import fs from "fs";
 import crypto from "crypto";
 import KatnipRequest from "../lib/KatnipRequest.js";
@@ -50,27 +49,7 @@ export default class KatnipRequestHandler {
 
 	handleRequest=async (req, res)=>{
 		try {
-			/*if (req.pathname=="/katnip-bundle.js") {
-				let headers={
-					"Content-Type": "application/javascript",
-					"Last-Modified": new Date(this.startTime).toUTCString()
-				};
-
-				if (req.query.bundleHash &&
-						req.query.bundleHash==this.bundleHash)
-					headers["Cache-Control"]="public, max-age=31536000";
-
-				this.handleContent(req,res,this.clientBundle,headers);
-			}*/
-
-			/*if (req.pathargs[0]=="api")
-				await this.handleApi(req,res);*/
-
-			/*else if (req.pathargs[0]=="public")
-				await this.handlePublic(req,res);*/
-
-//			else
-				await this.handleDefault(req,res);
+			await this.handleDefault(req,res);
 		}
 
 		catch (e) {

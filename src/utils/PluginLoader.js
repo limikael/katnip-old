@@ -6,13 +6,25 @@ import {build} from "./esbuild-extra.js";
 export default class PluginLoader {
 	constructor() {
 		this.pluginPaths=[];
+		this.exposePaths={};
 		this.cwd=process.cwd();
+		this.inject=[];
+
+		this.bundleName="bundle.js";
+	}
+
+	getPluginPaths() {
+		return this.pluginPaths;
 	}
 
 	getDirectories(source) {
 		return fs.readdirSync(source, { withFileTypes: true })
 			.filter(dirent => dirent.isDirectory())
 			.map(dirent => dirent.name)
+	}
+
+	setBundleName(name) {
+		this.bundleName=name;
 	}
 
 	addPluginSpecifier(specifier) {
@@ -29,6 +41,14 @@ export default class PluginLoader {
 
 	addPlugin(plugin) {
 		this.pluginPaths.push(this.cwd+"/"+plugin);
+	}
+
+	addExposePlugin(name, plugin) {
+		this.exposePaths[name]=this.cwd+"/"+plugin;
+	}
+
+	addInject(file) {
+		this.inject.push(this.cwd+"/"+file);
 	}
 
 	resolveMainFile(packageDir) {
@@ -73,20 +93,16 @@ export default class PluginLoader {
 		this.linkAlias("react","preact/compat");
 		this.linkAlias("react-dom","preact/compat");
 
-		//console.log(this.pluginPaths);
-
 		try {
 			await build({
 				multiBundle: true,
 				include: this.pluginPaths,
-				expose: {
-					katnip: `${process.cwd()}/node_modules/katnip`
-				},
-				inject: [`${process.cwd()}/node_modules/katnip/src/utils/preact-shim.js`],
+				expose: this.exposePaths,
+				inject: this.inject, //[`${process.cwd()}/node_modules/katnip/src/utils/preact-shim.js`],
 				jsxFactory: "h",
 				jsxFragment: "Fragment",
 				minify: options.minify,
-				outfile: this.outDir+"/katnip-bundle.js",
+				outfile: this.outDir+"/"+this.bundleName,
 				loader: {".svg": "dataurl"}
 			});
 		}

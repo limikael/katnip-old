@@ -4,10 +4,10 @@ import KatnipChannelHandler from "./KatnipChannelHandler.js";
 import MiddlewareServer from "../mw/MiddlewareServer.js";
 import ContentMiddleware from "../mw/ContentMiddleware.js";
 import ApiMiddleware from "../mw/ApiMiddleware.js";
-import {createOutDir, getPluginPaths} from "./katnip-server-util.js";
 import crypto from "crypto";
 import KatnipRequest from "../lib/KatnipRequest.js";
 import PluginLoader from "../utils/PluginLoader.js";
+import {quoteAttr, buildUrl} from "../utils/js-util.js";
 
 export default class KatnipServer {
 	constructor(options={}) {
@@ -23,17 +23,54 @@ export default class KatnipServer {
 		next(req);
 	}
 
-	async run() {
+	handleDefault=async (req, res, next)=>{
+		let initChannelIds=[];
+		await this.katnip.doActionAsync("initChannels",initChannelIds,req);
+		for (let channel of this.katnip.getSettings({session: true}))
+			initChannelIds.push(channel.id);
+
+		let initChannels={};
+		for (let channelId of initChannelIds)
+			initChannels[channelId]=await this.katnip.getChannelData(channelId,req);
+
+		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
+
+		res.writeHead(200,{
+			"Set-Cookie": `katnip=${req.sessionId}`
+		});
+
+		let bundleUrl=buildUrl("/katnip-bundle.js",{hash: this.bundleHash});
+
+		let clientPage=`<body><html>`;
+		clientPage+=`<head>`;
+		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
+		clientPage+=`</head>`;
+		clientPage+=`<div id="katnip-root"></div>`;
+		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
+		clientPage+=`</html></body>`;
+
+		res.end(clientPage);
+	}
+
+	async initPlugins() {
 		this.pluginLoader=new PluginLoader();
-		this.pluginLoader.addPluginSpecifier("plugins");
-		this.pluginLoader.addPluginPath("node_modules/katnip/default_plugins");
 		this.pluginLoader.addPlugin("node_modules/katnip");
+		this.pluginLoader.addExposePlugin("katnip","node_modules/katnip");
+		this.pluginLoader.addPluginPath("node_modules/katnip/default_plugins");
+		this.pluginLoader.addPluginSpecifier("plugins");
 		this.pluginLoader.addPlugin(".");
+		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
+		this.pluginLoader.setBundleName("katnip-bundle.js");
 
 		this.outDir=await this.pluginLoader.buildClientBundle();
 
-		this.katnip=await import("katnip");
 		await this.pluginLoader.loadPlugins();
+	}
+
+	async run() {
+		this.katnip=await import("katnip");
+
+		await this.initPlugins();
 
 		this.katnip.addChannel("contentHash",()=>{
 			return this.contentMiddleware.getContentHash();
@@ -56,18 +93,19 @@ export default class KatnipServer {
 		this.mwServer.use(this.initRequest);
 
 		this.contentMiddleware=new ContentMiddleware();
-		for (let pluginPath of getPluginPaths())
+		for (let pluginPath of this.pluginLoader.getPluginPaths())
 			this.contentMiddleware.addPath(pluginPath+"/public");
 
-		let bundleHash=this.contentMiddleware.addContent(
+
+		this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.js",
 			fs.readFileSync(this.outDir+"/katnip-bundle.js")+"window.katnip.clientMain();"
 		);
 
-		this.requestHandler.setBundleHash(bundleHash);
-		console.log("Content hash: "+this.contentMiddleware.getContentHash());
-
 		this.mwServer.use(this.contentMiddleware);
+
+		console.log("Content hash: "+this.contentMiddleware.getContentHash());
+		console.log("Bundle hash: "+this.bundleHash);
 
 		let apiMiddleware=new ApiMiddleware();
 		for (let k in this.katnip.apis)
@@ -75,9 +113,11 @@ export default class KatnipServer {
 
 		this.mwServer.use(apiMiddleware);
 
-		this.mwServer.use((req, res, next)=>{
+		this.mwServer.use(this.handleDefault);
+
+/*		this.mwServer.use((req, res, next)=>{
 			this.requestHandler.handleRequest(req,res);
-		});
+		});*/
 
 		//let server=http.createServer(this.requestHandler.handleRequest);
 		let channelHandler=new KatnipChannelHandler(this.katnip,this.mwServer.server);

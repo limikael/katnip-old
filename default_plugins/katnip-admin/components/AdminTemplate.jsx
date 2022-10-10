@@ -106,8 +106,8 @@ function Sidebar({request}) {
 export function AdminHead() {
 	let contentHash=useChannel("contentHash");
 
-	let cssUrl=buildUrl("bootstrap.min.css",{contentHash: contentHash});
-	let jsUrl=buildUrl("bootstrap.bundle.min.js",{contentHash: contentHash});
+	let cssUrl=buildUrl("/bootstrap.min.css",{contentHash: contentHash});
+	let jsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	return (<>
 		<Stylesheet href={cssUrl}/>
