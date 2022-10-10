@@ -141,7 +141,7 @@ export default class ContentMiddleware {
 
 		for (let fn in this.content) {
 			if (req.pathname==fn) {
-				console.log("content: "+fn);
+				//console.log("content: "+fn);
 
 				let headers={
 					"Content-Type": this.getFileMimeType(fn),

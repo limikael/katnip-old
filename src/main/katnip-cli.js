@@ -3,7 +3,6 @@
 
 import "dotenv/config";
 import minimist from "minimist";
-import KatnipServer from "./KatnipServer.js";
 import KatnipScaffolder from "../scaffolder/KatnipScaffolder.js";
 
 function usage() {

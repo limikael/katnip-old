@@ -1,6 +1,5 @@
 import KatnipActions from "../lib/KatnipActions.js";
-import KatnipServerChannels from "../lib/KatnipServerChannels.js";
-import KatnipChannelHandler from "../server/KatnipChannelHandler.js";
+import KatnipServerChannels from "./KatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
 import Db from "../../packages/katnip-orm/src/Db.js";
@@ -150,7 +149,7 @@ class MainKatnip {
 
 		this.mwServer.use(this.handleDefault);
 
-		let channelHandler=new KatnipChannelHandler(this,this.mwServer.server);
+		this.serverChannels.attachToServer(this.mwServer.server);
 
 		console.log("Starting server...");
 		await this.mwServer.listen(this.options.port,"0.0.0.0")
@@ -163,8 +162,6 @@ const katnip=new MainKatnip();
 export const run=katnip.run;
 
 export const db=katnip.db;
-export const serverChannels=katnip.serverChannels;
-export const apis=katnip.apis;
 
 export const addModel=katnip.addModel;
 export const addApi=katnip.addApi;
@@ -175,7 +172,6 @@ export const doAction=katnip.actions.doAction;
 export const doActionAsync=katnip.actions.doActionAsync;
 
 export const addChannel=katnip.serverChannels.addChannel;
-export const getChannelData=katnip.serverChannels.getChannelData;
 export const notifyChannel=katnip.serverChannels.notifyChannel;
 
 export const addSetting=katnip.settingsManager.addSetting;
