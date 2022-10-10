@@ -36,9 +36,9 @@ export default class KatnipChannelHandler {
 			let req=new KatnipRequest();
 			req.processNodeRequest(ws.req);
 			req.processUrl(channelId);
-			await this.katnip.doActionAsync("initRequest",req);
+			await this.katnip.actions.doActionAsync("initRequest",req);
 
-			let channelData=await this.katnip.getChannelData(channelId,req);
+			let channelData=await this.katnip.serverChannels.getChannelData(channelId,req);
 			ws.send(JSON.stringify({
 				channel: channelId,
 				data: channelData

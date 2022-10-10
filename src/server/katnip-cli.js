@@ -42,13 +42,11 @@ switch (options._[0]) {
 
 	case "dev":
 	case "start":
-		/*let katnip=await import(process.cwd()+"/node_modules/katnip/src/main/katnip-main-exports.js")
-		await katnip.run();
+		let katnip=await import(process.cwd()+"/node_modules/katnip/src/main/katnip-main-exports.js")
+		await katnip.run(options);
 
-		console.log(katnip);*/
-
-		let server=new KatnipServer(options);
-		server.run();
+		/*let server=new KatnipServer(options);
+		server.run();*/
 		break;
 
 	default:
