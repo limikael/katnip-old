@@ -55,6 +55,8 @@ class MainKatnip {
 
 const katnip=new MainKatnip();
 
+export const run=katnip.run;
+
 export const db=katnip.db;
 export const serverChannels=katnip.serverChannels;
 export const apis=katnip.apis;

@@ -163,9 +163,9 @@ export default function BootswatchPageTemplate({request,children}) {
 		},0)
 	}
 
-	let cssUrl="/public/bootstrap.min.css";
+	let cssUrl="/bootstrap.min.css";
 	if (bootswatchTheme)
-		cssUrl=`/public/bootstrap-${bootswatchTheme}.min.css`;
+		cssUrl=`/bootstrap-${bootswatchTheme}.min.css`;
 
 	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
 
@@ -173,7 +173,7 @@ export default function BootswatchPageTemplate({request,children}) {
 	if (bootswatchNavStyle=="fixed")
 		containerStyle["margin-top"]=navSize+"px";
 
-	let bsUrl=buildUrl("/public/bootstrap.bundle.min.js",{contentHash: contentHash});
+	let bsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	let topItems=[];
 	katnip.doAction("topItems",topItems,request);

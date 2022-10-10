@@ -1,24 +1,103 @@
+import fs from "fs";
+import os from "os";
+import path from "path";
+import {build} from "./esbuild-extra.js";
+
 export default class PluginLoader {
-	getPluginPaths() {
+	constructor() {
+		this.pluginPaths=[];
+		this.cwd=process.cwd();
+	}
+
+	getDirectories(source) {
+		return fs.readdirSync(source, { withFileTypes: true })
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => dirent.name)
+	}
+
+	addPluginSpecifier(specifier) {
 		let pkg=JSON.parse(fs.readFileSync("package.json"));
-		let pluginsNames=pkg.plugins||[];
-		let pluginPaths=[];
+		if (pkg[specifier])
+			for (let plugin of pkg[specifier])
+				this.addPlugin("node_modules/"+plugin);
+	}
 
-		if (pkg.main)
-			pluginPaths.push(`${process.cwd()}`);
+	addPluginPath(dir) {
+		for (let p of this.getDirectories(`${this.cwd}/${dir}`))
+			this.addPlugin(dir+"/"+p);
+	}
 
-		for (let pluginName of pluginsNames)
-			pluginPaths.push(`${process.cwd()}/node_modules/${pluginName}`);
-
-		let defaultPlugins=getDirectories(`${process.cwd()}/node_modules/katnip/default_plugins/`);
-		for (let defaultPlugin of defaultPlugins)
-			pluginPaths.push(`${process.cwd()}/node_modules/katnip/default_plugins/${defaultPlugin}`);
-
-		return pluginPaths;		
+	addPlugin(plugin) {
+		this.pluginPaths.push(this.cwd+"/"+plugin);
 	}
 
 	resolveMainFile(packageDir) {
 		let pkg=JSON.parse(fs.readFileSync(packageDir+"/package.json"));
 		return packageDir+"/"+pkg.main;
+	}
+
+	linkAlias(pkg, target) {
+		if (!fs.existsSync(`node_modules/${pkg}`))
+			fs.symlinkSync("preact/compat",`node_modules/${pkg}`,"dir");
+
+		let stat=fs.lstatSync(`node_modules/${pkg}`);
+		if (!stat.isSymbolicLink())
+			throw new Error(`${pkg} is not a link`);
+	}
+
+	async loadPlugins() {
+		this.plugins=[];
+		for (let path of this.pluginPaths)
+			this.plugins.push(await import(this.resolveMainFile(path)));
+	}
+
+	createOutDir() {
+		return new Promise((resolve, reject)=>{
+			let tmpDir=os.tmpdir();
+			fs.mkdtemp(`${tmpDir}${path.sep}`, (err, folder) => {
+				if (err)
+					reject(err);
+
+				else
+					resolve(folder);
+			});
+		});
+	}
+
+	async buildClientBundle(options={}) {
+		options.minify=!!options.minify;
+
+		this.outDir=await this.createOutDir();
+		console.log("Building in: "+this.outDir+" minify: "+options.minify);
+
+		this.linkAlias("react","preact/compat");
+		this.linkAlias("react-dom","preact/compat");
+
+		//console.log(this.pluginPaths);
+
+		try {
+			await build({
+				multiBundle: true,
+				include: this.pluginPaths,
+				expose: {
+					katnip: `${process.cwd()}/node_modules/katnip`
+				},
+				inject: [`${process.cwd()}/node_modules/katnip/src/utils/preact-shim.js`],
+				jsxFactory: "h",
+				jsxFragment: "Fragment",
+				minify: options.minify,
+				outfile: this.outDir+"/katnip-bundle.js",
+				loader: {".svg": "dataurl"}
+			});
+		}
+
+		catch (e) {
+			console.log("Build failed: "+e.message);
+			process.exit();
+		}
+
+		console.log("Build done...");
+
+		return this.outDir;
 	}
 }
