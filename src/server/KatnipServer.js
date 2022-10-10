@@ -24,7 +24,7 @@ export default class KatnipServer {
 	}
 
 	handleDefault=async (req, res, next)=>{
-		let initChannelIds=[];
+		let initChannelIds=["contentHash"];
 		await this.katnip.doActionAsync("initChannels",initChannelIds,req);
 		for (let channel of this.katnip.getSettings({session: true}))
 			initChannelIds.push(channel.id);
@@ -67,35 +67,10 @@ export default class KatnipServer {
 		await this.pluginLoader.loadPlugins();
 	}
 
-	async run() {
-		this.katnip=await import("katnip");
-
-		await this.initPlugins();
-
-		this.katnip.addChannel("contentHash",()=>{
-			return this.contentMiddleware.getContentHash();
-		});
-
-		this.katnip.addAction("initChannels",(channelIds, req)=>{
-			channelIds.push("contentHash");
-		});
-
-		let port=this.options.port;
-		if (!port)
-			port=3000;
-
-		console.log("Starting...");
-		await this.katnip.serverMain(this.options);
-
-		this.requestHandler=new KatnipRequestHandler(this.katnip,this.options);
-
-		this.mwServer=new MiddlewareServer();
-		this.mwServer.use(this.initRequest);
-
+	async initContent() {
 		this.contentMiddleware=new ContentMiddleware();
 		for (let pluginPath of this.pluginLoader.getPluginPaths())
 			this.contentMiddleware.addPath(pluginPath+"/public");
-
 
 		this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.js",
@@ -104,29 +79,45 @@ export default class KatnipServer {
 
 		this.mwServer.use(this.contentMiddleware);
 
+		this.katnip.addChannel("contentHash",()=>{
+			return this.contentMiddleware.getContentHash();
+		});
+
 		console.log("Content hash: "+this.contentMiddleware.getContentHash());
 		console.log("Bundle hash: "+this.bundleHash);
+	}
 
+	async initApis() {
 		let apiMiddleware=new ApiMiddleware();
 		for (let k in this.katnip.apis)
 			apiMiddleware.addApiMethod(k,this.katnip.apis[k]);
 
 		this.mwServer.use(apiMiddleware);
+	}
+
+	async run() {
+		let port=this.options.port;
+		if (!port)
+			port=3000;
+
+		this.katnip=await import("katnip");
+
+		await this.initPlugins();
+
+		console.log("Starting...");
+		await this.katnip.serverMain(this.options);
+
+		this.mwServer=new MiddlewareServer();
+		this.mwServer.use(this.initRequest);
+
+		await this.initContent();
+		await this.initApis();
 
 		this.mwServer.use(this.handleDefault);
 
-/*		this.mwServer.use((req, res, next)=>{
-			this.requestHandler.handleRequest(req,res);
-		});*/
-
-		//let server=http.createServer(this.requestHandler.handleRequest);
 		let channelHandler=new KatnipChannelHandler(this.katnip,this.mwServer.server);
 
 		await this.mwServer.listen(port,"0.0.0.0")
 		console.log("Running on port "+port);
-
-		/*server.listen(port,"0.0.0.0",()=>{
-			console.log("Running on port "+port);
-		});*/
 	}
 }
