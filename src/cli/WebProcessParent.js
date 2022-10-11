@@ -8,11 +8,19 @@ import {WebSocketServer} from "ws";
 import path from "path";
 import fs from "fs";
 
+// child state: idle, starting, running
 export default class WebProcessParent {
 	constructor(options={}) {
 		this.modulePath=options.modulePath;
 		this.port=options.port;
-		this.expose=options.expose;
+		this.childState="idle";
+	}
+
+	async stop() {
+		this.netServer=await this.child.initializeClose();
+		await this.createWebServer();
+
+		this.child.finalizeClose();
 	}
 
 	async listen() {
@@ -22,6 +30,8 @@ export default class WebProcessParent {
 	}
 
 	async start() {
+		await this.listen();
+
 		await this.createWebServer();
 
 		this.childProcess=child_process.fork(this.modulePath);
@@ -41,16 +51,15 @@ export default class WebProcessParent {
 	}
 
 	async createWebServer() {
-		await this.listen();
-
 		this.httpServer=http.createServer(this.handleRequest);
+
 		this.httpServer.listen(this.netServer);
 		waitEvent(this.httpServer,"listening","error");
 
 		this.wsServer=new WebSocketServer({server: this.httpServer});
 		this.wsServer.on("connection",this.onWsConnection);
-
 		this.wsConnections=[];
+
 		console.log("http server listening");
 	}
 
@@ -66,9 +75,13 @@ export default class WebProcessParent {
 
 	notifyChildListening=async ()=>{
 		for (let connection of this.wsConnections)
-			connection.send("hello");
+			connection.send(JSON.stringify({type: "reload"}));
 
 		console.log("child listening");
 		this.httpServer.close();
+		this.httpServer=null;
+
+		this.wsServer.close();
+		this.wsServer=null;
 	}
 }

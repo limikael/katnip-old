@@ -5,17 +5,32 @@ import {delay} from "../../src/utils/js-util.js";
 import EventEmitter from "events";
 import IpcProxy from "./IpcProxy.js";
 
-export default class WebProcessChild {
+export default class WebProcessChild extends EventEmitter {
 	constructor(options={}) {
-		this.parentIpcProxy=new IpcProxy(process,options.expose);
+		super();
+
+		this.parentIpcProxy=new IpcProxy(process,{
+			initializeClose: this.initializeClose,
+			finalizeClose: this.finalizeClose
+		});
 		this.parent=this.parentIpcProxy.proxy;
 	}
 
-	async initialized() {
-		return await this.parent.childInitialized();
+	initializeClose=async ()=>{
+		console.log("initializing close in client");
+		return this.netServer;
 	}
 
-	async notifyListening() {
+	finalizeClose=async ()=>{
+		this.emit("stop");
+	}
+
+	initialized=async ()=>{
+		this.netServer=await this.parent.childInitialized();
+		return this.netServer;
+	}
+
+	notifyListening=async ()=>{
 		return await this.parent.notifyChildListening();
 	}
 }
