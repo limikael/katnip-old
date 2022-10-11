@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<script>
+			let ws=new WebSocket("ws://"+window.location.host);
+			ws.addEventListener("open",()=>{
+				console.log("open...")
+			});
+			ws.addEventListener("message",()=>{
+				console.log("got message");
+				window.location=window.location;
+			});
+		</script>
+	</head>
+
+	<body style="background-color: #008; color: #ff0; font-size: 2rem;">
+		<pre>Hello world</pre>
+	</body>
+</html>

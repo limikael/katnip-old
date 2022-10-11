@@ -30,7 +30,10 @@ export default class KatnipScaffolder {
 			"dependencies": {
 				"katnip": "git+https://github.com/limikael/katnip.git",
 				"sqlite3": "^5.1.1"
-			}
+			},
+			"main": "src/"+this.projectName+"-main.js",
+			"browser": "src/"+this.projectName+"-browser.jsx",
+			"type": "module"
 		}
 	}
 
@@ -57,6 +60,10 @@ export default class KatnipScaffolder {
 		fs.mkdirSync(this.projectName);
 		let packageContent=JSON.stringify(this.generatePackageJson(),null,2);
 		fs.writeFileSync(this.projectName+"/package.json",packageContent);
+
+		fs.mkdirSync(this.projectName+"/src");
+		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-main.js",'import {katnip} from "katnip"; \n\n// Server stuff');
+		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-browser.jsx",'import {katnip} from "katnip"; \n\n// Client stuff');
 
 		let envContent=
 			"DSN=sqlite3:"+this.projectName+".db\n"
