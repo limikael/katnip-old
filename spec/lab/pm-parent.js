@@ -12,11 +12,12 @@ let parent=new WebProcessParent({
 
 parent.start();
 
-await delay(5000);
+/*await delay(1000);
 
-console.log("taking back control");
-parent.stop();
+console.log("restarting");
+await parent.start();*/
 
-//process.on("SIGUSR2",()=>{
-//	parent.stop();
-//});
+process.on("SIGUSR2",()=>{
+	console.log("******");
+	parent.start();
+});

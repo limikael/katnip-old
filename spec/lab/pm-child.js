@@ -7,6 +7,8 @@ import fs from "fs";
 
 let child=new WebProcessChild();
 let server=http.createServer((req,res)=>{
+	console.log("SERVING CHILD PAGE...");
+
 	res.setHeader("Cache-Control","no-store");
 	res.setHeader('Connection', 'close');
 
@@ -18,7 +20,10 @@ let wsServer=new WebSocketServer({server});
 let wsConnections=[];
 
 wsServer.on("connection",(ws)=>{
-	console.log("got connection");
+	console.log("got connection in child");
+
+	ws.send(JSON.stringify({type: "runmode", runmode: "app"}));
+
 	wsConnections.push(ws)
 });
 
@@ -33,7 +38,6 @@ child.on("stop",()=>{
 });
 
 console.log("Child: "+process.pid);
-
 await delay(2000);
 
 let parentServer=await child.initialized();
@@ -43,6 +47,8 @@ server.listen(parentServer);
 server.once("listening",()=>{
 	child.notifyListening();
 });
+
+console.log("Child is up: "+process.pid);
 
 process.on("SIGUSR2",()=>{
 	console.log("got usr2 in child");

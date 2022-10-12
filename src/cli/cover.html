@@ -8,8 +8,16 @@
 			ws.addEventListener("message",(message)=>{
 				let data=JSON.parse(message.data);
 
-				if (data.type=="reload")
+				if (data.type=="reload") {
 					window.location=window.location;
+				}
+
+				if (data.type="runmode") {
+					if (data.runmode!="cover")
+						window.location=window.location;
+
+					console.log("i'm cover, server is: "+data.runmode);
+				}
 			});
 		</script>
 	</head>

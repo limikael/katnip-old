@@ -8,41 +8,14 @@ import {WebSocketServer} from "ws";
 import path from "path";
 import fs from "fs";
 
-// child state: idle, starting, running
-export default class WebProcessParent {
-	constructor(options={}) {
-		this.modulePath=options.modulePath;
-		this.port=options.port;
-		this.childState="idle";
-	}
-
-	async stop() {
-		this.netServer=await this.child.initializeClose();
-		await this.createWebServer();
-
-		this.child.finalizeClose();
-	}
-
-	async listen() {
-		this.netServer=net.createServer();
-		this.netServer.listen(this.port);
-		await waitEvent(this.netServer,"listening","error");
-	}
-
-	async start() {
-		await this.listen();
-
-		await this.createWebServer();
-
-		this.childProcess=child_process.fork(this.modulePath);
-		this.childIpcProxy=new IpcProxy(this.childProcess,{
-			childInitialized: this.childInitialized,
-			notifyChildListening: this.notifyChildListening
-		});
-		this.child=this.childIpcProxy.proxy;
+class CoverServer {
+	constructor() {
+		this.wsConnections=[];
 	}
 
 	handleRequest=(req, res)=>{
+		console.log("SERVING COVER: "+req.url);
+
 		res.setHeader("Cache-Control","no-store");
 		res.setHeader('Connection', 'close');
 
@@ -50,38 +23,99 @@ export default class WebProcessParent {
 		res.end(fs.readFileSync(dir+"/cover.html"));
 	}
 
-	async createWebServer() {
-		this.httpServer=http.createServer(this.handleRequest);
+	onWsConnection=(connection)=>{
+		console.log("ws connection in cover");
+		this.wsConnections.push(connection);
 
-		this.httpServer.listen(this.netServer);
+		connection.send(JSON.stringify({type: "runmode", runmode: "cover"}));
+	}
+
+	async listen(netServer) {
+		this.httpServer=http.createServer(this.handleRequest);
+		this.httpServer.listen(netServer);
 		waitEvent(this.httpServer,"listening","error");
 
 		this.wsServer=new WebSocketServer({server: this.httpServer});
 		this.wsServer.on("connection",this.onWsConnection);
 		this.wsConnections=[];
-
-		console.log("http server listening");
 	}
 
-	onWsConnection=(connection)=>{
-		console.log("ws connection");
-		this.wsConnections.push(connection);
+	async close() {
+		this.httpServer.close();
+		this.wsServer.close();
+
+		for (let connection of this.wsConnections)
+			connection.send(JSON.stringify({type: "reload"}));
+	}
+
+	static async create(netServer) {
+		let coverServer=new CoverServer();
+		await coverServer.listen(netServer);
+
+		return coverServer;
+	}
+}
+
+export default class WebProcessParent {
+	constructor(options={}) {
+		this.modulePath=options.modulePath;
+		this.port=options.port;
+	}
+
+	async start() {
+		this.willStart=true;
+		this.cycle();
+	}
+
+	async cycle() {
+		if (this.isCycling)
+			return;
+
+		this.isCycling=true;
+
+		if (this.childProcess) {
+			if (!this.netServer)
+				this.netServer=await this.childProcess.proxy.initializeClose();
+
+			if (!this.coverServer)
+				this.coverServer=await CoverServer.create(this.netServer);
+
+			this.childProcess.proxy.finalizeClose();
+			this.childProcess=null;
+		}
+
+		if (!this.netServer) {
+			this.netServer=net.createServer();
+			this.netServer.listen(this.port);
+			await waitEvent(this.netServer,"listening","error");
+		}
+
+		if (!this.coverServer)
+			this.coverServer=await CoverServer.create(this.netServer);
+
+		if (this.willStart) {
+			this.willStart=false;
+			this.childProcess=child_process.fork(this.modulePath);
+			this.childProcess.ipcProxy=new IpcProxy(this.childProcess,{
+				childInitialized: this.childInitialized,
+				notifyChildListening: this.notifyChildListening
+			});
+
+			this.childProcess.proxy=this.childProcess.ipcProxy.proxy;
+		}
+
+		this.isCycling=false;
 	}
 
 	childInitialized=async ()=>{
-		console.log("child initialized");
-		return this.netServer;
+		let netServer=this.netServer;
+		this.netServer=null;
+
+		return netServer;
 	}
 
 	notifyChildListening=async ()=>{
-		for (let connection of this.wsConnections)
-			connection.send(JSON.stringify({type: "reload"}));
-
-		console.log("child listening");
-		this.httpServer.close();
-		this.httpServer=null;
-
-		this.wsServer.close();
-		this.wsServer=null;
+		await this.coverServer.close();
+		this.coverServer=null;
 	}
 }
