@@ -51,7 +51,7 @@ class MainKatnip {
 	}
 
 	handleDefault=async (req, res, next)=>{
-		let initChannelIds=["contentHash"];
+		let initChannelIds=["contentHash","bundleHash"];
 		await this.actions.doActionAsync("initChannels",initChannelIds,req);
 		for (let channel of this.settingsManager.getSettings({session: true}))
 			initChannelIds.push(channel.id);
@@ -108,6 +108,10 @@ class MainKatnip {
 
 		this.serverChannels.addChannel("contentHash",()=>{
 			return this.contentMiddleware.getContentHash();
+		});
+
+		this.serverChannels.addChannel("bundleHash",()=>{
+			return this.bundleHash;
 		});
 
 		console.log("Content hash: "+this.contentMiddleware.getContentHash());
