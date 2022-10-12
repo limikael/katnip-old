@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import WebProcessParent from "../../src/cli/WebProcessParent.js";
+import WebProcessParent from "../../src/webprocess/WebProcessParent.js";
 import {delay} from "../../src/utils/js-util.js";
 
 console.log("Parent: "+process.pid);

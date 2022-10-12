@@ -36,11 +36,25 @@ export default class MiddlewareServer {
 		next();
 	}
 
-	listen(port, ip) {
+	close() {
+		if (this.server)
+			this.server.close();
+	}
+
+	listen(...args) {
 		return new Promise((resolve,reject)=>{
-			this.server.listen(port,ip,()=>{
-				resolve();
-			});
+			if (args.length==1)
+				this.server.listen(args[0],()=>{
+					resolve();
+				});
+
+			else if (args.length==2)
+				this.server.listen(args[0],args[1],()=>{
+					resolve();
+				});
+
+			else
+				throw new Error("Bad args for listen");
 		});
 	}
 }

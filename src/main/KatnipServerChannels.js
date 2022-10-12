@@ -59,6 +59,8 @@ export default class KatnipServerChannels /*extends EventEmitter*/ {
 		ws.on("close",bindArgs(this.onConnectionClose,ws));
 		ws.on("message",bindArgs(this.onConnectionMessage,ws));
 
+		ws.send(JSON.stringify({type: "runmode", runmode: "app"}));
+
 		this.connections.push(ws);
 	}
 
@@ -67,6 +69,12 @@ export default class KatnipServerChannels /*extends EventEmitter*/ {
 
 		ws.removeAllListeners();
 		arrayRemove(this.connections,ws);
+	}
+
+	send=(message)=>{
+		console.log("broadcasting, connections="+this.connections.length);
+		for (let ws of this.connections)
+			ws.send(JSON.stringify(message));
 	}
 
 	sendChannelData=async (ws, channelId)=>{
