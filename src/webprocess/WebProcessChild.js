@@ -17,12 +17,12 @@ export default class WebProcessChild extends EventEmitter {
 	}
 
 	initializeClose=async ()=>{
-		console.log("initializing close in client");
 		return this.netServer;
 	}
 
 	finalizeClose=async ()=>{
 		this.emit("stop");
+		process.exit();
 	}
 
 	initialized=async ()=>{

@@ -132,16 +132,6 @@ class MainKatnip {
 			this.options.port=3000;
 
 		if (options.webProcessChild) {
-			options.webProcessChild.on("stop",()=>{
-				console.log("Exiting child process...");
-
-				if (this.mwServer)
-					this.mwServer.close();
-
-				this.serverChannels.send({type: "reload"});
-
-				process.exit();
-			});
 		}
 
 		console.log("Loading plugins...");
@@ -169,16 +159,19 @@ class MainKatnip {
 		this.serverChannels.attachToServer(this.mwServer.server);
 
 		if (options.webProcessChild) {
-			console.log("Attaching to parent process...");
-			//await delay(2000);
-
 			let child=options.webProcessChild;
+
+			child.on("stop",()=>{
+				console.log("Exiting child process...");
+				this.mwServer.close();
+				this.serverChannels.send({type: "reload"});
+			});
 
 			let parentServer=await child.initialized();
 			await this.mwServer.listen(parentServer);
 			await child.notifyListening();
 
-			console.log("Attached...");
+			console.log("Attached to parent process...");
 
 		}
 

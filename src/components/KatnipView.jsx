@@ -13,11 +13,10 @@ export function KatnipView() {
 			bundleHash!=bundleHashRef.current) {
 		console.log("bundle hash changed, refreshing...");
 		window.location=window.location;
+		return;
 	}
 
 	bundleHashRef.current=bundleHash;
-
-	console.log("bundleHash: "+bundleHash);
 
 	useEventUpdate(window,"locationchange");
 	useEventUpdate(window,"popstate");

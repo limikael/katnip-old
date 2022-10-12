@@ -63,7 +63,7 @@ export default class ChannelConnector extends EventEmitter {
 			case "runmode":
 				console.log("got runmode notification in app: "+message.runmode);
 				if (message.runmode!="app")
-					window.message=window.location;
+					window.location=window.location;
 				break;
 		}
 	}

@@ -24,6 +24,7 @@ export default class WebProcessParent {
 		this.isCycling=true;
 
 		if (this.childProcess) {
+			this.childProcess.off("close",this.onChildProcessClose);
 			if (!this.netServer)
 				this.netServer=await this.childProcess.proxy.initializeClose();
 
@@ -53,9 +54,16 @@ export default class WebProcessParent {
 			});
 
 			this.childProcess.proxy=this.childProcess.ipcProxy.proxy;
+			this.childProcess.on("close",this.onChildProcessClose);
 		}
 
 		this.isCycling=false;
+	}
+
+	onChildProcessClose=(code)=>{
+		console.log("child process closed, code: "+code);
+		this.childProcess.off("close",this.onChildProcessClose);
+		this.childProcess=null;
 	}
 
 	childInitialized=async ()=>{
