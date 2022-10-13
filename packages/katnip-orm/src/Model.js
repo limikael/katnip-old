@@ -164,7 +164,10 @@ export default class Model {
 		if (this.tableName)
 			return this.tableName;
 
-		throw new Error("No tableName defined for: "+this.name);
+		//Let's support class name again, it is ok on the server, so the next
+		//line should be commented out.
+		//throw new Error("No tableName defined for: "+this.name);
+
 		return this.name;
 	}
 
@@ -191,9 +194,9 @@ export default class Model {
 		return this.fieldSpecs[fieldId];
 	}
 
-	static async createTable() {
+	static async createTable(suffix="") {
 		let cls=this;
-		let qs=`CREATE TABLE ${cls.getTableName()} (`;
+		let qs=`CREATE TABLE ${cls.getTableName()+suffix} (`;
 
 		let first=true;
 		for (let fieldName in cls.fields) {
@@ -245,28 +248,25 @@ export default class Model {
 		if (this.checkDescribeResult(describeResult))
 			return;
 
-		// Create a new table, and copy old data.
+		// Create temporary table, first delete if exists.
+		if (await this.db.describe(this.getTableName()+"_new"))
+			await this.db.query(`DROP TABLE ${this.getTableName()+"_new"}`);
+
+		await this.createTable("_new");
+
+		// Copy data.
 		//console.log("copying...");
 		let n=this.getTableName();
-		await this.db.query(`ALTER TABLE ${n} RENAME TO ${n+"_tmp"}`);
-
-		try {
-			await this.createTable();
-		}
-
-		catch (e) {
-			await this.db.query(`ALTER TABLE ${n+"_tmp"} RENAME TO ${n}`);
-			throw e;
-		}
-
 		let describedNames=describeResult.map(o=>o.Field);
 		let copyFields=Object.keys(this.fields).filter(value=>describedNames.includes(value));
 		if (copyFields.length) {
 			let copyS=copyFields.join(",");
-			let sq=`INSERT INTO ${n} (${copyS}) SELECT ${copyS} FROM ${n+"_tmp"}`;
+			let sq=`INSERT INTO ${n+"_new"} (${copyS}) SELECT ${copyS} FROM ${n}`;
 			await this.db.query(sq);
 		}
 
-		await this.db.query(`DROP TABLE ${n+"_tmp"}`);
+		await this.db.query(`ALTER TABLE ${n} RENAME TO ${n+"_old"}`);
+		await this.db.query(`ALTER TABLE ${n+"_new"} RENAME TO ${n}`);
+		await this.db.query(`DROP TABLE ${n+"_old"}`);
 	}
 }

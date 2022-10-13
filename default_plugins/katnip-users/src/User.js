@@ -43,8 +43,6 @@ export class UserAuthMethod extends Model {
 }
 
 export default class User extends Model {
-	static tableName="User";
-//
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		role: "VARCHAR(64) NOT NULL"
