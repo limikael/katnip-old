@@ -1,5 +1,6 @@
 import http from "http";
-import {delay, waitEvent} from "../../src/utils/js-util.js";
+import {delay, waitEvent, arrayRemove} from "../../src/utils/js-util.js";
+import {installWsKeepAlive} from "../../src/utils/ws-util.js";
 import {WebSocketServer} from "ws";
 import path from "path";
 import fs from "fs";
@@ -7,6 +8,7 @@ import fs from "fs";
 export default class CoverServer {
 	constructor() {
 		this.wsConnections=[];
+		this.log="Katnip loading and decrunching...\n";
 	}
 
 	handleRequest=(req, res)=>{
@@ -16,14 +18,39 @@ export default class CoverServer {
 		res.setHeader('Connection', 'close');
 
 		let dir=path.dirname(new URL(import.meta.url).pathname);
-		res.end(fs.readFileSync(dir+"/cover.html"));
+		let template=fs.readFileSync(dir+"/cover.html","utf8");
+		let bundle=fs.readFileSync(dir+"/cover-main.bundle.js","utf8");
+
+		res.end(template.replace("__bundle__",bundle));
+
 	}
 
-	onWsConnection=(connection)=>{
-		console.log("ws connection in cover");
-		this.wsConnections.push(connection);
+	writeLogData(data) {
+		data=data.toString();
+		this.log+=data;
 
-		connection.send(JSON.stringify({type: "runmode", runmode: "cover"}));
+		for (let ws of this.wsConnections)
+			ws.send(JSON.stringify({type: "log", "log": data}));
+	}
+
+	onWsConnection=(ws)=>{
+		console.log("ws connection in cover");
+		installWsKeepAlive(ws,{delay:5000});
+
+		this.wsConnections.push(ws);
+		ws.send(JSON.stringify({type: "runmode", runmode: "cover"}));
+		ws.send(JSON.stringify({type: "backlog", log: this.log}));
+	}
+
+	onConnectionClose=(ws)=>{
+		console.log("ws connection close in cover");
+
+		ws.removeAllListeners();
+		arrayRemove(this.wsConnections,ws);
+	}
+
+	onWsMessage=(ws, message)=>{
+		console.log("got ws message: "+message);
 	}
 
 	async listen(netServer) {

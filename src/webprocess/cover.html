@@ -1,28 +1,10 @@
 <html>
-	<head>
-		<script>
-			let ws=new WebSocket("ws://"+window.location.host);
-			ws.addEventListener("open",()=>{
-				console.log("open...")
-			});
-			ws.addEventListener("message",(message)=>{
-				let data=JSON.parse(message.data);
+	<body style="background-color: #224; color: #8f8; font-size: 1.5rem; position: relative; margin: 1.5rem">
+		<pre id="connecting"
+				style="position: absolute; top: 0px; right: 0px; color: #fff; font-size: 1rem; margin: 0">CONNECTING...</pre>
 
-				if (data.type=="reload") {
-					window.location=window.location;
-				}
-
-				if (data.type="runmode") {
-					if (data.runmode!="cover")
-						window.location=window.location;
-
-					console.log("i'm cover, server is: "+data.runmode);
-				}
-			});
-		</script>
-	</head>
-
-	<body style="background-color: #008; color: #ff0; font-size: 2rem;">
-		<pre>Building...</pre>
+		<pre id="console"
+			style="margin: 0"></pre>
 	</body>
+	<script>__bundle__</script>
 </html>

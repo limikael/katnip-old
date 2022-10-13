@@ -1,4 +1,5 @@
 import {bindArgs} from "./js-util.js";
+import EventEmitter from "events";
 
 class WsKeepAlive {
 	constructor(ws,options={}) {
@@ -80,4 +81,79 @@ class WsKeepAlive {
 
 export function installWsKeepAlive(ws, options={}) {
 	WsKeepAlive.install(ws,options);
+}
+
+export class EnhancedWebSocket extends EventEmitter {
+	constructor(url, options={}) {
+		super();
+
+		if (typeof url=="object")
+			options={...options, ...url};
+
+		else
+			this.url=url;
+
+		if (!this.url) {
+			let protocol;
+
+			switch (window.location.protocol) {
+				case "http:":
+					protocol="ws";
+					break;
+
+				case "https:":
+					protocol="wss";
+					break;
+
+				default:
+					throw new Error("Unknown protocol: "+window.location.protocol);
+			}
+
+			this.url=protocol+"://"+window.location.host;
+		}
+
+		this.options=options;
+
+		this.initWebSocket();
+	}
+
+	isConnected=()=>{
+		return (this.ws && this.ws.readyState==WebSocket.OPEN);
+	}
+
+	initWebSocket=()=>{
+		this.ws=new WebSocket(this.url);
+		this.ws.addEventListener("open",this.onOpen);
+		this.ws.addEventListener("message",this.onMessage);
+		this.ws.addEventListener("close",this.onClose);
+		this.ws.addEventListener("error",this.onClose);
+		installWsKeepAlive(this.ws,{delay:5000});
+	}
+
+	onMessage=(ev)=>{
+		if (ev.data=="PING" || ev.data=="PONG")
+			return;
+
+		let data=ev.data;
+		if (this.options.encoding=="json")
+			data=JSON.parse(ev.data);
+
+		this.emit("message",data);
+	}
+
+	onClose=()=>{
+		//console.log("WebSocket closed")
+
+		this.ws.removeEventListener("open",this.onOpen);
+		this.ws.removeEventListener("message",this.onMessage);
+		this.ws.removeEventListener("close",this.onClose);
+		this.ws.removeEventListener("error",this.onClose);
+		this.ws=null;
+		setTimeout(this.initWebSocket,5000);
+		this.emit("statusChange");
+	}
+
+	onOpen=()=>{
+		this.emit("statusChange");
+	}
 }

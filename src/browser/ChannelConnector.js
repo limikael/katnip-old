@@ -37,7 +37,7 @@ export default class ChannelConnector extends EventEmitter {
 		this.ws.addEventListener("message",this.onMessage);
 		this.ws.addEventListener("close",this.onClose);
 		this.ws.addEventListener("error",this.onClose);
-		installWsKeepAlive(this.ws,{delay:10000});
+		installWsKeepAlive(this.ws,{delay:5000});
 	}
 
 	sendMessage=(message)=>{

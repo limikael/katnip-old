@@ -131,9 +131,6 @@ class MainKatnip {
 		if (!this.options.port && !this.options.webProcessChild)
 			this.options.port=3000;
 
-		if (options.webProcessChild) {
-		}
-
 		console.log("Loading plugins...");
 		await this.initPlugins();
 

@@ -39,7 +39,7 @@ export default class WebProcessParent {
 			this.netServer=net.createServer();
 			this.netServer.listen(this.port);
 			await waitEvent(this.netServer,"listening","error");
-			console.log("Parent process pid="+process.pid+", listening to: "+this.port);
+			console.log("Parent process pid: "+process.pid+" listening to: "+this.port);
 		}
 
 		if (!this.coverServer)
@@ -47,14 +47,29 @@ export default class WebProcessParent {
 
 		if (this.willStart) {
 			this.willStart=false;
-			this.childProcess=child_process.fork(this.modulePath,this.args);
+			// FIXME
+			this.childProcess=child_process.fork(this.modulePath,this.args,{
+				silent: "true",
+			});
 			this.childProcess.ipcProxy=new IpcProxy(this.childProcess,{
 				childInitialized: this.childInitialized,
-				notifyChildListening: this.notifyChildListening
+				notifyChildListening: this.notifyChildListening,
 			});
 
 			this.childProcess.proxy=this.childProcess.ipcProxy.proxy;
 			this.childProcess.on("close",this.onChildProcessClose);
+
+			this.childProcess.stdout.on("data",(data)=>{
+				process.stdout.write(data);
+				if (this.coverServer)
+					this.coverServer.writeLogData(data);
+			});
+
+			this.childProcess.stderr.on("data",(data)=>{
+				process.stderr.write(data);
+				if (this.coverServer)
+					this.coverServer.writeLogData(data);
+			});
 		}
 
 		this.isCycling=false;

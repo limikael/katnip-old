@@ -3,7 +3,7 @@ import {bindArgs, objectFirstKey, arrayRemove, buildUrl, decodeQueryString} from
 import {installWsKeepAlive} from "../utils/ws-util.js";
 import KatnipRequest from "../lib/KatnipRequest.js";
 
-export default class KatnipServerChannels /*extends EventEmitter*/ {
+export default class KatnipServerChannels {
 	constructor(katnip, server) {
 		this.katnip=katnip;
 		this.channels={};
@@ -52,7 +52,7 @@ export default class KatnipServerChannels /*extends EventEmitter*/ {
 	}
 
 	onConnection=(ws, req)=>{
-		installWsKeepAlive(ws,{delay:10000});
+		installWsKeepAlive(ws,{delay:5000});
 
 		ws.req=req;
 		ws.subscriptions=[];
