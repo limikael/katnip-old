@@ -179,3 +179,15 @@ export function withTargetValue(fn) {
 		fn(ev.target.value);
 	}
 }
+
+export function waitEvent(o, success, fail) {
+	return new Promise((resolve, reject)=>{
+		o.once(success,()=>{
+			resolve();
+		});
+
+		o.once("error",(e)=>{
+			reject(e);
+		});
+	});
+}

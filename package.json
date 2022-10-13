@@ -2,12 +2,11 @@
   "name": "katnip",
   "version": "0.0.2",
   "bin": {
-    "katnip": "src/server/katnip-cli.js"
+    "katnip": "src/cli/katnip-cli.js"
   },
   "scripts": {
     "test": "jasmine",
-    "dev": "link-module-alias && ./src/server/katnip-cli.js dev",
-    "start": "link-module-alias && ./src/server/katnip-cli.js start --minify"
+    "start": "link-module-alias && ./src/cli/katnip-cli.js start"
   },
   "main": "src/main/katnip-main-exports.js",
   "browser": "src/browser/katnip-browser-exports.js",
@@ -15,6 +14,7 @@
   "dependencies": {
     "bech32": "^2.0.0",
     "bootstrap-icons": "^1.8.1",
+    "chokidar": "^3.5.3",
     "client-oauth2": "^4.3.3",
     "dayjs": "^1.11.1",
     "dotenv": "^16.0.0",

@@ -1,11 +1,22 @@
 import {katnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
 		ResourceBlocker} from "katnip";
 import KatnipRequest from "../lib/KatnipRequest.js";
-import {useState} from "preact/compat";
+import {useState, useRef} from "react";
 
 export function KatnipView() {
 	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
+	let bundleHash=useChannel("bundleHash");
+	let bundleHashRef=useRef();
+
+	if (bundleHashRef.current &&
+			bundleHash!=bundleHashRef.current) {
+		console.log("bundle hash changed, refreshing...");
+		window.location=window.location;
+		return;
+	}
+
+	bundleHashRef.current=bundleHash;
 
 	useEventUpdate(window,"locationchange");
 	useEventUpdate(window,"popstate");

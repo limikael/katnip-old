@@ -4,6 +4,8 @@ import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 import "./standard-elements.jsx";
 
+import "../components/PageCounter.jsx";
+
 function Box({inner, outer, children, color, label}) {
 	return (
 		<div {...outer} class="border p-3" style={{backgroundColor: color}}>

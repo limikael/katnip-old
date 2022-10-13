@@ -53,12 +53,31 @@ export default class ChannelConnector extends EventEmitter {
 		return this.isConnected();
 	}
 
+	handleAppMessage=(message)=>{
+		switch (message.type) {
+			case "reload":
+				console.log("got reload in child!");
+				window.location=window.location;
+				break;
+
+			case "runmode":
+				console.log("got runmode notification in app: "+message.runmode);
+				if (message.runmode!="app")
+					window.location=window.location;
+				break;
+		}
+	}
+
 	onMessage=(ev)=>{
 		if (ev.data=="PING" || ev.data=="PONG")
 			return;
 
 		let messageData=JSON.parse(ev.data);
 		switch (objectFirstKey(messageData)) {
+			case "type":
+				this.handleAppMessage(messageData);
+				break;
+
 			case "channel":
 				let v=messageData.data;
 				if (messageData.error)

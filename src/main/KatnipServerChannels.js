@@ -1,16 +1,54 @@
 import {WebSocketServer} from "ws";
-import {bindArgs, objectFirstKey, arrayRemove} from "../utils/js-util.js";
+import {bindArgs, objectFirstKey, arrayRemove, buildUrl, decodeQueryString} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
 import KatnipRequest from "../lib/KatnipRequest.js";
 
-export default class KatnipChannelHandler {
+export default class KatnipServerChannels /*extends EventEmitter*/ {
 	constructor(katnip, server) {
 		this.katnip=katnip;
+		this.channels={};
+		this.connections=[];
+	}
+
+	attachToServer(server) {
 		this.wss=new WebSocketServer({server}); 
 		this.wss.on("connection",this.onConnection)
+	}
 
-		this.connections=[];
-		this.katnip.serverChannels.on("notification",this.onNotification);
+	addChannel=(channelId, func)=>{
+		this.katnip.assertFreeName(channelId);
+		this.channels[channelId]=func;
+	}
+
+	notifyChannel=(channelId, params={})=>{
+		let channelUrl=buildUrl(channelId,params);
+
+		this.onNotification(channelUrl);
+	}
+
+	getChannelData=async (channelUrl, req)=>{
+		let [channelId,queryString]=channelUrl.split("?");
+		let query=decodeQueryString(queryString);
+
+		let settings=this.katnip.settingsManager.getSettings({id: channelId});
+		if (settings.length) {
+			let setting=settings[0];
+
+			if (!setting.session)
+				throw new Error("Setting not available as channel");
+
+			return setting.value;
+		}
+
+		if (!this.channels[channelId])
+			throw new Error("No such channel: "+channelId);
+
+		return await this.channels[channelId](query, req);
+	}
+
+	assertFreeName=(name)=>{
+		if (this.channels[name])
+			throw new Error("Already a channel: "+name);
 	}
 
 	onConnection=(ws, req)=>{
@@ -20,6 +58,8 @@ export default class KatnipChannelHandler {
 		ws.subscriptions=[];
 		ws.on("close",bindArgs(this.onConnectionClose,ws));
 		ws.on("message",bindArgs(this.onConnectionMessage,ws));
+
+		ws.send(JSON.stringify({type: "runmode", runmode: "app"}));
 
 		this.connections.push(ws);
 	}
@@ -31,14 +71,20 @@ export default class KatnipChannelHandler {
 		arrayRemove(this.connections,ws);
 	}
 
+	send=(message)=>{
+		console.log("broadcasting, connections="+this.connections.length);
+		for (let ws of this.connections)
+			ws.send(JSON.stringify(message));
+	}
+
 	sendChannelData=async (ws, channelId)=>{
 		try {
 			let req=new KatnipRequest();
 			req.processNodeRequest(ws.req);
 			req.processUrl(channelId);
-			await this.katnip.doActionAsync("initRequest",req);
+			await this.katnip.actions.doActionAsync("initRequest",req);
 
-			let channelData=await this.katnip.getChannelData(channelId,req);
+			let channelData=await this.getChannelData(channelId,req);
 			ws.send(JSON.stringify({
 				channel: channelId,
 				data: channelData

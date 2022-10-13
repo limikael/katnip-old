@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<script>
+			let ws=new WebSocket("ws://"+window.location.host);
+			ws.addEventListener("open",()=>{
+				console.log("open...")
+			});
+			ws.addEventListener("message",(message)=>{
+				let data=JSON.parse(message.data);
+
+				if (data.type=="reload") {
+					console.log("got reload in child!");
+					window.location=window.location;
+				}
+
+				if (data.type="runmode") {
+					if (data.runmode!="app")
+						window.location=window.location;
+
+					console.log("i'm app, server is: "+data.runmode);
+				}
+			});
+		</script>
+	</head>
+
+	<body>
+		Hello, this is the actual child app...
+	</body>
+</html>
