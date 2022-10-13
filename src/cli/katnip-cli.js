@@ -47,7 +47,7 @@ switch (options._[0]) {
 	case "start":
 		let parent=new WebProcessParent({
 			modulePath: process.cwd()+"/node_modules/katnip/src/cli/katnip-cli.js",
-			args: ["worker"],
+			args: ["worker", ...process.argv.slice(3)],
 			port: options.port,
 		});
 

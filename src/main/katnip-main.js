@@ -89,7 +89,7 @@ class MainKatnip {
 		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
 		this.pluginLoader.setBundleName("katnip-bundle.js");
 
-		this.outDir=await this.pluginLoader.buildClientBundle();
+		this.outDir=await this.pluginLoader.buildClientBundle(this.options);
 
 		await this.pluginLoader.loadPlugins();
 	}
@@ -102,6 +102,11 @@ class MainKatnip {
 		this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.js",
 			fs.readFileSync(this.outDir+"/katnip-bundle.js")+"window.katnip.clientMain();"
+		);
+
+		this.contentMiddleware.addContent(
+			"/katnip-bundle.js.map",
+			fs.readFileSync(this.outDir+"/katnip-bundle.js.map")
 		);
 
 		this.mwServer.use(this.contentMiddleware);

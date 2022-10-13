@@ -103,7 +103,8 @@ export default class PluginLoader {
 				jsxFragment: "Fragment",
 				minify: options.minify,
 				outfile: this.outDir+"/"+this.bundleName,
-				loader: {".svg": "dataurl"}
+				loader: {".svg": "dataurl"},
+				sourcemap: true
 			});
 		}
 
