@@ -64,7 +64,15 @@ export default class CommandRunner {
 		}
 	}
 
-	usage(e) {
+	usage(e, path) {
+		if (!path)
+			path=[];
+
+		let args=this.globalArgs;
+		let c=this.getCommandByPath(path);
+		if (c)
+			args=c.args;
+
 		if (e) {
 			console.log(e);
 			console.log();
@@ -72,10 +80,10 @@ export default class CommandRunner {
 
 		console.log("Usage: "+this.commandName+" [options] <command> [command options] ...");
 		console.log("Commands: ");
-		this.printCommandHelp([]);
+		this.printCommandHelp(path);
 		console.log("");
 		console.log("Options: ");
-		this.printArgsHelp(this.globalArgs);
+		this.printArgsHelp(args);
 		console.log();
 		console.log("For more info, use '"+this.commandName+" help' or '"+this.commandName+" help <command>'.")
 		process.exit(1);
@@ -127,8 +135,11 @@ export default class CommandRunner {
 		console.log(params._);
 
 		let command=this.getCommandByPath(params._);
-		if (!command || !command.callable)
+		if (!command)
 			this.usage("Unknown command: "+params._.join(" "));
+
+		if (!command.callable)
+			this.usage(null,command.path);
 
 		let commandParams=minimist(params._.slice(command.path.length),{
 			stopEarly: command.stopEarly,
@@ -137,7 +148,7 @@ export default class CommandRunner {
 
 		e=this.getArgError(command.args,commandParams)
 		if (e)
-			this.usage(e);
+			this.usage(e,command.path);
 
 		command.callable(commandParams);
 	}

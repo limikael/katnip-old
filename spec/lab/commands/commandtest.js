@@ -57,6 +57,7 @@ function DbExport(args) {
 
 DbExport.args={
 	format: {
+		shortdesc: "The format used to save the exported data."
 	}
 }
 
