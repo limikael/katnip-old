@@ -136,6 +136,13 @@ export function arrayRemove(array, item) {
 	array.splice(idx,1);
 }
 
+export function arrayEqualsShallow(a, b) {
+	return ((Array.isArray(a) && Array.isArray(b)) &&
+		a.length === b.length &&
+		a.every((dep, idx) => Object.is(dep, b[idx]))
+	);
+}
+
 export function bindArgs(fn, ...args) {
 	return fn.bind(null,...args);
 }
