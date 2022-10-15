@@ -1,17 +1,18 @@
 import CommandRunner from "../../../src/utils/CommandRunner.js";
+import "dotenv/config";
 
-let c=new CommandRunner("katnip");
-
-c.setGlobalArgs({
-	dsn: {
-		env: "DSN",
-		shortdesc: "Specify data service name."
-	},
-	debug: {
-		boolean: true,
-		shortdesc: "Enable debug."
+let c=new CommandRunner("katnip",{
+	args: {
+		dsn: {
+			env: "DSN",
+			shortdesc: "Specify data service name."
+		},
+		debug: {
+			boolean: true,
+			shortdesc: "Enable debug."
+		}
 	}
-})
+});
 
 function start(args) {
 	console.log("starting");
@@ -83,4 +84,5 @@ c.addCommandCategory("db",{
 	shortdesc: "Database related commands."
 });
 
-c.run(process.argv.slice(2));
+//console.log(c.getGlobalParams());
+console.log(await c.run());

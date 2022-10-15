@@ -11,6 +11,7 @@ import MiddlewareServer from "../mw/MiddlewareServer.js";
 import ContentMiddleware from "../mw/ContentMiddleware.js";
 import ApiMiddleware from "../mw/ApiMiddleware.js";
 import KatnipRequest from "../lib/KatnipRequest.js";
+import KatnipCommands from "./KatnipCommands.js";
 import fs from "fs";
 
 global.fetch=fetch;
@@ -79,7 +80,7 @@ class MainKatnip {
 		res.end(clientPage);
 	}
 
-	async initPlugins() {
+	async initPlugins(createBundle=true) {
 		this.pluginLoader=new PluginLoader();
 		this.pluginLoader.addPlugin("node_modules/katnip");
 		this.pluginLoader.addExposePlugin("katnip","node_modules/katnip");
@@ -89,7 +90,8 @@ class MainKatnip {
 		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
 		this.pluginLoader.setBundleName("katnip-bundle.js");
 
-		this.outDir=await this.pluginLoader.buildClientBundle(this.options);
+		if (createBundle)
+			this.outDir=await this.pluginLoader.buildClientBundle(this.options);
 
 		await this.pluginLoader.loadPlugins();
 	}
@@ -131,10 +133,30 @@ class MainKatnip {
 		this.mwServer.use(apiMiddleware);
 	}
 
-	run=async (options={})=>{
+	runCommand=async (commandRunner)=>{
+		this.options=commandRunner.getGlobalParams();
+		this.commandRunner=commandRunner;
+
+		let katnipCommands=new KatnipCommands(this);
+		katnipCommands.initCommandRunner();
+
+		await this.initPlugins(false);
+
+		if (commandRunner.getCommand().level=="postdb") {
+			await this.db.connect(this.options.dsn);
+			await this.db.install();
+		}
+
+		await commandRunner.run();
+	}
+
+	addCommand(name, fn, command={}) {
+		if (this.commandRunner)
+			this.commandRunner.addCommand(name, fn, command={});
+	}
+
+	run=async (options)=>{
 		this.options=options;
-		if (!this.options.port && !this.options.webProcessChild)
-			this.options.port=3000;
 
 		console.log("Loading plugins...");
 		await this.initPlugins();
@@ -178,9 +200,8 @@ class MainKatnip {
 		}
 
 		else {
-			console.log("Reimplement!!! Starting server...");
-			//await this.mwServer.listen(this.options.port,"0.0.0.0")
-			//console.log("Running on port "+this.options.port);
+			await this.mwServer.listen(this.options.port,"0.0.0.0");
+			console.log("Running on port "+this.options.port);
 		}
 	}
 }
@@ -188,6 +209,8 @@ class MainKatnip {
 const katnip=new MainKatnip();
 
 export const run=katnip.run;
+export const runCommand=katnip.runCommand;
+export const addCommand=katnip.addCommand;
 
 export const db=katnip.db;
 
