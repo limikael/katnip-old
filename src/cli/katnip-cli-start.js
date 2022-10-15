@@ -1,6 +1,7 @@
 import WebProcessParent from "../../src/webprocess/WebProcessParent.js";
 import WebProcessChild from "../../src/webprocess/WebProcessChild.js";
 import chokidar from "chokidar";
+import open from "open";
 
 export async function start(options) {
 	if (!options.port)
@@ -12,6 +13,9 @@ export async function start(options) {
 			args: ["worker", ...process.argv.slice(3)],
 			port: options.port,
 		});
+
+		if (!options["no-open"])
+			open("http://localhost:3000");
 
 		parent.start();
 
@@ -42,6 +46,9 @@ export async function start(options) {
 	else {
 		let katnip=await import(process.cwd()+"/node_modules/katnip/src/main/katnip-main-exports.js")
 		await katnip.run(options);
+
+		if (!options["no-open"])
+			open("http://localhost:3000");
 	}
 }
 
@@ -56,7 +63,11 @@ start.args={
 		type: "boolean",
 	},
 	"no-watch": {
-		desc: "Don not watch files for changes.",
+		desc: "Do not watch files for changes.",
+		type: "boolean"
+	},
+	"no-open": {
+		desc: "Do not open browser.",
 		type: "boolean"
 	}
 };

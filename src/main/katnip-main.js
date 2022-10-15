@@ -218,6 +218,8 @@ class MainKatnip {
 
 		this.mwServer.use(this.handleDefault);
 
+		await delay(3000);
+
 		this.serverChannels.attachToServer(this.mwServer.server);
 
 		if (options.webProcessChild) {
