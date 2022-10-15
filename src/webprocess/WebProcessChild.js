@@ -33,4 +33,8 @@ export default class WebProcessChild extends EventEmitter {
 	notifyListening=async ()=>{
 		return await this.parent.notifyChildListening();
 	}
+
+	restart=async ()=>{
+		return await this.parent.restartChild();
+	}
 }

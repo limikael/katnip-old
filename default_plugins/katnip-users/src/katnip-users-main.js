@@ -11,7 +11,7 @@ import "../auth/email/auth-email-main.js";
 katnip.addModel(User);
 katnip.addModel(UserAuthMethod);
 
-katnip.addSetting("install");
+katnip.addSetting("install",{session: true});
 katnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 
 katnip.addAction("initRequest",async (req)=>{
@@ -94,7 +94,7 @@ katnip.addAction("serverMain",async (options)=>{
 
 	if (!await User.findOne({role: "admin"})) {
 		console.log("No admin user, entering install mode.")
-		await katnip.setSetting("install",true);
+		await katnip.setSetting("install","admin");
 	}
 
 	else

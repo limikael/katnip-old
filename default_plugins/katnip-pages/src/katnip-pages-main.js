@@ -41,7 +41,8 @@ katnip.addAction("serverMain",async ()=>{
 				{type: "Paragraph", props: {}, children: ["This is a page..."]},
 			],
 			stamp: Date.now()/1000,
-			slug: convertToSlug("Hello")
+			slug: convertToSlug("Hello"),
+			meta: {}
 		});
 
 		await p.save();

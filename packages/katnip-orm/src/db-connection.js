@@ -10,7 +10,15 @@ class SqliteConnection extends EventDispatcher {
 	async connect() {
 		this.Sqlite3=await import("sqlite3");
 		let Database=this.Sqlite3.default.verbose().Database;
-		this.sqlite3=new Database(this.url.pathname);
+		await new Promise((resolve, reject)=>{
+			this.sqlite3=new Database(this.url.pathname,(err)=>{
+				if (err)
+					reject(err);
+
+				else
+					resolve();
+			});
+		});
 	}
 
 	async describe(tableName) {

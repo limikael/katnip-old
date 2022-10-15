@@ -1,171 +1,252 @@
 import minimist from "minimist";
 import {arrayEqualsShallow} from "../utils/js-util.js";
 
+export function parseNamed(cand) {
+	let match=cand.match(/^--([^=]+)(=?)(.*)$/);
+	if (match) {
+		/*if (match[1].slice(0,3)=="no-" && match[2]=="" && match[3]=="") {
+			match[1]=match[1].slice(3);
+			match[3]=false;
+		} else*/
+
+		if (match[2]=="" && match[3]=="") {
+			match[3]=true;
+		}
+
+		return {
+			key: match[1],
+			value: match[3]
+		}
+	}
+}
+
+export function getPositionalArguments(cl) {
+	let res=[];
+	for (let part of cl)
+		if (!parseNamed(part))
+			res.push(part);
+
+	return res;
+}
+
+export function getNamedArguments(cl) {
+	let res={};
+	for (let part of cl) {
+		let named=parseNamed(part);
+		if (named)
+			res[named.key]=named.value;
+	}
+
+	return res;
+}
+
+function formatCols(rows) {
+	let l=0;
+	for (let row of rows)
+		l=Math.max(l,row[0].length)
+
+	for (let row of rows)
+		console.log("  "+row[0]+Array(l-row[0].length).fill(" ").join("")+"  "+row[1]);
+}
+
+function logHeader(s) {
+	console.log("\x1b[1m"+s+"\x1b[22m");
+}
+
 class Command {
-	constructor(name, fn, command={}) {
-		if (fn)
-			for (let k in fn)
-				command[k]=fn[k];
-
-		if (!command.args)
-			command.args={};
-
-		command.name=name;
-		command.callable=fn;
-		command.path=command.name.split(/\s+/);
-
+	constructor(name, callable, command={}) {
+		command={...command,...callable};
 		for (let k in command)
 			this[k]=command[k];
 
+		this.name=name;
+
+		if (typeof callable=="function")
+			this.callable=callable;
+
+		if (!this.path)
+			this.path=this.name.split(/\s+/);
+
 		if (!this.args)
 			this.args={};
+
+		if (!this.required)
+			this.required=[];
+
+		if (!this.optional)
+			this.optional=[];
 	}
 
-	getBooleanArgNames() {
-		let boolean=[];
+	printArgsHelp() {
+		if (!Object.keys(this.args).length)
+			return;
 
-		for (let k in this.args)
-			if (this.args[k].boolean)
-				boolean.push(k);
+		if (this.isRootCommand())
+			logHeader("GLOBAL OPTIONS");
 
-		return boolean;
+		else
+			logHeader("COMMAND OPTIONS");
+
+		let rows=[];
+		for (let k in this.args) {
+			if (this.args[k].type=="boolean")
+				rows.push(["--"+k,this.args[k].desc]);
+
+			else
+				rows.push(["--"+k+"=...",this.args[k].desc]);
+
+			if (this.args[k].env)
+				rows.push(["","Can also be set using env variable '"+this.args[k].env+"'."]);
+		}
+
+		formatCols(rows);
+		console.log();
 	}
 
-	getArgError(cand) {
-		for (let k in cand)
-			if (k!="_" && !this.args[k])
-				return "Unknown option: "+k;
+	getChildCommands() {
+		return this.commandRunner.getChildCommandsByPath(this.path);
 	}
 
-	populateEnvParams(params) {
-		for (let k in this.args)
-			if (this.args[k].env && !params[k])
-				params[k]=process.env[this.args[k].env];
+	printChildCommands() {
+		if (!this.getChildCommands().length)
+			return;
+
+		logHeader(this.getChildCommandLabel().toUpperCase()+"S");
+
+		let rows=[];
+		for (let c of this.getChildCommands())
+			rows.push([c.path.slice(-1)[0],c.desc]);
+
+		formatCols(rows);
+		console.log();
 	}
 
-	failOnError(params) {
-		let e=this.getArgError(params);
-		if (e) {
-			console.log(e);
-			process.exit(1);
+	isRootCommand() {
+		return (this==this.getRootCommand())
+	}
+
+	getRootCommand() {
+		return this.commandRunner.getRootCommand();
+	}
+
+	getLongName() {
+		if (this.isRootCommand())
+			return this.name
+
+		return this.getRootCommand().name+" "+this.name;
+	}
+
+	getChildCommandLabel() {
+		if (this.isRootCommand())
+			return "command";
+
+		else
+			return "subcommand";
+	}
+
+	getUsage() {
+		let s=this.getLongName()+" [options]";
+
+		if (this.getChildCommands().length)
+			s+=" <"+this.getChildCommandLabel()+">";
+
+		s+=this.required.map((s)=>" <"+s+">").join();
+		s+=this.optional.map((s)=>" ["+s+"]").join();
+
+		return s;
+	}
+
+	printHelp() {
+		logHeader("NAME");
+		console.log("  "+this.getLongName()+" - "+this.desc);
+		console.log();
+		logHeader("USAGE");
+		console.log("  "+this.getUsage());
+		console.log();
+
+		this.printChildCommands();
+		this.printArgsHelp();
+
+		if (!this.isRootCommand() && !this.getChildCommands().length)
+			this.getRootCommand().printArgsHelp();
+
+		if (this.getChildCommands().length) {
+			logHeader("NOTES");
+
+			let s;
+			if (this.isRootCommand())
+				s=this.name+" help <command>";
+
+			else
+				s=this.getRootCommand().name+" help "+this.name+" <subcommand>";
+
+			console.log("  For more info, use '"+s+"'.");
+			console.log();
 		}
 	}
 
-	getDefault(params) {
-		let def={};
+	getPositionalArguments() {
+		return this.commandRunner.getPositionalArguments().slice(this.path.length);
+	}
 
-		for (let k in this.args)
-			if (this.args[k].negativedesc)
-				def[k]=true;
+	getNamedArguments() {
+		let vals=this.commandRunner.getNamedArguments();
 
-		return def;
+		let args=this.getArgs();
+		for (let k in args)
+			if (args[k].env && process.env[args[k].env] && !vals[k])
+				vals[k]=process.env[args[k].env]
+
+		return vals;
+	}
+
+	getArgs() {
+		return {...this.args,...this.getRootCommand().args};
+	}
+
+	getError() {
+		let args=this.getArgs();
+		for (let k in this.commandRunner.getNamedArguments())
+			if (!args[k])
+				return "Unrecognized option: "+k;
+
+		let minAccept=this.required.length;
+		let maxAccept=this.required.length+this.optional.length;
+		let n=this.getPositionalArguments().length;
+
+		if (n<minAccept)
+			return "Too few arguments.";
+
+		if (n>maxAccept)
+			return "Too many arguments.";
 	}
 }
 
 export default class CommandRunner {
 	constructor(name, command={}) {
 		this.commands=[];
-
-		this.addCommandCategory(name, command)
-		this.commands[0].path=[];
-
-		this.commandLine=process.argv.slice(2);
-		//console.log(this.commandLine);
+		this.addCommand(name,{...command, path:[]});
 	}
 
-	addCommandCategory(name, command={}) {
-		this.addCommand(name,null,command)
+	getRootCommand() {
+		return this.commands[0];
 	}
 
-	addCommand(name, fn, command={}) {
-		if (typeof fn!="function") {
-			command={...command,...fn};
-			fn=null;
-		}
+	setCommandLine(commandLine) {
+		if (commandLine[0]=="help")
+			commandLine[0]="--help";
 
-		this.commands.push(new Command(name,fn,command));
+		this.commandLine=commandLine;
 	}
 
-	printArgsHelp(command) {
-		let argRows=[];
+	addCommand(name, callable, command) {
+		let c=new Command(name,callable,command);
+		c.commandRunner=this;
 
-		for (let k in command.args) {
-			if (command.args[k].negativedesc)
-				argRows.push(["--no-"+k,command.args[k].negativedesc]);
-
-			else if (command.args[k].boolean)
-				argRows.push(["--"+k,command.args[k].shortdesc]);
-
-			else
-				argRows.push(["--"+k+"=...",command.args[k].shortdesc]);
-
-			if (command.args[k].env)
-				argRows.push(["","Can also use env variable "+command.args[k].env+"."]);
-		}
-
-		if (argRows.length) {
-			if (command.path.length)
-				console.log("Command Options:");
-
-			else
-				console.log("Global Options:");
-
-			this.fmtCols(argRows);
-			console.log("");
-		}
+		this.commands.push(c);
 	}
 
-	printCommandHelp(command) {
-		let u="Usage: "+this.commands[0].name;
-
-		if (command.path.length) {
-			u+=" [global options]"
-			u+=" "+command.path.join(" ");
-			if (!command.callable)
-				u+=" <sub command>";
-
-			if (Object.keys(command.args).length)
-				u+=" [command options]"
-		}
-
-		else {
-			u+=" [global options] <command> [command options]";
-		}
-
-		console.log(u);
-
-		if (command.path.length) {
-			console.log();
-			console.log(command.shortdesc);
-			console.log();
-		}
-
-		let commandRows=[];
-		for (let c of this.getChildCommandsByPath(command.path))
-			commandRows.push([c.name,c.shortdesc]);
-
-		if (commandRows.length) {
-			if (command.path.length)
-				console.log("Sub Commands:");
-
-			else
-				console.log("Commands:");
-
-			this.fmtCols(commandRows);
-			console.log();
-		}
-
-		this.printArgsHelp(command);
-
-		if (!command.callable)
-			if (command.path.length)
-				console.log("For more info, use '"+this.commands[0].name+" help "+command.path.join(" ")+" <sub command>'.")
-
-			else
-				console.log("For more info, use '"+this.commands[0].name+" help <command>'.")
-	}
-
-	getCommandByPath(path) {
+	getCommandByPathMatch(path) {
 		let command;
 		let specificity=-1;
 
@@ -179,6 +260,18 @@ export default class CommandRunner {
 		return command;
 	}
 
+	getPositionalArguments() {
+		return getPositionalArguments(this.commandLine);
+	}
+
+	getNamedArguments() {
+		return getNamedArguments(this.commandLine);
+	}
+
+	getCommand() {
+		return this.getCommandByPathMatch(this.getPositionalArguments());
+	}
+
 	getChildCommandsByPath(path) {
 		let childCommands=[];
 		for (let c of this.commands)
@@ -190,65 +283,35 @@ export default class CommandRunner {
 		return childCommands;
 	}
 
-	fmtCols(rows) {
-		let l=0;
-		for (let row of rows)
-			l=Math.max(l,row[0].length)
-
-		for (let row of rows)
-			console.log("   "+row[0]+Array(l-row[0].length).fill(" ").join("")+"   "+row[1]);
-	}
-
-	getGlobalParams() {
-		let params=minimist(this.commandLine,{
-			stopEarly: true,
-			boolean: this.commands[0].getBooleanArgNames(),
-			default: this.commands[0].getDefault()
-		});
-
-		this.commands[0].populateEnvParams(params);
-		this.commands[0].failOnError(params);
-
-		if (params._[0]=="help") {
-			params._=params._.slice(1);
-			params.help=true;
-		}
-
-		return params;
-	}
-
-	getCommand() {
-		return this.getCommandByPath(this.getGlobalParams()._);
-	}
-
-	getCommandParams() {
-		let command=this.getCommand();
-		let params=minimist(this.getGlobalParams()._.slice(command.path.length),{
-			stopEarly: command.stopEarly,
-			boolean: command.getBooleanArgNames(),
-			default: command.getDefault()
-		});
-
-		command.populateEnvParams(params);
-		command.failOnError(params);
-
-		return params;
-	}
-
-	haveCommand() {
+	haveRunnableCommand() {
 		return !!this.getCommand().callable;
 	}
 
 	async run() {
-		let globalParams=this.getGlobalParams();
 		let command=this.getCommand();
-		let commandParams=this.getCommandParams();
 
-		if (globalParams.help || !command.callable) {
-			this.printCommandHelp(command);
+		if (this.getNamedArguments().help ||
+				!command.callable) {
+			if (command.getPositionalArguments().length) {
+				console.log("Unknown command: "+this.getPositionalArguments().join(" "));
+				console.log("For more info, use '"+this.getRootCommand().name+" help'.");
+			}
+
+			else
+				command.printHelp();
+
 			process.exit();
 		}
 
-		return await command.callable({...globalParams,...commandParams});
+		if (command.getError()) {
+			console.log(this.getCommand().getError());
+			console.log("For more info, use '"+this.getRootCommand().name+" help "+command.name+"'.");
+			process.exit();
+		}
+
+		return await command.callable(
+			command.getNamedArguments(),
+			...command.getPositionalArguments()
+		);
 	}
 }

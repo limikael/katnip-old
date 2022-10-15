@@ -1,88 +1,47 @@
 import CommandRunner from "../../../src/utils/CommandRunner.js";
-import "dotenv/config";
 
-let c=new CommandRunner("katnip",{
+let cr=new CommandRunner("katnip",{
+	desc: "Herding cats since 2022.",
 	args: {
-		dsn: {
-			env: "DSN",
-			shortdesc: "Specify data service name."
-		},
-		debug: {
-			boolean: true,
-			shortdesc: "Enable debug."
-		}
+		test: {desc: "A test argument"},
+		watch: {desc: "Should we watch"}
+	}
+})
+
+cr.addCommand("db",{
+	desc: "Database related commands."
+});
+
+cr.addCommand("db export",()=>{},{
+	desc: "Export database.",
+	args: {
+		format: {desc: "Export format."}
 	}
 });
 
-function start(args) {
-	console.log("starting");
-	console.log(args);
+function create(options, name) {
+	console.log("creating: "+name);
 }
 
-start.args={
-	port: {
-		env: "PORT",
+create.desc="Create new project.";
+create.args={
+	name: {desc: "Project name."}
+};
+create.optional=["name"];
+cr.addCommand("create",create);
+
+cr.addCommand("setting",{
+	desc: "Retreives and sets settings."
+});
+
+cr.addCommand("setting set",(args, pos)=>{},{
+	desc: "Set setting value.",
+	args: {
+		force: {desc: "Set even if not recognized."}
 	},
-	minify: {
-		boolean: true
-	}
-}
-
-c.addCommand("start",start,{
-	shortdesc: "Start server."
+	required: ["setting name"],
+	optional: ["value"]
 });
 
-function Remote(args) {
-	console.log("remote");
-	console.log(args);
-}
-
-Remote.stopEarly=true;
-Remote.args={
-	site: {
-		env: "REMOTE_SITE"
-	},
-	key: {
-		env: "REMOTE_KEY"
-	}
-}
-
-c.addCommand("remote",Remote,{
-	shortdesc: "Run command on remote sever."
-});
-
-function DbExport(args) {
-	console.log("db export");
-	console.log(args);
-}
-
-DbExport.args={
-	format: {
-		shortdesc: "The format used to save the exported data."
-	}
-}
-
-c.addCommand("db export",DbExport,{
-	shortdesc: "Export database."
-});
-
-function DbImport(args) {
-	console.log("db import");
-	console.log(args);
-}
-
-DbImport.args={
-	format: {
-	}
-}
-
-c.addCommand("db import",DbImport,{
-	shortdesc: "Import database."
-});
-
-c.addCommandCategory("db",{
-	shortdesc: "Database related commands."
-});
-
-//console.log(c.getGlobalParams());
-console.log(await c.run());
+cr.setCommandLine(process.argv.slice(2));
+cr.run();

@@ -73,6 +73,11 @@ export function BsGroupInput({title, ...props}) {
 			<label class="col-12 col-sm-4 col-form-label">{title}</label>
 			<div class="col-12 col-sm-8">
 				<BsInput {...props}/>
+				{props.description &&
+					<small class="form-text text-muted">
+						{props.description}
+					</small>
+				}
 			</div>
 		</div>
 	);

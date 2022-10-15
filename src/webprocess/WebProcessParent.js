@@ -12,7 +12,7 @@ export default class WebProcessParent {
 		this.args=options.args;
 	}
 
-	async start() {
+	start() {
 		this.willStart=true;
 		this.cycle();
 	}
@@ -54,6 +54,7 @@ export default class WebProcessParent {
 			this.childProcess.ipcProxy=new IpcProxy(this.childProcess,{
 				childInitialized: this.childInitialized,
 				notifyChildListening: this.notifyChildListening,
+				restartChild: this.restartChild
 			});
 
 			this.childProcess.proxy=this.childProcess.ipcProxy.proxy;
@@ -91,5 +92,10 @@ export default class WebProcessParent {
 	notifyChildListening=async ()=>{
 		await this.coverServer.close();
 		this.coverServer=null;
+	}
+
+	restartChild=async ()=>{
+		console.log("Restarting on child request...");
+		this.start();
 	}
 }

@@ -6,7 +6,7 @@ export async function start(options) {
 	if (!options.port)
 		options.port=3000;
 
-	if (options.spawn) {
+	if (!options["no-spawn"]) {
 		let parent=new WebProcessParent({
 			modulePath: process.cwd()+"/node_modules/katnip/src/cli/katnip-cli.js",
 			args: ["worker", ...process.argv.slice(3)],
@@ -15,9 +15,12 @@ export async function start(options) {
 
 		parent.start();
 
-		if (options.watch) {
+		if (!options["no-watch"]) {
 			let watcher=chokidar.watch(process.cwd(),{
-				ignored: ["**/node_modules/**","**/.git/**","**/*.db*"],
+				ignored: [
+					"**/node_modules/**", "**/.git/**", "**/*.db*",
+					"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock"
+				],
 				persistent: true
 			});
 
@@ -42,19 +45,19 @@ export async function start(options) {
 	}
 }
 
-start.shortdesc="Start server.";
+start.desc="Start server.";
 start.args={
 	port: {
-		shortdesc: "Port to listen to.",
+		desc: "Port to listen to.",
 		env: "PORT"
 	},
-	spawn: {
-		boolean: true,
-		negativedesc: "Don't spawn child process."
+	"no-spawn": {
+		desc: "Do not spawn child process.",
+		type: "boolean",
 	},
-	watch: {
-		boolean: true,
-		negativedesc: "Don't watch files for changes."
+	"no-watch": {
+		desc: "Don not watch files for changes.",
+		type: "boolean"
 	}
 };
 

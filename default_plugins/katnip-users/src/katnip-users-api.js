@@ -1,6 +1,7 @@
 import {katnip, delay, buildUrl, apiFetch} from "katnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
+import fs from "fs";
 
 katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 	sreq.assertCap("user");
@@ -92,6 +93,35 @@ katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 
 	await user.populateAuthMethods();
 	return user;
+});
+
+katnip.addApi("/api/installDb",async({driver, filename, host, user, pass, name}, req)=>{
+	if (!katnip.getSetting("install"))
+		throw new Error("Not install mode");
+
+	console.log("Installing database...");
+
+	let dsn;
+	switch (driver) {
+		case "sqlite3":
+			dsn="sqlite3:"+filename;
+			break;
+
+		case "mysql":
+			dsn="mysql://"+user+":"+pass+"@"+host+"/"+name;
+			break;
+	}
+
+	await katnip.verifyDsn(dsn);
+
+	let env="";
+	if (fs.existsSync(process.cwd()+"/.env"))
+		env=fs.readFileSync(process.cwd()+"/.env","utf8");
+
+	env+="\nDSN="+dsn+"\n";
+	fs.writeFileSync(process.cwd()+"/.env",env);
+
+	await katnip.restart();
 });
 
 katnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{

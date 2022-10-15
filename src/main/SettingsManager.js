@@ -41,12 +41,14 @@ export default class SettingsManager {
 		this.settings[id]=new Setting(settingConf);
 	}
 
-	setSetting=async (id, value)=>{
+	setSetting=async (id, value, options={})=>{
 		if (!this.settings[id])
 			throw new Error("No such setting: "+id);
 
 		this.settings[id].value=value;
-		await this.settings[id].save();
+
+		if (!options.local)
+			await this.settings[id].save();
 
 		this.katnip.serverChannels.notifyChannel(id);
 	}

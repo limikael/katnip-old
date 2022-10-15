@@ -5,10 +5,6 @@ import child_process from "child_process";
 class KatnipScaffolder {
 	constructor(options) {
 		this.options=options;
-
-		if (options._[1])
-			this.projectName=options._[1];
-
 		if (options.name)
 			this.projectName=options.name;
 	}
@@ -30,25 +26,13 @@ class KatnipScaffolder {
 				"start": "katnip start",
 			},
 			"dependencies": {
-				"katnip": "git+https://github.com/limikael/katnip.git"
+//				"katnip": "git+https://github.com/limikael/katnip.git"
+				"katnip": "file:///home/micke/Repo/katnip"
 			},
 			"main": "src/"+this.projectName+"-main.js",
 			"browser": "src/"+this.projectName+"-browser.jsx",
 			"type": "module"
 		};
-
-		switch (this.getDb()) {
-			case "mysql":
-				pkg.dependencies["mysql"]="^2.18.1";
-				break;
-
-			case "sqlite3":
-				pkg.dependencies["sqlite3"]="^5.1.1";
-				break;
-
-			default:
-				throw new Error("Unknown db.");
-		}
 
 		return pkg;
 	}
@@ -65,32 +49,12 @@ class KatnipScaffolder {
 		});
 	}
 
-	getDb() {
-		let urlObject=new URL(this.options.dsn);
-		switch (urlObject.protocol) {
-			case "mysql:":
-				return "mysql";
-				break;
-
-			case "sqlite3:":
-				return "sqlite3";
-				break;
-
-			default:
-				throw new Error("Unknown");
-				break;
-		}
-	}
-
 	async run() {
 		if (!this.projectName)
 			this.projectName=await this.question("Project name: ");
 
 		if (fs.existsSync(this.projectName))
 			throw new Error("Folder already exists!");
-
-		if (!this.options.dsn)
-			this.options.dsn=await this.question("Data Service Name: ");
 
 		console.log("Creating project "+this.projectName);
 		fs.mkdirSync(this.projectName);
@@ -101,44 +65,32 @@ class KatnipScaffolder {
 		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-main.js",'import {katnip} from "katnip"; \n\n// Server stuff');
 		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-browser.jsx",'import {katnip} from "katnip"; \n\n// Client stuff');
 
-		let envContent=
-			"DSN="+this.options.dsn;
-
-		fs.writeFileSync(this.projectName+"/.env",envContent);
-
-		let oldDir=process.cwd();
-		process.chdir(this.projectName);
-
 		if (!this.options.install)
 			this.options.install="npm";
 
 		if (this.options.install!="none") {
-			await this.exec(this.options.install,["install"]);
-			console.log("Installed! Now run:");
-			console.log("");
-			console.log("  cd "+this.projectName);
-			console.log("  "+this.options.install+" start");
-			console.log("");
-		}
+			let oldDir=process.cwd();
+			process.chdir(this.projectName);
 
-		process.chdir(oldDir);
+			await this.exec(this.options.install,["install"]);
+			console.log("Installed! Entering interactive setup...");
+
+			process.chdir(oldDir);
+		}
 	}
 }
 
-export async function create(options) {
+export async function create(options, name) {
+	if (name)
+		options.name=name;
+
 	let scaffolder=new KatnipScaffolder(options);
 	await scaffolder.run();
 }
 
+create.desc="Create a new katnip project.";
 create.args={
-	name: {
-		shortdesc: "Project name."
-	},
-	install: {
-		shortdesc: "Use npm/yarn/none to install the project."
-	},
-	dsn: {
-		shortdesc: "Data service name."
-	}
+	name: {desc: "Project name."},
+	install: {desc: "Use npm/yarn/none to install the project."},
 }
 

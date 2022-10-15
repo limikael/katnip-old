@@ -18,7 +18,7 @@ export default class Db {
 		this[cls.getTableName()]=cls;
 	}
 
-	async connect(url) {
+	async connect(url, options={}) {
 		if (url) {
 			if (this.url)
 				throw new Error("Already have url");
@@ -30,8 +30,12 @@ export default class Db {
 			this.connection=createConnection(this.url);
 			this.connection.on("error",this.onError);
 
+			let times=10;
+			if (options.retryTimes)
+				times=options.retryTimes;
+
 			let retryOptions={
-				times: 10,
+				times: times,
 				delay: 5000,
 				onerror: (e)=>{
 					if (e.code=="ECONNREFUSED") {

@@ -6,8 +6,9 @@
   },
   "scripts": {
     "test": "jasmine",
-    "start": "link-module-alias && ./src/cli/katnip-cli.js start --minify",
-    "build-cover": "esbuild --bundle src/webprocess/cover-main.js --outfile=src/webprocess/cover-main.bundle.js"
+    "start": "./src/cli/katnip-cli.js start --minify",
+    "build-cover": "esbuild --bundle src/webprocess/cover-main.js --outfile=src/webprocess/cover-main.bundle.js",
+    "prepare": "link-module-alias"
   },
   "main": "src/main/katnip-main-exports.js",
   "browser": "src/browser/katnip-browser-exports.js",
@@ -32,7 +33,7 @@
     "jasmine": "^4.1.0",
     "link-module-alias": "^1.2.0",
     "mysql": "^2.18.1",
-    "sqlite3": "^5.1.1"
+    "sqlite3": "^5.1.2"
   },
   "_moduleAliases": {
     "katnip": "."

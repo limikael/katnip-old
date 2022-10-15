@@ -1,8 +1,65 @@
 import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
-		setChannelValue, setCurrentUser} from "katnip";
-import {useState} from "preact/compat";
+		setChannelValue, setCurrentUser, useChannel} from "katnip";
+import {useState} from "react";
 
-export default function InstallPage() {
+function DatabaseInstallPage() {
+	let tc=useTemplateContext();
+	let form=useForm({initial: {
+		driver: "sqlite3",
+		filename: "database.db",
+		host: "localhost",
+		user: "",
+		pass: "",
+		name: "katnip"
+	}});
+	let [message, setMessage]=useState();
+
+	tc.set({title: "Install"});
+
+	async function write() {
+		setMessage();
+		await apiFetch("/api/installDb",form.getCurrent());
+	}	
+
+	let driverOptions={
+		sqlite3: "SQLite",
+		mysql: "MySQL"
+	};
+
+	return (<>
+		<p>First, let's get your database setup.</p>
+
+		<BsAlert message={message} ondismiss={setMessage}/>
+
+		<form style="max-width: 40rem">
+			<BsGroupInput title="Database Driver" {...form.field("driver")} type="select" options={driverOptions}
+					description="Select the database driver you would like to use."/>
+			{form.getCurrent().driver=="sqlite3" && <>
+				<BsGroupInput title="Filename" {...form.field("filename")}
+						description="Filename relative to the project directory."/>
+			</>}
+
+			{form.getCurrent().driver=="mysql" && <>
+				<BsGroupInput title="Host" {...form.field("host")}
+						description="Database Host, including port if applicable."/>
+				<BsGroupInput title="Username" {...form.field("user")}
+						description="Database Username."/>
+				<BsGroupInput title="Password" {...form.field("pass")}
+						description="Database password."/>
+				<BsGroupInput title="Database" {...form.field("name")}
+						description="The name of the database."/>
+			</>}
+
+		</form>
+
+		<PromiseButton action={write} onerror={setMessage}
+				class="btn btn-primary">
+			Install Database
+		</PromiseButton>
+	</>);
+}
+
+function AdminInstallPage() {
 	let tc=useTemplateContext();
 	let form=useForm({initial: {email: "admin"}});
 	let [message, setMessage]=useState();
@@ -14,23 +71,42 @@ export default function InstallPage() {
 		let user=await apiFetch("/api/install",form.getCurrent());
 		setCurrentUser(user);
 		setChannelValue("redirect",null);
-		katnip.setLocation("/admin");
+		katnip.setLocation("/");
 	}	
 
 	return (<>
-		<p>Let's get things set up!</p>
+		<p>Now, let's set up an admin user.</p>
 
 		<BsAlert message={message} ondismiss={setMessage}/>
 
 		<form style="max-width: 40rem">
-			<BsGroupInput title="Admin Email" {...form.field("email")}/>
+			<BsGroupInput title="Admin Username" {...form.field("email")}/>
 			<BsGroupInput type="password" title="Password" {...form.field("password")}/>
 			<BsGroupInput type="password" title="Repeat Password" {...form.field("repeatPassword")}/>
 		</form>
 
 		<PromiseButton action={write} onerror={setMessage}
 				class="btn btn-primary">
-			Install
+			Install Admin
 		</PromiseButton>
 	</>);
+}
+
+export default function InstallPage() {
+	let installMode=useChannel("install");
+	if (!installMode) {
+		setChannelValue("redirect",null);
+		katnip.setLocation("/")
+		return;
+	}
+
+	switch (installMode) {
+		case "db":
+			return <DatabaseInstallPage />;
+			break;
+
+		case "admin":
+			return <AdminInstallPage />;
+			break;
+	}
 }

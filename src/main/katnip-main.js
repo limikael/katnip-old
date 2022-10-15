@@ -12,6 +12,7 @@ import ContentMiddleware from "../mw/ContentMiddleware.js";
 import ApiMiddleware from "../mw/ApiMiddleware.js";
 import KatnipRequest from "../lib/KatnipRequest.js";
 import KatnipCommands from "./KatnipCommands.js";
+import PackageManager from "../utils/PackageManager.js";
 import fs from "fs";
 
 global.fetch=fetch;
@@ -27,6 +28,28 @@ class MainKatnip {
 		this.settingsManager=new SettingsManager(this);
 		this.serverChannels=new KatnipServerChannels(this);
 		this.sessionManager=new SessionManager(this);
+		this.packageManager=new PackageManager();
+	}
+
+	verifyDsn=async (dsn)=>{
+		let urlObject=new URL(dsn);
+
+		switch (urlObject.protocol) {
+			case "mysql:":
+				await this.packageManager.verifyPackage("mysql");
+				break;
+
+			case "sqlite3:":
+				await this.packageManager.verifyPackage("sqlite3");
+				break;
+
+			default:
+				throw new Error("Unknown database protocol: "+urlObject.protocol);
+				break;
+		}
+
+		let db=new Db(dsn);
+		await db.connect();
 	}
 
 	addModel=(model)=>{
@@ -155,21 +178,36 @@ class MainKatnip {
 			this.commandRunner.addCommand(name, fn, command={});
 	}
 
+	restart=async ()=>{
+		if (!this.options.webProcessChild)
+			throw new Error("Not running in spawned mode.");
+
+		await this.options.webProcessChild.restart();
+	}
+
 	run=async (options)=>{
 		this.options=options;
 
 		console.log("Loading plugins...");
 		await this.initPlugins();
 
-		console.log("Installing database schema...");
-		await this.db.connect(options.dsn);
-		await this.db.install();
+		if (this.options.dsn) {
+			console.log("Installing database schema...");
+			await this.db.connect(options.dsn);
+			await this.db.install();
 
-		await this.sessionManager.loadSessions();
-		await this.settingsManager.loadSettings();
+			await this.sessionManager.loadSessions();
+			await this.settingsManager.loadSettings();
 
-		console.log("Initializing plugins...");
-		await this.actions.doActionAsync("serverMain",options);
+			console.log("Initializing plugins...");
+			await this.actions.doActionAsync("serverMain",options);
+		}
+
+		else {
+			console.log("No DSN, entering install mode...");
+			await this.settingsManager.setSetting("sitename","Katnip Install",{local: true});
+			await this.settingsManager.setSetting("install","db",{local: true});
+		}
 
 		console.log("Initializing content...");
 		this.mwServer=new MiddlewareServer();
@@ -196,7 +234,6 @@ class MainKatnip {
 			await child.notifyListening();
 
 			console.log("Attached to parent process...");
-
 		}
 
 		else {
@@ -208,7 +245,10 @@ class MainKatnip {
 
 const katnip=new MainKatnip();
 
+export const verifyDsn=katnip.verifyDsn;
+
 export const run=katnip.run;
+export const restart=katnip.restart;
 export const runCommand=katnip.runCommand;
 export const addCommand=katnip.addCommand;
 
