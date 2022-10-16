@@ -2,6 +2,7 @@ import * as readline from 'node:readline';
 import fs from "fs";
 import child_process from "child_process";
 import {getKatnipDir} from "../main/katnip-main-util.js";
+import path from "path";
 
 class KatnipScaffolder {
 	constructor(options) {
@@ -21,13 +22,17 @@ class KatnipScaffolder {
 	}	
 
 	generatePackageJson() {
+		let dir=path.dirname(new URL(import.meta.url).pathname);
+		let basePkg=JSON.parse(fs.readFileSync(dir+"/../../package.json"));
+		let version=basePkg.version;
+
 		let pkg={
 			"name": this.projectName,
 			"scripts": {
 				"start": "katnip start",
 			},
 			"dependencies": {
-				"katnip": "^0.0.4"
+				"katnip": "^"+version
 			},
 			"main": "src/"+this.projectName+"-main.js",
 			"browser": "src/"+this.projectName+"-browser.jsx",
