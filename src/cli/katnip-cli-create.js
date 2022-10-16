@@ -27,8 +27,7 @@ class KatnipScaffolder {
 				"start": "katnip start",
 			},
 			"dependencies": {
-//				"katnip": "git+https://github.com/limikael/katnip.git"
-				"katnip": "file:///home/micke/Repo/katnip"
+				"katnip": "^0.0.4"
 			},
 			"main": "src/"+this.projectName+"-main.js",
 			"browser": "src/"+this.projectName+"-browser.jsx",

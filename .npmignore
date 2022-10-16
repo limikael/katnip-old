@@ -1,0 +1,4 @@
+yarn.lock
+*.db
+*.tgz
+.env
