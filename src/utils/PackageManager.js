@@ -8,7 +8,6 @@ export default class PackageManager {
 
 		this.dir=dir;
 
-		console.log(this.dir);
 		if (fs.existsSync(this.dir+"/yarn.lock"))
 			this.pm="yarn";
 
@@ -44,9 +43,6 @@ export default class PackageManager {
 				throw new Error("Unknown package manager on system.");
 				break;
 		}
-
-		console.log("Linking module alias...");
-		await this.exec("node_modules/.bin/link-module-alias");
 	}
 
 	async verifyPackage(packageName) {

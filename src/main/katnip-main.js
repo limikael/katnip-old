@@ -157,7 +157,7 @@ class MainKatnip {
 	}
 
 	runCommand=async (commandRunner)=>{
-		this.options=commandRunner.getGlobalParams();
+		this.options=commandRunner.getCommand().getNamedArguments();
 		this.commandRunner=commandRunner;
 
 		let katnipCommands=new KatnipCommands(this);
@@ -217,8 +217,6 @@ class MainKatnip {
 		await this.initApis();
 
 		this.mwServer.use(this.handleDefault);
-
-		await delay(3000);
 
 		this.serverChannels.attachToServer(this.mwServer.server);
 

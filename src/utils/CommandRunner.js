@@ -1,4 +1,3 @@
-import minimist from "minimist";
 import {arrayEqualsShallow} from "../utils/js-util.js";
 
 export function parseNamed(cand) {
@@ -170,18 +169,26 @@ class Command {
 		if (!this.isRootCommand() && !this.getChildCommands().length)
 			this.getRootCommand().printArgsHelp();
 
-		if (this.getChildCommands().length) {
+		if (this.getChildCommands().length ||
+				this.commandRunner.notes.length) {
 			logHeader("NOTES");
 
-			let s;
-			if (this.isRootCommand())
-				s=this.name+" help <command>";
+			for (let note of this.commandRunner.notes) {
+				console.log("  "+note);
+				console.log();
+			}
 
-			else
-				s=this.getRootCommand().name+" help "+this.name+" <subcommand>";
+			if (this.getChildCommands().length) {
+				let s;
+				if (this.isRootCommand())
+					s=this.name+" help <command>";
 
-			console.log("  For more info, use '"+s+"'.");
-			console.log();
+				else
+					s=this.getRootCommand().name+" help "+this.name+" <subcommand>";
+
+				console.log("  For more info, use '"+s+"'.");
+				console.log();
+			}
 		}
 	}
 
@@ -226,6 +233,11 @@ export default class CommandRunner {
 	constructor(name, command={}) {
 		this.commands=[];
 		this.addCommand(name,{...command, path:[]});
+		this.notes=[];
+	}
+
+	addNotes(s) {
+		this.notes.push(s);
 	}
 
 	getRootCommand() {

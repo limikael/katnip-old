@@ -2,8 +2,14 @@ import WebProcessParent from "../../src/webprocess/WebProcessParent.js";
 import WebProcessChild from "../../src/webprocess/WebProcessChild.js";
 import chokidar from "chokidar";
 import open from "open";
+import {getKatnipDir} from "../main/katnip-main-util.js";
 
 export async function start(options) {
+	if (!getKatnipDir()) {
+		console.log("Not inside a project dir!");
+		process.exit();
+	}
+
 	if (!options.port)
 		options.port=3000;
 

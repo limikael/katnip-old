@@ -1,6 +1,7 @@
 import * as readline from 'node:readline';
 import fs from "fs";
 import child_process from "child_process";
+import {getKatnipDir} from "../main/katnip-main-util.js";
 
 class KatnipScaffolder {
 	constructor(options) {
@@ -37,7 +38,7 @@ class KatnipScaffolder {
 		return pkg;
 	}
 
-	exec(cmd,params=[]) {
+	exec(cmd, params=[]) {
 		return new Promise((resolve, reject)=>{
 			let proc=child_process.spawn(cmd,params,{stdio: "inherit"});
 			proc.on("exit",(code)=>{
@@ -73,7 +74,15 @@ class KatnipScaffolder {
 			process.chdir(this.projectName);
 
 			await this.exec(this.options.install,["install"]);
-			console.log("Installed! Entering interactive setup...");
+
+			if (!this.options["no-start"]) {
+				console.log("Installed! Entering interactive setup...");
+				await this.exec("yarn",["start"]);
+			}
+
+			else {
+				console.log("Done!");
+			}
 
 			process.chdir(oldDir);
 		}
@@ -81,6 +90,11 @@ class KatnipScaffolder {
 }
 
 export async function create(options, name) {
+	if (getKatnipDir()) {
+		console.log("Already inside a project dir!");
+		process.exit();
+	}
+
 	if (name)
 		options.name=name;
 
@@ -88,9 +102,11 @@ export async function create(options, name) {
 	await scaffolder.run();
 }
 
+create.optional=["name"];
 create.desc="Create a new katnip project.";
 create.args={
 	name: {desc: "Project name."},
+	"no-start": {desc: "Do not start katnip after installation."},
 	install: {desc: "Use npm/yarn/none to install the project."},
 }
 

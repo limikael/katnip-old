@@ -37,8 +37,26 @@ katnip.addAction("serverMain",async ()=>{
 		let p=new Page({
 			title: "Hello",
 			content: [
-				{type: "Paragraph", props: {}, children: ["Hello and welcome!"]},
-				{type: "Paragraph", props: {}, children: ["This is a page..."]},
+				{type: "p", props: {}, children: [
+					"Welcome to Katnip!"
+				]},
+				{type: "p", props: {}, children: [
+					"If you can see this page, it means that Katnip is installed and up and running. "
+				]},
+				{type: "p", props: {}, children: [
+					{type: "b", props: {}, children: ["Congratulations!"]},
+				]},
+				{type: "p", props: {}, children: [
+					"This page is, in fact, you home page. Your mission now is to personalise it!"
+				]},
+				{type: "p", props: {}, children: [
+					"So, head over to the ",
+					{type: "a", props: {href: "/admin"}, children: ["admin"]},
+					", and start creating!"
+				]},
+				{type: "p", props: {}, children: [
+					"Also, let me express my heartfelt gratitude that you are willing to give this a go!"
+				]},
 			],
 			stamp: Date.now()/1000,
 			slug: convertToSlug("Hello"),
