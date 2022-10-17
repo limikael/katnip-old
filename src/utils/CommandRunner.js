@@ -236,13 +236,14 @@ class Command {
 		let vals=this.commandRunner.getParsedNamedArguments();
 
 		let args=this.getArgs();
+
 		for (let k in args) {
 			if (!vals.hasOwnProperty(k)) {
-				if (args[k].env && process.env[args[k].env])
-					vals[k]=process.env[args[k].env]
-
 				if (args[k].default)
 					vals[k]=args[k].default;
+
+				if (args[k].env && process.env[args[k].env])
+					vals[k]=process.env[args[k].env]
 			}
 
 			if (args[k].type=="boolean") {

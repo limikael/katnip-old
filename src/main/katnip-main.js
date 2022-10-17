@@ -168,9 +168,12 @@ class MainKatnip {
 		if (commandRunner.getCommand().level=="postdb") {
 			await this.db.connect(this.options.dsn);
 			await this.db.install();
+
+			await this.sessionManager.loadSessions();
+			await this.settingsManager.loadSettings();
 		}
 
-		await commandRunner.run();
+		return await commandRunner.run();
 	}
 
 	addCommand(name, fn, command={}) {

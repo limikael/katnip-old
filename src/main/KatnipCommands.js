@@ -6,21 +6,28 @@ export default class KatnipCommands {
 	initCommandRunner() {
 		let commandRunner=this.katnip.commandRunner;
 
-		commandRunner.addCommand("db",{
-			desc: "Database maintainance."
+		commandRunner.addCommand("setting",{
+			desc: "Settings related commands."
 		});
 
-		commandRunner.addCommand("db export",this.dbExport,{
-			desc: "Export database.",
+		commandRunner.addCommand("setting ls",this.settingLs,{
+			output: "table",
+			desc: "List settings.",
 			level: "postdb",
-			args: {
-				file: {
-					desc: "Name of file where to export."
-				}
-			}
 		});
 	}
 
-	dbExport=async ()=>{
+	settingLs=async ()=>{
+		let settings=this.katnip.settingsManager.getSettings();
+		let res=[];
+
+		for (let setting of settings) {
+			res.push({
+				id: setting.id,
+				value: JSON.stringify(setting.value)
+			});
+		}
+
+		return res;
 	}
 }

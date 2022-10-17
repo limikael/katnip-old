@@ -96,6 +96,18 @@ class SqliteConnection extends EventDispatcher {
 				throw new Error("unknown query type: "+first);
 		}
 	}
+
+	close() {
+		return new Promise((resolve, reject)=>{
+			this.sqlite3.close((err)=>{
+				if (err)
+					reject(err);
+
+				else
+					resolve();
+			});
+		});
+	}
 }
 
 class MySqlConnection extends EventDispatcher {
@@ -166,6 +178,18 @@ class MySqlConnection extends EventDispatcher {
 				}
 
 				resolve(rows);
+			});
+		});
+	}
+
+	close() {
+		return new Promise((resolve, reject)=>{
+			this.mysql.end((err)=>{
+				if (err)
+					reject(err);
+
+				else
+					resolve();
 			});
 		});
 	}

@@ -55,6 +55,14 @@ export default class Db {
 		await this.connectPromise;
 	}
 
+	async close() {
+		if (this.connection) {
+			await this.connection.close();
+			this.connection=null;
+			this.connectPromise=null;
+		}
+	}
+
 	onError=(e)=>{
 		if (e.code=="PROTOCOL_CONNECTION_LOST") {
 			console.log("db connection lost...");

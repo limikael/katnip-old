@@ -8,6 +8,7 @@ import {start, worker} from "./katnip-cli-start.js";
 import {getKatnipDir} from "../main/katnip-main-util.js";
 import fs from "fs";
 import path from "path";
+import {formatTable} from "./katnip-cli-util.js";
 
 async function main() {
 	let runner=new CommandRunner("katnip",{
@@ -51,7 +52,20 @@ async function main() {
 		}
 
 		let katnip=await import(process.cwd()+"/node_modules/katnip/src/main/katnip-main-exports.js");
-		await katnip.runCommand(runner);
+		let res=await katnip.runCommand(runner);
+		await katnip.db.close();
+
+		if (res) {
+			switch (runner.getCommand().output) {
+				case "table":
+					formatTable(res);
+					break;
+
+				default:
+					console.log(JSON.stringify(res,null,2));
+					break;
+			}
+		}
 	}
 
 	else {
