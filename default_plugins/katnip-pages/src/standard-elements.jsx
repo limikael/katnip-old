@@ -25,13 +25,13 @@ Heading.controls={
 
 katnip.addElement("h",Heading);
 
-function Link({href, outer, inner, children, renderMode}) {
+function Link({href, outer, inner, children, renderMode, ...props}) {
 	function onClick(ev) {
 		if (renderMode=="editor")
 			ev.preventDefault();
 	}
 
-	return <A onclick={onClick} href={href} {...outer} {...inner}>{children}</A>
+	return <A onclick={onClick} href={href} {...outer} {...inner} class={props.class}>{children}</A>
 }
 
 Link.controls={
