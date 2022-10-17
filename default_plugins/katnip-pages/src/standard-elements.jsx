@@ -53,11 +53,23 @@ Img.controls={
 
 katnip.addElement("img",Img);
 
-katnip.addElement("p");
+katnip.addElement("p",{
+	controls: {
+		class: {type: "textarea"}
+	}
+});
 katnip.addElement("b");
 katnip.addElement("i");
 katnip.addElement("a",Link);
 katnip.addElement("br");
 katnip.addElement("span");
-katnip.addElement("ul");
-katnip.addElement("li");
+katnip.addElement("ul",{
+	controls: {
+		class: {type: "textarea"}
+	}
+});
+katnip.addElement("li",{
+	controls: {
+		class: {type: "textarea"}
+	}
+});
