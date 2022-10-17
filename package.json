@@ -6,7 +6,7 @@
   },
   "scripts": {
     "test": "jasmine",
-    "start": "./src/cli/katnip-cli.js start --minify",
+    "start": "./src/cli/katnip-cli.js start",
     "build-cover": "esbuild --bundle src/webprocess/cover-main.js --outfile=src/webprocess/cover-main.bundle.js",
     "prepare": "link-module-alias"
   },

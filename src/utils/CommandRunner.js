@@ -1,12 +1,12 @@
 import {arrayEqualsShallow} from "../utils/js-util.js";
 
-export function parseNamed(cand) {
+export function parseSingleNamed(cand) {
 	let match=cand.match(/^--([^=]+)(=?)(.*)$/);
 	if (match) {
-		/*if (match[1].slice(0,3)=="no-" && match[2]=="" && match[3]=="") {
+		if (match[1].slice(0,3)=="no-" && match[2]=="" && match[3]=="") {
 			match[1]=match[1].slice(3);
 			match[3]=false;
-		} else*/
+		} else
 
 		if (match[2]=="" && match[3]=="") {
 			match[3]=true;
@@ -19,19 +19,19 @@ export function parseNamed(cand) {
 	}
 }
 
-export function getPositionalArguments(cl) {
+export function parsePositional(cl) {
 	let res=[];
 	for (let part of cl)
-		if (!parseNamed(part))
+		if (!parseSingleNamed(part))
 			res.push(part);
 
 	return res;
 }
 
-export function getNamedArguments(cl) {
+export function parseNamed(cl) {
 	let res={};
 	for (let part of cl) {
-		let named=parseNamed(part);
+		let named=parseSingleNamed(part);
 		if (named)
 			res[named.key]=named.value;
 	}
@@ -88,14 +88,24 @@ class Command {
 
 		let rows=[];
 		for (let k in this.args) {
-			if (this.args[k].type=="boolean")
-				rows.push(["--"+k,this.args[k].desc]);
+			let name="--"+k;
+			if (this.args[k].type!="boolean")
+				name+="=...";
 
-			else
-				rows.push(["--"+k+"=...",this.args[k].desc]);
+			let desc=this.args[k].desc;
+			if (!desc)
+				desc="No description.";
 
 			if (this.args[k].env)
-				rows.push(["","Can also be set using env variable '"+this.args[k].env+"'."]);
+				desc+=" Can also be set using env variable '"+this.args[k].env+"'.";
+
+			if (this.args[k].default && this.args[k].type=="boolean")
+				desc+=" Enabled by default, disable with --no-"+k+".";
+
+			if (this.args[k].default && this.args[k].type!="boolean")
+				desc+=" Default: "+this.args[k].default+".";
+
+			rows.push([name,desc]);
 		}
 
 		formatCols(rows);
@@ -197,12 +207,26 @@ class Command {
 	}
 
 	getNamedArguments() {
-		let vals=this.commandRunner.getNamedArguments();
+		let vals=this.commandRunner.getParsedNamedArguments();
 
 		let args=this.getArgs();
-		for (let k in args)
-			if (args[k].env && process.env[args[k].env] && !vals[k])
-				vals[k]=process.env[args[k].env]
+		for (let k in args) {
+			if (!vals.hasOwnProperty(k)) {
+				if (args[k].env && process.env[args[k].env])
+					vals[k]=process.env[args[k].env]
+
+				if (args[k].default)
+					vals[k]=args[k].default;
+			}
+
+			if (args[k].type=="boolean") {
+				if (!vals[k] || vals[k]=="no" || vals[k]=="false")
+					vals[k]=false;
+
+				else
+					vals[k]=true;
+			}
+		}
 
 		return vals;
 	}
@@ -213,7 +237,7 @@ class Command {
 
 	getError() {
 		let args=this.getArgs();
-		for (let k in this.commandRunner.getNamedArguments())
+		for (let k in this.commandRunner.getParsedNamedArguments())
 			if (!args[k])
 				return "Unrecognized option: "+k;
 
@@ -273,11 +297,15 @@ export default class CommandRunner {
 	}
 
 	getPositionalArguments() {
-		return getPositionalArguments(this.commandLine);
+		return parsePositional(this.commandLine);
+	}
+
+	getParsedNamedArguments() {
+		return parseNamed(this.commandLine);
 	}
 
 	getNamedArguments() {
-		return getNamedArguments(this.commandLine);
+		return this.getCommand().getNamedArguments(this.commandLine);
 	}
 
 	getCommand() {
@@ -302,7 +330,7 @@ export default class CommandRunner {
 	async run() {
 		let command=this.getCommand();
 
-		if (this.getNamedArguments().help ||
+		if (this.getParsedNamedArguments().help ||
 				!command.callable) {
 			if (command.getPositionalArguments().length) {
 				console.log("Unknown command: "+this.getPositionalArguments().join(" "));
@@ -312,16 +340,16 @@ export default class CommandRunner {
 			else
 				command.printHelp();
 
-			process.exit();
+			//process.exit();
 		}
 
-		if (command.getError()) {
+		else if (command.getError()) {
 			console.log(this.getCommand().getError());
 			console.log("For more info, use '"+this.getRootCommand().name+" help "+command.name+"'.");
-			process.exit();
+			//process.exit();
 		}
 
-		return await command.callable(
+		else return await command.callable(
 			command.getNamedArguments(),
 			...command.getPositionalArguments()
 		);

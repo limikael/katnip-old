@@ -79,7 +79,7 @@ class KatnipScaffolder {
 
 			await this.exec(this.options.install,["install"]);
 
-			if (!this.options["no-start"]) {
+			if (this.options.start) {
 				console.log("Installed! Entering interactive setup...");
 				await this.exec("yarn",["start"]);
 			}
@@ -110,7 +110,7 @@ create.optional=["name"];
 create.desc="Create a new katnip project.";
 create.args={
 	name: {desc: "Project name."},
-	"no-start": {desc: "Do not start katnip after installation."},
-	install: {desc: "Use npm/yarn/none to install the project."},
+	start: {desc: "Start katnip after installation.", type: "boolean", default: true},
+	install: {desc: "Use npm/yarn/none to install the project.", default: "npm"},
 }
 
