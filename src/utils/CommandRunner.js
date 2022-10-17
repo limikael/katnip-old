@@ -1,5 +1,22 @@
 import {arrayEqualsShallow} from "../utils/js-util.js";
 
+export function wrapWords(paragraph, lineLength=10) {
+	let words=paragraph.split(/\s+/);
+	let lines=[""];
+	let n=0;
+
+	for (let word of words) {
+		if (lines[n].length+word.length+1>lineLength) {
+			lines.push("");
+			n++;
+		}
+
+		lines[n]+=((lines[n]?" ":"")+word);
+	}
+
+	return lines;
+}
+
 export function parseSingleNamed(cand) {
 	let match=cand.match(/^--([^=]+)(=?)(.*)$/);
 	if (match) {
@@ -44,8 +61,17 @@ function formatCols(rows) {
 	for (let row of rows)
 		l=Math.max(l,row[0].length)
 
-	for (let row of rows)
-		console.log("  "+row[0]+Array(l-row[0].length).fill(" ").join("")+"  "+row[1]);
+	for (let row of rows) {
+		let splitText=wrapWords(row[1],79-(2+l+2));
+
+		for (let i=0; i<splitText.length; i++) {
+			if (!i)
+				console.log("  "+row[0]+Array(l-row[0].length).fill(" ").join("")+"  "+splitText[i]);
+
+			else
+				console.log("  "+Array(l).fill(" ").join("")+"  "+splitText[i])
+		}
+	}
 }
 
 function logHeader(s) {

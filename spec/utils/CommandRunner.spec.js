@@ -1,4 +1,4 @@
-import CommandRunner from "../../src/utils/CommandRunner.js";
+import CommandRunner, {wrapWords} from "../../src/utils/CommandRunner.js";
 
 describe("CommandRunner",()=>{
 	it("works",async ()=>{
@@ -12,7 +12,7 @@ describe("CommandRunner",()=>{
 			desc: "the test command",
 			args: {
 				world: {desc: "world", env: "TEST"},
-				bool: {desc: "a bool", default: true, type: "boolean"},
+				bool: {desc: "a bool with a long description and stuff. another sentence as xyz well goes here.", default: true, type: "boolean"},
 				port: {default: 3000}
 			}
 		});
@@ -35,5 +35,9 @@ describe("CommandRunner",()=>{
 		expect(c.getNamedArguments().bool).toEqual(false);
 
 		c.run();
+	});
+
+	it("splits lines",()=>{
+		expect(wrapWords("hello world a long sentence and stuff",13).length).toEqual(3);
 	});
 });
