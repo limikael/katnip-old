@@ -5,8 +5,6 @@ import open from "open";
 import {getKatnipDir} from "../main/katnip-main-util.js";
 
 export async function start(options) {
-	console.log(options);
-
 	if (!getKatnipDir()) {
 		console.log("Not inside a project dir!");
 		process.exit();

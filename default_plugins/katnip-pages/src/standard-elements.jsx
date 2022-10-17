@@ -7,14 +7,20 @@ katnip.addElement("div",{
 	}
 });
 
-function Heading({size, inner, outer, children}) {
+function Heading({size, inner, outer, children, ...props}) {
+	let H="h1";
+
+	if (size)
+		H="h"+size;
+
 	return (
-		<h1 {...outer} {...inner}>{children}</h1>
+		<H {...outer} {...inner} class={props.class}>{children}</H>
 	);
 }
 
 Heading.controls={
-	size: {type: "select", options: [1,2,3,4,5,6]}
+	size: {type: "select", options: {1:1,2:2,3:3,4:4,5:5,6:6}},
+	class: {type: "textarea"},
 }
 
 katnip.addElement("h",Heading);
