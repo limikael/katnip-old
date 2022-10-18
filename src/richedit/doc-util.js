@@ -1,3 +1,96 @@
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
+
+function escapeXmlAttr(unsafe) {
+    return unsafe.replace(/[<>&'"\n\r\t]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+            case "\n": return "&#xA;";
+            case "\r": return "&#xD;";
+            case "\t": return "&#x9;";
+        }
+    });
+}
+
+export function docToXml(doc, indent=0) {
+	let rep=(s,n)=>Array(n).fill(s).join("");
+
+	if (typeof doc=="string")
+		return rep(" ",indent)+escapeXml(doc)+"\n";
+
+	let attr="";
+	for (let k in doc.props) {
+		attr+=" "+k+'="'+escapeXmlAttr(doc.props[k])+'"';
+	}
+
+	let s="";
+	if (doc.children.length)
+		s+=rep(" ",indent)+"<"+doc.type+attr+">\n"+
+			docFragmentToXml(doc.children,indent+2)+
+			rep(" ",indent)+"</"+doc.type+">\n";
+
+	else	
+		s=rep(" ",indent)+"<"+doc.type+attr+"/>";
+
+	return s;
+}
+
+export function docFragmentToXml(docFragment, indent=0) {
+	let s="";
+	for (let node of docFragment) {
+		s+=docToXml(node,indent);
+	}
+
+	return s;
+}
+
+function docNodeFromXmlNode(xmlNode) {
+	if (xmlNode.nodeType==Node.TEXT_NODE)
+		return xmlNode.textContent.trim();
+
+	let o={
+		type: xmlNode.nodeName,
+		props: {},
+		children: []
+	};
+
+	if (xmlNode.hasAttributes())
+		for (let attr of xmlNode.attributes)
+			o.props[attr.name]=attr.value;
+
+	for (let childNode of xmlNode.childNodes)
+		o.children.push(docNodeFromXmlNode(childNode));
+
+	return o;
+}
+
+export function docNodeFromXml(xml) {
+	let parser=new DOMParser();
+	let doc=parser.parseFromString(xml,"text/xml");
+	let errorNode=doc.querySelector('parsererror');
+	if (errorNode)
+		throw new Error(errorNode.querySelector("div").textContent);
+
+	return docNodeFromXmlNode(doc.childNodes[0]);
+}
+
+export function docFragmentFromXml(xml) {
+	return docNodeFromXml("<top>"+xml+"</top>").children;
+}
+
 export function docRemoveNode(doc, path) {
 	if (!path || !path.length)
 		throw new Error("Can't remove root!");

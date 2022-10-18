@@ -5,7 +5,9 @@ import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import CODE_SLASH from "bootstrap-icons/icons/code-slash.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
 import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
-		Editor, useEditor, TreeView, useEventListener} from "katnip";
+		Editor, useEditor, TreeView, useEventListener, useInstance, withTargetValue,
+		useEventUpdate} from "katnip";
+import EventEmitter from "events";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 const primaryFilter="filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);";
@@ -176,15 +178,56 @@ function ComponentProperties({editor}) {
 	</>;
 }
 
-function CodeEditor() {
+class CodeEditorState extends EventEmitter {
+	constructor() {
+		super();
+	}
+
+	setValidXml=(xml)=>{
+		this.xml=xml;
+		this.validXml=xml;
+		this.error=null;
+		this.emit("change");
+	}
+
+	setXml=(xml)=>{
+		this.xml=xml;
+
+		let parser=new DOMParser();
+		let doc=parser.parseFromString("<top>"+xml+"</top>","text/xml");
+		let errorNode=doc.querySelector('parsererror');
+		if (errorNode) {
+			this.error=errorNode.querySelector("div").textContent;
+			console.log(this.error);
+			console.log(errorNode);
+		}
+
+		else {
+			this.error=null;
+			this.validXml=xml;
+		}
+		this.emit("change");
+	}
+}
+
+function CodeEditor({codeEditor}) {
 	return (
 		<div style="width: 100%; height: 100%" class="p-3">
 			<textarea style="width: 100%; height: 100%; resize: none; border: none"
-					class="bg-dark text-white form-control font-monospace lh-sm">
-				bla
+					class="bg-dark text-white form-control font-monospace lh-sm"
+					onchange={withTargetValue(codeEditor.setXml)}>
+				{codeEditor.xml}
 			</textarea>
 		</div>
 	)
+}
+
+function CodeEditorStatus({codeEditor}) {
+	if (codeEditor.error)
+		return <span class="text-danger">{codeEditor.error}</span>
+
+	else
+		return <b>Document Ok.</b>
 }
 
 export default function ContentEditor({metaEditor, read, write, deps, saveLabel}) {
@@ -194,6 +237,8 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	let [leftMode,setLeftMode]=useState();
 	let [rightMode,setRightMode]=useState("document");
 	let [codeMode,setCodeMode]=useState(false);
+	let codeEditor=useInstance(CodeEditorState);
+	useEventUpdate(codeEditor,"change");
 
 	let editor=useEditor({
 		contentRenderer: katnip.contentRenderer,
@@ -210,14 +255,13 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	});
 
 	function toggleLeftMode(mode) {
-		if (codeMode)
-			return;
-
 		if (leftMode==mode)
 			setLeftMode(null);
 
-		else
+		else {
 			setLeftMode(mode);
+			setCodeMode(false);
+		}
 	}
 
 	function toggleRightMode(mode) {
@@ -229,11 +273,20 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	}
 
 	function toggleCodeMode() {
-		codeMode=!codeMode;
-		setCodeMode(codeMode);
+		newCodeMode=!codeMode;
 
-		if (codeMode)
+		if (newCodeMode) {
+			//console.log(editor.getDoc());
+
+			codeEditor.setValidXml(editor.getXml());
+			setCodeMode(newCodeMode);
 			setLeftMode(null);
+		}
+
+		else {
+			editor.setXml(codeEditor.validXml);
+			setCodeMode(newCodeMode);
+		}
 	}
 
 	async function writeClick() {
@@ -306,7 +359,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 
 				{codeMode && 
 					<div class="flex-grow-1" style="overflow: hidden;">
-						<CodeEditor/>
+						<CodeEditor codeEditor={codeEditor}/>
 					</div>
 				}
 
@@ -328,7 +381,13 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 				}
 			</div>
 			<div class="bg-light border-top px-3 py-1 small">
-				<EditorPath editor={editor}/>
+				{codeMode &&
+					<CodeEditorStatus codeEditor={codeEditor} />
+				}
+
+				{!codeMode &&
+					<EditorPath editor={editor}/>
+				}
 			</div>
 		</div>
 	);
