@@ -38,8 +38,12 @@ function escapeXmlAttr(unsafe) {
 export function docToXml(doc, indent=0) {
 	let rep=(s,n)=>Array(n).fill(s).join("");
 
-	if (typeof doc=="string")
-		return rep(" ",indent)+escapeXml(doc)+"\n";
+	if (typeof doc=="string") {
+		if (!doc.trim())
+			return "";
+
+		return rep("\t",indent)+escapeXml(doc)+"\n";
+	}
 
 	let attr="";
 	for (let k in doc.props) {
@@ -48,12 +52,12 @@ export function docToXml(doc, indent=0) {
 
 	let s="";
 	if (doc.children.length)
-		s+=rep(" ",indent)+"<"+doc.type+attr+">\n"+
-			docFragmentToXml(doc.children,indent+2)+
-			rep(" ",indent)+"</"+doc.type+">\n";
+		s+=rep("\t",indent)+"<"+doc.type+attr+">\n"+
+			docFragmentToXml(doc.children,indent+1)+
+			rep("\t",indent)+"</"+doc.type+">\n";
 
 	else	
-		s=rep(" ",indent)+"<"+doc.type+attr+"/>";
+		s=rep("\t",indent)+"<"+doc.type+attr+"/>";
 
 	return s;
 }
@@ -68,8 +72,15 @@ export function docFragmentToXml(docFragment, indent=0) {
 }
 
 function docNodeFromXmlNode(xmlNode) {
-	if (xmlNode.nodeType==Node.TEXT_NODE)
-		return xmlNode.textContent.trim();
+	if (xmlNode.nodeType==Node.TEXT_NODE) {
+		let s=xmlNode.textContent;
+		s=s.replace(/^[\t\n]+/,"");
+		s=s.replace(/[\t\n]+$/,"");
+		if (!s.trim())
+			return null;
+
+		return s;
+	}
 
 	let o={
 		type: xmlNode.nodeName,

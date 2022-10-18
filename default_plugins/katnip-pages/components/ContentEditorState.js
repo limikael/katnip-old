@@ -1,11 +1,12 @@
 import EventEmitter from "events";
 
 export default class ContentEditorState extends EventEmitter {
-	constructor(editor, form) {
+	constructor(editor, form, showCodeErrorModal) {
 		super();
 
 		this.editor=editor;
 		this.form=form;
+		this.showCodeErrorModal=showCodeErrorModal;
 
 		this.codeMode=false;
 		this.rightMode="document";
@@ -21,14 +22,18 @@ export default class ContentEditorState extends EventEmitter {
 		this.emit("change");
 	}
 
-	toggleLeftMode=(mode)=>{
-		if (this.leftMode==mode)
+	toggleLeftMode=async (mode)=>{
+		if (!this.codeMode && this.leftMode==mode)
 			mode=null;
+
+		if (this.codeMode)
+			await this.toggleCodeMode();
+
+		if (this.codeMode)
+			return;
 
 		this.leftMode=mode;
 		this.emit("change");
-
-//			setCodeMode(false);
 	}
 
 	toggleRightMode=(mode)=>{
@@ -39,10 +44,14 @@ export default class ContentEditorState extends EventEmitter {
 		this.emit("change");
 	}
 
-	toggleCodeMode=()=>{
+	toggleCodeMode=async ()=>{
 		if (this.codeMode) {
-			this.editor.setXml(this.validXml);
-			this.codeMode=false;
+			if (!this.error ||
+					await this.showCodeErrorModal(this.error)) {
+				this.editor.setXml(this.validXml);
+				this.codeMode=false;
+				this.editor.select();
+			}
 		}
 
 		else {
@@ -50,7 +59,7 @@ export default class ContentEditorState extends EventEmitter {
 			this.validXml=this.editor.getXml();
 			this.xml=this.validXml;
 			this.error=null;
-			this.leftMode=null;
+			this.editor.select();
 		}
 
 		this.emit("change");
