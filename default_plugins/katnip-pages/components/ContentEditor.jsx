@@ -2,11 +2,13 @@ import {useState, useEffect, useRef} from "react";
 import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
+import CODE_SLASH from "bootstrap-icons/icons/code-slash.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
 import {katnip, bindArgs, BsInput, useForm, PromiseButton, useTemplateContext,
 		Editor, useEditor, TreeView, useEventListener} from "katnip";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
+const primaryFilter="filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);";
 
 function isNodeChildOf(parent, child) {
 	if (!child)
@@ -174,12 +176,24 @@ function ComponentProperties({editor}) {
 	</>;
 }
 
+function CodeEditor() {
+	return (
+		<div style="width: 100%; height: 100%" class="p-3">
+			<textarea style="width: 100%; height: 100%; resize: none; border: none"
+					class="bg-dark text-white form-control font-monospace lh-sm">
+				bla
+			</textarea>
+		</div>
+	)
+}
+
 export default function ContentEditor({metaEditor, read, write, deps, saveLabel}) {
 	let tc=useTemplateContext();
 	tc.set({tight: true});
 
 	let [leftMode,setLeftMode]=useState();
 	let [rightMode,setRightMode]=useState("document");
+	let [codeMode,setCodeMode]=useState(false);
 
 	let editor=useEditor({
 		contentRenderer: katnip.contentRenderer,
@@ -196,6 +210,9 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	});
 
 	function toggleLeftMode(mode) {
+		if (codeMode)
+			return;
+
 		if (leftMode==mode)
 			setLeftMode(null);
 
@@ -209,6 +226,14 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 
 		else
 			setRightMode(mode);
+	}
+
+	function toggleCodeMode() {
+		codeMode=!codeMode;
+		setCodeMode(codeMode);
+
+		if (codeMode)
+			setLeftMode(null);
 	}
 
 	async function writeClick() {
@@ -226,6 +251,16 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 
 	return (
 		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
+			<style>{`
+				button.btn-outline-primary .btn-image {
+					filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);
+				}
+
+				button.btn-primary .btn-image,
+				button.btn-outline-primary:hover .btn-image {
+					filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);
+				}
+			`}</style>
 			<div class="bg-light p-3 border-bottom d-flex flex-row">
 				<button class={`btn btn-primary me-2 ${leftMode=="tree"?"active":""} align-text-bottom`}
 						style="height: 2.4em"
@@ -236,6 +271,11 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 						style="height: 2.4em"
 						onclick={bindArgs(toggleLeftMode,"components")}>
 					<img src={PLUS_LG} style={`${whiteFilter}`}/>
+				</button>
+				<button class={`btn me-2 align-text-bottom ${codeMode?"btn-primary":"btn-outline-primary"}`}
+						style="height: 2.4em"
+						onclick={toggleCodeMode}>
+					<img src={CODE_SLASH} class="btn-image"/>
 				</button>
 				<h2 class="d-inline-block mb-0 me-auto">{documentForm.getCurrent().title}</h2>
 				<button class={`btn btn-primary ms-2 ${rightMode=="component"?"active":""} align-text-bottom`}
@@ -263,9 +303,19 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 						<ComponentLibrary editor={editor} toggleLeftMode={toggleLeftMode}/>
 					</div>
 				}
-				<div class="flex-grow-1" style="overflow: scroll;">
-					<Editor class="m-3" editor={editor}/>
-				</div>
+
+				{codeMode && 
+					<div class="flex-grow-1" style="overflow: hidden;">
+						<CodeEditor/>
+					</div>
+				}
+
+				{!codeMode &&
+					<div class="flex-grow-1" style="overflow: scroll;">
+						<Editor class="m-3" editor={editor}/>
+					</div>
+				}
+
 				{rightMode=="component" &&
 					<div class="bg-light border-start p-3 flex-shrink-0" style="width: 25%">
 						<ComponentProperties editor={editor}/>
