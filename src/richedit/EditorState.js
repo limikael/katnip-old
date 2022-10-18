@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import {docGetNode, docGetChildPaths, docReplaceNode, docAddNode, docAddNodeSibling,
 		docSetNodeProps, docGetStructure, docRemoveNode, docFragmentToXml,
-		docFragmentFromXml} from "./doc-util.js";
+		docFragmentFromXml, validateXml} from "./doc-util.js";
 
 export default class EditorState extends EventEmitter {
 	constructor(options) {
@@ -105,6 +105,10 @@ export default class EditorState extends EventEmitter {
 	setXml(xmlFragment) {
 		let doc=docFragmentFromXml(xmlFragment);
 		this.setDoc(doc);
+	}
+
+	validateXml(xmlFragment) {
+		return validateXml(xmlFragment);
 	}
 
 	getDoc() {

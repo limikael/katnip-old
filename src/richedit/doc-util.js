@@ -1,3 +1,13 @@
+export function validateXml(xml) {
+	let parser=new DOMParser();
+	let doc=parser.parseFromString("<top>"+xml+"</top>","text/xml");
+	let errorNode=doc.querySelector('parsererror');
+	if (errorNode)
+		return errorNode.querySelector("div").textContent;
+
+	return null;
+}
+
 function escapeXml(unsafe) {
     return unsafe.replace(/[<>&'"]/g, function (c) {
         switch (c) {
@@ -71,8 +81,12 @@ function docNodeFromXmlNode(xmlNode) {
 		for (let attr of xmlNode.attributes)
 			o.props[attr.name]=attr.value;
 
-	for (let childNode of xmlNode.childNodes)
-		o.children.push(docNodeFromXmlNode(childNode));
+	for (let childNode of xmlNode.childNodes) {
+		let c=docNodeFromXmlNode(childNode);
+
+		if (c)
+			o.children.push(c);
+	}
 
 	return o;
 }
