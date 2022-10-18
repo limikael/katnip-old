@@ -12,16 +12,6 @@ import EventEmitter from "events";
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 const primaryFilter="filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);";
 
-function isNodeChildOf(parent, child) {
-	if (!child)
-		return false;
-
-	if (parent==child)
-		return true;
-
-	return isNodeChildOf(parent,child.parentNode);
-}
-
 function EditorStructure({editor}) {
 	let data=editor.getDoc();
 	let ref=useRef();
