@@ -37,7 +37,7 @@ export default class ContentEditorState extends EventEmitter {
 	}
 
 	toggleRightMode=(mode)=>{
-		if (this.rigthMode==mode)
+		if (this.rightMode==mode)
 			mode=null;
 
 		this.rightMode=mode;

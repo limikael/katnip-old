@@ -33,7 +33,7 @@ export function CodeErrorModal({resolve, error}) {
 	);
 }
 
-export function EditorStructure({editor}) {
+export function EditorStructure({editor, contentEditor}) {
 	let data=editor.getDoc();
 	let ref=useRef();
 
@@ -54,6 +54,10 @@ export function EditorStructure({editor}) {
 			ev.preventDefault();
 			ev.stopPropagation();
 			editor.select(path);
+
+			if (contentEditor.rightMode=="document")
+				contentEditor.toggleRightMode("component");
+
 			editor.focus();
 		}
 
@@ -100,7 +104,7 @@ export function EditorStructure({editor}) {
 	</>)
 }
 
-export function ComponentLibrary({editor, toggleLeftMode}) {
+export function ComponentLibrary({editor, contentEditor}) {
 	function onAddClick(componentName) {
 		let c=[];
 		if (katnip.elements[componentName].default)
@@ -112,7 +116,7 @@ export function ComponentLibrary({editor, toggleLeftMode}) {
 			"children": c
 		});
 
-		toggleLeftMode("tree");
+		contentEditor.toggleLeftMode("tree");
 		editor.focus();
 	}
 
@@ -157,16 +161,21 @@ export function EditorPath({editor}) {
 }
 
 export function ComponentProperties({editor}) {
-	let node=editor.getDocNode(editor.startPath);
+	let path=editor.startPath;
+	let node=editor.getDocNode(path);
+	while (path.length && typeof node=="string") {
+		path=path.slice(0,path.length-1);
+		node=editor.getDocNode(path);
+	}
 
 	if (!node || !katnip.elements[node.type])
 		return;
 
 	function onPropChange(ev) {
-		let props=editor.getDocNode(editor.startPath).props;
+		let props=editor.getDocNode(path).props;
 		props[ev.target.dataset.id]=ev.target.value;
 
-		editor.setDocNodeProps(editor.startPath,props);
+		editor.setDocNodeProps(path,props);
 	}
 
 	let controls=katnip.elements[node.type].controls;

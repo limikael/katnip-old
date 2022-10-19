@@ -107,12 +107,12 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{!contentEditor.codeMode && contentEditor.leftMode=="tree" &&
 					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%; overflow: scroll;">
-						<ce.EditorStructure editor={editor} />
+						<ce.EditorStructure editor={editor} contentEditor={contentEditor}/>
 					</div>
 				}
 				{!contentEditor.codeMode && contentEditor.leftMode=="components" &&
 					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%">
-						<ce.ComponentLibrary editor={editor} toggleLeftMode={contentEditor.toggleLeftMode}/>
+						<ce.ComponentLibrary editor={editor} contentEditor={contentEditor}/>
 					</div>
 				}
 
