@@ -116,10 +116,6 @@ export function ComponentLibrary({editor, toggleLeftMode}) {
 		editor.focus();
 	}
 
-	//let disabled=true;
-	//let parent=editor.getDocNode(editor.startPath);
-	//	disabled=false;
-
 	return (<>
 		<div class="mb-3"><b>Components</b></div>
 		{Object.keys(katnip.elements).map((componentName)=>

@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import {docGetNode, docGetChildPaths, docReplaceNode, docAddNode, docAddNodeSibling,
 		docSetNodeProps, docGetStructure, docRemoveNode, docFragmentToXml,
 		docFragmentFromXml, validateXml} from "./doc-util.js";
+import {arrayEqualsShallow} from "../utils/js-util.js";
 
 export default class EditorState extends EventEmitter {
 	constructor(options) {
@@ -135,18 +136,29 @@ export default class EditorState extends EventEmitter {
 		let parent=this.getDocNode(path);
 
 		if (typeof parent=="string") {
-			let index=this.startOffset;
-			if (index<0)
-				index=parent.length;
+			let startIndex=this.startOffset;
+			let endIndex=this.endOffset;
+
+			if (!arrayEqualsShallow(this.startPath,this.endPath))
+				endIndex=parent.length;
+
+			if (startIndex<0)
+				startIndex=endIndex=parent.length;
 
 			if (typeof node=="string") {
-				this.replaceDocNode(path,parent.slice(0,index)+node+parent.slice(index));
-				this.select(path,index+node.length);
+				this.replaceDocNode(path,parent.slice(0,startIndex)+node+parent.slice(endIndex));
+				this.select(path,endIndex+node.length);
 			}
 
 			else {
-				this.replaceDocNode(path,parent.slice(0,index));
-				this.setWrappedDoc(docAddNodeSibling(this.getWrappedDoc(),path,parent.slice(index)));
+				if (!node.children)
+					node.children=[];
+
+				if (endIndex!=startIndex)
+					node.children.push(parent.slice(startIndex,endIndex));
+
+				this.replaceDocNode(path,parent.slice(0,startIndex));
+				this.setWrappedDoc(docAddNodeSibling(this.getWrappedDoc(),path,parent.slice(endIndex)));
 				this.setWrappedDoc(docAddNodeSibling(this.getWrappedDoc(),path,node));
 
 				let i=path.pop();
@@ -157,7 +169,12 @@ export default class EditorState extends EventEmitter {
 		else {
 			let index=this.getDocNode(path).children.length;
 			this.setWrappedDoc(docAddNode(this.getWrappedDoc(),path,node));
-			this.select([...path,index]);
+
+			if (typeof node=="string")
+				this.select([...path,index],node.length);
+
+			else
+				this.select([...path,index]);
 		}
 	}
 

@@ -204,13 +204,10 @@ export function Editor({editor, ...props}) {
 	},[editor.getSelectionStateHash()]);
 
 	function onKeyPress(ev) {
-		//console.log("key: "+ev.charCode);
-
-		if (editor.getSelectionMode()!="block")
-			return;
-
-		editor.addDocNodeAtCursor(String.fromCharCode(ev.charCode));
-		editor.select(editor.startPath,1);
+		if (editor.getSelectionMode()=="block") {
+			editor.addDocNodeAtCursor(String.fromCharCode(ev.charCode));
+			ev.preventDefault();
+		}
 	}
 
 	function onKeyDown(ev) {
