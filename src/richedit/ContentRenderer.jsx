@@ -66,21 +66,24 @@ export default class ContentRenderer {
 		if (this.elements[node.type])
 			component=this.elements[node.type].component;
 
-		let props={...node.props, renderMode: options.renderMode};
+		if (!node.props)
+			node.props={};
 
-		if (props.renderMode=="editor") {
+		let passProps={...node.props, renderMode: options.renderMode};
+
+		if (options.renderMode=="editor") {
 			if (typeof component=="string") {
-				props["data-props"]=JSON.stringify(props);
-				props["data-type"]=component;
+				passProps["data-props"]=JSON.stringify(node.props);
+				passProps["data-type"]=component;
 			}
 
 			else {
-				props.outer={
-					"data-props": JSON.stringify(props),
+				passProps.outer={
+					"data-props": JSON.stringify(node.props),
 					"data-type": node.type,
 					"data-outer": true,
 				};
-				props.inner={
+				passProps.inner={
 					"data-inner": true
 				};
 			}
@@ -88,12 +91,12 @@ export default class ContentRenderer {
 
 		else {
 			if (typeof component!="string") {
-				props.outer={};
-				props.inner={};
+				passProps.outer={};
+				passProps.inner={};
 			}			
 		}
 
-		return createElement(component,props,...children);
+		return createElement(component,passProps,...children);
 	}
 
 	renderFragment=(nodes, options={})=>{

@@ -190,11 +190,26 @@ export function ComponentProperties({editor}) {
 }
 
 export function CodeEditor({contentEditor}) {
+	function onKeyDown(ev) {
+		if (ev.key=="Tab") {
+			ev.preventDefault();
+
+			let start=ev.target.selectionStart;
+			let end=ev.target.selectionEnd;
+
+			ev.target.value=ev.target.value.substring(0,start)+
+				"\t"+ev.target.value.substring(end);
+
+			ev.target.selectionStart=ev.target.selectionEnd=start+1;
+		}
+	}
+
 	return (
 		<div style="width: 100%; height: 100%" class="p-3">
 			<textarea style="width: 100%; height: 100%; resize: none; border: none; tab-size: 2"
 					class="bg-dark text-white form-control font-monospace lh-sm"
-					onchange={withTargetValue(contentEditor.setXml)}>
+					onchange={withTargetValue(contentEditor.setXml)}
+					onkeydown={onKeyDown}>
 				{contentEditor.xml}
 			</textarea>
 		</div>

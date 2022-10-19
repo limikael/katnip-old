@@ -31,6 +31,9 @@ function Link({href, outer, inner, children, renderMode, ...props}) {
 			ev.preventDefault();
 	}
 
+	if (!href)
+		href="";
+
 	return <A onclick={onClick} href={href} {...outer} {...inner} class={props.class}>{children}</A>
 }
 
