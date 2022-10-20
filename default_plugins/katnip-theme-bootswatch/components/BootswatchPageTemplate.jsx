@@ -7,9 +7,22 @@ function Nav({request, onsize}) {
 	let navRef=useRef();
 	let [reportedHeight,setReportedHeight]=useState(0);
 
+	let newPage=useValueChanged(request.href);
+	if (newPage) {
+		setTimeout(()=>{
+			let el=document.querySelector("nav .navbar-collapse");
+			el.classList.remove("show");
+		},0)
+	}
+
 	function getNavHeight() {
 		if (!navRef.current)
 			return;
+
+		// FIXME... compute the size of the parent, and check dispaly style of child to see if it
+		// expanded... If so, subtract the height...
+		/*let rect=navRef.current.getBoundingClientRect();
+		console.log(rect);*/
 
 		let navStyle=window.getComputedStyle(navRef.current);
 		let padding=
@@ -59,7 +72,7 @@ function Nav({request, onsize}) {
 
 	return (
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
-			<div class="container">
+			<div class="container-fluid">
 				<A class="navbar-brand" href="/" ref={brandRef}>{sitename}</A>
 
 				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
@@ -148,20 +161,11 @@ function Footer({request}) {
 	);
 }
 
-export default function BootswatchPageTemplate({request,children}) {
+export function BootswatchCleanPage({request,children}) {
 	let [navSize,setNavSize]=useState();
-	let newPage=useValueChanged(request.href);
-	let tc=useTemplateContext();
 	let bootswatchTheme=useChannel("bootswatchTheme");
 	let bootswatchNavStyle=useChannel("bootswatchNavStyle");
 	let contentHash=useChannel("contentHash");
-
-	if (newPage) {
-		setTimeout(()=>{
-			let el=document.querySelector("nav .navbar-collapse");
-			el.classList.remove("show");
-		},0)
-	}
 
 	let cssUrl="/bootstrap.min.css";
 	if (bootswatchTheme)
@@ -177,8 +181,6 @@ export default function BootswatchPageTemplate({request,children}) {
 
 	let topItems=[];
 	katnip.doAction("topItems",topItems,request);
-
-	//<link rel="stylesheet" href={cssUrl}/>
 
 	return (
 		<>
@@ -196,23 +198,37 @@ export default function BootswatchPageTemplate({request,children}) {
 				<Nav request={request} onsize={setNavSize}/>
 				<div style={containerStyle} class="flex-grow-1">
 					{topItems}
-					<div class="container mb-5">
-						<div class="row" style="height: 100%">
-							<div class="d-none d-lg-block" style="width: 12.5%"></div>
-							<div class="col-lg-9">
-								{tc && tc.title &&
-									<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
-								}
-								{(!tc || !tc.title) &&
-									<div class="mt-3"></div>
-								}
-								{children}
-							</div>
-						</div>
-					</div>
+					{children}
 				</div>
 				<Footer request={request} />
 			</div>
 		</>
 	);
 }
+
+export function BootswatchPageTemplate({request, children}) {
+	let tc=useTemplateContext();
+
+	return (
+		<BootswatchCleanPage request={request}>
+			<div class="container mb-5">
+				<div class="container mb-5">
+					<div class="row" style="height: 100%">
+						<div class="d-none d-lg-block" style="width: 12.5%"></div>
+						<div class="col-lg-9">
+							{tc && tc.title &&
+								<h1 class="mt-5 pb-2 border-bottom mb-4">{tc.title}</h1>
+							}
+							{(!tc || !tc.title) &&
+								<div class="mt-3"></div>
+							}
+							{children}
+						</div>
+					</div>
+				</div>
+			</div>
+		</BootswatchCleanPage>
+	);
+}
+
+export default BootswatchPageTemplate;
