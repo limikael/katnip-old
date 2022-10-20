@@ -20,8 +20,28 @@ class Form extends EventEmitter {
 	}
 
 	onFieldChange=(ev)=>{
-		this.current[ev.target.dataset.field]=ev.target.value;
+		let fieldPath=ev.target.dataset.field.split(/[\/\.]/);
+		let o=this.current;
+
+		while (fieldPath.length>1) {
+			o=o[fieldPath[0]];
+			fieldPath.splice(0,1);
+		}
+
+		o[fieldPath[0]]=ev.target.value;
 		this.emit("change");
+	}
+
+	getCurrentFieldValue(name) {
+		let fieldPath=name.split(/[\/\.]/);
+		let o=this.current;
+
+		while (fieldPath.length>1) {
+			o=o[fieldPath[0]];
+			fieldPath.splice(0,1);
+		}
+
+		return o[fieldPath[0]];
 	}
 
 	setCurrent=(current)=>{
@@ -33,7 +53,7 @@ class Form extends EventEmitter {
 		if (!this.current)
 			return;
 
-		let v=this.current[name];
+		let v=this.getCurrentFieldValue(name)
 		if (!v)
 			v="";
 
