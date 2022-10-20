@@ -26,6 +26,9 @@ function PageProperties({form}) {
 		"text-align": "left",
 	};
 
+	let extraFields=[];
+	katnip.doAction("pageFields",extraFields,form);
+
 	return <>
 		<div class="mb-3"><b>Document</b></div>
 		<div class="form-group mb-3">
@@ -44,6 +47,7 @@ function PageProperties({form}) {
 					{...form.field("meta.hideTitle")} 
 					options={{"":"Show Page Title","true":"Hide Page Title"}}/>
 		</div>
+		{extraFields}
 	</>;
 }
 
@@ -57,14 +61,10 @@ function PageEdit({request}) {
 		if (!data.meta)
 			data.meta={};
 
-		//data.hideTitle=data.meta.hideTitle;
-
 		return data;
 	}
 
 	async function write(data) {
-		//data.meta.hideTitle=data.hideTitle;
-
 		let saved=await apiFetch("/api/page/save",data);
 		setLocation(buildUrl("/admin/page",{id: saved.id}));
 		return saved;

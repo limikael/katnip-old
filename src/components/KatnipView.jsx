@@ -11,6 +11,7 @@ export function KatnipView() {
 
 	if (bundleHashRef.current &&
 			bundleHash!=bundleHashRef.current) {
+		bundleHashRef.current=bundleHash;
 		console.log("bundle hash changed, refreshing...");
 		window.location=window.location;
 		return;
