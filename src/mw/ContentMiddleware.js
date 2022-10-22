@@ -1,4 +1,5 @@
 import fs from "fs";
+import crypto from "crypto";
 
 export default class ContentMiddleware {
 	constructor() {

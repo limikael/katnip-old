@@ -8,7 +8,7 @@ export default function ChangePasswordTab() {
 
 	async function onChangePasswordClick() {
 		setMessage();
-		await apiFetch("/api/changePassword",values);
+		await apiFetch("/api/changePassword",form.getCurrent());
 		setMessage("Your password has been changed.");
 		invalidate();
 	}

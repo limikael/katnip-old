@@ -4,8 +4,7 @@ import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
 import Db from "../../packages/katnip-orm/src/Db.js";
 import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
-import fetch from "node-fetch";
-import crypto from "crypto";
+import nodeFetch from "node-fetch";
 import PluginLoader from "../utils/PluginLoader.js";
 import MiddlewareServer from "../mw/MiddlewareServer.js";
 import ContentMiddleware from "../mw/ContentMiddleware.js";
@@ -14,9 +13,13 @@ import KatnipRequest from "../lib/KatnipRequest.js";
 import KatnipCommands from "./KatnipCommands.js";
 import PackageManager from "../utils/PackageManager.js";
 import fs from "fs";
+import nodeCrypto from "crypto";
 
-global.fetch=fetch;
-global.crypto=crypto;
+if (!global.nodeCrypto)
+	global.nodeCrypto=nodeCrypto;
+
+if (!global.fetch)
+	global.fetch=nodeFetch;
 
 class MainKatnip {
 	constructor() {

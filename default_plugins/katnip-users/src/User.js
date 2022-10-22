@@ -1,8 +1,7 @@
 import {katnip, Model} from "katnip";
-//import crypto from "crypto";
 
 function hash(v) {
-	return crypto.createHash("sha256").update(v).digest().toString("hex");			
+	return nodeCrypto.createHash("sha256").update(v).digest().toString("hex");			
 }
 
 export class UserAuthMethod extends Model {
@@ -23,7 +22,7 @@ export class UserAuthMethod extends Model {
 		if (!newPassword || newPassword.length<6)
 			throw new Error("The password is too short");
 
-		let salt=hash(crypto.randomBytes(64));
+		let salt=hash(nodeCrypto.randomBytes(64));
 		let password=hash(salt+newPassword);
 
 		this.meta={salt,password};
