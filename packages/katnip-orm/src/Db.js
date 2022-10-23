@@ -64,8 +64,9 @@ export default class Db {
 	}
 
 	onError=(e)=>{
-		if (e.code=="PROTOCOL_CONNECTION_LOST") {
-			console.log("db connection lost...");
+		if (e.code=="PROTOCOL_CONNECTION_LOST" ||
+				e.code=="ECONNRESET") {
+			console.log("db connection error: "+e.code);
 			this.connection=null;
 			this.connectPromise=null;
 		}
