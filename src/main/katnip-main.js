@@ -69,12 +69,21 @@ class MainKatnip {
 	}
 
 	initRequest=async (nodeReq, res, next)=>{
-		let req=new KatnipRequest();
-		req.processNodeRequest(nodeReq);
-		await req.processNodeRequestBody(nodeReq);
-		await this.actions.doActionAsync("initRequest",req);
+		try {
+			let req=new KatnipRequest();
+			req.processNodeRequest(nodeReq);
+			await req.processNodeRequestBody(nodeReq);
+			await this.actions.doActionAsync("initRequest",req);
 
-		next(req);
+			next(req);
+		}
+
+		catch (e) {
+			console.log("init request error...");
+			console.log(e);
+			res.writeHead(500);
+			res.end(e.message);
+		}
 	}
 
 	handleDefault=async (req, res, next)=>{

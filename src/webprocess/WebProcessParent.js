@@ -10,6 +10,7 @@ export default class WebProcessParent {
 		this.modulePath=options.modulePath;
 		this.port=options.port;
 		this.args=options.args;
+		this.coverMessage="Katnip loading and decrunching...";
 	}
 
 	start() {
@@ -29,7 +30,7 @@ export default class WebProcessParent {
 				this.netServer=await this.childProcess.proxy.initializeClose();
 
 			if (!this.coverServer)
-				this.coverServer=await CoverServer.create(this.netServer);
+				this.coverServer=await CoverServer.create(this.netServer, this.coverMessage);
 
 			this.childProcess.proxy.finalizeClose();
 			this.childProcess=null;
@@ -43,11 +44,10 @@ export default class WebProcessParent {
 		}
 
 		if (!this.coverServer)
-			this.coverServer=await CoverServer.create(this.netServer);
+			this.coverServer=await CoverServer.create(this.netServer, this.coverMessage);
 
 		if (this.willStart) {
 			this.willStart=false;
-			// FIXME
 			this.childProcess=child_process.fork(this.modulePath,this.args,{
 				silent: "true",
 			});
@@ -78,8 +78,10 @@ export default class WebProcessParent {
 
 	onChildProcessClose=(code)=>{
 		console.log("child process closed, code: "+code);
+		this.coverMessage="Child process crashed, exit code: "+code;
 		this.childProcess.off("close",this.onChildProcessClose);
 		this.childProcess=null;
+		this.cycle();
 	}
 
 	childInitialized=async ()=>{
@@ -90,6 +92,8 @@ export default class WebProcessParent {
 	}
 
 	notifyChildListening=async ()=>{
+		this.coverMessage="Katnip loading and decrunching...";
+
 		await this.coverServer.close();
 		this.coverServer=null;
 	}

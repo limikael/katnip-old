@@ -6,9 +6,9 @@ import path from "path";
 import fs from "fs";
 
 export default class CoverServer {
-	constructor() {
+	constructor(initialLog) {
 		this.wsConnections=[];
-		this.log="Katnip loading and decrunching...\n";
+		this.log=initialLog+"\n";
 	}
 
 	handleRequest=(req, res)=>{
@@ -71,8 +71,8 @@ export default class CoverServer {
 			connection.send(JSON.stringify({type: "reload"}));
 	}
 
-	static async create(netServer) {
-		let coverServer=new CoverServer();
+	static async create(netServer, message) {
+		let coverServer=new CoverServer(message);
 		await coverServer.listen(netServer);
 
 		return coverServer;
