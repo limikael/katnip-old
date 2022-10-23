@@ -4,8 +4,9 @@ import {useState} from "react";
 
 export default function ChangeEmailTab() {
 	let user=useCurrentUser();
+
 	let [counter, invalidate]=useCounter();
-	let form=useForm({initial: {email: user.email}, deps: [counter]});
+	let form=useForm({initial: {email: user.authMethods.email.token}, deps: [counter]});
 	let [message, setMessage]=useState();
 
 	async function onChangeEmailClick() {
@@ -14,7 +15,7 @@ export default function ChangeEmailTab() {
 		await apiFetch("/api/changeEmail",form.getCurrent());
 		setMessage("Your email has been changed.");
 
-		user.email=newEmail;
+		user.authMethods.email.token=newEmail;
 		setCurrentUser(user);
 		invalidate();
 	}

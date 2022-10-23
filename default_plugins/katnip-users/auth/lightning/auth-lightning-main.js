@@ -3,6 +3,7 @@ import {bech32, bech32m} from "bech32";
 import secp256k1 from "secp256k1";
 import ExpiringMap from "../../../../src/utils/ExpiringMap.js";
 import User,{UserAuthMethod} from "../../src/User.js";
+import nodeCrypto from "crypto";
 
 let k1BySessionId=new ExpiringMap(10*60*1000);
 let sessionIdByK1=new ExpiringMap(10*60*1000);
@@ -79,7 +80,7 @@ katnip.addApi("/api/lightningAuthCode",async (params, req)=>{
 	let k1=k1BySessionId.get(req.sessionId);
 
 	if (!k1)
-		k1=crypto.randomBytes(32).toString("hex");
+		k1=nodeCrypto.randomBytes(32).toString("hex");
 
 	k1BySessionId.set(req.sessionId,k1);
 	sessionIdByK1.set(k1,req.sessionId);

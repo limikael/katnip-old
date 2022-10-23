@@ -11,6 +11,42 @@ katnip.addAction("authMethods",(authMethods, req)=>{
 	});
 });
 
+katnip.addApi("/api/changePassword",async (params, req)=>{
+	let {oldPassword, newPassword, repeatNewPassword}=params;
+
+	req.assertCap("user");
+	let u=req.getUser();
+	await u.populateAuthMethods();
+
+	let emailAuth=u.authMethods.email;
+	if (!emailAuth)
+		throw new Error("no email auth method");
+
+	emailAuth.assertPassword(oldPassword);
+	if (newPassword!=repeatNewPassword)
+		throw new Error("The passwords don't match");
+
+	await emailAuth.setPassword(newPassword);
+	await emailAuth.save();
+});
+
+katnip.addApi("/api/changeEmail",async (params, req)=>{
+	let {password, email}=params;
+
+	req.assertCap("user");
+	let u=req.getUser();
+	await u.populateAuthMethods();
+
+	let emailAuth=u.authMethods.email;
+	if (!emailAuth)
+		throw new Error("no email auth method");
+
+	emailAuth.assertPassword(password);
+	emailAuth.token=email;
+
+	await emailAuth.save();
+});
+
 katnip.addApi("/api/login",async ({email, password}, req)=>{
 	let user=await katnip.db.User.findOneByAuth("email", email);
 
