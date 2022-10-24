@@ -1,11 +1,9 @@
 import {katnip, A} from "katnip";
 
-katnip.addElement("div",{
-	controls: {
-		class: {type: "textarea"},
-		style: {type: "textarea"}
-	}
-});
+const CLASS_AND_STYLE={
+	class: {type: "textarea"},
+	style: {type: "textarea"}
+};
 
 function Heading({size, inner, outer, children, ...props}) {
 	let H="h1";
@@ -18,12 +16,12 @@ function Heading({size, inner, outer, children, ...props}) {
 	);
 }
 
+Heading.wrap=false;
 Heading.controls={
 	size: {type: "select", options: {1:1,2:2,3:3,4:4,5:5,6:6}},
 	class: {type: "textarea"},
+	style: {type: "textarea"}
 }
-
-katnip.addElement("h",Heading);
 
 function Link({href, outer, inner, children, renderMode, ...props}) {
 	if (!href)
@@ -39,9 +37,11 @@ function Link({href, outer, inner, children, renderMode, ...props}) {
 	);
 }
 
+Link.wrap=false;
 Link.controls={
 	href: {},
-	class: {type: "textarea"}
+	class: {type: "textarea"},
+	style: {type: "textarea"}
 }
 
 function Img({src, outer, style, ...props}) {
@@ -50,31 +50,22 @@ function Img({src, outer, style, ...props}) {
 	return <img src={src} style={style} class={cls} {...outer} />
 }
 
+Img.wrap=false;
 Img.controls={
 	src: {},
 	class: {type: "textarea"},
 	style: {type: "textarea"}
 }
 
-katnip.addElement("img",Img);
-
-katnip.addElement("p",{
-	controls: {
-		class: {type: "textarea"}
-	}
-});
+katnip.addElement("div",{controls: CLASS_AND_STYLE});
+katnip.addElement("p",{controls: CLASS_AND_STYLE});
+katnip.addElement("h",Heading);
 katnip.addElement("b");
 katnip.addElement("i");
 katnip.addElement("a",Link);
+katnip.addElement("img",Img);
 katnip.addElement("br");
-katnip.addElement("span");
-katnip.addElement("ul",{
-	controls: {
-		class: {type: "textarea"}
-	}
-});
-katnip.addElement("li",{
-	controls: {
-		class: {type: "textarea"}
-	}
-});
+katnip.addElement("span",{controls: CLASS_AND_STYLE});
+katnip.addElement("ul",{controls: CLASS_AND_STYLE});
+katnip.addElement("li",{controls: CLASS_AND_STYLE});
+katnip.addElement("pre",{controls: CLASS_AND_STYLE});

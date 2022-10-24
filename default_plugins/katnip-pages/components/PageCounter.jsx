@@ -6,6 +6,7 @@ function PageCounter({outer, ...props}) {
 	return <span {...outer} class={props.class} style={props.style}>{numPages}</span>
 }
 
+PageCounter.wrap="div";
 PageCounter.controls={
 	class: {},
 	style: {}

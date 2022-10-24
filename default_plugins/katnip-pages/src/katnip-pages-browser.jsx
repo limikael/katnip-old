@@ -4,27 +4,8 @@ import PageAdmin from "../components/PageAdmin.jsx";
 import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 import "./standard-elements.jsx";
 
-import "../components/PageCounter.jsx";
-
-function Box({inner, outer, children, color, label}) {
-	return (
-		<div {...outer} class="border p-3" style={{backgroundColor: color}}>
-			I'm a box: {label}
-			<div {...inner} class="border p-3 bg-body">
-				{children}
-			</div>
-		</div>
-	);
-}
-
-Box.controls={
-	label: {},
-	color: {}
-}
-
-//Box.default=["hello"];
-
-katnip.addElement("Box",Box);
+//import "../components/PageCounter.jsx";
+import "../components/Box.jsx";
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({

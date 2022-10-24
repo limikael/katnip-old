@@ -11,6 +11,8 @@ function UndefinedComponent({outer, inner, children}) {
 	);
 }
 
+UndefinedComponent.wrap=false;
+
 export default class ContentRenderer {
 	constructor() {
 		this.elements=[];
@@ -35,10 +37,9 @@ export default class ContentRenderer {
 
 		let fn=itemOfType(args,"function");
 		if (fn) {
-			//if (!def.type) def.type=fn.name;
-			if (!def.controls) def.controls=fn.controls;
-			if (!def.default) def.default=fn.default;
-			if (fn.internal) def.internal=fn.internal;
+			for (let k in fn)
+				if (k!="name")
+					def[k]=fn[k];
 
 			def.component=fn;
 		}
@@ -71,7 +72,7 @@ export default class ContentRenderer {
 
 		let passProps={...node.props, renderMode: options.renderMode};
 
-		if (options.renderMode=="editor") {
+		if (true || options.renderMode=="editor") {
 			if (typeof component=="string") {
 				passProps["data-props"]=JSON.stringify(node.props);
 				passProps["data-type"]=component;
@@ -96,7 +97,23 @@ export default class ContentRenderer {
 			}			
 		}
 
-		return createElement(component,passProps,...children);
+		let wrap="div";
+		if (component.hasOwnProperty("wrap"))
+			wrap=component.wrap;
+
+		if (typeof component!="string" && wrap) {
+			let componentPros={...node.props, renderMode: options.renderMode};
+
+			return (
+				createElement(wrap,passProps.outer,
+					createElement(component,componentPros,
+						createElement(wrap,passProps.inner,...children)
+					)
+				)
+			);
+		}
+
+		else return createElement(component,passProps,...children);
 	}
 
 	renderFragment=(nodes, options={})=>{
