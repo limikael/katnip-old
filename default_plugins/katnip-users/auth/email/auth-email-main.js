@@ -1,6 +1,33 @@
 import {katnip} from "katnip";
 import User, {UserAuthMethod} from "../../src/User.js";
 
+async function setPassword(user, newPassword) {
+	let userAuthMethod=user.authMethods.password;
+	if (!userAuthMethod)
+		throw new Error("No password");
+
+	if (!newPassword || newPassword.length<6)
+		throw new Error("The password is too short");
+
+	let salt=hash(nodeCrypto.randomBytes(64));
+	let password=hash(salt+newPassword);
+
+	userAuthMethod.meta={salt,password};
+}
+
+function checkPassword(user, password) {
+	let userAuthMethod=user.authMethods.password;
+	if (!userAuthMethod)
+		throw new Error("No password");
+
+	return (userAuthMethod.meta.password==hash(userAuthMethod.meta.salt+password));
+}
+
+function assertPassword(user, password) {
+	if (!checkPassword(user, password))
+		throw new Error("Wrong password.");
+}
+
 katnip.addAction("authMethods",(authMethods, req)=>{
 	authMethods.push({
 		id: "email",
