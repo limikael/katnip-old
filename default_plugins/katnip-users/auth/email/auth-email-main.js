@@ -1,6 +1,12 @@
 import {katnip} from "katnip";
 import User, {UserAuthMethod} from "../../src/User.js";
 
+import nodeCrypto from "crypto";
+
+function hash(v) {
+	return nodeCrypto.createHash("sha256").update(v).digest().toString("hex");			
+}
+
 async function setPassword(user, newPassword) {
 	let userAuthMethod=user.authMethods.password;
 	if (!userAuthMethod)

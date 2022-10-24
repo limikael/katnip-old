@@ -14,37 +14,14 @@ export class UserAuthMethod extends Model {
 		token: "VARCHAR(225) NOT NULL",
 		meta: "JSON"
 	};
-
-	setPassword(newPassword) {
-		if (this.method!="email")
-			throw new Error("Wrong method");
-
-		if (!newPassword || newPassword.length<6)
-			throw new Error("The password is too short");
-
-		let salt=hash(nodeCrypto.randomBytes(64));
-		let password=hash(salt+newPassword);
-
-		this.meta={salt,password};
-	}
-
-	checkPassword(password) {
-		if (this.method!="email")
-			throw new Error("Wrong method");
-
-		return (this.meta.password==hash(this.meta.salt+password));
-	}
-
-	assertPassword(password) {
-		if (!this.checkPassword(password))
-			throw new Error("Wrong password.");
-	}
 }
 
 export default class User extends Model {
 	static fields={
 		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
-		role: "VARCHAR(64) NOT NULL"
+		role: "VARCHAR(64) NOT NULL",
+		username: "VARCHAR(64)",
+		meta: "JSON"
 	};
 
 	constructor(values) {
