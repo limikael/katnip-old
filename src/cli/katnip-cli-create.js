@@ -36,7 +36,8 @@ class KatnipScaffolder {
 			},
 			"main": "src/"+this.projectName+"-main.js",
 			"browser": "src/"+this.projectName+"-browser.jsx",
-			"type": "module"
+			"type": "module",
+			"plugins": []
 		};
 
 		return pkg;
@@ -54,6 +55,13 @@ class KatnipScaffolder {
 		});
 	}
 
+	copyTemplateFile(from, to) {
+		let dir=path.dirname(new URL(import.meta.url).pathname);
+
+		let f=fs.readFileSync(dir+"/scaffolding_template/"+from,"utf8");
+		fs.writeFileSync(this.projectName+"/"+to,f);
+	}
+
 	async run() {
 		if (!this.projectName)
 			this.projectName=await this.question("Project name: ");
@@ -65,10 +73,12 @@ class KatnipScaffolder {
 		fs.mkdirSync(this.projectName);
 		let packageContent=JSON.stringify(this.generatePackageJson(),null,2);
 		fs.writeFileSync(this.projectName+"/package.json",packageContent);
-
 		fs.mkdirSync(this.projectName+"/src");
-		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-main.js",'import {katnip} from "katnip"; \n\n// Server stuff');
-		fs.writeFileSync(this.projectName+"/src/"+this.projectName+"-browser.jsx",'import {katnip} from "katnip"; \n\n// Client stuff');
+
+		this.copyTemplateFile("project-main.js","src/"+this.projectName+"-main.js");
+		this.copyTemplateFile("project-browser.jsx","src/"+this.projectName+"-browser.jsx");
+		this.copyTemplateFile("gitignore",".gitignore");
+		this.copyTemplateFile("npmignore",".npmignore");
 
 		if (!this.options.install)
 			this.options.install="npm";
