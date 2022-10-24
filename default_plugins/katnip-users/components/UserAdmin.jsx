@@ -7,6 +7,7 @@ import {getRoles} from "../src/rolecaps.js";
 export function UserList() {
 	let columns={
 		id: {label: "User ID"},
+		username: {label: "Username"},
 		role: {label: "Role"}
 	};
 

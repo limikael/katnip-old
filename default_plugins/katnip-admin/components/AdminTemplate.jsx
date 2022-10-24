@@ -37,7 +37,7 @@ function Nav() {
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item">
 						<A class="nav-link" href={userLink}>
-							<b>{user.email}</b>
+							<b>{user.username}</b>
 						</A>
 					</li>
 					<li class="nav-item">
