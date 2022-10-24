@@ -24,7 +24,7 @@ export default function LinkEmailPage(props) {
 			<div class="card border shadow mb-4">
 				<div class="card-body">
 					<form class="mb-2">
-						<input type="text" class="form-control mb-3" placeholder="Username / Email"
+						<input type="text" class="form-control mb-3" placeholder="Email"
 								{...form.field("email")}/>
 						<input type="password" class="form-control mb-3" placeholder="Password"
 								{...form.field("password")}/>

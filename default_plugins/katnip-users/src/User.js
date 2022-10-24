@@ -1,9 +1,5 @@
 import {katnip, Model} from "katnip";
 
-function hash(v) {
-	return nodeCrypto.createHash("sha256").update(v).digest().toString("hex");			
-}
-
 export class UserAuthMethod extends Model {
 	static tableName="UserAuthMethod";
 
@@ -11,7 +7,7 @@ export class UserAuthMethod extends Model {
 		id: "INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY",
 		userId: "INTEGER NOT NULL",
 		method: "VARCHAR(255) NOT NULL",
-		token: "VARCHAR(225) NOT NULL",
+		token: "VARCHAR(225)",
 		meta: "JSON"
 	};
 }

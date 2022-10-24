@@ -1,7 +1,6 @@
 import {katnip, PromiseButton, useCurrentUser} from "katnip";
-import ChangePasswordTab from "./ChangePasswordTab.jsx";
-import ChangeEmailTab from "./ChangeEmailTab.jsx";
 import AuthenticationTab from "./AuthenticationTab.jsx";
+import IdentificationTab from "./IdentificationTab.jsx";
 
 function AccordionItem({id, parent, children, show, title}) {
 	return (
@@ -44,20 +43,11 @@ export default function AccountPage() {
 	tc.set({title: "Account"});
 
 	let accountTabs=[];
-	if (user.authMethods["email"]) {
-		accountTabs.push({
-			title: "Change Password",
-			component: ChangePasswordTab,
-			priority: 10,
-		});
-
-		accountTabs.push({
-			title: "Change Email",
-			component: ChangeEmailTab,
-			priority: 20,
-		});
-	}
-
+	accountTabs.push({
+		title: "Identification",
+		component: IdentificationTab,
+		priority: 10
+	});
 	accountTabs.push({
 		title: "Authentication",
 		component: AuthenticationTab,

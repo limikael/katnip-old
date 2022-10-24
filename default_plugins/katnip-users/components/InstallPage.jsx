@@ -59,9 +59,18 @@ function DatabaseInstallPage() {
 	</>);
 }
 
+function randomPass(length) {
+	var result='';
+	var characters='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for (let i=0; i<length; i++)
+		result+=characters.charAt(Math.floor(Math.random()*characters.length));
+
+	return result;
+}
+
 function AdminInstallPage() {
 	let tc=useTemplateContext();
-	let form=useForm({initial: {email: "admin"}});
+	let form=useForm({initial: {username: "admin", password: randomPass(16)}});
 	let [message, setMessage]=useState();
 
 	tc.set({title: "Install"});
@@ -80,9 +89,8 @@ function AdminInstallPage() {
 		<BsAlert message={message} ondismiss={setMessage}/>
 
 		<form style="max-width: 40rem">
-			<BsGroupInput title="Admin Username" {...form.field("email")}/>
-			<BsGroupInput type="password" title="Password" {...form.field("password")}/>
-			<BsGroupInput type="password" title="Repeat Password" {...form.field("repeatPassword")}/>
+			<BsGroupInput title="Admin Username" {...form.field("username")}/>
+			<BsGroupInput type="text" title="Password" {...form.field("password")}/>
 		</form>
 
 		<PromiseButton action={write} onerror={setMessage}

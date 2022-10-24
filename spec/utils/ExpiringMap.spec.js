@@ -6,7 +6,7 @@ describe("ExpiringMap",()=>{
 		let m=new ExpiringMap(100);
 		m.set("hello","world");
 		expect(m.get("hello")).toEqual("world");
-		await delay(200);
+		await delay(300);
 		expect(m.get("hello")).toBe(undefined);
 	});
 });

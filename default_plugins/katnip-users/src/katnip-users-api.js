@@ -1,6 +1,7 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl, apiFetch, assertForm} from "katnip";
 import {getCapsByRole} from "./rolecaps.js";
 import User, {UserAuthMethod} from "./User.js";
+import {setPassword} from "../auth/email/auth-email-util.js";
 import fs from "fs";
 
 katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
@@ -16,6 +17,25 @@ katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 
 	await user.delete();
 	await katnip.setSessionValue(sreq.sessionId,null);
+});
+
+katnip.addApi("/api/changeUsername",async (form, req)=>{
+	req.assertCap("user");
+
+	assertForm(form,{
+		username: {validate: "username"}
+	});
+
+	let user=req.getUser();
+	let u=await User.findOne({username: form.username});
+	if (u && u.id!=user.id)
+		throw new Error("The user id is already in use.");
+
+	user.username=form.username;
+	await user.save();
+
+	await user.populateAuthMethods();
+	return user;
 });
 
 katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
@@ -65,8 +85,8 @@ katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	let authMethods=[];
 	await katnip.doActionAsync("authMethods",authMethods,req);
 	for (let authMethod of authMethods) {
-		if (user.authMethods[authMethod.id])
-			authMethod.token=user.authMethods[authMethod.id].token;
+		if (user.authMethods[authMethod.id]) //FIXME
+			authMethod.active=true;
 	}
 
 	return authMethods;
@@ -124,32 +144,26 @@ katnip.addApi("/api/installDb",async({driver, filename, host, user, pass, name},
 	await katnip.restart();
 });
 
-katnip.addApi("/api/install",async ({email, password, repeatPassword}, req)=>{
+katnip.addApi("/api/install",async (form, req)=>{
 	if (!katnip.getSetting("install"))
 		throw new Error("Not install mode");
 
-	if (await katnip.db.User.findOneByAuth("email",email))
-		throw new Error("The email is already in use");
-
-	if (!email)
-		throw new Error("Invalid email");
-
-	if (password!=repeatPassword)
-		throw new Error("The passwords don't match");
-
-	let user=new katnip.db.User();
-	user.email=email;
-	user.role="admin";
-	await user.save();
-
-	let userAuthMethod=new UserAuthMethod({
-		userId: user.id,
-		method: "email",
-		token: email
+	assertForm(form,{
+		username: {validate: "username"},
+		password: {validate: "password"}
 	});
 
-	userAuthMethod.setPassword(password);
-	await userAuthMethod.save();
+	if (await katnip.db.User.findOne({username: form.username}))
+		throw new Error("The username is already in use");
+
+	let user=new katnip.db.User();
+	user.username=form.username;
+	user.role="admin";
+	await user.save();
+	await user.populateAuthMethods();
+
+	setPassword(user,form.password);
+	await user.authMethods.email.save();
 
 	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();

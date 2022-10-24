@@ -15,8 +15,6 @@ export default function LoginPage() {
 	for (authMethod of authMethods) {
 		if (authMethod.element) {
 			items.push(renderNode({type: authMethod.element}));
-//			let Element=katnip.elements[authMethod.element].component;
-//			items.push(<Element/>);
 		}
 
 		else {

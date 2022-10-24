@@ -198,3 +198,7 @@ export function waitEvent(o, success, fail) {
 		});
 	});
 }
+
+export function validateFormData(formData, spec) {
+
+}

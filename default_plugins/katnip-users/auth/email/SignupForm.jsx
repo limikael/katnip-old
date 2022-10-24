@@ -32,7 +32,7 @@ export default function SignupForm(props) {
 				<h3 class="text-center mb-3">Sign Up</h3>
 
 				<form class="mb-2">
-					<input type="text" class="form-control mb-3" placeholder="Username / Email"
+					<input type="text" class="form-control mb-3" placeholder="Email"
 							{...form.field("email")}/>
 					<input type="password" class="form-control mb-3" placeholder="Password"
 							{...form.field("password")}/>

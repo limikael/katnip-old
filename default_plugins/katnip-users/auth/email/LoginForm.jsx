@@ -3,7 +3,7 @@ import {useForm, useCounter, useApiFetch, useValueChanged} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LoginForm(props) {
-	const emailRef=useRef();
+	const loginRef=useRef();
 	const passwordRef=useRef();
 	let [message, setMessage]=useState();
 	let postloginpath=useChannel("postloginpath");
@@ -13,7 +13,7 @@ export default function LoginForm(props) {
 
 		try {
 			let user=await katnip.apiFetch("/api/login",{
-				email: emailRef.current.value,
+				login: loginRef.current.value,
 				password: passwordRef.current.value
 			});
 
@@ -38,7 +38,7 @@ export default function LoginForm(props) {
 				<h3 class="text-center mb-3">Login</h3>
 
 				<form class="mb-2">
-					<input type="text" class="form-control mb-3" placeholder="Username / Email" ref={emailRef}/>
+					<input type="text" class="form-control mb-3" placeholder="Username / Email" ref={loginRef}/>
 					<input type="password" class="form-control" placeholder="Password" ref={passwordRef}/>
 				</form>
 

@@ -34,7 +34,7 @@ describe("CommandRunner",()=>{
 		c.setCommandLine(["bla","--hello=5","--help","--no-bool"]);
 		expect(c.getNamedArguments().bool).toEqual(false);
 
-		c.run();
+		//c.run();
 	});
 
 	it("splits lines",()=>{

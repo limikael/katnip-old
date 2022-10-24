@@ -86,15 +86,7 @@ export default class Db {
 
 	async query(qs, params=[]) {
 		await this.connect();
-
-		try {
-			return await this.connection.query(qs,params);
-		}
-
-		catch (e) {
-			console.log(e);
-			process.exit();
-		}
+		return await this.connection.query(qs,params);
 	}
 
 	async describe(tableName) {

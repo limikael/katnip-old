@@ -21,6 +21,7 @@ export default class ApiMiddleware {
 			}
 
 			catch (e) {
+				console.log("** Api call failed...");
 				console.log(e);
 				res.writeHead(500);
 				res.end(JSON.stringify({

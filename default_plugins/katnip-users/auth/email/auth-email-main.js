@@ -1,93 +1,47 @@
 import {katnip} from "katnip";
 import User, {UserAuthMethod} from "../../src/User.js";
-
-import nodeCrypto from "crypto";
-
-function hash(v) {
-	return nodeCrypto.createHash("sha256").update(v).digest().toString("hex");			
-}
-
-async function setPassword(user, newPassword) {
-	let userAuthMethod=user.authMethods.password;
-	if (!userAuthMethod)
-		throw new Error("No password");
-
-	if (!newPassword || newPassword.length<6)
-		throw new Error("The password is too short");
-
-	let salt=hash(nodeCrypto.randomBytes(64));
-	let password=hash(salt+newPassword);
-
-	userAuthMethod.meta={salt,password};
-}
-
-function checkPassword(user, password) {
-	let userAuthMethod=user.authMethods.password;
-	if (!userAuthMethod)
-		throw new Error("No password");
-
-	return (userAuthMethod.meta.password==hash(userAuthMethod.meta.salt+password));
-}
-
-function assertPassword(user, password) {
-	if (!checkPassword(user, password))
-		throw new Error("Wrong password.");
-}
-
-katnip.addAction("authMethods",(authMethods, req)=>{
-	authMethods.push({
-		id: "email",
-		title: "Email and Password",
-		element: "PasswordLoginElement",
-		href: "/linkemail",
-		priority: 10
-	});
-});
+import {assertPassword, setPassword} from "./auth-email-util.js";
 
 katnip.addApi("/api/changePassword",async (params, req)=>{
 	let {oldPassword, newPassword, repeatNewPassword}=params;
 
 	req.assertCap("user");
-	let u=req.getUser();
-	await u.populateAuthMethods();
+	let user=req.getUser();
+	await user.populateAuthMethods();
 
-	let emailAuth=u.authMethods.email;
-	if (!emailAuth)
-		throw new Error("no email auth method");
+	assertPassword(user,oldPassword);
+	await setPassword(user,newPassword);
 
-	emailAuth.assertPassword(oldPassword);
-	if (newPassword!=repeatNewPassword)
-		throw new Error("The passwords don't match");
-
-	await emailAuth.setPassword(newPassword);
-	await emailAuth.save();
+	await user.authMethods.email.save();
 });
 
 katnip.addApi("/api/changeEmail",async (params, req)=>{
 	let {password, email}=params;
 
 	req.assertCap("user");
-	let u=req.getUser();
-	await u.populateAuthMethods();
+	let user=req.getUser();
+	await user.populateAuthMethods();
 
-	let emailAuth=u.authMethods.email;
-	if (!emailAuth)
+	if (!user.authMethods.email)
 		throw new Error("no email auth method");
 
-	emailAuth.assertPassword(password);
-	emailAuth.token=email;
+	assertPassword(user,password);
+	user.authMethods.email.token=email;
 
-	await emailAuth.save();
+	await user.authMethods.email.save();
 });
 
-katnip.addApi("/api/login",async ({email, password}, req)=>{
-	let user=await katnip.db.User.findOneByAuth("email", email);
+katnip.addApi("/api/login",async ({login, password}, req)=>{
+	let user=await katnip.db.User.findOneByAuth("email", login);
+
+	if (!user)
+		user=await katnip.db.User.findOne({username: login});
 
 	if (!user)
 		throw new Error("Bad credentials.");
 
 	await user.populateAuthMethods();
-	user.authMethods["email"].assertPassword(password);
+	assertPassword(user,password);
 	await katnip.setSessionValue(req.sessionId,user.id);
 
 	return user;
@@ -110,17 +64,24 @@ katnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 		await user.save();
 	}
 
-	let userAuthMethod=new UserAuthMethod({
-		userId: user.id,
-		method: "email",
-		token: email
-	});
+	await user.populateAuthMethods();
 
-	userAuthMethod.setPassword(password);
-	await userAuthMethod.save();
+	setPassword(user,password);
+	user.authMethods.email.token=email;
+	await user.authMethods.email.save();
 
 	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();
 
 	return user;
+});
+
+katnip.addAction("authMethods",(authMethods, req)=>{
+	authMethods.push({
+		id: "email",
+		title: "Email and Password",
+		element: "PasswordLoginElement",
+		href: "/linkemail",
+		priority: 10
+	});
 });

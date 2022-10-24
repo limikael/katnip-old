@@ -53,7 +53,7 @@ export default function AuthenticationTab() {
 	for (let authMethod of authMethods) {
 		//console.log(authMethod);
 
-		if (authMethod.token) {
+		if (authMethod.active) {
 			items.push(
 				<div>
 					<PromiseButton class="btn btn-primary my-2"
