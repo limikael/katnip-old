@@ -67,8 +67,10 @@ export default class PluginLoader {
 
 	async loadPlugins() {
 		this.plugins=[];
-		for (let path of this.pluginPaths)
+		for (let path of this.pluginPaths) {
+			//console.log("Plugin: "+path);
 			this.plugins.push(await import(this.resolveMainFile(path)));
+		}
 	}
 
 	createOutDir() {

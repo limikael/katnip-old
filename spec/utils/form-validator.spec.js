@@ -34,4 +34,39 @@ describe("form-validator",()=>{
 		assertForm(formData,spec);
 		//console.log(formData);
 	});
+
+	it("can validate required and email",()=>{
+		let spec={
+			username: {validate: "username", required: "You must enter a username"},
+			email: {validate: "email", required: "You must provide an email"}
+		};
+
+		expect(()=>{
+			assertForm({},spec);
+		}).toThrow(new Error("You must enter a username"));
+
+		let spec2={
+			email: {validate: "email", required: "You must provide an email"}
+		};
+
+		expect(()=>{
+			assertForm({username: "bla"},spec2);
+		}).toThrow(new Error("You must provide an email"));
+
+		expect(()=>{
+			assertForm({email: "blipp"},spec2);
+		}).toThrow(new Error("This is not a valid email"));
+
+		let thrown=null;
+		try {
+			assertForm({email: "blipp"},spec2);
+		}
+
+		catch (e) {
+			thrown=e;
+		}
+
+		expect(thrown.message).toEqual("This is not a valid email");
+		expect(thrown.field).toEqual("email");
+	});
 });

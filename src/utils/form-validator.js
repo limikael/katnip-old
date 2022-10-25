@@ -7,17 +7,29 @@ export function sanitizeFormValue(value, spec={}) {
 			value=value.replaceAll(/[\_\. ]/g,"");
 			value=value.toLowerCase();
 			break;
+
+		default:
+			value=value.trim();
+			break;
 	}
 
 	return value;
 }
 
 export function validateFormValue(value, spec={}) {
+	if (!value && spec.required)
+		return spec.required;
+
 	switch (spec.validate) {
 		case "username":
 			let match=/^[a-z0-9]+$/.exec(value);
 			if (!match)
 				return "Usernames can only have letters and numbers";
+			break;
+
+		case "email":
+			if (value && !value.match(/^[^\s@]+@[^\s]+\.[^\s]+$/))
+				return "This is not a valid email";
 			break;
 
 		case "password":
@@ -42,6 +54,11 @@ export function validateForm(formData, spec) {
 
 export function assertForm(formData, spec) {
 	let res=validateForm(formData,spec);
-	if (Object.keys(res).length)
-		throw new Error(res[Object.keys(res)[0]]);
+	if (Object.keys(res).length) {
+		let k=Object.keys(res)[0];
+		let e=new Error(res[k]);
+		e.field=k;
+
+		throw e;
+	}
 }

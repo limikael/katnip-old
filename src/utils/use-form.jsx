@@ -7,7 +7,13 @@ class Form extends EventEmitter {
 
 		this.updateConf(conf);
 		this.current=undefined;
+		this.error=null;
 		this.load();
+	}
+
+	setError(e) {
+		this.error=e;
+		this.emit("change");
 	}
 
 	updateConf=(conf)=>{
@@ -20,6 +26,9 @@ class Form extends EventEmitter {
 	}
 
 	onFieldChange=(ev)=>{
+		if (this.error && this.error.field==ev.target.dataset.field)
+			this.setError(null);
+
 		let fieldPath=ev.target.dataset.field.split(/[\/\.]/);
 		let o=this.current;
 
@@ -49,7 +58,7 @@ class Form extends EventEmitter {
 		this.emit("change");
 	}
 
-	field=(name)=>{
+	field=(name, cls="")=>{
 		if (!this.current)
 			return;
 
@@ -57,11 +66,22 @@ class Form extends EventEmitter {
 		if (!v)
 			v="";
 
-		return {
+		let o={
 			value: v,
 			onchange: this.onFieldChange,
 			"data-field": name
 		}
+
+		if (this.class)
+			cls+=" "+this.class;
+
+		if (this.error && this.error.field==name)
+			cls+=" is-invalid";
+
+		if (cls)
+			o.class=cls;
+
+		return o;
 	}
 
 	load=()=>{

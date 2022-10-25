@@ -4,17 +4,24 @@ import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 import {useRef, useState} from "preact/compat";
 
 export default function SignupForm(props) {
-	let form=useForm({initial: {}});
+	let form=useForm({initial: {}, class: "form-control"});
 	let [message, setMessage]=useState();
 	let postloginpath=useChannel("postloginpath");
 
 	async function onSignupClick() {
-		setMessage();
+		try {
+			setMessage();
 
-		let u=await katnip.apiFetch("/api/signup",form.getCurrent());
+			let u=await katnip.apiFetch("/api/signup",form.getCurrent());
 
-		setCurrentUser(u);
-		katnip.setLocation(postloginpath);
+			setCurrentUser(u);
+			katnip.setLocation(postloginpath);
+		}
+
+		catch (e) {
+			setMessage(e);
+			form.setError(e);
+		}
 	}
 
 	let messageEl;
@@ -32,19 +39,15 @@ export default function SignupForm(props) {
 				<h3 class="text-center mb-3">Sign Up</h3>
 
 				<form class="mb-2">
-					<input type="text" class="form-control mb-3" placeholder="Email"
-							{...form.field("email")}/>
-					<input type="password" class="form-control mb-3" placeholder="Password"
-							{...form.field("password")}/>
-					<input type="password" class="form-control" placeholder="Repeat Password" 
-							{...form.field("repeatPassword")}/>
+					<input type="text" placeholder="Email" {...form.field("email","mb-3")}/>
+					<input type="password" placeholder="Password" {...form.field("password","mb-3")}/>
+					<input type="password" placeholder="Repeat Password" {...form.field("repeatPassword")}/>
 				</form>
 
 				{messageEl}
 
 				<PromiseButton class="btn btn-primary mt-2 mb-2" style="width: 100%"
-						action={onSignupClick}
-						onerror={setMessage}>
+						action={onSignupClick}>
 					Sign Up
 				</PromiseButton>
 				<a href="#" class="d-block small text-muted text-center" style="width: 100%"

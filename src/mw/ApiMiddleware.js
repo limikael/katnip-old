@@ -24,9 +24,11 @@ export default class ApiMiddleware {
 				console.log("** Api call failed...");
 				console.log(e);
 				res.writeHead(500);
-				res.end(JSON.stringify({
-					message: e.message
-				}));
+				let o={message: e.message};
+				for (let k of Object.keys(e))
+					o[k]=e[k];
+
+				res.end(JSON.stringify(o));
 				return;
 			}
 		}

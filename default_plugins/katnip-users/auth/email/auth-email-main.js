@@ -1,4 +1,4 @@
-import {katnip} from "katnip";
+import {katnip, assertForm} from "katnip";
 import User, {UserAuthMethod} from "../../src/User.js";
 import {assertPassword, setPassword} from "./auth-email-util.js";
 
@@ -47,14 +47,16 @@ katnip.addApi("/api/login",async ({login, password}, req)=>{
 	return user;
 });
 
-katnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
-	if (await User.findOneByAuth("email",email))
+katnip.addApi("/api/signup",async (form, req)=>{
+	assertForm(form,{
+		email: {validate: "email", required: "Please enter an email"},
+		password: {validate: "password", required: "Please enter a password"}
+	});
+
+	if (await User.findOneByAuth("email",form.email))
 		throw new Error("The email is already in use");
 
-	if (!email)
-		throw new Error("Invalid email");
-
-	if (password!=repeatPassword)
+	if (form.password!=form.repeatPassword)
 		throw new Error("The passwords don't match");
 
 	let user=req.getUser();
@@ -66,8 +68,8 @@ katnip.addApi("/api/signup",async ({email, password, repeatPassword}, req)=>{
 
 	await user.populateAuthMethods();
 
-	setPassword(user,password);
-	user.authMethods.email.token=email;
+	setPassword(user,form.password);
+	user.authMethods.email.token=form.email;
 	await user.authMethods.email.save();
 
 	await katnip.setSessionValue(req.sessionId,user.id);

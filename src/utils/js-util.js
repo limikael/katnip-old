@@ -89,8 +89,14 @@ export async function apiFetch(url, query={}, options={}) {
 	}
 
 	if (response.status!=200) {
-		if (data && data.message)
-			throw new Error(data.message);
+		if (data && data.message) {
+			let e=new Error(data.message);
+
+			for (let k in data)
+				e[k]=data[k];
+
+			throw e;
+		}
 
 		throw new Error(text);
 	}
