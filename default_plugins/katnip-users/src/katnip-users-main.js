@@ -11,6 +11,8 @@ import "../auth/email/auth-email-main.js";
 katnip.addModel(User);
 katnip.addModel(UserAuthMethod);
 
+katnip.createCrudApi(User);
+
 katnip.addSetting("install",{session: true});
 katnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
 

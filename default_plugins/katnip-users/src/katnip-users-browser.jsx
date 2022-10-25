@@ -1,10 +1,10 @@
 import {katnip, delay, buildUrl, apiFetch, useChannel, getSessionId} from "katnip";
 import LoginPage from "../components/LoginPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
-import UserAdmin from "../components/UserAdmin.jsx";
 import InstallPage from "../components/InstallPage.jsx";
 import PEOPLE from "bootstrap-icons/icons/people.svg";
 import User from "./User.js";
+import {getRoles} from "../src/rolecaps.js";
 
 import "../auth/google/auth-google-browser.jsx";
 import "../auth/sessiontoken/auth-sessiontoken-browser.jsx";
@@ -14,15 +14,24 @@ import "../auth/email/auth-email-browser.jsx";
 katnip.addRoute("install",InstallPage);
 katnip.addRoute("login",LoginPage);
 katnip.addRoute("account",AccountPage);
-katnip.addRoute("admin/user",UserAdmin);
 
-katnip.addAction("getAdminMenu",(items)=>{
-	items.push({
-		title: "Users",
-		href: "/admin/user",
-		priority: 30,
-		icon: PEOPLE
-	});
+let roleOptions={};
+roleOptions[""]="";
+for (let role of getRoles())
+	roleOptions[role]=role;
+
+katnip.createCrudUi("user",{
+	columns: {
+		id: {label: "User ID"},
+		username: {label: "Username"},
+		role: {label: "Role"}
+	},
+	fields: {
+		username: {label: "Username"},
+		role: {label: "Role", type: "select", options: roleOptions}
+	},
+	priority: 30,
+	icon: PEOPLE
 });
 
 katnip.addAction("useCurrentUser",()=>{

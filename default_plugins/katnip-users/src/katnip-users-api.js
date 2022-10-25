@@ -38,7 +38,7 @@ katnip.addApi("/api/changeUsername",async (form, req)=>{
 	return user;
 });
 
-katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
+/*katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
 	sess.assertCap("manage-users");
 
 	return katnip.db.User.findMany();
@@ -73,7 +73,7 @@ katnip.addApi("/api/deleteUser",async ({id}, sess)=>{
 	sess.assertCap("manage-users");
 	let u=await katnip.db.User.findOne({id: id});
 	await u.delete();
-});
+});*/
 
 katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	let user=req.getUser();
