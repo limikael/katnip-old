@@ -20,7 +20,7 @@ export default class KatnipRequest {
 	processNodeRequestOrigin(request) {
 		let protocol="http";
 		if (request.headers["x-forwarded-proto"])
-			protocol=request.headers["x-forwarded-proto"];
+			protocol=request.headers["x-forwarded-proto"].split(",")[0];
 
 		this.origin=protocol+"://"+request.headers.host;
 	}
