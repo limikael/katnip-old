@@ -1,4 +1,5 @@
 import {parseCookieString} from "../utils/js-util.js";
+import nodeCrypto from "crypto";
 
 export default class KatnipRequest {
 	constructor() {
@@ -38,7 +39,7 @@ export default class KatnipRequest {
 
 		this.sessionId=this.cookies.katnip;
 		if (!this.sessionId)
-			this.sessionId=crypto.randomUUID();
+			this.sessionId=nodeCrypto.randomUUID();
 	}
 
 	async processNodeRequestBody(request) {
