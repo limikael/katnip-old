@@ -1,5 +1,4 @@
 import {parseCookieString} from "../utils/js-util.js";
-import nodeCrypto from "crypto";
 
 export default class KatnipRequest {
 	constructor() {
