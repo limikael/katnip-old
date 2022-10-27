@@ -137,9 +137,13 @@ export default function AdminTemplate({request, children}) {
 //		if (request.pathname=="/admin/page" && (request.query.id || request.query.new))
 //			m="";
 
+		let contentStyle={
+			width: "calc(100vw - 12rem)"
+		};
+
 		content=(<>
 			<Sidebar request={request}/>
-			<div style="width: 100%">
+			<div style={contentStyle}>
 				<Nav/>
 				<div className={"flex-grow-1 "+m}>
 					{children}
