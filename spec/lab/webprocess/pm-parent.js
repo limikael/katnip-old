@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-import WebProcessParent from "../../src/webprocess/WebProcessParent.js";
-import {delay} from "../../src/utils/js-util.js";
+import WebProcessParent from "../../../src/webprocess/WebProcessParent.js";
+import {delay} from "../../../src/utils/js-util.js";
 
 console.log("Parent: "+process.pid);
 
 let parent=new WebProcessParent({
-	modulePath: "spec/lab/pm-child.js",
+	modulePath: "spec/lab/webprocess/pm-child.js",
 	port: 8080,
 });
 
