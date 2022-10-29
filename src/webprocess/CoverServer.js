@@ -12,7 +12,7 @@ export default class CoverServer {
 	}
 
 	handleRequest=(req, res)=>{
-		console.log("SERVING COVER: "+req.url);
+		//console.log("SERVING COVER: "+req.url);
 
 		res.setHeader("Cache-Control","no-store");
 		res.setHeader('Connection', 'close');
@@ -34,7 +34,7 @@ export default class CoverServer {
 	}
 
 	onWsConnection=(ws)=>{
-		console.log("ws connection in cover");
+		//console.log("ws connection in cover");
 		installWsKeepAlive(ws,{delay:5000});
 
 		this.wsConnections.push(ws);
@@ -43,14 +43,14 @@ export default class CoverServer {
 	}
 
 	onConnectionClose=(ws)=>{
-		console.log("ws connection close in cover");
+		//console.log("ws connection close in cover");
 
 		ws.removeAllListeners();
 		arrayRemove(this.wsConnections,ws);
 	}
 
 	onWsMessage=(ws, message)=>{
-		console.log("got ws message: "+message);
+		//console.log("got ws message: "+message);
 	}
 
 	async listen(netServer) {

@@ -41,7 +41,7 @@ export async function start(options) {
 		}
 
 		process.on("SIGUSR2",()=>{
-			console.log("*******");
+			console.log("Restarting due to SIGUSR2");
 			parent.start();
 		});
 	}

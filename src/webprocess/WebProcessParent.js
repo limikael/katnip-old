@@ -33,7 +33,9 @@ export default class WebProcessParent {
 				this.coverServer=await CoverServer.create(this.netServer, this.coverMessage);
 
 			this.childProcess.proxy.finalizeClose();
+			await waitEvent(this.childProcess,"close");
 			this.childProcess=null;
+			console.log("Old child process is closed");
 		}
 
 		if (!this.netServer) {
@@ -48,6 +50,8 @@ export default class WebProcessParent {
 
 		if (this.willStart) {
 			this.willStart=false;
+			console.log("Starting child process...");
+			this.coverServer.writeLogData("**** Starting child process...\n");
 			this.childProcess=child_process.fork(this.modulePath,this.args,{
 				silent: "true",
 			});
