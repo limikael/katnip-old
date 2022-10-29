@@ -37,6 +37,9 @@ class KatnipScaffolder {
 			"main": "src/"+this.projectName+"-main.js",
 			"browser": "src/"+this.projectName+"-browser.jsx",
 			"type": "module",
+			"engines": {
+				"node": ">=16.x"
+			},
 			"plugins": []
 		};
 
