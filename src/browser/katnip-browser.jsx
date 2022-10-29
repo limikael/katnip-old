@@ -10,6 +10,12 @@ import ContentRenderer from "../richedit/ContentRenderer.jsx";
 
 class BrowserKatnip {
 	constructor() {
+		let cookie=window.document.currentScript.dataset.cookie;
+		if (document.cookie && cookie!=document.cookie)
+			console.log("Got a cookie in the script that is different!")
+
+		document.cookie=cookie;
+
 		this.actions=new KatnipActions();
 		this.composeFunctions(this.actions);
 

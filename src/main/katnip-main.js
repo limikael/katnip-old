@@ -96,20 +96,21 @@ class MainKatnip {
 		for (let channelId of initChannelIds)
 			initChannels[channelId]=await this.serverChannels.getChannelData(channelId,req);
 
-		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 
 		res.writeHead(200,{
 			"Set-Cookie": `katnip=${req.sessionId}`
 		});
 
+		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 		let bundleUrl=buildUrl("/katnip-bundle.js",{hash: this.bundleHash});
+		let quotedCookie=quoteAttr(`katnip=${req.sessionId}`);
 
 		let clientPage=`<body><html>`;
 		clientPage+=`<head>`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
 		clientPage+=`</head>`;
 		clientPage+=`<div id="katnip-root"></div>`;
-		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
+		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}" data-cookie="${quotedCookie}"></script>`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);
@@ -138,7 +139,7 @@ class MainKatnip {
 
 		this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.js",
-			fs.readFileSync(this.outDir+"/katnip-bundle.js")+"window.katnip.clientMain();"
+			fs.readFileSync(this.outDir+"/katnip-bundle.js")+" window.katnip.clientMain();"
 		);
 
 		this.contentMiddleware.addContent(
