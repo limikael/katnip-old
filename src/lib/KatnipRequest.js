@@ -18,11 +18,11 @@ export default class KatnipRequest {
 	}
 
 	processNodeRequestOrigin(request) {
-		let protocol="http";
+		this.protocol="http";
 		if (request.headers["x-forwarded-proto"])
-			protocol=request.headers["x-forwarded-proto"].split(",")[0];
+			this.protocol=request.headers["x-forwarded-proto"].split(",")[0];
 
-		this.origin=protocol+"://"+request.headers.host;
+		this.origin=this.protocol+"://"+request.headers.host;
 	}
 
 	processCookieString(cookieString) {

@@ -72,6 +72,7 @@ class MainKatnip {
 		try {
 			let req=new KatnipRequest();
 			req.processNodeRequest(nodeReq);
+
 			await req.processNodeRequestBody(nodeReq);
 			await this.actions.doActionAsync("initRequest",req);
 
@@ -96,21 +97,25 @@ class MainKatnip {
 		for (let channelId of initChannelIds)
 			initChannels[channelId]=await this.serverChannels.getChannelData(channelId,req);
 
+		let cookieExtra="";
+		if (req.protocol=="https")
+			cookieExtra="; SameSite=None; Secure "
 
 		res.writeHead(200,{
-			"Set-Cookie": `katnip=${req.sessionId}`
+			"Set-Cookie": `katnip=${req.sessionId}${cookieExtra}`
 		});
 
 		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
 		let bundleUrl=buildUrl("/katnip-bundle.js",{hash: this.bundleHash});
-		let quotedCookie=quoteAttr(`katnip=${req.sessionId}`);
+		//let quotedCookie=quoteAttr(`katnip=${req.sessionId}`);
 
 		let clientPage=`<body><html>`;
 		clientPage+=`<head>`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">`;
 		clientPage+=`</head>`;
 		clientPage+=`<div id="katnip-root"></div>`;
-		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}" data-cookie="${quotedCookie}"></script>`;
+//		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}" data-cookie="${quotedCookie}"></script>`;
+		clientPage+=`<script data-channels="${quotedChannels}" src="${bundleUrl}"></script>`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);
