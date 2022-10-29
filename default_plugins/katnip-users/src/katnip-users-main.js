@@ -62,6 +62,9 @@ katnip.addChannel("authMethods",async ({}, req)=>{
 });
 
 katnip.addChannel("user",async ({sessionId}, req)=>{
+	console.log("param sesionId: "+sessionId);
+	console.log("req sessionId: "+req.sessionId);
+
 	if (req.sessionId!=sessionId)
 		throw new Error("Wrong session");
 
