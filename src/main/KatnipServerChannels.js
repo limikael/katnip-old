@@ -1,7 +1,7 @@
 import {WebSocketServer} from "ws";
 import {bindArgs, objectFirstKey, arrayRemove, buildUrl, decodeQueryString} from "../utils/js-util.js";
 import {installWsKeepAlive} from "../utils/ws-util.js";
-import KatnipRequest from "../lib/KatnipRequest.js";
+import KatnipServerRequest from "../auth/KatnipServerRequest.js";
 
 export default class KatnipServerChannels {
 	constructor(katnip, server) {
@@ -79,10 +79,9 @@ export default class KatnipServerChannels {
 
 	sendChannelData=async (ws, channelId)=>{
 		try {
-			let req=new KatnipRequest();
-			req.processNodeRequest(ws.req);
+			let req=new KatnipServerRequest(this.katnip,ws.req);
 			req.processUrl(channelId);
-			await this.katnip.actions.doActionAsync("initRequest",req);
+			await req.initUserFromSession();
 
 			let channelData=await this.getChannelData(channelId,req);
 			ws.send(JSON.stringify({

@@ -11,10 +11,8 @@ export default function IdentificationTab() {
 	async function onUpdateClick() {
 		setMessage();
 
-		let user=await apiFetch("/api/changeUsername",form.getCurrent());
+		await apiFetch("/api/changeUsername",form.getCurrent());
 		setMessage("Your username has been changed.");
-
-		setCurrentUser(user);
 		invalidate();
 	}
 

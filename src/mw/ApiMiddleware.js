@@ -13,6 +13,9 @@ export default class ApiMiddleware {
 			try {
 				let data=await func(req.query,req);
 
+				if (this.processResult)
+					data=await this.processResult(data,req,res);
+
 				res.writeHead(200);
 				if (!data)
 					data=null;

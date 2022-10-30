@@ -4,7 +4,7 @@ import ChannelConnector from "./ChannelConnector.js";
 import {KatnipView} from "../components/KatnipView.jsx";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
-import {parseCookieString} from "../utils/js-util.js";
+import {parseCookieString, buildUrl} from "../utils/js-util.js";
 import {createElement, Fragment} from "react";
 import ContentRenderer from "../richedit/ContentRenderer.jsx";
 
@@ -28,6 +28,21 @@ class BrowserKatnip {
 
 		this.templates={};
 		this.routes={};
+
+		window.apiFetchDefaultOptions={
+			processResult: this.processApiFetchResult
+		}
+	}
+
+	processApiFetchResult=(data, response)=>{
+		if (response.headers.get("X-Katnip-Type")=="wrapped") {
+			for (let k in data.channelValues)
+				this.channelManager.setChannelValue(k,data.channelValues[k]);
+
+			data=data.result;
+		}
+
+		return data;
 	}
 
 	addRoute=(route, component)=>{
@@ -79,16 +94,19 @@ class BrowserKatnip {
 	}
 
 	useCurrentUser=()=>{
-		return this.doAction("useCurrentUser");
-	}
-
-	setCurrentUser=(userData)=>{
-		this.doAction("setCurrentUser",userData);
-	}
-
-	getSessionId=()=>{
 		let cookies=parseCookieString(document.cookie);
-		return cookies.katnip;
+		let sessionId=cookies.katnip;
+		let channelId=buildUrl("user",{sessionId: sessionId});
+
+		return this.channelManager.useChannel(channelId);
+	}
+
+	getCurrentUser=()=>{
+		let cookies=parseCookieString(document.cookie);
+		let sessionId=cookies.katnip;
+		let channelId=buildUrl("user",{sessionId: sessionId});
+
+		return this.channelManager.getChannelValue(channelId);
 	}
 }
 
@@ -113,7 +131,8 @@ export const getTemplateForRoute=katnip.getTemplateForRoute;
 export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 
 export const useCurrentUser=katnip.useCurrentUser;
-export const setCurrentUser=katnip.setCurrentUser;
+export const getCurrentUser=katnip.getCurrentUser;
+export const setCurrentUser=null;
 
 export const useChannel=katnip.channelManager.useChannel;
 export const setChannelPersistence=katnip.channelManager.setChannelPersistence;
@@ -121,4 +140,4 @@ export const getChannelValue=katnip.channelManager.getChannelValue;
 export const setChannelValue=katnip.channelManager.setChannelValue;
 export const useWebSocketStatus=katnip.channelConnector.useWebSocketStatus;
 
-export const getSessionId=katnip.getSessionId;
+//export const getSessionId=katnip.getSessionId;

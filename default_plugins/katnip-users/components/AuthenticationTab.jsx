@@ -43,9 +43,7 @@ export default function AuthenticationTab() {
 		return <div class="spinner-border m-3"/>;
 
 	async function onUnlinkClick(methodId) {
-		let user=await apiFetch("/api/unlinkAuthMethod",{methodId});
-
-		setCurrentUser(user);
+		await apiFetch("/api/unlinkAuthMethod",{methodId});
 		invalidate();
 	}
 
@@ -79,8 +77,6 @@ export default function AuthenticationTab() {
 		let res=await showModal(<DeleteAccountModal resolve={resolveModal}/>);
 		if (res) {
 			await apiFetch("/api/deleteAccount");
-			console.log("deleting");
-			setCurrentUser(null);
 			setLocation();
 		}
 	}

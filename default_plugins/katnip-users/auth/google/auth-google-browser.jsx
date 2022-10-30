@@ -22,7 +22,6 @@ export default function GoogleAuth({request}) {
 	if (newUser instanceof Error)
 		return <BsAlert message={newUser}/>
 
-	katnip.setCurrentUser(newUser);
 	if (linking)
 		katnip.setLocation("/account");
 

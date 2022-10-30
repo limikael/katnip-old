@@ -19,7 +19,6 @@ function Nav() {
 		ev.preventDefault();
 
 		await katnip.apiFetch("/api/logout");
-		katnip.setCurrentUser(null);
 	}
 
 	let userLink=buildUrl("/admin/user",{id: user.id});

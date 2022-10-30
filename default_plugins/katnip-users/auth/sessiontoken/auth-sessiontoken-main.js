@@ -1,5 +1,5 @@
 import {katnip, delay, buildUrl, apiFetch} from "katnip";
-import User from "../../src/User.js";
+//import User from "../../src/User.js";
 
 katnip.addSetting("authSessionTokenEnable",{
 	title: "Login with Session Token", 
@@ -23,7 +23,5 @@ katnip.addApi("/api/useToken",async ({token}, req)=>{
 		await user.save();
 	}
 
-	await katnip.setSessionValue(req.sessionId,user.id);
-
-	return user;
+	await req.setUser(user);
 });

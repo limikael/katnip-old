@@ -1,5 +1,4 @@
 import {katnip, assertForm} from "katnip";
-import User, {UserAuthMethod} from "../../src/User.js";
 import {assertPassword, setPassword} from "./auth-email-util.js";
 
 katnip.addApi("/api/changePassword",async (params, req)=>{
@@ -29,6 +28,7 @@ katnip.addApi("/api/changeEmail",async (params, req)=>{
 	user.authMethods.email.token=email;
 
 	await user.authMethods.email.save();
+	await req.setUser(user);
 });
 
 katnip.addApi("/api/login",async ({login, password}, req)=>{
@@ -42,9 +42,8 @@ katnip.addApi("/api/login",async ({login, password}, req)=>{
 
 	await user.populateAuthMethods();
 	assertPassword(user,password);
-	await katnip.setSessionValue(req.sessionId,user.id);
 
-	return user;
+	await req.setUser(user);
 });
 
 katnip.addApi("/api/signup",async (form, req)=>{
@@ -75,7 +74,7 @@ katnip.addApi("/api/signup",async (form, req)=>{
 	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();
 
-	return user;
+	await req.setUser(user);
 });
 
 katnip.addAction("authMethods",(authMethods, req)=>{

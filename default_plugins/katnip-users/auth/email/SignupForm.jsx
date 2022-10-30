@@ -11,10 +11,7 @@ export default function SignupForm(props) {
 	async function onSignupClick() {
 		try {
 			setMessage();
-
-			let u=await katnip.apiFetch("/api/signup",form.getCurrent());
-
-			setCurrentUser(u);
+			await katnip.apiFetch("/api/signup",form.getCurrent());
 			katnip.setLocation(postloginpath);
 		}
 

@@ -1,5 +1,5 @@
 export {default as Model} from "./Model.js";
-import {createConnection} from "./db-connection.js";
+import {createConnection, getDependencyPackage} from "./db-connection.js";
 import {retry} from "./js-util.js";
 
 export default class Db {
@@ -16,6 +16,10 @@ export default class Db {
 		this.classes.push(cls);
 
 		this[cls.getTableName()]=cls;
+	}
+
+	getDependencyPackage() {
+		return getDependencyPackage(this.url);
 	}
 
 	async connect(url, options={}) {

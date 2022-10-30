@@ -212,3 +212,21 @@ export function createConnection(url) {
 			break;
 	}
 }
+
+export function getDependencyPackage(url) {
+	let urlObject=new URL(dsn);
+
+	switch (urlObject.protocol) {
+		case "mysql:":
+			return "mysql";
+			break;
+
+		case "sqlite3:":
+			return "sqlite3";
+			break;
+
+		default:
+			throw new Error("Unknown database protocol: "+urlObject.protocol);
+			break;
+	}
+}

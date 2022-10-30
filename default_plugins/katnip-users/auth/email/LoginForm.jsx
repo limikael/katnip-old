@@ -1,5 +1,5 @@
-import {katnip, A, ItemList, apiFetch, setLocation, buildUrl, useChannel} from "katnip";
-import {useForm, useCounter, useApiFetch, useValueChanged} from "katnip";
+import {katnip, A, ItemList, apiFetch, setLocation, buildUrl, useChannel, delay,
+		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LoginForm(props) {
@@ -11,25 +11,18 @@ export default function LoginForm(props) {
 	async function onLoginClick() {
 		setMessage();
 
-		try {
-			let user=await katnip.apiFetch("/api/login",{
-				login: loginRef.current.value,
-				password: passwordRef.current.value
-			});
+		let res=await katnip.apiFetch("/api/login",{
+			login: loginRef.current.value,
+			password: passwordRef.current.value
+		});
 
-			katnip.setCurrentUser(user);
-			katnip.setLocation(postloginpath);
-		}
-
-		catch (e) {
-			setMessage(e.message);
-		}
+		katnip.setLocation(postloginpath);
 	}
 
 	let messageEl;
 	if (message)
 		messageEl=(
-			<div class="text-danger text-center"><b>{message}</b></div>
+			<div class="text-danger text-center"><b>{message.message}</b></div>
 		);
 
 	return (
@@ -44,10 +37,11 @@ export default function LoginForm(props) {
 
 				{messageEl}
 
-				<button class="btn btn-primary mb-2 mt-2" style="width: 100%"
-						onclick={onLoginClick}>
+				<PromiseButton class="btn btn-primary mb-2 mt-2" style="width: 100%"
+						onclick={onLoginClick}
+						onerror={setMessage}>
 					Login
-				</button>
+				</PromiseButton>
 				<a href="#" class="d-block small text-muted text-center" style="width: 100%"
 						onclick={props.onswitchmode}>
 					<b>No account? Sign Up!</b>

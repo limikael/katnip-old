@@ -1,6 +1,5 @@
-import {katnip, delay, buildUrl, apiFetch} from "katnip";
+import {katnip, delay, buildUrl, apiFetch, User, UserAuthMethod} from "katnip";
 import ClientOAuth2 from "client-oauth2";
-import User, {UserAuthMethod} from "../../src/User.js";
 
 function createGoogleAuthClient(origin) {
 	return new ClientOAuth2({
@@ -89,9 +88,7 @@ katnip.addApi("/api/googleAuth",async ({url}, req)=>{
 		await userAuthMethod.save();
 	}
 
-	await katnip.setSessionValue(req.sessionId,user.id);
-
-	return user;
+	await req.setUser(user);
 });
 
 katnip.addAction("authMethods",(authMethods, req)=>{

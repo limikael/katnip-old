@@ -1,12 +1,10 @@
-import {katnip, delay, buildUrl, apiFetch, assertForm} from "katnip";
-import {getCapsByRole} from "./rolecaps.js";
-import User, {UserAuthMethod} from "./User.js";
+import {katnip, delay, buildUrl, apiFetch, assertForm, User} from "katnip";
 import {setPassword} from "../auth/email/auth-email-util.js";
 import fs from "fs";
 
-katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
-	sreq.assertCap("user");
-	let user=sreq.getUser();
+katnip.addApi("/api/deleteAccount",async (params, req)=>{
+	req.assertCap("user");
+	let user=req.getUser();
 
 	let userAuthMethods=await UserAuthMethod.findMany({
 		userId: user.id
@@ -16,7 +14,7 @@ katnip.addApi("/api/deleteAccount",async (params, sreq)=>{
 		await userAuthMethod.delete();
 
 	await user.delete();
-	await katnip.setSessionValue(sreq.sessionId,null);
+	await req.setUser(null);
 });
 
 katnip.addApi("/api/changeUsername",async (form, req)=>{
@@ -34,8 +32,7 @@ katnip.addApi("/api/changeUsername",async (form, req)=>{
 	user.username=form.username;
 	await user.save();
 
-	await user.populateAuthMethods();
-	return user;
+	await req.setUser(user);
 });
 
 katnip.addApi("/api/authMethodStatus",async ({},req)=>{
@@ -56,7 +53,7 @@ katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 });
 
 katnip.addApi("/api/logout",async ({}, req)=>{
-	await katnip.setSessionValue(req.sessionId,null);
+	await req.setUser(null);
 });
 
 katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
@@ -73,9 +70,7 @@ katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 	});
 
 	await userAuthMethod.delete();
-
-	await user.populateAuthMethods();
-	return user;
+	await req.setUser(user);
 });
 
 katnip.addApi("/api/installDb",async({driver, filename, host, user, pass, name}, req)=>{
@@ -132,5 +127,5 @@ katnip.addApi("/api/install",async (form, req)=>{
 	await user.populateAuthMethods();
 	await katnip.setSetting("install",false);
 
-	return user;
+	await req.setUser(user);
 });

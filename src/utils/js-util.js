@@ -65,6 +65,13 @@ export function buildUrl(url, vars={}) {
 }
 
 export async function apiFetch(url, query={}, options={}) {
+	let defaultOptions={}
+	if (isClient() && window.apiFetchDefaultOptions)
+		options={...window.apiFetchDefaultOptions,...options};
+
+	if (isServer() && global.apiFetchDefaultOptions)
+		options={...global.apiFetchDefaultOptions,...options};
+
 	let	headers={
 		"Content-Type": "application/json"
 	};
@@ -99,6 +106,10 @@ export async function apiFetch(url, query={}, options={}) {
 		}
 
 		throw new Error(text);
+	}
+
+	if (options.processResult) {
+		data=options.processResult(data,response);
 	}
 
 	return data;

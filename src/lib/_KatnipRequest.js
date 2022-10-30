@@ -1,4 +1,4 @@
-import {parseCookieString} from "../utils/js-util.js";
+/*import {parseCookieString} from "../utils/js-util.js";
 
 export default class KatnipRequest {
 	constructor() {
@@ -7,7 +7,7 @@ export default class KatnipRequest {
 	matchPath() {
 	}
 
-	processUrl(url) {
+	/*processUrl(url) {
 		let l=new URL(url,this.origin);
 		this.query=Object.fromEntries(new URLSearchParams(l.search));
 		this.pathargs=l.pathname.split("/").filter(s=>s.length>0);
@@ -15,21 +15,21 @@ export default class KatnipRequest {
 		this.href=l.href;
 		this.url=l.pathname+l.search;
 		this.origin=l.origin;
-	}
+	}*/
 
-	processNodeRequestOrigin(request) {
+	/*processNodeRequestOrigin(request) {
 		this.protocol="http";
 		if (request.headers["x-forwarded-proto"])
 			this.protocol=request.headers["x-forwarded-proto"].split(",")[0];
 
 		this.origin=this.protocol+"://"+request.headers.host;
-	}
+	}*/
 
-	processCookieString(cookieString) {
+	/*processCookieString(cookieString) {
 		this.cookies=parseCookieString(cookieString);
-	}
+	}*/
 
-	processNodeRequest(request) {
+	/*processNodeRequest(request) {
 		this.processNodeRequestOrigin(request);
 		this.processUrl(request.url);
 		this.processCookieString(request.headers.cookie);
@@ -39,9 +39,9 @@ export default class KatnipRequest {
 		this.sessionId=this.cookies.katnip;
 		if (!this.sessionId)
 			this.sessionId=nodeCrypto.randomUUID();
-	}
+	}*/
 
-	async processNodeRequestBody(request) {
+	/*async processNodeRequestBody(request) {
 		const buffers = [];
 		for await (const chunk of request)
 			buffers.push(chunk);
@@ -51,11 +51,11 @@ export default class KatnipRequest {
 			let bodyQuery=JSON.parse(body);
 			Object.assign(this.query,bodyQuery);
 		}
-	}
+	}*/
 
-	processBrowserDocument() {
+	/*processBrowserDocument() {
 		this.processUrl(window.location);
 		this.processCookieString(window.document.cookie)
 		this.sessionId=this.cookies.katnip;
-	}
-}
+	}*/
+//}

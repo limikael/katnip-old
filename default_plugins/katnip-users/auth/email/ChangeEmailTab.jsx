@@ -14,9 +14,6 @@ export default function ChangeEmailTab() {
 		let newEmail=form.getCurrent().email;
 		await apiFetch("/api/changeEmail",form.getCurrent());
 		setMessage("Your email has been changed.");
-
-		user.authMethods.email.token=newEmail;
-		setCurrentUser(user);
 		invalidate();
 	}
 

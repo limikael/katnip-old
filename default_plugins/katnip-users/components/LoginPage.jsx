@@ -3,9 +3,10 @@ import {katnip, A, renderNode} from "katnip";
 export default function LoginPage() {
 	let user=katnip.useCurrentUser();
 	let authMethods=katnip.useChannel("authMethods");
+	let postloginpath=katnip.useChannel("postloginpath");
 
 	if (user) {
-		katnip.setLocation("/account");
+		katnip.setLocation(postloginpath);
 		return;
 	}
 

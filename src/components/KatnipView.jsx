@@ -1,10 +1,10 @@
 import {katnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
 		ResourceBlocker} from "katnip";
-import KatnipRequest from "../lib/KatnipRequest.js";
+import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
 export function KatnipView() {
-	let redirect=useChannel("redirect");
+	//let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
 	let bundleHash=useChannel("bundleHash");
 	let bundleHashRef=useRef();
@@ -37,24 +37,7 @@ export function KatnipView() {
 		}
 	});
 
-	let request=new KatnipRequest();
-	request.processBrowserDocument();
-
-	if (redirect && request.pathname!=redirect) {
-		katnip.setLocation(redirect);
-		return;
-	}
-
-	if (homepath && request.pathname==homepath) {
-		katnip.setLocation("/");
-		request.processBrowserDocument();
-	}
-
-	if (request.pathname=="/")
-		request.processUrl(homepath);
-
-	let Layout=katnip.getTemplateForRoute(request.pathname);
-	let Page=katnip.getPageComponentForRoute(request.pathname);
+	let request=new KatnipClientRequest();
 
 	let [tcVals,setTcVals]=useRevertibleState(null,[request.href]);
 	if (!tcVals)
@@ -74,6 +57,22 @@ export function KatnipView() {
 	}
 
 	let tc={...tcVals, set: tcSet};
+
+	/*if (redirect && request.pathname!=redirect) {
+		katnip.setLocation(redirect);
+		return;
+	}*/
+
+	if (homepath && request.pathname==homepath) {
+		katnip.setLocation("/");
+		return;
+	}
+
+	if (request.pathname=="/")
+		request.processUrl(homepath);
+
+	let Layout=katnip.getTemplateForRoute(request.pathname);
+	let Page=katnip.getPageComponentForRoute(request.pathname);
 
 	let res=(<>
 		<ResourceBlocker>
