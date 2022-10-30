@@ -1,4 +1,4 @@
-import Model from "../../packages/katnip-orm/src/Model.js";
+import Model from "../orm/Model.js";
 import {isServer} from "../utils/js-util.js";
 
 class Setting extends Model {

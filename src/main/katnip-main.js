@@ -2,7 +2,7 @@ import Actions from "../utils/Actions.js";
 import KatnipServerChannels from "./KatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
-import Db from "../../packages/katnip-orm/src/Db.js";
+import Db from "../orm/Db.js";
 import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
 import nodeFetch from "node-fetch";
 import PluginLoader from "../utils/PluginLoader.js";

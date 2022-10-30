@@ -1,4 +1,4 @@
-import Model from "../../packages/katnip-orm/src/Model.js";
+import Model from "../orm/Model.js";
 
 export default class UserAuthMethod extends Model {
 	static tableName="UserAuthMethod";
