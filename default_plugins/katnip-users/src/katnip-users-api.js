@@ -38,43 +38,6 @@ katnip.addApi("/api/changeUsername",async (form, req)=>{
 	return user;
 });
 
-/*katnip.addApi("/api/getAllUsers",async ({}, sess)=>{
-	sess.assertCap("manage-users");
-
-	return katnip.db.User.findMany();
-});
-
-katnip.addApi("/api/getUser",async ({id}, sess)=>{
-	sess.assertCap("manage-users");
-	let u=await katnip.db.User.findOne({id: id});
-
-	return u;
-});
-
-katnip.addApi("/api/saveUser",async ({id, email, password, role}, sess)=>{
-	sess.assertCap("manage-users");
-	let u;
-
-	if (id)
-		u=await katnip.db.User.findOne({id: id});
-
-	else
-		u=new katnip.db.User();
-
-	u.role=role;
-	u.email=email;
-	u.password=password;
-	await u.save();
-
-	return u;
-});
-
-katnip.addApi("/api/deleteUser",async ({id}, sess)=>{
-	sess.assertCap("manage-users");
-	let u=await katnip.db.User.findOne({id: id});
-	await u.delete();
-});*/
-
 katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	let user=req.getUser();
 	if (!user)
@@ -85,7 +48,7 @@ katnip.addApi("/api/authMethodStatus",async ({},req)=>{
 	let authMethods=[];
 	await katnip.doActionAsync("authMethods",authMethods,req);
 	for (let authMethod of authMethods) {
-		if (user.authMethods[authMethod.id]) //FIXME
+		if (user.authMethods[authMethod.id])
 			authMethod.active=true;
 	}
 
