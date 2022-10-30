@@ -3,7 +3,7 @@ import {useMemo} from "react";
 
 export default function GoogleAuth({request}) {
 	let tc=useTemplateContext();
-	let newUser=useApiFetch("/api/googleAuth",{url: request.href});
+	let apiRes=useApiFetch("/api/googleAuth",{url: request.href});
 	let postloginpath=useChannel("postloginpath");
 	let user=useCurrentUser();
 	let linking=useMemo(()=>{
@@ -16,11 +16,11 @@ export default function GoogleAuth({request}) {
 	else
 		tc.set({title: "Logging in with Google..."});
 
-	if (newUser===undefined)
-		return <div class="spinner-border m-3"/>;
-
-	if (newUser instanceof Error)
+	if (apiRes instanceof Error)
 		return <BsAlert message={newUser}/>
+
+	if (!user)
+		return <div class="spinner-border m-3"/>;
 
 	if (linking)
 		katnip.setLocation("/account");
