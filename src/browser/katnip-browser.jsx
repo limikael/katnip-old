@@ -1,4 +1,4 @@
-import KatnipActions from "../lib/KatnipActions.js";
+import Actions from "../utils/Actions.js";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
 import {KatnipView} from "../components/KatnipView.jsx";
@@ -10,8 +10,7 @@ import ContentRenderer from "../richedit/ContentRenderer.jsx";
 
 class BrowserKatnip {
 	constructor() {
-		this.actions=new KatnipActions();
-		this.composeFunctions(this.actions);
+		this.actions=new Actions();
 
 		this.TemplateContext=createContext();
 
@@ -80,14 +79,8 @@ class BrowserKatnip {
 		return useContext(this.TemplateContext);
 	}
 
-	composeFunctions=(o)=>{
-		for (let k in o)
-			if (typeof o[k]=='function')
-				this[k]=o[k];
-	}
-
 	clientMain=()=>{
-		this.doAction("clientMain");
+		this.actions.doAction("clientMain");
 
 		let el=document.getElementById("katnip-root");
 		render(<KatnipView />,el);
@@ -121,9 +114,9 @@ export const elements=katnip.contentRenderer.elements;
 export const TemplateContext=katnip.TemplateContext;
 
 export const clientMain=katnip.clientMain;
-export const addAction=katnip.addAction;
-export const doAction=katnip.doAction;
-export const doActionAsync=katnip.doActionAsync;
+export const addAction=katnip.actions.addAction;
+export const doAction=katnip.actions.doAction;
+export const doActionAsync=katnip.actions.doActionAsync;
 export const useTemplateContext=katnip.useTemplateContext;
 export const addRoute=katnip.addRoute;
 export const addTemplate=katnip.addTemplate;
@@ -132,12 +125,9 @@ export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 
 export const useCurrentUser=katnip.useCurrentUser;
 export const getCurrentUser=katnip.getCurrentUser;
-export const setCurrentUser=null;
 
 export const useChannel=katnip.channelManager.useChannel;
 export const setChannelPersistence=katnip.channelManager.setChannelPersistence;
 export const getChannelValue=katnip.channelManager.getChannelValue;
 export const setChannelValue=katnip.channelManager.setChannelValue;
 export const useWebSocketStatus=katnip.channelConnector.useWebSocketStatus;
-
-//export const getSessionId=katnip.getSessionId;

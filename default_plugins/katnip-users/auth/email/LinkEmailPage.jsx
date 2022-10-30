@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
-		setCurrentUser, useChannel, useTemplateContext} from "katnip";
+		useChannel, useTemplateContext} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LinkEmailPage(props) {
@@ -13,9 +13,7 @@ export default function LinkEmailPage(props) {
 	async function onSignupClick() {
 		setMessage();
 
-		let u=await katnip.apiFetch("/api/signup",form.getCurrent());
-
-		setCurrentUser(u);
+		await katnip.apiFetch("/api/signup",form.getCurrent());
 		katnip.setLocation("/account");
 	}
 

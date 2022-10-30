@@ -1,4 +1,4 @@
-import KatnipActions from "../lib/KatnipActions.js";
+import Actions from "../utils/Actions.js";
 import KatnipServerChannels from "./KatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
@@ -9,6 +9,7 @@ import PluginLoader from "../utils/PluginLoader.js";
 import KatnipCommands from "./KatnipCommands.js";
 import PackageManager from "../utils/PackageManager.js";
 import KatnipRequestHandler from "../auth/KatnipRequestHandler.js";
+import User from "../auth/User.js";
 import fs from "fs";
 
 if (!global.fetch)
@@ -16,7 +17,7 @@ if (!global.fetch)
 
 class MainKatnip {
 	constructor() {
-		this.actions=new KatnipActions();
+		this.actions=new Actions();
 
 		this.db=new Db();
 		this.apis={};
@@ -28,10 +29,34 @@ class MainKatnip {
 		this.requestHandler=new KatnipRequestHandler(this);
 	}
 
-	verifyDsn=async (dsn)=>{
+	installDb=async (dsn)=>{
+		if (this.options.dsn)
+			throw new Error("Not install mode");
+
+		if (!this.options.webProcessChild)
+			throw new Error("Not running in spawned mode.");
+
+		console.log("Installing database...");
+
 		let db=new Db(dsn);
 		await this.packageManager.verifyPackage(db.getDependencyPackage());
 		await db.connect();
+
+		let env="";
+		if (fs.existsSync(process.cwd()+"/.env"))
+			env=fs.readFileSync(process.cwd()+"/.env","utf8");
+
+		env+="\nDSN="+dsn+"\n";
+		fs.writeFileSync(process.cwd()+"/.env",env);
+
+		await this.restart();
+	}
+
+	checkAdmin=async ()=>{
+		if (await User.findOne({role: "admin"})) {
+			this.haveAdmin=true;
+			this.serverChannels.notifyChannel("redirect");
+		}
 	}
 
 	addModel=(model)=>{
@@ -111,12 +136,11 @@ class MainKatnip {
 
 			console.log("Initializing plugins...");
 			await this.actions.doActionAsync("serverMain",options);
+			await this.checkAdmin();
 		}
 
 		else {
-			console.log("No DSN, entering install mode...");
-			await this.settingsManager.setSetting("sitename","Katnip Install",{local: true});
-			await this.settingsManager.setSetting("install","db",{local: true});
+			console.log("No DSN, starting unitialized...");
 		}
 
 		if (options.webProcessChild) {
@@ -144,12 +168,12 @@ class MainKatnip {
 
 const katnip=new MainKatnip();
 
-export const verifyDsn=katnip.verifyDsn;
-
 export const run=katnip.run;
 export const restart=katnip.restart;
 export const runCommand=katnip.runCommand;
 export const addCommand=katnip.addCommand;
+export const installDb=katnip.installDb;
+export const checkAdmin=katnip.checkAdmin;
 
 export const db=katnip.db;
 

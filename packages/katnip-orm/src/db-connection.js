@@ -214,7 +214,7 @@ export function createConnection(url) {
 }
 
 export function getDependencyPackage(url) {
-	let urlObject=new URL(dsn);
+	let urlObject=new URL(url);
 
 	switch (urlObject.protocol) {
 		case "mysql:":

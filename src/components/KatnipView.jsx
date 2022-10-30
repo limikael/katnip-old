@@ -4,7 +4,7 @@ import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
 export function KatnipView() {
-	//let redirect=useChannel("redirect");
+	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");
 	let bundleHash=useChannel("bundleHash");
 	let bundleHashRef=useRef();
@@ -58,10 +58,10 @@ export function KatnipView() {
 
 	let tc={...tcVals, set: tcSet};
 
-	/*if (redirect && request.pathname!=redirect) {
+	if (redirect && request.pathname!=redirect) {
 		katnip.setLocation(redirect);
 		return;
-	}*/
+	}
 
 	if (homepath && request.pathname==homepath) {
 		katnip.setLocation("/");

@@ -17,6 +17,15 @@ export default class KatnipRequestHandler {
 		let sc=this.katnip.serverChannels;
 		sc.addChannel("authMethods",this.authMethodsChannel);
 		sc.addChannel("user",this.userChannel);
+		sc.addChannel("redirect",this.redirectChannel);
+	}
+
+	redirectChannel=async ({}, req)=>{
+		if (!this.katnip.options.dsn)
+			return "/installdb";
+
+		if (!this.katnip.haveAdmin)
+			return "/installadmin";
 	}
 
 	authMethodsChannel=async ({}, req)=>{
@@ -110,6 +119,7 @@ export default class KatnipRequestHandler {
 
 	handleDefault=async (req, res, next)=>{
 		let initChannelIds=[
+			"redirect",
 			"contentHash",
 			"bundleHash",
 			"authMethods",

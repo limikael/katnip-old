@@ -1,5 +1,5 @@
 import nodeCrypto from "crypto";
-//import {UserAuthMethod} from "../../src/User.js";
+import {UserAuthMethod} from "katnip";
 
 function hash(v) {
 	return nodeCrypto.createHash("sha256").update(v).digest().toString("hex");			

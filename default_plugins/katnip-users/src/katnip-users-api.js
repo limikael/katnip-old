@@ -74,11 +74,6 @@ katnip.addApi("/api/unlinkAuthMethod",async ({methodId}, req)=>{
 });
 
 katnip.addApi("/api/installDb",async({driver, filename, host, user, pass, name}, req)=>{
-	if (!katnip.getSetting("install"))
-		throw new Error("Not install mode");
-
-	console.log("Installing database...");
-
 	let dsn;
 	switch (driver) {
 		case "sqlite3":
@@ -90,42 +85,32 @@ katnip.addApi("/api/installDb",async({driver, filename, host, user, pass, name},
 			break;
 	}
 
-	await katnip.verifyDsn(dsn);
-
-	let env="";
-	if (fs.existsSync(process.cwd()+"/.env"))
-		env=fs.readFileSync(process.cwd()+"/.env","utf8");
-
-	env+="\nDSN="+dsn+"\n";
-	fs.writeFileSync(process.cwd()+"/.env",env);
-
-	await katnip.restart();
+	await katnip.installDb(dsn);
+	req.piggybackChannel("redirect");
 });
 
-katnip.addApi("/api/install",async (form, req)=>{
-	if (!katnip.getSetting("install"))
-		throw new Error("Not install mode");
+katnip.addApi("/api/installAdmin",async (form, req)=>{
+	if (await User.findOne({role: "admin"}))
+		throw new Error("There is already an admin");
 
 	assertForm(form,{
 		username: {validate: "username"},
 		password: {validate: "password"}
 	});
 
-	if (await katnip.db.User.findOne({username: form.username}))
+	if (await User.findOne({username: form.username}))
 		throw new Error("The username is already in use");
 
-	let user=new katnip.db.User();
+	let user=new User();
 	user.username=form.username;
 	user.role="admin";
 	await user.save();
 	await user.populateAuthMethods();
 
-	setPassword(user,form.password);
+	await setPassword(user,form.password);
 	await user.authMethods.email.save();
 
-	await katnip.setSessionValue(req.sessionId,user.id);
-	await user.populateAuthMethods();
-	await katnip.setSetting("install",false);
-
 	await req.setUser(user);
+	await katnip.checkAdmin();
+	req.piggybackChannel("redirect");
 });

@@ -1,4 +1,4 @@
-export default class KatnipActions {
+export default class Actions {
 	constructor() {
 		this.actions={};
 	}

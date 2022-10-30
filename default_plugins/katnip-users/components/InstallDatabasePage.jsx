@@ -1,8 +1,9 @@
 import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
-		setChannelValue, setCurrentUser, useChannel} from "katnip";
+		setChannelValue, setCurrentUser, useChannel, setLocation} from "katnip";
 import {useState} from "react";
 
-function DatabaseInstallPage() {
+export default function InstallDatabasePage() {
+	let redirect=useChannel("redirect");
 	let tc=useTemplateContext();
 	let form=useForm({initial: {
 		driver: "sqlite3",
@@ -13,6 +14,11 @@ function DatabaseInstallPage() {
 		name: "katnip"
 	}});
 	let [message, setMessage]=useState();
+
+	if (redirect!="/installdb") {
+		setLocation("/");
+		return;
+	}
 
 	tc.set({title: "Install"});
 
@@ -57,64 +63,4 @@ function DatabaseInstallPage() {
 			Install Database
 		</PromiseButton>
 	</>);
-}
-
-function randomPass(length) {
-	var result='';
-	var characters='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i=0; i<length; i++)
-		result+=characters.charAt(Math.floor(Math.random()*characters.length));
-
-	return result;
-}
-
-function AdminInstallPage() {
-	let tc=useTemplateContext();
-	let form=useForm({initial: {username: "admin", password: randomPass(16)}});
-	let [message, setMessage]=useState();
-
-	tc.set({title: "Install"});
-
-	async function write() {
-		setMessage();
-		let user=await apiFetch("/api/install",form.getCurrent());
-		setCurrentUser(user);
-		setChannelValue("redirect",null);
-		katnip.setLocation("/");
-	}	
-
-	return (<>
-		<p>Now, let's set up an admin user.</p>
-
-		<BsAlert message={message} ondismiss={setMessage}/>
-
-		<form style="max-width: 40rem">
-			<BsGroupInput title="Admin Username" {...form.field("username")}/>
-			<BsGroupInput type="text" title="Password" {...form.field("password")}/>
-		</form>
-
-		<PromiseButton action={write} onerror={setMessage}
-				class="btn btn-primary">
-			Install Admin
-		</PromiseButton>
-	</>);
-}
-
-export default function InstallPage() {
-	let installMode=useChannel("install");
-	if (!installMode) {
-		setChannelValue("redirect",null);
-		katnip.setLocation("/")
-		return;
-	}
-
-	switch (installMode) {
-		case "db":
-			return <DatabaseInstallPage />;
-			break;
-
-		case "admin":
-			return <AdminInstallPage />;
-			break;
-	}
 }
