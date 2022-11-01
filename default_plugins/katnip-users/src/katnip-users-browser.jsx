@@ -1,4 +1,4 @@
-import {katnip, delay, buildUrl, apiFetch, useChannel, getSessionId, getRoles} from "katnip";
+import {katnip, delay, buildUrl, apiFetch, useChannel, getRoles} from "katnip";
 import LoginPage from "../components/LoginPage.jsx";
 import AccountPage from "../components/AccountPage.jsx";
 import InstallAdminPage from "../components/InstallAdminPage.jsx";

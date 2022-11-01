@@ -1,5 +1,5 @@
 import {katnip, PromiseButton, useForm, delay, apiFetch,
-		useCurrentUser, setCurrentUser, useApiFetch, A, bindArgs,
+		useCurrentUser, useApiFetch, A, bindArgs,
 		useCounter, useForceUpdate, useModal, setLocation} from "katnip";
 import {useState, useRef} from "preact/compat";
 

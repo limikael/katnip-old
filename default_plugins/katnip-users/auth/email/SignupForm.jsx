@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
-		setCurrentUser, useChannel} from "katnip";
+		useChannel} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function SignupForm(props) {

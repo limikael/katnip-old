@@ -97,7 +97,7 @@ export function CustomizerSidebar({request, iframeRef}) {
 }
 
 export function Customizer({request, children}) {
-	iframeRef=useRef();
+	let iframeRef=useRef();
 
 	return (
 		<>

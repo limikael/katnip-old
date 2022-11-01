@@ -13,7 +13,7 @@ export default function LoginPage() {
 	let items=[];
 	authMethods.sort((a,b)=>a.priority-b.priority);
 
-	for (authMethod of authMethods) {
+	for (let authMethod of authMethods) {
 		if (authMethod.element) {
 			items.push(renderNode({type: authMethod.element}));
 		}

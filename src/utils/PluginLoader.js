@@ -100,13 +100,14 @@ export default class PluginLoader {
 				multiBundle: true,
 				include: this.pluginPaths,
 				expose: this.exposePaths,
-				inject: this.inject, //[`${process.cwd()}/node_modules/katnip/src/utils/preact-shim.js`],
+				inject: this.inject,
 				jsxFactory: "h",
 				jsxFragment: "Fragment",
 				minify: options.minify,
 				outfile: this.outDir+"/"+this.bundleName,
 				loader: {".svg": "dataurl"},
-				sourcemap: true
+				sourcemap: true,
+				format: "esm"
 			});
 		}
 

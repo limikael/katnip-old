@@ -1,4 +1,4 @@
-import {useTemplateContext, PromiseButton, apiFetch, useForm, setCurrentUser,
+import {useTemplateContext, PromiseButton, apiFetch, useForm,
 		setLocation, useChannel, useForceUpdate} from "katnip";
 import {useState} from "react";
 

@@ -18,13 +18,6 @@ class BrowserKatnip {
 		this.channelConnector=new ChannelConnector(this.channelManager);
 		this.contentRenderer=new ContentRenderer();
 
-		let channelTag=window.document.currentScript.dataset.channels;
-		let initChannels=JSON.parse(channelTag);
-		for (let k in initChannels) {
-			this.channelManager.setChannelPersistence(k,true);
-			this.channelManager.setChannelValue(k,initChannels[k]);
-		}
-
 		this.templates={};
 		this.routes={};
 
@@ -79,7 +72,14 @@ class BrowserKatnip {
 		return useContext(this.TemplateContext);
 	}
 
-	clientMain=()=>{
+	clientMain=(options)=>{
+		let initChannels=options.initChannels;
+		console.log(initChannels);
+		for (let k in initChannels) {
+			this.channelManager.setChannelPersistence(k,true);
+			this.channelManager.setChannelValue(k,initChannels[k]);
+		}
+
 		this.actions.doAction("clientMain");
 
 		let el=document.getElementById("katnip-root");

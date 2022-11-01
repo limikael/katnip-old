@@ -1,0 +1,1 @@
+import{a as e,b as o,c as r}from"./chunk-LGP3WINM.js";function l(){let t=o();return console.log(t.current),t.current=123,e("div",null,"test")}function p(){let t=r(e(l),{}),n=r(e(l),{});console.log(t)}export{l as Hello,p as run};

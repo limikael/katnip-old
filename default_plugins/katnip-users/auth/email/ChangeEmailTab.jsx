@@ -1,5 +1,5 @@
 import {katnip, PromiseButton, BsAlert, useForm, delay, apiFetch, useCounter,
-		useCurrentUser, setCurrentUser} from "katnip";
+		useCurrentUser} from "katnip";
 import {useState} from "react";
 
 export default function ChangeEmailTab() {

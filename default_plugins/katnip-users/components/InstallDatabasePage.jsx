@@ -1,5 +1,5 @@
 import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
-		setChannelValue, setCurrentUser, useChannel, setLocation} from "katnip";
+		setChannelValue, useChannel, setLocation} from "katnip";
 import {useState} from "react";
 
 export default function InstallDatabasePage() {
