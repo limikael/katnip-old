@@ -9,6 +9,11 @@ export default class ChannelManager extends EventEmitter {
 		this.channelData={};
 	}
 
+	clearRef=()=>{
+		for (let k in this.channelData)
+			this.channelData[k].clearRef();
+	}
+
 	setChannelValue=(channelId, value)=>{
 		if (!channelId)
 			throw new Error("null channel id");

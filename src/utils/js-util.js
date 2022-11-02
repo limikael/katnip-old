@@ -64,7 +64,58 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
-export async function apiFetch(url, query={}, options={}) {
+export async function fetchEx(url, options={}) {
+	/*let defaultOptions={}
+	if (isClient() && window.apiFetchDefaultOptions)
+		options={...window.apiFetchDefaultOptions,...options};
+
+	if (isServer() && global.apiFetchDefaultOptions)
+		options={...global.apiFetchDefaultOptions,...options};*/
+
+	let	headers={
+		"Content-Type": "application/json"
+	};
+
+	headers={...headers,...options.headers};
+
+	let response=await fetch(url,{
+		method: "POST",
+		headers: headers,
+		cache: "no-cache",
+		body: JSON.stringify(options.query)
+	});
+	let text=await response.text();
+	let data;
+
+	try {
+		data=JSON.parse(text);
+	}
+
+	catch (e) {
+		throw new Error(text);
+	}
+
+	if (response.status!=200) {
+		if (data && data.message) {
+			let e=new Error(data.message);
+
+			for (let k in data)
+				e[k]=data[k];
+
+			throw e;
+		}
+
+		throw new Error(text);
+	}
+
+	if (options.processResult) {
+		data=options.processResult(data,response);
+	}
+
+	return data;
+}
+
+/*export async function apiFetch(url, query={}, options={}) {
 	let defaultOptions={}
 	if (isClient() && window.apiFetchDefaultOptions)
 		options={...window.apiFetchDefaultOptions,...options};
@@ -113,7 +164,7 @@ export async function apiFetch(url, query={}, options={}) {
 	}
 
 	return data;
-}
+}*/
 
 export function quoteAttr(s, preserveCR) {
     preserveCR = preserveCR ? '&#13;' : '\n';
@@ -131,12 +182,6 @@ export function quoteAttr(s, preserveCR) {
         .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
         .replace(/[\r\n]/g, preserveCR);
         ;
-}
-
-export function delay(millis) {
-	return new Promise((resolve,reject)=>{
-		setTimeout(resolve,millis);
-	});
 }
 
 export function arrayMove(array, initialIndex, finalIndex, num=1) {
@@ -216,6 +261,34 @@ export function waitEvent(o, success, fail) {
 	});
 }
 
-export function validateFormData(formData, spec) {
+export async function retry(fn, options) {
+	if (!options.times)
+		options.times=5;
 
+	if (!options.delay)
+		options.delay=5000;
+
+	let tries=0;
+	while (tries<options.times) {
+		if (tries)
+			await delay(options.delay);
+
+		try {
+			let res=await fn()
+			return res;
+		}
+
+		catch (e) {
+			if (options.onerror)
+				options.onerror(e);
+
+			tries++;
+		}
+	}
+}
+
+export function delay(millis) {
+	return new Promise((resolve,reject)=>{
+		setTimeout(resolve,millis);
+	});
 }

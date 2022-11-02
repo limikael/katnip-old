@@ -3,6 +3,21 @@ import {katnip, useChannel, useEventUpdate, useEventListener, TemplateContext, u
 import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
+export function KatnipRequestView({request}) {
+	let Layout=katnip.getTemplateForRoute(request.pathname);
+	let Page=katnip.getPageComponentForRoute(request.pathname);
+
+	return (
+		<ResourceBlocker>
+			<TemplateContext.Provider value={{}}>
+				<Layout request={request}>
+					<Page request={request}/>
+				</Layout>
+			</TemplateContext.Provider>
+		</ResourceBlocker>
+	);
+}
+
 export function KatnipView() {
 	let redirect=useChannel("redirect");
 	let homepath=useChannel("homepath");

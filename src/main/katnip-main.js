@@ -3,7 +3,7 @@ import KatnipServerChannels from "./KatnipServerChannels.js";
 import SessionManager from "./SessionManager.js";
 import SettingsManager from "./SettingsManager.js";
 import Db from "../orm/Db.js";
-import {quoteAttr, delay, buildUrl} from "../utils/js-util.js";
+import {quoteAttr, delay, buildUrl, fetchEx} from "../utils/js-util.js";
 import nodeFetch from "node-fetch";
 import PluginLoader from "../utils/PluginLoader.js";
 import KatnipCommands from "./KatnipCommands.js";
@@ -80,10 +80,14 @@ class MainKatnip {
 		this.pluginLoader.addPluginSpecifier("plugins");
 		this.pluginLoader.addPlugin(".");
 		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
-		this.pluginLoader.setBundleName("katnip-bundle.js");
+		this.pluginLoader.setBundleName("katnip-bundle.mjs");
 
-		if (createBundle)
+		this.options.minify=false;
+
+		if (createBundle) {
 			this.outDir=await this.pluginLoader.buildClientBundle(this.options);
+			this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");
+		}
 
 		await this.pluginLoader.loadPlugins();
 	}
@@ -164,9 +168,21 @@ class MainKatnip {
 			console.log("Running on port "+this.options.port);
 		}
 	}
+
+	apiFetch=async (url, query={}, options={})=>{
+		let o={
+			...options,
+			query: query,
+			processResult: this.processApiFetchResult
+		};
+
+		return await fetchEx(url,o);
+	}
 }
 
 const katnip=new MainKatnip();
+
+export const apiFetch=katnip.apiFetch;
 
 export const run=katnip.run;
 export const restart=katnip.restart;

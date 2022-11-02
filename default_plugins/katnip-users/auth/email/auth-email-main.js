@@ -44,6 +44,8 @@ katnip.addApi("/api/login",async ({login, password}, req)=>{
 	assertPassword(user,password);
 
 	await req.setUser(user);
+
+	return "hello";
 });
 
 katnip.addApi("/api/signup",async (form, req)=>{

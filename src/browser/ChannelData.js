@@ -38,6 +38,12 @@ export default class ChannelData extends EventEmitter {
 		this.checkFinalize();
 	}
 
+	clearRef=()=>{
+		this.removeAllListeners("change");
+		this.ref=0;
+		this.checkFinalize();
+	}
+
 	checkFinalize=()=>{
 		if (!this.ref && !this.persistent)
 			this.emit("finalize",this.id);

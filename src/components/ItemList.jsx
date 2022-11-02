@@ -76,7 +76,7 @@ export function ItemList({columns, items, href, ondelete}) {
 
 	let tableHeaders=[];
 	for (let k in columns) {
-		column=columns[k];
+		let column=columns[k];
 		tableHeaders.push(
 			<th scope="col" key={k}>
 				{column.label}
@@ -89,8 +89,6 @@ export function ItemList({columns, items, href, ondelete}) {
 	if (resolvedItems instanceof Error) {
 		tableContent=(
 			<div class={`alert alert-dismissible alert-danger`}>
-				{/*<button type="button" class="btn-close" data-bs-dismiss="alert"
-						onclick={dismissMessage}></button>*/}
 				{resolvedItems.message}
 			</div>
 		);
@@ -108,7 +106,7 @@ export function ItemList({columns, items, href, ondelete}) {
 		for (let item of resolvedItems) {
 			let tableItem=[];
 			for (let k in columns) {
-				column=columns[k];
+				let column=columns[k];
 
 				let v=item[k];
 				if (column.cb)

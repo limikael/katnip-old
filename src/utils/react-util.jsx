@@ -1,5 +1,4 @@
 import {useRef, useReducer, useState, useEffect, useLayoutEffect, useMemo, useCallback} from "preact/compat";
-import {apiFetch} from "./js-util.js";
 
 export function useForceUpdate() {
 	const [_, forceUpdate] = useReducer((x) => x + 1, 1);
@@ -22,9 +21,15 @@ export function usePromise(fn, deps) {
 	useMemo(async ()=>{
 		try {
 			if (typeof fn=="function") {
-				setResult(undefined);
-				result=undefined;
-				result=await fn();
+				let p=fn();
+				if (p instanceof Promise) {
+					setResult(undefined);
+					result=undefined;
+					result=await p;
+				}
+
+				else
+					result=p;
 			}
 
 			else {
@@ -38,40 +43,6 @@ export function usePromise(fn, deps) {
 			console.log(e);
 			setResult(e);
 		}		
-	},deps);
-
-	return result;
-}
-
-export function useApiFetch(url, query={}, third, fourth) {
-	let options={};
-	let deps=[];
-
-	if (Array.isArray(third))
-		deps=third;
-
-	if (Array.isArray(fourth))
-		deps=fourth;
-
-	if (third && Object(third)==third)
-		options=third;
-
-	if (fourth && Object(fourth)==fourth)
-		options=fourth;
-
-	//console.log("useFetch: "+url+" "+JSON.stringify(query)+" "+JSON.stringify(deps));
-
-	let result=usePromise(async ()=>{
-		if (!url)
-			return url;
-
-		try {
-			return await apiFetch(url,query,options);
-		}
-
-		catch (e) {
-			return e;
-		}
 	},deps);
 
 	return result;
@@ -177,6 +148,7 @@ export function useImmediateEffect(effect, deps) {
 export function useEventListener(target, event, func) {
 	useImmediateEffect(()=>{
 		if (target) {
+			//console.log("adding: "+event);
 			function onEvent(...params) {
 				func(...params);
 			}
@@ -191,6 +163,7 @@ export function useEventListener(target, event, func) {
 				throw new Error("not an event dispatcher: "+target);
 
 			return (()=>{
+				//console.log("removing...");
 				if (target.off)
 					target.off(event,onEvent);
 

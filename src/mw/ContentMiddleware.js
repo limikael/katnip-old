@@ -111,6 +111,7 @@ export default class ContentMiddleware {
 			"jpeg": "image/jpeg",
 			"png": "image/png",
 			"js": "application/javascript",
+			"mjs": "application/javascript",
 			"css": "text/css"
 		};
 

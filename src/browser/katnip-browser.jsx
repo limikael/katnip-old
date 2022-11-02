@@ -1,12 +1,13 @@
 import Actions from "../utils/Actions.js";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
-import {KatnipView} from "../components/KatnipView.jsx";
+import {KatnipView, KatnipRequestView} from "../components/KatnipView.jsx";
 import {createContext, useContext} from "preact/compat";
 import {pathMatch} from "../utils/path-match.js"; 
-import {parseCookieString, buildUrl} from "../utils/js-util.js";
+import {parseCookieString, buildUrl, fetchEx} from "../utils/js-util.js";
 import {createElement, Fragment} from "react";
 import ContentRenderer from "../richedit/ContentRenderer.jsx";
+import {render as renderToString} from "preact-render-to-string";
 
 class BrowserKatnip {
 	constructor() {
@@ -20,21 +21,6 @@ class BrowserKatnip {
 
 		this.templates={};
 		this.routes={};
-
-		window.apiFetchDefaultOptions={
-			processResult: this.processApiFetchResult
-		}
-	}
-
-	processApiFetchResult=(data, response)=>{
-		if (response.headers.get("X-Katnip-Type")=="wrapped") {
-			for (let k in data.channelValues)
-				this.channelManager.setChannelValue(k,data.channelValues[k]);
-
-			data=data.result;
-		}
-
-		return data;
 	}
 
 	addRoute=(route, component)=>{
@@ -73,8 +59,10 @@ class BrowserKatnip {
 	}
 
 	clientMain=(options)=>{
+		console.log("client main");
+		this.channelConnector.initWebSocket();
+
 		let initChannels=options.initChannels;
-		console.log(initChannels);
 		for (let k in initChannels) {
 			this.channelManager.setChannelPersistence(k,true);
 			this.channelManager.setChannelValue(k,initChannels[k]);
@@ -101,9 +89,90 @@ class BrowserKatnip {
 
 		return this.channelManager.getChannelValue(channelId);
 	}
+
+	processApiFetchResult=(data, response)=>{
+		if (response.headers.get("X-Katnip-Type")=="wrapped") {
+			for (let k in data.channelValues)
+				this.channelManager.setChannelValue(k,data.channelValues[k]);
+
+			data=data.result;
+		}
+
+		return data;
+	}
+
+	apiFetch=(url, query={}, options={})=>{
+		if (this.ssr==1) {
+			this.ssrApiCalls[buildUrl(url,query)]={
+				url, query, ...options
+			};
+			return;
+		}
+
+		if (this.ssr==2) {
+			let res=this.ssrApiCalls[buildUrl(url,query)].result;
+
+			return res;
+		}
+
+		let o={
+			...options,
+			query: query,
+			processResult: this.processApiFetchResult
+		};
+
+		return fetchEx(url,o);
+	};
+
+	useChannel=(channelId, dontUse)=>{
+		if (this.ssr)
+			return this.channelManager.getChannelValue(channelId);
+
+		return this.channelManager.useChannel(channelId,dontUse);
+	}
+
+	ssrPassOne=(req, options)=>{
+		this.ssr=1;
+		this.ssrApiCalls={};
+		renderToString(<KatnipRequestView request={req}/>);
+		this.channelManager.clearRef();
+		this.channelConnector.removeAllListeners();
+
+		let res={
+			apiCalls: this.ssrApiCalls
+		};
+
+		this.ssr=null;
+		this.ssrApiCalls=null;
+
+		return res;
+	}
+
+	ssrPassTwo=(req, ssr)=>{
+		this.ssr=2;
+		this.ssrApiCalls=ssr.apiCalls;
+
+		for (let k in ssr.channels) {
+			this.channelManager.setChannelPersistence(k,true);
+			this.channelManager.setChannelValue(k,ssr.channels[k]);
+		}
+
+		let res=renderToString(<KatnipRequestView request={req}/>);
+		this.channelManager.clearRef();
+		this.channelConnector.removeAllListeners();
+
+		this.ssr=null;
+		this.ssrApiCalls=null;
+
+		return res;
+	}
 }
 
 const katnip=new BrowserKatnip();
+
+export const ssrPassOne=katnip.ssrPassOne;
+export const ssrPassTwo=katnip.ssrPassTwo;
+export const apiFetch=katnip.apiFetch;
 
 export const contentRenderer=katnip.contentRenderer;
 export const addElement=katnip.contentRenderer.addElement;
@@ -126,7 +195,7 @@ export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 export const useCurrentUser=katnip.useCurrentUser;
 export const getCurrentUser=katnip.getCurrentUser;
 
-export const useChannel=katnip.channelManager.useChannel;
+export const useChannel=katnip.useChannel;
 export const setChannelPersistence=katnip.channelManager.setChannelPersistence;
 export const getChannelValue=katnip.channelManager.getChannelValue;
 export const setChannelValue=katnip.channelManager.setChannelValue;

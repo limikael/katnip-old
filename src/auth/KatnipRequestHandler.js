@@ -69,13 +69,13 @@ export default class KatnipRequestHandler {
 			this.contentMiddleware.addPath(pluginPath+"/public");
 
 		this.bundleHash=this.contentMiddleware.addContent(
-			"/katnip-bundle.js",
-			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.js")/*+" window.katnip.clientMain();"*/
+			"/katnip-bundle.mjs",
+			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.mjs")/*+" window.katnip.clientMain();"*/
 		);
 
 		this.contentMiddleware.addContent(
-			"/katnip-bundle.js.map",
-			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.js.map")
+			"/katnip-bundle.mjs.map",
+			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.mjs.map")
 		);
 
 		this.mwServer.use(this.contentMiddleware);
@@ -142,18 +142,26 @@ export default class KatnipRequestHandler {
 			"Set-Cookie": `katnip=${req.sessionId}${cookieExtra}`
 		});
 
-//		let quotedChannels=quoteAttr(JSON.stringify(initChannels));
-		let bundleUrl=buildUrl("/katnip-bundle.js",{hash: this.bundleHash});
+		let bundleUrl=buildUrl("/katnip-bundle.mjs",{hash: this.bundleHash});
+
+		let ssr=this.katnip.clientModule.ssrPassOne(req);
+		for (let k in ssr.apiCalls) {
+			let c=ssr.apiCalls[k];
+			c.result=await this.katnip.apis[c.url](c.query,req);
+		}
+
+		ssr.channels=initChannels;
 
 		let clientPage=`<body><html>\n`;
 		clientPage+=`<head>\n`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\n`;
 		clientPage+=`</head>\n`;
 		clientPage+=`<div id="katnip-root"></div>\n`;
-		clientPage+=`<script type="module">\n`;
-		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;
-		clientPage+=`  katnip.clientMain({initChannels: ${JSON.stringify(initChannels)}});\n`;
-		clientPage+=`</script>\n`;
+		clientPage+=this.katnip.clientModule.ssrPassTwo(req,ssr);
+//		clientPage+=`<script type="module">\n`;
+//		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;
+//		clientPage+=`  katnip.clientMain({initChannels: ${JSON.stringify(initChannels)}});\n`;
+//		clientPage+=`</script>\n`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);

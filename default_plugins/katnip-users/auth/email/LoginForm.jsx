@@ -16,6 +16,8 @@ export default function LoginForm(props) {
 			password: passwordRef.current.value
 		});
 
+		console.log("res: "+JSON.stringify(res));
+
 		katnip.setLocation(postloginpath);
 	}
 

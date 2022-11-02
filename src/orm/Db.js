@@ -1,6 +1,6 @@
 export {default as Model} from "./Model.js";
 import {createConnection, getDependencyPackage} from "./db-connection.js";
-import {retry} from "./js-util.js";
+import {retry} from "../utils/js-util.js";
 
 export default class Db {
 	constructor(url) {

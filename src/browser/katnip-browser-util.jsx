@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
-		useForm, useCounter, useApiFetch, useValueChanged,
-		BsInput, PromiseButton, BsLoader} from "katnip";
+		useForm, useCounter, useValueChanged,
+		BsInput, PromiseButton, BsLoader, usePromise} from "katnip";
 import {useState} from "react";
 
 export function createCrudUi(model, options={}) {
@@ -112,4 +112,32 @@ export function createCrudUi(model, options={}) {
 			icon: options.icon
 		});
 	});
+}
+
+export function useApiFetch(url, query={}, third, fourth) {
+	let options={};
+	let deps=[];
+
+	if (Array.isArray(third))
+		deps=third;
+
+	if (Array.isArray(fourth))
+		deps=fourth;
+
+	if (third && Object(third)===third && !Array.isArray(third))
+		options=third;
+
+	if (fourth && Object(fourth)===fourth && !Array.isArray(fourth))
+		options=fourth;
+
+	//console.log("useApiFetch: "+url+" "+JSON.stringify(query)+" "+JSON.stringify(options));
+
+	let result=usePromise(()=>{
+		if (!url)
+			return url;
+
+		return apiFetch(url,query,options);
+	},deps);
+
+	return result;
 }
