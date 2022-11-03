@@ -81,7 +81,7 @@ function Nav({request, onsize}) {
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
-				<div class="collapse navbar-collapse" id="navbarColor01">
+				<div class="collapse navbar-collapse">
 					<ul class="navbar-nav me-auto">
 						{menuHeader.map(item=>{
 							let cls="nav-link";
@@ -208,6 +208,8 @@ export function BootswatchCleanPage({request,children}) {
 
 export function BootswatchPageTemplate({request, children}) {
 	let tc=useTemplateContext();
+
+	//console.log("render page template...");
 
 	return (
 		<BootswatchCleanPage request={request}>

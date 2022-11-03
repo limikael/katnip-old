@@ -1,19 +1,28 @@
-import {katnip, useChannel, useEventUpdate, useEventListener, TemplateContext, useRevertibleState,
-		ResourceBlocker} from "katnip";
+import {katnip, useChannel, useEventUpdate, useEventListener,
+		ResourceBlocker, clearTemplateContext, useValueChanged} from "katnip";
 import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
 export function KatnipRequestView({request}) {
-	let Layout=katnip.getTemplateForRoute(request.pathname);
+	let homepath=useChannel("homepath");
+
+	if (request.pathname=="/")
+		request.processUrl(homepath);
+
+	let changed=useValueChanged(request.href);
+	if (changed)
+		katnip.clearTemplateContext();
+
 	let Page=katnip.getPageComponentForRoute(request.pathname);
+	let Layout=katnip.getTemplateForRoute(request.pathname);
+
+	let p=<Page request={request}/>;
 
 	return (
 		<ResourceBlocker>
-			<TemplateContext.Provider value={{}}>
-				<Layout request={request}>
-					<Page request={request}/>
-				</Layout>
-			</TemplateContext.Provider>
+			<Layout request={request}>
+				<Page request={request}/>
+			</Layout>
 		</ResourceBlocker>
 	);
 }
@@ -23,24 +32,11 @@ export function KatnipView() {
 	let homepath=useChannel("homepath");
 	let bundleHash=useChannel("bundleHash");
 	let bundleHashRef=useRef();
-
-	if (bundleHashRef.current &&
-			bundleHash!=bundleHashRef.current) {
-		bundleHashRef.current=bundleHash;
-		console.log("bundle hash changed, refreshing...");
-		window.location=window.location;
-		return;
-	}
-
-	bundleHashRef.current=bundleHash;
-
 	useEventUpdate(window,"locationchange");
 	useEventUpdate(window,"popstate");
 	useEventListener(window,"message",(ev)=>{
 		switch (ev.data.type) {
 			case "setSession":
-				//setSession(ev.data.values);
-
 				for (let k in ev.data.values)
 					katnip.setChannelValue(k,ev.data.values[k]);
 
@@ -52,26 +48,17 @@ export function KatnipView() {
 		}
 	});
 
-	let request=new KatnipClientRequest();
-
-	let [tcVals,setTcVals]=useRevertibleState(null,[request.href]);
-	if (!tcVals)
-		tcVals={};
-
-	function tcSet(o) {
-		let changed=false;
-
-		for (let k in o)
-			if (tcVals[k]!=o[k]) {
-				tcVals[k]=o[k];
-				changed=true;
-			}
-
-		if (changed)
-			setTcVals(tcVals);
+	if (bundleHashRef.current &&
+			bundleHash!=bundleHashRef.current) {
+		bundleHashRef.current=bundleHash;
+		console.log("bundle hash changed, refreshing...");
+		window.location=window.location;
+		return;
 	}
 
-	let tc={...tcVals, set: tcSet};
+	bundleHashRef.current=bundleHash;
+
+	let request=new KatnipClientRequest();
 
 	if (redirect && request.pathname!=redirect) {
 		katnip.setLocation(redirect);
@@ -83,21 +70,5 @@ export function KatnipView() {
 		return;
 	}
 
-	if (request.pathname=="/")
-		request.processUrl(homepath);
-
-	let Layout=katnip.getTemplateForRoute(request.pathname);
-	let Page=katnip.getPageComponentForRoute(request.pathname);
-
-	let res=(<>
-		<ResourceBlocker>
-			<TemplateContext.Provider value={tc}>
-				<Layout request={request}>
-					<Page request={request}/>
-				</Layout>
-			</TemplateContext.Provider>
-		</ResourceBlocker>
-	</>);
-
-	return res;
+	return <KatnipRequestView request={request}/>
 }

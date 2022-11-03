@@ -82,8 +82,6 @@ class MainKatnip {
 		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
 		this.pluginLoader.setBundleName("katnip-bundle.mjs");
 
-		this.options.minify=false;
-
 		if (createBundle) {
 			this.outDir=await this.pluginLoader.buildClientBundle(this.options);
 			this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");

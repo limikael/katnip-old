@@ -1,10 +1,11 @@
 import Actions from "../utils/Actions.js";
+import EventEmitter from "events";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
 import {KatnipView, KatnipRequestView} from "../components/KatnipView.jsx";
-import {createContext, useContext} from "preact/compat";
-import {pathMatch} from "../utils/path-match.js"; 
+import {pathMatch} from "../utils/path-match.js";
 import {parseCookieString, buildUrl, fetchEx} from "../utils/js-util.js";
+import {useEventUpdate} from "../utils/react-util.jsx";
 import {createElement, Fragment} from "react";
 import ContentRenderer from "../richedit/ContentRenderer.jsx";
 import {render as renderToString} from "preact-render-to-string";
@@ -12,13 +13,13 @@ import {render as renderToString} from "preact-render-to-string";
 class BrowserKatnip {
 	constructor() {
 		this.actions=new Actions();
-
-		this.TemplateContext=createContext();
+		this.emitter=new EventEmitter();
 
 		this.channelManager=new ChannelManager();
 		this.channelConnector=new ChannelConnector(this.channelManager);
 		this.contentRenderer=new ContentRenderer();
 
+		this.templateContext={};
 		this.templates={};
 		this.routes={};
 	}
@@ -55,7 +56,26 @@ class BrowserKatnip {
 	}
 
 	useTemplateContext=()=>{
-		return useContext(this.TemplateContext);
+		useEventUpdate(this.emitter,"templateContextChange")
+		return this.templateContext;
+	}
+
+	setTemplateContext=(vals, second)=>{
+		if (typeof vals=="string") {
+			let o={};
+			o[vals]=second
+			vals=o;
+		}
+
+		for (let k in vals)
+			this.templateContext[k]=vals[k];
+
+		this.emitter.emit("templateContextChange");
+	}
+
+	clearTemplateContext=()=>{
+		this.templateContext={};
+		this.emitter.emit("templateContextChange");
 	}
 
 	clientMain=(options)=>{
@@ -66,6 +86,11 @@ class BrowserKatnip {
 		for (let k in initChannels) {
 			this.channelManager.setChannelPersistence(k,true);
 			this.channelManager.setChannelValue(k,initChannels[k]);
+		}
+
+		if (document.getElementById("katnip-ssr")) {
+			let rootEl=document.getElementById("katnip-root");
+			rootEl.style.display="none";
 		}
 
 		this.actions.doAction("clientMain");
@@ -102,15 +127,15 @@ class BrowserKatnip {
 	}
 
 	apiFetch=(url, query={}, options={})=>{
-		if (this.ssr==1) {
-			this.ssrApiCalls[buildUrl(url,query)]={
+		if (this.ssr && this.ssr.pass==1) {
+			this.ssr.apiCalls[buildUrl(url,query)]={
 				url, query, ...options
 			};
 			return;
 		}
 
-		if (this.ssr==2) {
-			let res=this.ssrApiCalls[buildUrl(url,query)].result;
+		if (this.ssr && this.ssr.pass==2) {
+			let res=this.ssr.apiCalls[buildUrl(url,query)].result;
 
 			return res;
 		}
@@ -131,39 +156,40 @@ class BrowserKatnip {
 		return this.channelManager.useChannel(channelId,dontUse);
 	}
 
-	ssrPassOne=(req, options)=>{
-		this.ssr=1;
-		this.ssrApiCalls={};
+	initSsrChannels=()=>{
+		for (let k in this.ssr.channels) {
+			this.channelManager.setChannelPersistence(k,true);
+			this.channelManager.setChannelValue(k,this.ssr.channels[k]);
+		}
+	}
+
+	ssrPassOne=(req, ssr)=>{
+		this.ssr=ssr;
+		this.ssr.pass=1;
+		this.initSsrChannels();
+
+		this.ssr.apiCalls={};
 		renderToString(<KatnipRequestView request={req}/>);
 		this.channelManager.clearRef();
 		this.channelConnector.removeAllListeners();
-
-		let res={
-			apiCalls: this.ssrApiCalls
-		};
+		this.emitter.removeAllListeners();
 
 		this.ssr=null;
-		this.ssrApiCalls=null;
-
-		return res;
 	}
 
 	ssrPassTwo=(req, ssr)=>{
-		this.ssr=2;
-		this.ssrApiCalls=ssr.apiCalls;
+		this.ssr=ssr;
+		this.ssr.pass=2;
+		this.initSsrChannels();
 
-		for (let k in ssr.channels) {
-			this.channelManager.setChannelPersistence(k,true);
-			this.channelManager.setChannelValue(k,ssr.channels[k]);
-		}
-
+		this.templateContext={};
 		let res=renderToString(<KatnipRequestView request={req}/>);
+		res=renderToString(<KatnipRequestView request={req}/>);
 		this.channelManager.clearRef();
 		this.channelConnector.removeAllListeners();
+		this.emitter.removeAllListeners();
 
 		this.ssr=null;
-		this.ssrApiCalls=null;
-
 		return res;
 	}
 }
@@ -187,6 +213,8 @@ export const addAction=katnip.actions.addAction;
 export const doAction=katnip.actions.doAction;
 export const doActionAsync=katnip.actions.doActionAsync;
 export const useTemplateContext=katnip.useTemplateContext;
+export const setTemplateContext=katnip.setTemplateContext;
+export const clearTemplateContext=katnip.clearTemplateContext;
 export const addRoute=katnip.addRoute;
 export const addTemplate=katnip.addTemplate;
 export const getTemplateForRoute=katnip.getTemplateForRoute;

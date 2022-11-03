@@ -81,7 +81,15 @@ start.args={
 		desc: "Open browser.",
 		type: "boolean",
 		default: true
-	}
+	},
+	"api-delay": {
+		desc: "Delay all api calls by millisecs."
+	},
+	"ssr": {
+		desc: "Do server side rendering.",
+		type: "boolean",
+		default: true
+	},
 };
 
 export async function worker(options) {

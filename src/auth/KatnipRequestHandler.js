@@ -2,7 +2,7 @@ import MiddlewareServer from "../mw/MiddlewareServer.js";
 import ContentMiddleware from "../mw/ContentMiddleware.js";
 import ApiMiddleware from "../mw/ApiMiddleware.js";
 import KatnipServerRequest from "../auth/KatnipServerRequest.js";
-import {buildUrl, quoteAttr} from "../utils/js-util.js";
+import {buildUrl, quoteAttr, delay} from "../utils/js-util.js";
 import User from "./User.js";
 import UserAuthMethod from "./UserAuthMethod.js";
 import fs from "fs";
@@ -93,6 +93,9 @@ export default class KatnipRequestHandler {
 	}
 
 	processApiResult=async (result, req, res)=>{
+		if (this.katnip.options["api-delay"])
+			await delay(this.katnip.options["api-delay"]);
+
 		if (req.piggybackedChannels.length) {
 			let wrappedData={result, channelValues: {}};
 
@@ -144,24 +147,30 @@ export default class KatnipRequestHandler {
 
 		let bundleUrl=buildUrl("/katnip-bundle.mjs",{hash: this.bundleHash});
 
-		let ssr=this.katnip.clientModule.ssrPassOne(req);
-		for (let k in ssr.apiCalls) {
-			let c=ssr.apiCalls[k];
-			c.result=await this.katnip.apis[c.url](c.query,req);
+		let ssr;
+		if (this.katnip.options.ssr) {
+			ssr={channels: initChannels};
+			this.katnip.clientModule.ssrPassOne(req,ssr);
+			for (let k in ssr.apiCalls) {
+				let c=ssr.apiCalls[k];
+				c.result=await this.katnip.apis[c.url](c.query,req);
+			}
 		}
-
-		ssr.channels=initChannels;
 
 		let clientPage=`<body><html>\n`;
 		clientPage+=`<head>\n`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\n`;
 		clientPage+=`</head>\n`;
 		clientPage+=`<div id="katnip-root"></div>\n`;
-		clientPage+=this.katnip.clientModule.ssrPassTwo(req,ssr);
-//		clientPage+=`<script type="module">\n`;
-//		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;
-//		clientPage+=`  katnip.clientMain({initChannels: ${JSON.stringify(initChannels)}});\n`;
-//		clientPage+=`</script>\n`;
+		if (this.katnip.options.ssr) {
+			clientPage+=`<div id="katnip-ssr">\n`;
+			clientPage+=this.katnip.clientModule.ssrPassTwo(req,ssr);
+			clientPage+=`</div>`;
+		}
+		clientPage+=`<script type="module">\n`;
+		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;
+		clientPage+=`  katnip.clientMain({initChannels: ${JSON.stringify(initChannels)}});\n`;
+		clientPage+=`</script>\n`;
 		clientPage+=`</html></body>`;
 
 		res.end(clientPage);
