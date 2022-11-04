@@ -147,25 +147,24 @@ export default class KatnipRequestHandler {
 
 		let bundleUrl=buildUrl("/katnip-bundle.mjs",{hash: this.bundleHash});
 
-		let ssr;
-		if (this.katnip.options.ssr) {
-			ssr={channels: initChannels};
-			this.katnip.clientModule.ssrPassOne(req,ssr);
-			for (let k in ssr.apiCalls) {
-				let c=ssr.apiCalls[k];
-				c.result=await this.katnip.apis[c.url](c.query,req);
-			}
-		}
-
 		let clientPage=`<body><html>\n`;
 		clientPage+=`<head>\n`;
 		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\n`;
 		clientPage+=`</head>\n`;
-		clientPage+=`<div id="katnip-root"></div>\n`;
 		if (this.katnip.options.ssr) {
+			let ssr={
+				channels: initChannels,
+				apis: this.katnip.apis
+			};
+
+			clientPage+=`<div id="katnip-root" style="display: none"></div>\n`;
 			clientPage+=`<div id="katnip-ssr">\n`;
-			clientPage+=this.katnip.clientModule.ssrPassTwo(req,ssr);
+			clientPage+=await this.katnip.clientModule.ssrRender(req,ssr);
 			clientPage+=`</div>`;
+		}
+
+		else {
+			clientPage+=`<div id="katnip-root"></div>\n`;
 		}
 		clientPage+=`<script type="module">\n`;
 		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;

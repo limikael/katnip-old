@@ -4,7 +4,7 @@ import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
 import {KatnipView, KatnipRequestView} from "../components/KatnipView.jsx";
 import {pathMatch} from "../utils/path-match.js";
-import {parseCookieString, buildUrl, fetchEx} from "../utils/js-util.js";
+import {parseCookieString, buildUrl, fetchEx, arrayRemove} from "../utils/js-util.js";
 import {useEventUpdate} from "../utils/react-util.jsx";
 import {createElement, Fragment} from "react";
 import ContentRenderer from "../richedit/ContentRenderer.jsx";
@@ -22,6 +22,7 @@ class BrowserKatnip {
 		this.templateContext={};
 		this.templates={};
 		this.routes={};
+		this.apiCalls=[];
 	}
 
 	addRoute=(route, component)=>{
@@ -67,10 +68,18 @@ class BrowserKatnip {
 			vals=o;
 		}
 
-		for (let k in vals)
-			this.templateContext[k]=vals[k];
+		let changed=false;
+		for (let k in vals) {
+			if (vals[k]!=this.templateContext[k]) {
+				this.templateContext[k]=vals[k];
+				changed=true;
+				if (this.ssr)
+					this.ssr.morePasses=true;
+			}
+		}
 
-		this.emitter.emit("templateContextChange");
+		if (changed)
+			this.emitter.emit("templateContextChange");
 	}
 
 	clearTemplateContext=()=>{
@@ -88,15 +97,28 @@ class BrowserKatnip {
 			this.channelManager.setChannelValue(k,initChannels[k]);
 		}
 
-		if (document.getElementById("katnip-ssr")) {
-			let rootEl=document.getElementById("katnip-root");
-			rootEl.style.display="none";
-		}
-
 		this.actions.doAction("clientMain");
 
 		let el=document.getElementById("katnip-root");
 		render(<KatnipView />,el);
+
+		if (document.getElementById("katnip-ssr")) {
+			let checkCalls=()=>{
+				setTimeout(()=>{
+					setTimeout(()=>{
+						if (!this.apiCalls.length) {
+							console.log("api calls complete...");
+							document.getElementById("katnip-root").style.display="block";
+							document.getElementById("katnip-ssr").style.display="none";
+							this.emitter.off("apiCallsComplete",checkCalls);
+						}
+					},0)
+				},0);
+			}
+
+			this.emitter.on("apiCallsComplete",checkCalls);
+			checkCalls();
+		}
 	}
 
 	useCurrentUser=()=>{
@@ -127,17 +149,14 @@ class BrowserKatnip {
 	}
 
 	apiFetch=(url, query={}, options={})=>{
-		if (this.ssr && this.ssr.pass==1) {
-			this.ssr.apiCalls[buildUrl(url,query)]={
-				url, query, ...options
-			};
-			return;
-		}
+		if (this.ssr) {
+			let u=buildUrl(url,query);
+			if (!this.ssr.apiCalls[u]) {
+				this.ssr.apiCalls[u]={url, query, options};
+				this.ssr.morePasses=true;
+			}
 
-		if (this.ssr && this.ssr.pass==2) {
-			let res=this.ssr.apiCalls[buildUrl(url,query)].result;
-
-			return res;
+			return this.ssr.apiCalls[u].result;
 		}
 
 		let o={
@@ -146,7 +165,16 @@ class BrowserKatnip {
 			processResult: this.processApiFetchResult
 		};
 
-		return fetchEx(url,o);
+		return ((async ()=>{
+			let p=fetchEx(url,o);
+			this.apiCalls.push(p);
+			let res=await p;
+			arrayRemove(this.apiCalls,p);
+			if (!this.apiCalls.length)
+				this.emitter.emit("apiCallsComplete");
+
+			return res;
+		})());
 	};
 
 	useChannel=(channelId, dontUse)=>{
@@ -156,48 +184,45 @@ class BrowserKatnip {
 		return this.channelManager.useChannel(channelId,dontUse);
 	}
 
-	initSsrChannels=()=>{
-		for (let k in this.ssr.channels) {
+	ssrRender=async (req, ssr)=>{
+		ssr.apiCalls={};
+
+		for (let k in ssr.channels) {
 			this.channelManager.setChannelPersistence(k,true);
-			this.channelManager.setChannelValue(k,this.ssr.channels[k]);
+			this.channelManager.setChannelValue(k,ssr.channels[k]);
 		}
-	}
 
-	ssrPassOne=(req, ssr)=>{
-		this.ssr=ssr;
-		this.ssr.pass=1;
-		this.initSsrChannels();
+		let res, pass=0;
+		this.clearTemplateContext();
 
-		this.ssr.apiCalls={};
-		renderToString(<KatnipRequestView request={req}/>);
-		this.channelManager.clearRef();
-		this.channelConnector.removeAllListeners();
-		this.emitter.removeAllListeners();
+		do {
+			pass++;
+			//console.log("SSR Pass: "+pass);
 
-		this.ssr=null;
-	}
+			ssr.morePasses=false;
+			this.ssr=ssr;
+			res=renderToString(<KatnipRequestView request={req}/>);
+			this.channelManager.clearRef();
+			this.channelConnector.removeAllListeners();
+			this.emitter.removeAllListeners();
 
-	ssrPassTwo=(req, ssr)=>{
-		this.ssr=ssr;
-		this.ssr.pass=2;
-		this.initSsrChannels();
+			for (let k in ssr.apiCalls) {
+				let c=ssr.apiCalls[k];
 
-		this.templateContext={};
-		let res=renderToString(<KatnipRequestView request={req}/>);
-		res=renderToString(<KatnipRequestView request={req}/>);
-		this.channelManager.clearRef();
-		this.channelConnector.removeAllListeners();
-		this.emitter.removeAllListeners();
+				if (!c.hasOwnProperty("result")) {
+					this.ssr=ssr;
+					c.result=await ssr.apis[c.url](c.query,req);
+				}
+			}
+		} while (ssr.morePasses);
 
-		this.ssr=null;
 		return res;
 	}
 }
 
 const katnip=new BrowserKatnip();
 
-export const ssrPassOne=katnip.ssrPassOne;
-export const ssrPassTwo=katnip.ssrPassTwo;
+export const ssrRender=katnip.ssrRender;
 export const apiFetch=katnip.apiFetch;
 
 export const contentRenderer=katnip.contentRenderer;
