@@ -1,8 +1,7 @@
-import {katnip, useApiFetch, useTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
+import {katnip, useApiFetch, setTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
 import {useMemo} from "react";
 
 export default function GoogleAuth({request}) {
-	let tc=useTemplateContext();
 	let apiRes=useApiFetch("/api/googleAuth",{url: request.href});
 	let postloginpath=useChannel("postloginpath");
 	let user=useCurrentUser();
@@ -11,10 +10,10 @@ export default function GoogleAuth({request}) {
 	},[]);
 
 	if (linking)
-		tc.set({title: "Linking Google account..."});
+		setTemplateContext({title: "Linking Google account..."});
 
 	else
-		tc.set({title: "Logging in with Google..."});
+		setTemplateContext({title: "Logging in with Google..."});
 
 	if (apiRes instanceof Error)
 		return <BsAlert message={newUser}/>

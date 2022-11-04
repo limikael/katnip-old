@@ -1,4 +1,4 @@
-import {katnip, useChannel, A, useTemplateContext, useApiFetch, useCurrentUser} from "katnip";
+import {katnip, useChannel, A, setTemplateContext, useApiFetch, useCurrentUser} from "katnip";
 import Qrious from "qrious";
 import {useMemo, useState} from "preact/compat";
 
@@ -17,7 +17,6 @@ function QrImg(props) {
 }
 
 export default function LightningLoginPage() {
-	let tc=useTemplateContext();
 	let code=useApiFetch("/api/lightningAuthCode");
 	let user=useCurrentUser();
 	let postloginpath=useChannel("postloginpath");
@@ -39,7 +38,7 @@ export default function LightningLoginPage() {
 		setLinking(true);
 	}
 
-	tc.set({title: title});
+	setTemplateContext({title: title});
 
 	if (code===undefined)
 		return <div class="spinner-border m-3"/>;

@@ -3,7 +3,7 @@ import {katnip, useChannel, useEventUpdate, useEventListener,
 import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
-export function KatnipRequestView({request}) {
+export function KatnipRequestView({request, renderMode}) {
 	let homepath=useChannel("homepath");
 
 	if (request.pathname=="/")
@@ -20,8 +20,8 @@ export function KatnipRequestView({request}) {
 
 	return (
 		<ResourceBlocker>
-			<Layout request={request}>
-				<Page request={request}/>
+			<Layout request={request} renderMode={renderMode}>
+				<Page request={request} renderMode={renderMode}/>
 			</Layout>
 		</ResourceBlocker>
 	);
@@ -70,5 +70,5 @@ export function KatnipView() {
 		return;
 	}
 
-	return <KatnipRequestView request={request}/>
+	return <KatnipRequestView request={request} renderMode="live"/>
 }

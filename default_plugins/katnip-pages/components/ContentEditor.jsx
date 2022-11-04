@@ -3,7 +3,7 @@ import PLUS_LG from "bootstrap-icons/icons/plus-lg.svg";
 import PUZZLE_FILL from "bootstrap-icons/icons/puzzle-fill.svg";
 import CODE_SLASH from "bootstrap-icons/icons/code-slash.svg";
 import FILE_EARMARK_TEXT_FILL from "bootstrap-icons/icons/file-earmark-text-fill.svg";
-import {katnip, bindArgs, useForm, PromiseButton, useTemplateContext,
+import {katnip, bindArgs, useForm, PromiseButton, setTemplateContext,
 		Editor, useEditor, useInstance, useEventUpdate, useModal} from "katnip";
 import ContentEditorState from "./ContentEditorState.js";
 import * as ce from "./content-editor-components.jsx";
@@ -21,8 +21,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 		/>);
 	}
 
-	let tc=useTemplateContext();
-	tc.set({tight: true});
+	setTemplateContext({tight: true});
 
 	let editor=useEditor({
 		contentRenderer: katnip.contentRenderer,

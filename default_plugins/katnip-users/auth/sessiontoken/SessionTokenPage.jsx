@@ -1,4 +1,4 @@
-import {useTemplateContext, PromiseButton, apiFetch, useForm,
+import {setTemplateContext, PromiseButton, apiFetch, useForm,
 		setLocation, useChannel, useForceUpdate} from "katnip";
 import {useState} from "react";
 
@@ -10,10 +10,9 @@ export default function SessionTokenPage({request}) {
 	}
 
 	let useForm=useForm({initial: {token}});
-	let tc=useTemplateContext();
 	let postloginpath=useChannel("postloginpath");
 	let forceUpdate=useForceUpdate();
-	tc.set({title: "Session Token"});
+	setTemplateContext({title: "Session Token"});
 
 	async function onUseTokenClick() {
 		/*if (!values.token) {

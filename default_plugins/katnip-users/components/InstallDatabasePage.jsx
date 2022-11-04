@@ -1,10 +1,9 @@
-import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
+import {setTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
 		setChannelValue, useChannel, setLocation} from "katnip";
 import {useState} from "react";
 
 export default function InstallDatabasePage() {
 	let redirect=useChannel("redirect");
-	let tc=useTemplateContext();
 	let form=useForm({initial: {
 		driver: "sqlite3",
 		filename: "database.db",
@@ -20,7 +19,7 @@ export default function InstallDatabasePage() {
 		return;
 	}
 
-	tc.set({title: "Install"});
+	setTemplateContext({title: "Install"});
 
 	async function write() {
 		setMessage();

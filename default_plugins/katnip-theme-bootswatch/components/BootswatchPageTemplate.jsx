@@ -1,7 +1,7 @@
 import {A, katnip, useChannel, useResizeObserver, useValueChanged, useTemplateContext, buildUrl, Stylesheet} from "katnip";
 import {useRef, useEffect, useState} from "preact/compat";
 
-function Nav({request, onsize}) {
+function Nav({request, onsize, renderMode}) {
 	let webSocketStatus=katnip.useWebSocketStatus();
 	let brandRef=useRef();
 	let navRef=useRef();
@@ -64,7 +64,7 @@ function Nav({request, onsize}) {
 		navClass="navbar-light ";
 
 	navClass+=` bg-${navColor}`;
-	if (navStyle=="fixed")
+	if (navStyle=="fixed" && renderMode!="ssr")
 		navClass+=" fixed-top";
 
 	if (!menuHeader)
@@ -161,8 +161,8 @@ function Footer({request}) {
 	);
 }
 
-export function BootswatchCleanPage({request,children}) {
-	let [navSize,setNavSize]=useState();
+export function BootswatchCleanPage({request, children, renderMode}) {
+	let [navSize,setNavSize]=useState(78);
 	let bootswatchTheme=useChannel("bootswatchTheme");
 	let bootswatchNavStyle=useChannel("bootswatchNavStyle");
 	let contentHash=useChannel("contentHash");
@@ -173,8 +173,12 @@ export function BootswatchCleanPage({request,children}) {
 
 	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
 
+	console.log("renderMode: "+renderMode);
+
 	let containerStyle={};
-	if (bootswatchNavStyle=="fixed")
+
+	console.log("navSize: "+navSize);
+	if (bootswatchNavStyle=="fixed" && renderMode!="ssr")
 		containerStyle["margin-top"]=navSize+"px";
 
 	let bsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
@@ -195,7 +199,7 @@ export function BootswatchCleanPage({request,children}) {
 				}
 			`}</style>
 			<div class="page d-flex flex-column">
-				<Nav request={request} onsize={setNavSize}/>
+				<Nav request={request} onsize={setNavSize} renderMode={renderMode}/>
 				<div style={containerStyle} class="flex-grow-1">
 					{topItems}
 					{children}
@@ -206,13 +210,13 @@ export function BootswatchCleanPage({request,children}) {
 	);
 }
 
-export function BootswatchPageTemplate({request, children}) {
+export function BootswatchPageTemplate({request, children, renderMode}) {
 	let tc=useTemplateContext();
 
 	//console.log("render page template...");
 
 	return (
-		<BootswatchCleanPage request={request}>
+		<BootswatchCleanPage request={request} renderMode={renderMode}>
 			<div class="container mb-5">
 				<div class="container mb-5">
 					<div class="row" style="height: 100%">

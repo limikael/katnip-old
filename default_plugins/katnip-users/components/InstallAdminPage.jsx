@@ -1,4 +1,4 @@
-import {useTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
+import {setTemplateContext, PromiseButton, useForm, BsGroupInput, BsAlert, apiFetch,
 		setChannelValue, useChannel, setLocation} from "katnip";
 import {useState} from "react";
 
@@ -12,7 +12,6 @@ function randomPass(length) {
 }
 
 export default function InstallAdminPage() {
-	let tc=useTemplateContext();
 	let redirect=useChannel("redirect");
 	let form=useForm({initial: {username: "admin", password: randomPass(16)}});
 	let [message, setMessage]=useState();
@@ -22,7 +21,7 @@ export default function InstallAdminPage() {
 		return;
 	}
 
-	tc.set({title: "Install"});
+	setTemplateContext({title: "Install"});
 
 	async function write() {
 		setMessage();

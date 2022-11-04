@@ -1,14 +1,13 @@
 import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useApiFetch, useValueChanged, PromiseButton,
-		useChannel, useTemplateContext} from "katnip";
+		useChannel, setTemplateContext} from "katnip";
 import {useRef, useState} from "preact/compat";
 
 export default function LinkEmailPage(props) {
 	let form=useForm({initial: {}});
 	let [message, setMessage]=useState();
-	let tc=useTemplateContext();
 
-	tc.set({title: "Link Email And Password"});
+	setTemplateContext({title: "Link Email And Password"});
 
 	async function onSignupClick() {
 		setMessage();

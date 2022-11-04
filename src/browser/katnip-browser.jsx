@@ -110,6 +110,7 @@ class BrowserKatnip {
 							console.log("api calls complete...");
 							document.getElementById("katnip-root").style.display="block";
 							document.getElementById("katnip-ssr").style.display="none";
+							document.getElementById("katnip-ssr").remove();
 							this.emitter.off("apiCallsComplete",checkCalls);
 						}
 					},0)
@@ -122,14 +123,20 @@ class BrowserKatnip {
 	}
 
 	useCurrentUser=()=>{
+		if (this.ssr)
+			return this.ssr.req.getUser();
+
 		let cookies=parseCookieString(document.cookie);
 		let sessionId=cookies.katnip;
 		let channelId=buildUrl("user",{sessionId: sessionId});
 
-		return this.channelManager.useChannel(channelId);
+		return this.useChannel(channelId);
 	}
 
 	getCurrentUser=()=>{
+		if (this.ssr)
+			return this.ssr.req.getUser();
+
 		let cookies=parseCookieString(document.cookie);
 		let sessionId=cookies.katnip;
 		let channelId=buildUrl("user",{sessionId: sessionId});
@@ -185,6 +192,7 @@ class BrowserKatnip {
 	}
 
 	ssrRender=async (req, ssr)=>{
+		ssr.req=req;
 		ssr.apiCalls={};
 
 		for (let k in ssr.channels) {
@@ -201,7 +209,7 @@ class BrowserKatnip {
 
 			ssr.morePasses=false;
 			this.ssr=ssr;
-			res=renderToString(<KatnipRequestView request={req}/>);
+			res=renderToString(<KatnipRequestView request={req} renderMode="ssr"/>);
 			this.channelManager.clearRef();
 			this.channelConnector.removeAllListeners();
 			this.emitter.removeAllListeners();

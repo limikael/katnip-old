@@ -1,6 +1,9 @@
 import {katnip, A, renderNode} from "katnip";
 
-export default function LoginPage() {
+export default function LoginPage({renderMode}) {
+	if (renderMode=="ssr")
+		return;
+
 	let user=katnip.useCurrentUser();
 	let authMethods=katnip.useChannel("authMethods");
 	let postloginpath=katnip.useChannel("postloginpath");

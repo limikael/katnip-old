@@ -1,4 +1,4 @@
-import {katnip, PromiseButton, useCurrentUser} from "katnip";
+import {katnip, PromiseButton, useCurrentUser, setTemplateContext} from "katnip";
 import AuthenticationTab from "./AuthenticationTab.jsx";
 import IdentificationTab from "./IdentificationTab.jsx";
 
@@ -28,11 +28,13 @@ function AccordionItem({id, parent, children, show, title}) {
 	);
 }
 
-export default function AccountPage() {
-	let tc=katnip.useTemplateContext();
+export default function AccountPage({renderMode}) {
+	if (renderMode=="ssr")
+		return;
+
 	let user=useCurrentUser();
 
-	//console.log(user);
+	console.log("account page, renderMode="+renderMode);
 
 	if (!user) {
 		console.log("no user, redirecting");
@@ -40,7 +42,7 @@ export default function AccountPage() {
 		return;
 	}
 
-	tc.set({title: "Account"});
+	setTemplateContext({title: "Account"});
 
 	let accountTabs=[];
 	accountTabs.push({

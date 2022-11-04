@@ -210,6 +210,9 @@ export function bindArgs(fn, ...args) {
 }
 
 export function setLocation(url, options={}) {
+	if (typeof window=="undefined")
+		return;
+
 	if (window.location.origin!=new URL(url,window.location.origin).origin) {
 		window.location=url;
 		return;
