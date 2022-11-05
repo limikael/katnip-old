@@ -11,7 +11,7 @@ katnip.addApi("/api/getPageView",async ({query})=>{
 		throw new Error("NOT FOUND")
 
 	return page;
-})
+});
 
 katnip.addChannel("numPages",async ()=>{
 	return await katnip.db.Page.getCount();

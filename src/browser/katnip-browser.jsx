@@ -175,12 +175,24 @@ class BrowserKatnip {
 		return ((async ()=>{
 			let p=fetchEx(url,o);
 			this.apiCalls.push(p);
-			let res=await p;
-			arrayRemove(this.apiCalls,p);
-			if (!this.apiCalls.length)
-				this.emitter.emit("apiCallsComplete");
+			let res;
 
-			return res;
+			try {
+				res=await p;
+				arrayRemove(this.apiCalls,p);
+				if (!this.apiCalls.length)
+					this.emitter.emit("apiCallsComplete");
+
+				return res;
+			}
+
+			catch (e) {
+				arrayRemove(this.apiCalls,p);
+				if (!this.apiCalls.length)
+					this.emitter.emit("apiCallsComplete");
+
+				throw e;				
+			}
 		})());
 	};
 
@@ -192,39 +204,48 @@ class BrowserKatnip {
 	}
 
 	ssrRender=async (req, ssr)=>{
-		ssr.req=req;
-		ssr.apiCalls={};
+		try {
+			ssr.req=req;
+			ssr.apiCalls={};
 
-		for (let k in ssr.channels) {
-			this.channelManager.setChannelPersistence(k,true);
-			this.channelManager.setChannelValue(k,ssr.channels[k]);
+			for (let k in ssr.channels) {
+				this.channelManager.setChannelPersistence(k,true);
+				this.channelManager.setChannelValue(k,ssr.channels[k]);
+			}
+
+			let res, pass=0;
+			this.clearTemplateContext();
+
+			do {
+				pass++;
+				//console.log("SSR Pass: "+pass);
+
+				ssr.morePasses=false;
+				this.ssr=ssr;
+				res=renderToString(<KatnipRequestView request={req} renderMode="ssr"/>);
+				this.channelManager.clearRef();
+				this.channelConnector.removeAllListeners();
+				this.emitter.removeAllListeners();
+
+				for (let k in ssr.apiCalls) {
+					let c=ssr.apiCalls[k];
+
+					if (!c.hasOwnProperty("result")) {
+						this.ssr=ssr;
+						c.result=await ssr.apis[c.url](c.query,req);
+					}
+				}
+			} while (ssr.morePasses);
+
+			return res;			
 		}
 
-		let res, pass=0;
-		this.clearTemplateContext();
+		catch (e) {
+			console.log("Error while SSR rendering...");
+			console.log(e);
 
-		do {
-			pass++;
-			//console.log("SSR Pass: "+pass);
-
-			ssr.morePasses=false;
-			this.ssr=ssr;
-			res=renderToString(<KatnipRequestView request={req} renderMode="ssr"/>);
-			this.channelManager.clearRef();
-			this.channelConnector.removeAllListeners();
-			this.emitter.removeAllListeners();
-
-			for (let k in ssr.apiCalls) {
-				let c=ssr.apiCalls[k];
-
-				if (!c.hasOwnProperty("result")) {
-					this.ssr=ssr;
-					c.result=await ssr.apis[c.url](c.query,req);
-				}
-			}
-		} while (ssr.morePasses);
-
-		return res;
+			return "<pre>"+e.stack+"</pre>";
+		}
 	}
 }
 

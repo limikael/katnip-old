@@ -3,8 +3,8 @@ import {useRef, useEffect, useState} from "preact/compat";
 
 function Nav({request, onsize, renderMode}) {
 	let webSocketStatus=katnip.useWebSocketStatus();
-	let brandRef=useRef();
 	let navRef=useRef();
+	let collapseRef=useRef();
 	let [reportedHeight,setReportedHeight]=useState(0);
 
 	let newPage=useValueChanged(request.href);
@@ -19,17 +19,9 @@ function Nav({request, onsize, renderMode}) {
 		if (!navRef.current)
 			return;
 
-		// FIXME... compute the size of the parent, and check dispaly style of child to see if it
-		// expanded... If so, subtract the height...
-		/*let rect=navRef.current.getBoundingClientRect();
-		console.log(rect);*/
-
-		let navStyle=window.getComputedStyle(navRef.current);
-		let padding=
-			parseFloat(navStyle["padding-top"])+
-			parseFloat(navStyle["padding-bottom"])+
-			parseFloat(navStyle["border-bottom-width"]);
-		let h=brandRef.current.clientHeight+padding;
+		let h=navRef.current.clientHeight;
+		if (window.getComputedStyle(collapseRef.current).display!="flex")
+			h-=Math.round(collapseRef.current.clientHeight);
 
 		return h;
 	}
@@ -73,15 +65,15 @@ function Nav({request, onsize, renderMode}) {
 	return (
 		<nav class={`navbar navbar-expand-md ${navClass}`} ref={navRef}>
 			<div class="container-fluid">
-				<A class="navbar-brand" href="/" ref={brandRef}>{sitename}</A>
+				<A class="navbar-brand" href="/">{sitename}</A>
 
 				<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
-						data-bs-target="#navbarColor01"
-						aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+						data-bs-target="#navbarHead"
+						aria-controls="navbarHead" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
-				<div class="collapse navbar-collapse">
+				<div class="collapse navbar-collapse" id="navbarHead" ref={collapseRef}>
 					<ul class="navbar-nav me-auto">
 						{menuHeader.map(item=>{
 							let cls="nav-link";
@@ -100,7 +92,7 @@ function Nav({request, onsize, renderMode}) {
 					</ul>
 				</div>
 
-				{!webSocketStatus && (
+				{!webSocketStatus && renderMode!="ssr" && (
 					<div class="ms-3">
 						<div class="spinner-border text-light spinner-border-sm" />
 					</div>
@@ -173,11 +165,8 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 
 	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
 
-	console.log("renderMode: "+renderMode);
-
 	let containerStyle={};
 
-	console.log("navSize: "+navSize);
 	if (bootswatchNavStyle=="fixed" && renderMode!="ssr")
 		containerStyle["margin-top"]=navSize+"px";
 
@@ -189,10 +178,12 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 	return (
 		<>
 			<Stylesheet href={cssUrl} />
-			<script
-				src={bsUrl}
-				async
-			/>
+			{renderMode!="ssr" &&
+				<script
+					src={bsUrl}
+					async
+				/>
+			}
 			<style>{`
 				html, body, .page {
 					height: 100%;
