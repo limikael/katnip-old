@@ -1,3 +1,21 @@
+export function docWrapFragment(fragment) {
+	return {
+		type: "#root",
+		children: fragment
+	}
+}
+
+export function docGetText(doc) {
+	if (typeof doc=="string")
+		return doc;
+
+	let a=[];
+	for (let c of doc.children)
+		a.push(docGetText(c));
+
+	return a.join(" ");
+}
+
 export function validateXml(xml) {
 	let parser=new DOMParser();
 	let doc=parser.parseFromString("<top>"+xml+"</top>","text/xml");

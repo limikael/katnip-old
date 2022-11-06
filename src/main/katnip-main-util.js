@@ -1,5 +1,6 @@
 import {katnip} from "katnip";
 import fs from "fs";
+import {docWrapFragment, docGetText} from "../richedit/doc-util.js";
 
 export function getKatnipDir(dir) {
 	if (!dir)
@@ -16,6 +17,15 @@ export function convertToSlug(text) {
 		.replace(/^ +/g,'')
 		.replace(/ +$/g,'')
 		.replace(/ +/g, '-');
+}
+
+export function renderContentExcerpt(contentFragment, length) {
+	let s=docGetText(docWrapFragment(contentFragment));
+
+	if (s.length>length)
+		s=s.slice(0,length)+"...";
+
+	return s;
 }
 
 export function createCrudApi(model, options={}) {
