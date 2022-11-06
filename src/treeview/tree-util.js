@@ -22,7 +22,9 @@ export function unindent(rows) {
 	let levelparents=[root];
 
 	for (let row of rows) {
-		row.data.children=[];
+		if (typeof row.data!="string")
+			row.data.children=[];
+
 		let lev=row.level;
 		while (!levelparents[lev])
 			lev--;
