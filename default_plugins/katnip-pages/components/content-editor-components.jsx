@@ -1,4 +1,4 @@
-import {bindArgs, withTargetValue, TreeView, BsInput} from "katnip";
+import {katnip, bindArgs, withTargetValue, TreeView, BsInput} from "katnip";
 import {useRef} from "react";
 
 export function CodeErrorModal({resolve, error}) {
