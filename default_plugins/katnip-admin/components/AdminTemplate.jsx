@@ -9,12 +9,6 @@ function Nav() {
 	let webSocketStatus=katnip.useWebSocketStatus();
 	let user=useCurrentUser();
 
-	if (!user) {
-		console.log("no user, redirecting");
-		katnip.setLocation("/login");
-		return;
-	}
-
 	async function onLogoutClick(ev) {
 		ev.preventDefault();
 
@@ -111,7 +105,7 @@ export function AdminHead() {
 	return (<>
 		<Stylesheet href={cssUrl}/>
 		<style>{`
-			html, body, .page {
+			html, body, .page, #katnip-root, #katnip-ssr {
 				height: 100%;
 				width: 100%;
 			}
@@ -121,7 +115,14 @@ export function AdminHead() {
 }
 
 export default function AdminTemplate({request, children}) {
+	let user=useCurrentUser();
 	let tc=useTemplateContext();
+
+	if (!user) {
+		console.log("no user, redirecting");
+		katnip.setLocation("/login");
+		return;
+	}
 
 	let content;
 	if (request.pathname=="/admin/customize")
@@ -129,12 +130,8 @@ export default function AdminTemplate({request, children}) {
 
 	else {
 		let m="m-3";
-
 		if (tc.tight)
 			m="";
-
-//		if (request.pathname=="/admin/page" && (request.query.id || request.query.new))
-//			m="";
 
 		let contentStyle={
 			width: "calc(100vw - 12rem)"
