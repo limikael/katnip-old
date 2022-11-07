@@ -35,16 +35,15 @@ class ResourceManager extends EventEmitter {
 	}
 }
 
-export function ResourceBlocker({children}) {
+export function ResourceBlocker({children, style}) {
 	let managerRef=useRef();
 	if (!managerRef.current)
 		managerRef.current=new ResourceManager();
 
 	useEventUpdate(managerRef.current,"change");
 
-	let style={};
 	if (managerRef.current.isLoading())
-		style={display: "none"};
+		style.display="none";
 
 	return (
 		<BlockerContext.Provider value={managerRef.current}>

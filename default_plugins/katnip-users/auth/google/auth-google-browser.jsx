@@ -2,10 +2,11 @@ import {katnip, useApiFetch, setTemplateContext, BsAlert, useChannel, useCurrent
 import {useMemo} from "react";
 
 export default function GoogleAuth({request, renderMode}) {
+	let apiUrl="/api/googleAuth";
 	if (renderMode=="ssr")
-		return;
+		apiUrl=null;
 
-	let apiRes=useApiFetch("/api/googleAuth",{url: request.href});
+	let apiRes=useApiFetch(apiUrl,{url: request.href});
 	let postloginpath=useChannel("postloginpath");
 	let user=useCurrentUser();
 	let linking=useMemo(()=>{
