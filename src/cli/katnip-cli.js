@@ -9,8 +9,14 @@ import {getKatnipDir} from "../main/katnip-main-util.js";
 import fs from "fs";
 import path from "path";
 import {formatTable} from "./katnip-cli-util.js";
+import semver from "semver";
 
 async function main() {
+	if (!semver.gte(process.version,"16.0.0")) {
+		console.log("Katnip requires Node.js version 16 or greater.");
+		process.exit();
+	}
+
 	let runner=new CommandRunner("katnip",{
 		desc: "Herding cats since 2022.",
 		args: {
