@@ -9,13 +9,6 @@ function generateImportFile(importFile, includePaths, exposePaths) {
 		s+=`export * from "${path}";\n`;
 	}
 
-/*	for (let x in exposePaths) {
-		let path=exposePaths[x];
-		s+=`import * as expose_${x} from "${path}";\n`;
-		s+=`if (typeof window!=='undefined') window.${x}=expose_${x}.default;\n`;
-		s+=`if (typeof global!=='undefined') global.${x}=expose_${x}.default;\n`;
-	}*/
-
 	fs.writeFileSync(importFile,s);
 }
 
