@@ -156,6 +156,9 @@ class BrowserKatnip {
 	}
 
 	apiFetch=(url, query={}, options={})=>{
+		if (!url)
+			return;
+
 		if (this.ssr) {
 			let u=buildUrl(url,query);
 			if (!this.ssr.apiCalls[u]) {

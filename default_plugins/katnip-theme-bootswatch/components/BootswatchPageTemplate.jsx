@@ -185,7 +185,7 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 				/>
 			}
 			<style>{`
-				html, body, .page {
+				html, body, .page, #katnip-root, #katnip-ssr {
 					height: 100%;
 				}
 			`}</style>

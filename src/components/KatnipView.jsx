@@ -19,7 +19,7 @@ export function KatnipRequestView({request, renderMode}) {
 	let p=<Page request={request}/>;
 
 	return (
-		<ResourceBlocker>
+		<ResourceBlocker style={{height: "100%"}}>
 			<Layout request={request} renderMode={renderMode}>
 				<Page request={request} renderMode={renderMode}/>
 			</Layout>
