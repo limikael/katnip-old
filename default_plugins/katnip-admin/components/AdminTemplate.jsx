@@ -143,7 +143,7 @@ export default function AdminTemplate({request, children}) {
 			<Sidebar request={request}/>
 			<div style={contentStyle}>
 				<Nav/>
-				<div className={"flex-grow-1 "+m} style="height: calc( 100% - 40px )">
+				<div className={"flex-grow-1 "+m} style="height: calc( 100% - 40px ); overflow-y: scroll">
 					{children}
 				</div>
 			</div>
