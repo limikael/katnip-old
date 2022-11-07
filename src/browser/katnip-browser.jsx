@@ -175,6 +175,8 @@ class BrowserKatnip {
 			processResult: this.processApiFetchResult
 		};
 
+		//console.log("apiFetch "+url+" "+JSON.stringify(query));
+
 		return ((async ()=>{
 			let p=fetchEx(url,o);
 			this.apiCalls.push(p);

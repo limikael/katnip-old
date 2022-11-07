@@ -16,8 +16,6 @@ export function KatnipRequestView({request, renderMode}) {
 	let Page=katnip.getPageComponentForRoute(request.pathname);
 	let Layout=katnip.getTemplateForRoute(request.pathname);
 
-	let p=<Page request={request}/>;
-
 	return (
 		<ResourceBlocker style={{height: "100%"}}>
 			<Layout request={request} renderMode={renderMode}>

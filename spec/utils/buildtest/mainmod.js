@@ -1,5 +1,7 @@
-export default class Hello {
+import {common, shakeMe} from "./common.js";
+
+export class Hello {
 	hello() {
-		console.log("blabla");
+		console.log("blabla"+common()+shakeMe());
 	}
 }

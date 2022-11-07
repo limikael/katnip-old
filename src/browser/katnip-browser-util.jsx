@@ -130,11 +130,15 @@ export function useApiFetch(url, query={}, third, fourth) {
 	if (fourth && Object(fourth)===fourth && !Array.isArray(fourth))
 		options=fourth;
 
+	//console.log(deps);
+
 	//console.log("useApiFetch: "+url+" "+JSON.stringify(query)+" "+JSON.stringify(options));
 
 	let result=usePromise(()=>{
 		if (!url)
 			return url;
+
+		//console.log("fetch: "+url+" "+JSON.stringify(query));
 
 		return apiFetch(url,query,options);
 	},deps);

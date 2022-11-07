@@ -1,9 +1,9 @@
-import Db, {Model} from "../src/Db.js";
+import Db, {Model} from "../../src/orm/Db.js";
 import fs from "fs";
 
 describe("db install",()=>{
 	let dbUrls=[
-		"mysql://mysql:mysql@localhost/katniptest",
+//		"mysql://mysql:mysql@localhost/katniptest",
 		"sqlite3:test.sqlite3"
 	];
 

@@ -63,12 +63,21 @@ export default class KatnipRequestHandler {
 		}
 	}
 
+
 	async initContent() {
 		this.contentMiddleware=new ContentMiddleware();
 		for (let pluginPath of this.katnip.pluginLoader.getPluginPaths())
 			this.contentMiddleware.addPath(pluginPath+"/public");
 
-		this.bundleHash=this.contentMiddleware.addContent(
+		let hash="";
+		for (let fn of this.katnip.pluginLoader.getBundleFiles()) {
+			hash+=this.contentMiddleware.addContent("/"+fn,
+				fs.readFileSync(this.katnip.pluginLoader.outDir+"/"+fn));
+		}
+
+		this.bundleHash=this.contentMiddleware.hash(hash);
+
+		/*this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.mjs",
 			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs")
 		);
@@ -76,7 +85,7 @@ export default class KatnipRequestHandler {
 		this.contentMiddleware.addContent(
 			"/katnip-bundle.mjs.map",
 			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs.map")
-		);
+		);*/
 
 		this.mwServer.use(this.contentMiddleware);
 

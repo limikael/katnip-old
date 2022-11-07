@@ -1,4 +1,4 @@
-import {createWhereClause} from "../src/db-util.js";
+import {createWhereClause} from "../../src/orm/db-util.js";
 
 describe("db-util",()=>{
 	it("can create a where clause",()=>{

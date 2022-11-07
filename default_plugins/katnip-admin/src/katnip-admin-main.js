@@ -28,3 +28,7 @@ katnip.addAction("getClientSession",async (clientSession)=>{
 	for (let setting of katnip.getSettings({session: true}))
 		clientSession[setting.id]=setting.value;
 });
+
+katnip.addAction("getPluginBundles",(bundles)=>{
+	bundles.admin.push("katnip-admin/components/AdminTemplate.jsx");
+});

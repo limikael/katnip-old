@@ -67,8 +67,24 @@ export default class KatnipPluginLoader {
 		return paths;
 	}
 
-	async buildClientBundle(options={}) {
+	resolveBundleFile(fn) {
+		if (fs.existsSync(this.cwd+"/node_modules/"+fn))
+			return this.cwd+"/node_modules/"+fn;
+
+		if (fs.existsSync(this.cwd+"/node_modules/katnip/default_plugins/"+fn))
+			return this.cwd+"/node_modules/katnip/default_plugins/"+fn
+
+		throw new Error("Unable to resolve bundle file: "+fn);
+	}
+
+	async buildClientBundle(pluginBundles, options={}) {
 		options.minify=!!options.minify;
+
+		for (let k in pluginBundles)
+			for (let i=0; i<pluginBundles[k].length; i++)
+				pluginBundles[k][i]=this.resolveBundleFile(pluginBundles[k][i]);
+
+		console.log(pluginBundles);
 
 		this.outDir=await this.createOutDir();
 		console.log("Building in: "+this.outDir+" minify: "+options.minify);
@@ -78,14 +94,17 @@ export default class KatnipPluginLoader {
 
 		try {
 			await build({
-				multiBundle: true,
-				include: this.getPluginPaths(),
+				namedMultiBundles: {
+					"katnip-bundle": this.getPluginPaths(),
+					...pluginBundles
+				},
 				inject: ["node_modules/katnip/src/utils/preact-shim.js"],
+				outdir: this.outDir,
 				jsxFactory: "h",
 				jsxFragment: "Fragment",
 				minify: options.minify,
-				outfile: this.outDir+"/katnip-bundle.mjs",
 				loader: {".svg": "dataurl"},
+				splitting: true,
 				sourcemap: true,
 				format: "esm"
 			});
@@ -99,5 +118,11 @@ export default class KatnipPluginLoader {
 		this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");
 
 		console.log("Build done...");
+	}
+
+	getBundleFiles() {
+		return fs.readdirSync(this.outDir,{withFileTypes: true})
+			.filter(dirent => dirent.isFile())
+			.map(dirent => dirent.name)
 	}
 }

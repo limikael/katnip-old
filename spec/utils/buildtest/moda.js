@@ -1,4 +1,6 @@
-export default class Pluggy {
+import {common} from "./common.js";
+
+export class Pluggy {
 
 }
 
@@ -6,4 +8,4 @@ export default class Pluggy {
 	return "test...";
 }*/
 
-console.log(new Pluggy());
+console.log(new Pluggy()+" "+common());

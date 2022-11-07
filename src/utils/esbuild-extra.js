@@ -33,5 +33,29 @@ export async function build(options) {
 		delete options.include;
 	}
 
+	if (options.namedMultiBundles) {
+		if (!options.outdir)
+			throw new Error("outdir missing");
+
+		fs.mkdirSync(options.outdir+"/import",{recursive: true});
+
+		options.entryPoints=[];
+		options.bundle=true;
+		options.outExtension={
+			".js":".mjs"
+		};
+
+		for (let name in options.namedMultiBundles) {
+			let include=options.namedMultiBundles[name];
+
+			let importFileName=options.outdir+"/import/"+name+".mjs";
+			generateImportFile(importFileName,include);
+
+			options.entryPoints.push(importFileName);
+		}
+
+		delete options.namedMultiBundles;
+	}
+
 	return await esbuild.build(options);
 }

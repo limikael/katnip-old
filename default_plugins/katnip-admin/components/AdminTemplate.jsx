@@ -115,7 +115,7 @@ export function AdminHead() {
 	</>);
 }
 
-export default function AdminTemplate({request, children}) {
+export function AdminTemplate({request, children}) {
 	let user=useCurrentUser();
 	let tc=useTemplateContext();
 
@@ -159,3 +159,5 @@ export default function AdminTemplate({request, children}) {
 		</>
 	);
 }
+
+export default AdminTemplate;

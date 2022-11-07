@@ -77,8 +77,13 @@ class MainKatnip {
 
 		await this.pluginLoader.loadPlugins();
 
+		let pluginBundles={admin:[]};
+		this.actions.doAction("getPluginBundles",pluginBundles);
+
+		console.log(JSON.stringify(pluginBundles));
+
 		if (createBundle)
-			await this.pluginLoader.buildClientBundle(this.options);
+			await this.pluginLoader.buildClientBundle(pluginBundles,this.options);
 	}
 
 	runCommand=async (commandRunner)=>{

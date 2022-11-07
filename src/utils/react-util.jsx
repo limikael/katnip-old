@@ -17,8 +17,15 @@ export function useInstance(cls, ...params) {
 
 export function usePromise(fn, deps) {
 	let [result,setResult]=useState();
+	let changed=useValueChanged(deps);
+	let first=useFirstEntry();
+
+	//console.log("changed: "+changed+" deps: "+JSON.stringify(deps));
 
 	useMemo(async ()=>{
+		if (!changed && !first)
+			return;
+
 		try {
 			if (typeof fn=="function") {
 				let p=fn();
@@ -39,10 +46,10 @@ export function usePromise(fn, deps) {
 			setResult(result);
 		}
 
-		catch (e){
+		catch (e) {
 			console.log(e);
 			setResult(e);
-		}		
+		}
 	},deps);
 
 	return result;
@@ -62,6 +69,16 @@ export function useCounter() {
 	let res=useReducer((x) => x + 1, 1);
 
 	return res;
+}
+
+export function useFirstEntry() {
+	let ref=useRef();
+	if (!ref.current) {
+		ref.current=true;
+		return true;
+	}
+
+	return false;
 }
 
 export function useValueChanged(value) {

@@ -1,4 +1,4 @@
-import FieldSpec from "../src/FieldSpec.js";
+import FieldSpec from "../../src/orm/FieldSpec.js";
 
 describe("FieldSpec",()=>{
 	it("can create a field spec",()=>{

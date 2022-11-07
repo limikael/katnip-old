@@ -1,6 +1,6 @@
-import Db, {Model} from "../src/Db.js";
-import {createWhereClause} from "../src/db-util.js";
-import FieldSpec from "../src/FieldSpec.js";
+import Db, {Model} from "../../src/orm/Db.js";
+import {createWhereClause} from "../../src/orm/db-util.js";
+import FieldSpec from "../../src/orm/FieldSpec.js";
 import mysql from "mysql";
 
 describe("db",()=>{
@@ -43,7 +43,7 @@ describe("db",()=>{
 	}
 
 	let dbUrls=[
-		"mysql://mysql:mysql@localhost/katniptest",
+//		"mysql://mysql:mysql@localhost/katniptest",
 		"sqlite3:test.sqlite3"
 	];
 

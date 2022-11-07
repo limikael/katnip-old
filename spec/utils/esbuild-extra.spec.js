@@ -1,17 +1,20 @@
 import {build} from "../../src/utils/esbuild-extra.js";
 
-/*describe("esbuild-extra",()=>{
+describe("esbuild-extra",()=>{
 	it("can build",async ()=>{
 		await build({
-			include: [
-				`${process.cwd()}/spec/utils/buildtest/moda.js`,
-				`${process.cwd()}/spec/utils/buildtest/modb.js`
-			],
-			expose: {
-				"main": `${process.cwd()}/spec/utils/buildtest/mainmod.js`,
+			namedMultiBundles: {
+				main: [
+					`${process.cwd()}/spec/utils/buildtest/mainmod.js`,
+				],
+				sub: [
+					`${process.cwd()}/spec/utils/buildtest/moda.js`,
+					`${process.cwd()}/spec/utils/buildtest/modb.js`,
+				]
 			},
-			multiBundle: true,
-			outfile: `${process.cwd()}/spec/utils/buildout/out.js`
+			outdir: `${process.cwd()}/spec/utils/buildout/`,
+			format: "esm",
+			splitting: true
 		});
 	});
-});*/
+});
