@@ -1,7 +1,10 @@
 import {katnip, useApiFetch, setTemplateContext, BsAlert, useChannel, useCurrentUser} from "katnip";
 import {useMemo} from "react";
 
-export default function GoogleAuth({request}) {
+export default function GoogleAuth({request, renderMode}) {
+	if (renderMode=="ssr")
+		return;
+
 	let apiRes=useApiFetch("/api/googleAuth",{url: request.href});
 	let postloginpath=useChannel("postloginpath");
 	let user=useCurrentUser();
@@ -16,7 +19,7 @@ export default function GoogleAuth({request}) {
 		setTemplateContext({title: "Logging in with Google..."});
 
 	if (apiRes instanceof Error)
-		return <BsAlert message={newUser}/>
+		return <BsAlert message={apiRes}/>
 
 	if (!user)
 		return <div class="spinner-border m-3"/>;
