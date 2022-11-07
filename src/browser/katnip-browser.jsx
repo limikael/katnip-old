@@ -114,7 +114,7 @@ class BrowserKatnip {
 							this.emitter.off("apiCallsComplete",checkCalls);
 						}
 					},0)
-				},1000);
+				},0);
 			}
 
 			this.emitter.on("apiCallsComplete",checkCalls);

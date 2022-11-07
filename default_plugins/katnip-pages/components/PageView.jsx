@@ -6,7 +6,7 @@ export default function PageView({request, renderMode}) {
 	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 
 	if (!page)
-		return;
+		return (<div class="spinner-border m-3"/>);
 
 	if (page instanceof Error)
 		return <div class="mt-5"><BsAlert message={page}/></div>;
