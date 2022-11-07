@@ -102,9 +102,7 @@ export function Customizer({request, children}) {
 	return (
 		<>
 			<CustomizerSidebar request={request} iframeRef={iframeRef}/>
-			<div style="width: 100%">
-				<iframe src="/" width="100%" height="100%" style="width: 100%" ref={iframeRef}/>
-			</div>
+			<div style="width: 100%; height: 100%"><iframe src="/" width="100%" height="100%" style="width: 100%; height: 100%" ref={iframeRef}/></div>
 		</>
 	);
 }

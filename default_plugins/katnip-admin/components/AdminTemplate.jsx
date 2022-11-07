@@ -108,6 +108,7 @@ export function AdminHead() {
 			html, body, .page, #katnip-root, #katnip-ssr {
 				height: 100%;
 				width: 100%;
+				overflow-y: hidden;
 			}
 		`}</style>
 		<script src={jsUrl}/>
@@ -129,19 +130,20 @@ export default function AdminTemplate({request, children}) {
 		content=<Customizer request={request}/>;
 
 	else {
-		let m="m-3";
+		let m="p-3";
 		if (tc.tight)
 			m="";
 
 		let contentStyle={
-			width: "calc(100vw - 12rem)"
+			width: "calc(100vw - 12rem)",
+			height: "100%"
 		};
 
 		content=(<>
 			<Sidebar request={request}/>
 			<div style={contentStyle}>
 				<Nav/>
-				<div className={"flex-grow-1 "+m}>
+				<div className={"flex-grow-1 "+m} style="height: calc( 100% - 40px )">
 					{children}
 				</div>
 			</div>

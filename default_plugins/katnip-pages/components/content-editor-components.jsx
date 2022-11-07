@@ -90,16 +90,18 @@ export function EditorStructure({editor, contentEditor}) {
 	}
 
 	return (<>
-		<div class="mb-3"><b>Document</b></div>
-		<div tabindex={0} ref={ref} onclick={onClickOutside} style={{height: "100%"}}>
-			<TreeView
-				data={data}
-				itemHeight={25}
-				itemSpacing={5}
-				itemIndent={30}
-				itemRenderer={ItemRenderer}
-				itemWidth={100}
-				onchange={onChange} />
+		<div onclick={onClickOutside} style="height: 100%">
+			<div class="mb-3"><b>Document</b></div>
+			<div tabindex={0} ref={ref}>
+				<TreeView
+					data={data}
+					itemHeight={25}
+					itemSpacing={5}
+					itemIndent={30}
+					itemRenderer={ItemRenderer}
+					itemWidth={100}
+					onchange={onChange} />
+			</div>
 		</div>
 	</>)
 }

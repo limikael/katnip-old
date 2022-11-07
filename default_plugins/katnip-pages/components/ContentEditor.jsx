@@ -60,7 +60,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 	let MetaEditor=metaEditor;
 
 	return (
-		<div style="width: 100%; height: calc( 100% - 40px )" class="d-flex flex-column">
+		<div style="width: 100%; height: 100%" class="d-flex flex-column">
 			{modal}
 			<style>{`
 				button.btn-outline-primary .btn-image {
@@ -105,7 +105,7 @@ export default function ContentEditor({metaEditor, read, write, deps, saveLabel}
 			</div>
 			<div class="flex-grow-1 d-flex flex-row" style="overflow: hidden;">
 				{!contentEditor.codeMode && contentEditor.leftMode=="tree" &&
-					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%; overflow: scroll;">
+					<div class="bg-light border-end p-3 flex-shrink-0" style="width: 25%; overflow: scroll; height: 100%">
 						<ce.EditorStructure editor={editor} contentEditor={contentEditor}/>
 					</div>
 				}
