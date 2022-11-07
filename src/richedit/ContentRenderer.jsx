@@ -72,7 +72,7 @@ export default class ContentRenderer {
 
 		let passProps={...node.props, renderMode: options.renderMode};
 
-		if (true || options.renderMode=="editor") {
+		if (options.renderMode=="editor") {
 			if (typeof component=="string") {
 				passProps["data-props"]=JSON.stringify(node.props);
 				passProps["data-type"]=component;

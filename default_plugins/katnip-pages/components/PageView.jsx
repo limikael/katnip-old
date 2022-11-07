@@ -1,7 +1,7 @@
 import {useApiFetch, BsAlert, renderFragment, setTemplateContext} from "katnip";
 import {useState} from "react";
 
-export default function PageView({request}) {
+export default function PageView({request, renderMode}) {
 	let pageQuery=request.pathargs[1];
 	let page=useApiFetch("/api/getPageView",{query: pageQuery},[pageQuery]);
 
@@ -14,5 +14,5 @@ export default function PageView({request}) {
 	if (!page.meta.hideTitle)
 		setTemplateContext("title",page.title);
 
-	return renderFragment(page.content);
+	return renderFragment(page.content,{renderMode: renderMode});
 }

@@ -147,10 +147,13 @@ export default class KatnipRequestHandler {
 
 		let bundleUrl=buildUrl("/katnip-bundle.mjs",{hash: this.bundleHash});
 
-		let clientPage=`<body><html>\n`;
+		let clientPage=`<!DOCTYPE html>\n`;
+		clientPage+=`<html>\n`;
 		clientPage+=`<head>\n`;
-		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\n`;
+		clientPage+=`<meta charset="utf-8"/>\n`
+		clientPage+=`<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>\n`;
 		clientPage+=`</head>\n`;
+		clientPage+=`<body>\n`;
 		if (this.katnip.options.ssr) {
 			let ssr={
 				channels: initChannels,
@@ -170,7 +173,8 @@ export default class KatnipRequestHandler {
 		clientPage+=`  import {katnip} from "${bundleUrl}";\n`;
 		clientPage+=`  katnip.clientMain({initChannels: ${JSON.stringify(initChannels)}});\n`;
 		clientPage+=`</script>\n`;
-		clientPage+=`</html></body>`;
+		clientPage+=`</body>\n`;
+		clientPage+=`</html>\n`;
 
 		res.end(clientPage);
 	}

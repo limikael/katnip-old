@@ -2,3 +2,4 @@ yarn.lock
 *.db
 *.tgz
 .env
+tmp
