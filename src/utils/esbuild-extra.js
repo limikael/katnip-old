@@ -1,7 +1,7 @@
 import esbuild from "esbuild";
 import fs from "fs";
 
-function generateImportFile(importFile, includePaths, exposePaths) {
+function generateImportFile(importFile, includePaths) {
 	let s="";
 
 	for (let i in includePaths) {
@@ -25,13 +25,12 @@ export async function build(options) {
 		options.bundle=true;
 
 		let importFileName=options.outfile+".import.js";
-		generateImportFile(importFileName,options.include,options.expose);
+		generateImportFile(importFileName,options.include);
 		options.entryPoints=[importFileName];
 
 		delete options.multiBundle;
 		delete options.outdir;
 		delete options.include;
-		delete options.expose;
 	}
 
 	return await esbuild.build(options);

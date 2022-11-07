@@ -5,7 +5,7 @@ import SettingsManager from "./SettingsManager.js";
 import Db from "../orm/Db.js";
 import {quoteAttr, delay, buildUrl, fetchEx} from "../utils/js-util.js";
 import nodeFetch from "node-fetch";
-import PluginLoader from "../utils/PluginLoader.js";
+import KatnipPluginLoader from "./KatnipPluginLoader.js";
 import KatnipCommands from "./KatnipCommands.js";
 import PackageManager from "../utils/PackageManager.js";
 import KatnipRequestHandler from "../auth/KatnipRequestHandler.js";
@@ -73,21 +73,12 @@ class MainKatnip {
 	}
 
 	async initPlugins(createBundle=true) {
-		this.pluginLoader=new PluginLoader();
-		this.pluginLoader.addPlugin("node_modules/katnip");
-		this.pluginLoader.addExposePlugin("katnip","node_modules/katnip");
-		this.pluginLoader.addPluginPath("node_modules/katnip/default_plugins");
-		this.pluginLoader.addPluginSpecifier("plugins");
-		this.pluginLoader.addPlugin(".");
-		this.pluginLoader.addInject("node_modules/katnip/src/utils/preact-shim.js");
-		this.pluginLoader.setBundleName("katnip-bundle.mjs");
-
-		if (createBundle) {
-			this.outDir=await this.pluginLoader.buildClientBundle(this.options);
-			this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");
-		}
+		this.pluginLoader=new KatnipPluginLoader(this);
 
 		await this.pluginLoader.loadPlugins();
+
+		if (createBundle)
+			await this.pluginLoader.buildClientBundle(this.options);
 	}
 
 	runCommand=async (commandRunner)=>{

@@ -70,12 +70,12 @@ export default class KatnipRequestHandler {
 
 		this.bundleHash=this.contentMiddleware.addContent(
 			"/katnip-bundle.mjs",
-			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.mjs")/*+" window.katnip.clientMain();"*/
+			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs")
 		);
 
 		this.contentMiddleware.addContent(
 			"/katnip-bundle.mjs.map",
-			fs.readFileSync(this.katnip.outDir+"/katnip-bundle.mjs.map")
+			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs.map")
 		);
 
 		this.mwServer.use(this.contentMiddleware);
@@ -162,7 +162,7 @@ export default class KatnipRequestHandler {
 
 			clientPage+=`<div id="katnip-root" style="display: none"></div>\n`;
 			clientPage+=`<div id="katnip-ssr">\n`;
-			clientPage+=await this.katnip.clientModule.ssrRender(req,ssr);
+			clientPage+=await this.katnip.pluginLoader.clientModule.ssrRender(req,ssr);
 			clientPage+=`</div>`;
 		}
 

@@ -1,4 +1,4 @@
-import {katnip, assertForm} from "katnip";
+import {katnip, assertForm, User} from "katnip";
 import {assertPassword, setPassword} from "./auth-email-util.js";
 
 katnip.addApi("/api/changePassword",async (params, req)=>{
@@ -72,10 +72,7 @@ katnip.addApi("/api/signup",async (form, req)=>{
 	setPassword(user,form.password);
 	user.authMethods.email.token=form.email;
 	await user.authMethods.email.save();
-
-	await katnip.setSessionValue(req.sessionId,user.id);
 	await user.populateAuthMethods();
-
 	await req.setUser(user);
 });
 
