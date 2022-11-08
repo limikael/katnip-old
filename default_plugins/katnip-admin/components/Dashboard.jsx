@@ -1,6 +1,6 @@
 import {A} from "katnip";
 
-export default function Dashboard({request}) {
+export function Dashboard({request}) {
 	return (
   <div class="px-4 py-5 text-center">
     <img class="d-block mx-auto mb-4" src="/cat.jpg" alt="" width="200" height="200"/>

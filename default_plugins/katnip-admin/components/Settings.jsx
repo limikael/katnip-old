@@ -45,7 +45,7 @@ function SettingsInput({setting, field, values}) {
 	);
 }
 
-export default function Settings({request}) {
+export function Settings({request}) {
 	let categoryId=request.query.category;
 	let categories=useApiFetch("/api/getSettingCategories");
 	let [message, setMessage]=useRevertibleState("",[categoryId]);

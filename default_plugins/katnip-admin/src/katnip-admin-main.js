@@ -31,4 +31,6 @@ katnip.addAction("getClientSession",async (clientSession)=>{
 
 katnip.addAction("getPluginBundles",(bundles)=>{
 	bundles.admin.push("katnip-admin/components/AdminTemplate.jsx");
+	bundles.admin.push("katnip-admin/components/Dashboard.jsx");
+	bundles.admin.push("katnip-admin/components/Settings.jsx");
 });

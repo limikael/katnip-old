@@ -43,7 +43,7 @@ function MenuTabs({request}) {
 	);
 }
 
-export default function MenuEditor({request}) {
+export function MenuEditor({request}) {
 	let menuSetting=request.query.setting;
 	let url=menuSetting?"/api/getMenu":undefined;
 	let serverState=useApiFetch(url,{setting: menuSetting},[url,menuSetting]);

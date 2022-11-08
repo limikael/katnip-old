@@ -9,30 +9,3 @@ import "../auth/email/auth-email-main.js";
 katnip.createCrudApi(User);
 
 katnip.addSettingCategory("auth",{title: "Authorization", priority: 15});
-
-/*katnip.addAction("serverMain",async (options)=>{
-	if (options.createadmin) {
-		let [email,password]=options.createadmin.split(":");
-		if (await User.findOne({email: email})) {
-			console.log("Admin user exists alreay...");
-		}
-
-		else {
-			u=new User({
-				email: email,
-				role: "admin"
-			});
-			u.setPassword(password);
-			await u.save();
-			console.log("Admin user created.");
-		}
-	}
-
-	if (!await User.findOne({role: "admin"})) {
-		console.log("No admin user, entering install mode.")
-		await katnip.setSetting("install","admin");
-	}
-
-	else
-		await katnip.setSetting("install",false);
-});*/

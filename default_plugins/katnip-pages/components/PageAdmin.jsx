@@ -117,7 +117,7 @@ function PageList({request}) {
 	);
 }
 
-export default function PageAdmin({request}) {
+export function PageAdmin({request}) {
 	let tc=useTemplateContext();
 
 	if (request.query.id || request.query.new)

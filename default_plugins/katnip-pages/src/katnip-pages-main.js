@@ -76,3 +76,7 @@ katnip.addAction("serverMain",async ()=>{
 		await katnip.setSetting("sitename","My Site");
 	}
 });
+
+katnip.addAction("getPluginBundles",(bundles)=>{
+	bundles.admin.push("katnip-pages/components/PageAdmin.jsx");
+});

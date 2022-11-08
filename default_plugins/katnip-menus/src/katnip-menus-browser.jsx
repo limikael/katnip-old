@@ -1,5 +1,4 @@
-import {katnip} from "katnip";
-import MenuEditor from "../components/MenuEditor.jsx";
+import {katnip, lazyComponent} from "katnip";
 import MENU_DOWN from "bootstrap-icons/icons/menu-down.svg";
 
 katnip.addAction("getAdminMenu",(items)=>{
@@ -11,4 +10,4 @@ katnip.addAction("getAdminMenu",(items)=>{
 	});
 });
 
-katnip.addRoute("admin/menus",MenuEditor);
+katnip.addRoute("admin/menus",lazyComponent("admin","MenuEditor"));

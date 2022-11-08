@@ -1,15 +1,12 @@
-import katnip from "katnip";
-import AdminTemplate from "../components/AdminTemplate.jsx";
-import Dashboard from "../components/Dashboard.jsx";
-import Settings from "../components/Settings.jsx";
+import {katnip, lazyComponent} from "katnip";
 import SPEEDOMETER from "bootstrap-icons/icons/speedometer.svg";
 import EYEGLASSES from "bootstrap-icons/icons/eyeglasses.svg";
 import GEAR from "bootstrap-icons/icons/gear.svg";
 
-katnip.addTemplate("admin/**",AdminTemplate);
+katnip.addTemplate("admin/**",lazyComponent("admin","AdminTemplate"));
 
-katnip.addRoute("admin",Dashboard);
-katnip.addRoute("admin/settings/**",Settings);
+katnip.addRoute("admin",lazyComponent("admin","Dashboard"));
+katnip.addRoute("admin/settings/**",lazyComponent("admin","Settings"));
 
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
