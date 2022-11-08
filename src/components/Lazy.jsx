@@ -1,11 +1,11 @@
-import {isSsr, usePromise, BsAlert} from "katnip";
+import {isSsr, usePromise, BsAlert, useChannel} from "katnip";
 
 export function Lazy(props) {
 	if (isSsr())
 		return (<div class="spinner-border m-3"/>);
 
-	let importFn="/"+props.module+".mjs";
-
+	let bundleHash=useChannel("bundleHash");
+	let importFn="/"+props.module+".mjs?hash="+bundleHash;
 	let bundle=usePromise(async ()=>{
 		return await import(importFn);
 	});
