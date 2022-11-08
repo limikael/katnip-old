@@ -53,7 +53,6 @@ export default class KatnipPluginLoader {
 	getPluginPaths() {
 		let paths=[];
 
-		paths.push(this.cwd+"/.");
 		paths.push(this.cwd+"/node_modules/katnip");
 
 		for (let subdir of this.getDirectories(this.cwd+"/node_modules/katnip/default_plugins"))
@@ -63,6 +62,8 @@ export default class KatnipPluginLoader {
 		if (pkg["plugins"])
 			for (let plugin of pkg["plugins"])
 				paths.push(this.cwd+"/node_modules/"+plugin);
+
+		paths.push(this.cwd+"/.");
 
 		return paths;
 	}
