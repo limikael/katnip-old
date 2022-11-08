@@ -84,20 +84,20 @@ export default class KatnipPluginLoader {
 			for (let i=0; i<pluginBundles[k].length; i++)
 				pluginBundles[k][i]=this.resolveBundleFile(pluginBundles[k][i]);
 
-		console.log(pluginBundles);
+		pluginBundles["katnip-bundle"]=this.getPluginPaths();
 
 		this.outDir=await this.createOutDir();
 		console.log("Building in: "+this.outDir+" minify: "+options.minify);
+
+		for (let k in pluginBundles)
+			console.log("- "+k+": "+pluginBundles[k].length+" entrypoint(s).");
 
 		this.linkAlias("react","preact/compat");
 		this.linkAlias("react-dom","preact/compat");
 
 		try {
 			await build({
-				namedMultiBundles: {
-					"katnip-bundle": this.getPluginPaths(),
-					...pluginBundles
-				},
+				namedMultiBundles: pluginBundles,
 				inject: ["node_modules/katnip/src/utils/preact-shim.js"],
 				outdir: this.outDir,
 				jsxFactory: "h",

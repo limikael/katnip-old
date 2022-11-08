@@ -61,6 +61,10 @@ class BrowserKatnip {
 		return this.templateContext;
 	}
 
+	isSsr=()=>{
+		return !!this.ssr;
+	}
+
 	setTemplateContext=(vals, second)=>{
 		if (typeof vals=="string") {
 			let o={};
@@ -256,6 +260,7 @@ class BrowserKatnip {
 
 const katnip=new BrowserKatnip();
 
+export const isSsr=katnip.isSsr;
 export const ssrRender=katnip.ssrRender;
 export const apiFetch=katnip.apiFetch;
 

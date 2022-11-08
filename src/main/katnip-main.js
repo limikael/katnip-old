@@ -80,7 +80,7 @@ class MainKatnip {
 		let pluginBundles={admin:[]};
 		this.actions.doAction("getPluginBundles",pluginBundles);
 
-		console.log(JSON.stringify(pluginBundles));
+		//console.log(JSON.stringify(pluginBundles));
 
 		if (createBundle)
 			await this.pluginLoader.buildClientBundle(pluginBundles,this.options);

@@ -1,6 +1,9 @@
-import {usePromise, BsAlert} from "katnip";
+import {isSsr, usePromise, BsAlert} from "katnip";
 
 export function Lazy(props) {
+	if (isSsr())
+		return (<div class="spinner-border m-3"/>);
+
 	let importFn="/"+props.module+".mjs";
 
 	let bundle=usePromise(async ()=>{
