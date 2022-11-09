@@ -32,7 +32,7 @@ export default class KatnipPluginLoader {
 
 	linkAlias(pkg, target) {
 		if (!fs.existsSync(`node_modules/${pkg}`))
-			fs.symlinkSync("preact/compat",`node_modules/${pkg}`,"dir");
+			fs.symlinkSync(target,`node_modules/${pkg}`,"dir");
 
 		let stat=fs.lstatSync(`node_modules/${pkg}`);
 		if (!stat.isSymbolicLink())
@@ -93,8 +93,27 @@ export default class KatnipPluginLoader {
 		for (let k in pluginBundles)
 			console.log("- "+k+": "+pluginBundles[k].length+" entrypoint(s).");
 
-		this.linkAlias("react","preact/compat");
-		this.linkAlias("react-dom","preact/compat");
+		let stat=fs.lstatSync(this.cwd+"/node_modules/katnip");
+		let realCwd=fs.realpathSync(this.cwd);
+		let realKatnip=fs.realpathSync(this.cwd+"/node_modules/katnip");
+
+		if (stat.isSymbolicLink() &&
+				realCwd!=realKatnip) {
+			console.log("Katnip is linked, setting up dependency links...");
+			fs.rmSync(this.cwd+"/node_modules/preact",{recursive: true, force: true});
+			fs.rmSync(this.cwd+"/node_modules/react",{recursive: true, force: true});
+			fs.rmSync(this.cwd+"/node_modules/react-dom",{recursive: true, force: true});
+
+			let l=fs.readlinkSync(this.cwd+"/node_modules/katnip");
+			fs.symlinkSync(l+"/node_modules/preact","node_modules/preact","dir");
+			fs.symlinkSync(l+"/node_modules/preact/compat","node_modules/react","dir");
+			fs.symlinkSync(l+"/node_modules/preact/compat","node_modules/react-dom","dir");
+		}
+
+		else {
+			this.linkAlias("react","preact/compat");
+			this.linkAlias("react-dom","preact/compat");
+		}
 
 		try {
 			await build({
