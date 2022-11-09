@@ -11,7 +11,8 @@ function Nav({request, onsize, renderMode}) {
 	if (newPage) {
 		setTimeout(()=>{
 			let el=document.querySelector("nav .navbar-collapse");
-			el.classList.remove("show");
+			if (el)
+				el.classList.remove("show");
 		},0)
 	}
 
@@ -185,7 +186,7 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 				/>
 			}
 			<style>{`
-				html, body, .page, #katnip-root, #katnip-ssr {
+				html, body, .page, #katnip-root, #katnip-ssr, .resource-blocker {
 					height: 100%;
 				}
 			`}</style>
@@ -203,8 +204,6 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 
 export function BootswatchPageTemplate({request, children, renderMode}) {
 	let tc=useTemplateContext();
-
-	//console.log("render page template...");
 
 	return (
 		<BootswatchCleanPage request={request} renderMode={renderMode}>

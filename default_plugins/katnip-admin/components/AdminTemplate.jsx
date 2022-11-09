@@ -105,7 +105,7 @@ export function AdminHead() {
 	return (<>
 		<Stylesheet href={cssUrl}/>
 		<style>{`
-			html, body, .page, #katnip-root, #katnip-ssr {
+			html, body, .page, #katnip-root, #katnip-ssr, .resource-blocker {
 				height: 100%;
 				width: 100%;
 				overflow-y: hidden;

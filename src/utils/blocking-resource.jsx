@@ -12,8 +12,6 @@ class ResourceManager extends EventEmitter {
 	}
 
 	addResourceId=(id)=>{
-		//console.log("adding: "+id);
-
 		if (id && !this.loadingResources.includes(id)) {
 			this.loadingResources.push(id);
 			this.emit("change");
@@ -21,8 +19,6 @@ class ResourceManager extends EventEmitter {
 	}
 
 	removeResourceId=(id)=>{
-		//console.log("removing: "+id);
-
 		if (id && this.loadingResources.includes(id)) {
 			arrayRemove(this.loadingResources,id);
 			//console.log("removed, len="+JSON.stringify(this.loadingResources));
@@ -35,19 +31,22 @@ class ResourceManager extends EventEmitter {
 	}
 }
 
-export function ResourceBlocker({children, style}) {
+export function ResourceBlocker({children}) {
 	let managerRef=useRef();
 	if (!managerRef.current)
 		managerRef.current=new ResourceManager();
 
 	useEventUpdate(managerRef.current,"change");
 
+	//console.log("loading: "+managerRef.current.isLoading());
+
+	let style="display: block";
 	if (managerRef.current.isLoading())
-		style.display="none";
+		style="display: none";
 
 	return (
 		<BlockerContext.Provider value={managerRef.current}>
-			<div style={style}>
+			<div style={style} class="resource-blocker">
 				{children}
 			</div>
 		</BlockerContext.Provider>

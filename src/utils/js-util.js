@@ -65,13 +65,6 @@ export function buildUrl(url, vars={}) {
 }
 
 export async function fetchEx(url, options={}) {
-	/*let defaultOptions={}
-	if (isClient() && window.apiFetchDefaultOptions)
-		options={...window.apiFetchDefaultOptions,...options};
-
-	if (isServer() && global.apiFetchDefaultOptions)
-		options={...global.apiFetchDefaultOptions,...options};*/
-
 	let	headers={
 		"Content-Type": "application/json"
 	};
