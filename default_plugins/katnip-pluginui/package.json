@@ -1,0 +1,6 @@
+{
+  "name": "katnip-pluginui",
+  "type": "module",
+  "main": "src/katnip-pluginui-main.js",
+  "browser": "src/katnip-pluginui-browser.jsx"
+}

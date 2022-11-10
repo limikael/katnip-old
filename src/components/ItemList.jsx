@@ -102,6 +102,13 @@ export function ItemList({columns, items, href, ondelete}) {
 	}
 
 	else {
+		let onTableRowClick;
+		let tableRowStyle="";
+		if (href) {
+			onTableRowClick=onRowClick;
+			tableRowStyle="cursor: pointer";
+		}
+
 		let tableRows=[];
 		for (let item of resolvedItems) {
 			let tableItem=[];
@@ -121,15 +128,19 @@ export function ItemList({columns, items, href, ondelete}) {
 			tableItem.push(<td class="text-end"><button class="btn btn-danger btn-sm">X</button></td>);
 
 			tableRows.push(
-				<tr onclick={onRowClick} data-id={item.id} style={{cursor: "pointer"}}>
+				<tr onclick={onTableRowClick} data-id={item.id} style={tableRowStyle}>
 					{tableItem}
 				</tr>
 			);
 		}
 
+		let tableClass="table align-middle";
+		if (href)
+			tableClass+=" table-hover";
+
 		tableContent=(<>
 			<BsAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
-			<table class="table table-hover align-middle" style={{"table-layout":"fixed"}}>
+			<table class={tableClass} style={{"table-layout":"fixed"}}>
 				<thead>
 					<tr class="table-light">
 						{tableHeaders}
