@@ -20,6 +20,10 @@ export default class ApiMiddleware {
 				if (!data)
 					data=null;
 				res.end(JSON.stringify(data));
+
+				if (req.postsend) {
+					await req.postsend();
+				}
 				return;
 			}
 

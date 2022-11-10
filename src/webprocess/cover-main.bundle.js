@@ -549,5 +549,4 @@
         break;
     }
   });
-  document.getElementById("console").textContent += "hello";
 })();

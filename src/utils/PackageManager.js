@@ -27,7 +27,7 @@ export default class PackageManager {
 		});
 	}
 
-	async installPackage(packageName) {
+	installPackage=async (packageName)=>{
 		console.log("installing package using "+this.pm);
 
 		switch (this.pm) {
@@ -45,7 +45,21 @@ export default class PackageManager {
 		}
 	}
 
-	async verifyPackage(packageName) {
-		await this.installPackage(packageName);
+	uninstallPackage=async (packageName)=>{
+		console.log("uninstalling package using "+this.pm);
+
+		switch (this.pm) {
+			case "yarn":
+				await this.exec("yarn",["remove",packageName]);
+				break;
+
+			case "npm":
+				await this.exec("npm",["uninstall","--save",packageName]);
+				break;
+
+			default:
+				throw new Error("Unknown package manager on system.");
+				break;
+		}
 	}
 }

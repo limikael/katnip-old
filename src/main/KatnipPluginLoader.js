@@ -145,4 +145,8 @@ export default class KatnipPluginLoader {
 			.filter(dirent => dirent.isFile())
 			.map(dirent => dirent.name)
 	}
+
+	getProjectDir=()=>{
+		return this.cwd;
+	}
 }

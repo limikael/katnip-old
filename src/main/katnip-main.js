@@ -27,6 +27,7 @@ class MainKatnip {
 		this.sessionManager=new SessionManager(this);
 		this.packageManager=new PackageManager();
 		this.requestHandler=new KatnipRequestHandler(this);
+		this.pluginLoader=new KatnipPluginLoader(this);
 	}
 
 	installDb=async (dsn)=>{
@@ -39,7 +40,7 @@ class MainKatnip {
 		console.log("Installing database...");
 
 		let db=new Db(dsn);
-		await this.packageManager.verifyPackage(db.getDependencyPackage());
+		await this.packageManager.installPackage(db.getDependencyPackage());
 		await db.connect();
 
 		let env="";
@@ -73,8 +74,6 @@ class MainKatnip {
 	}
 
 	async initPlugins(createBundle=true) {
-		this.pluginLoader=new KatnipPluginLoader(this);
-
 		await this.pluginLoader.loadPlugins();
 
 		let pluginBundles={admin:[]};
@@ -204,3 +203,7 @@ export const setSetting=katnip.settingsManager.setSetting;
 export const getSettings=katnip.settingsManager.getSettings;
 export const addSettingCategory=katnip.settingsManager.addSettingCategory;
 export const getSettingCategories=katnip.settingsManager.getSettingCategories;
+
+export const installPackage=katnip.packageManager.installPackage;
+export const uninstallPackage=katnip.packageManager.uninstallPackage;
+export const getProjectDir=katnip.pluginLoader.getProjectDir;

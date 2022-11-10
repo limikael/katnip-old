@@ -41,7 +41,7 @@ export function PromiseButton(props) {
 				await props.action();
 
 			if (props.onclick)
-				await props.onclick();
+				await props.onclick(ev);
 		}
 
 		catch (e) {

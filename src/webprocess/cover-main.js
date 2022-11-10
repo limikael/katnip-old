@@ -43,5 +43,3 @@ ws.on("message",(message)=>{
 			break;
 	}
 });
-
-document.getElementById("console").textContent+="hello";

@@ -1,4 +1,4 @@
-import {A, ItemList, apiFetch, usePromise, PromiseButton} from "katnip";
+import {A, ItemList, apiFetch, usePromise, PromiseButton, delay, bindArgs} from "katnip";
 import dayjs from "dayjs";
 
 export function PluginList({request}) {
@@ -11,8 +11,8 @@ export function PluginList({request}) {
 		return await apiFetch("/api/getInstalledPlugins");
 	}
 
-	async function onDelete() {
-
+	async function onDelete(id) {
+		await apiFetch("/api/removePlugin",{plugin: id});
 	}
 
 	return (
@@ -27,7 +27,8 @@ export function PluginList({request}) {
 			<ItemList
 				items={getItems} 
 				columns={columns}
-				ondelete={onDelete}/>
+				ondelete={onDelete}
+				refreshOnDelete={false}/>
 		</>
 	);
 }
@@ -45,11 +46,22 @@ function loadable(content, fn) {
 export function AddPlugin({request}) {
 	let pluginData=usePromise(async()=>{
 		let request=await fetch("https://registry.npmjs.com/-/v1/search?text=keywords:katnip-plugin");
-		return await request.json();
+		let result=await request.json();
+
+		let installed=await apiFetch("/api/getInstalledPlugins");
+		result.installed=[];
+		for (let i of installed)
+			result.installed.push(i.name);
+
+		return result;
 	});
 
+	async function onInstallClick(plugin) {
+		await apiFetch("/api/addPlugin",{plugin});
+	}
+
 	let content=loadable(pluginData,()=>{
-		console.log(pluginData);
+		//console.log(pluginData);
 		return pluginData.objects.map((o)=><>
 			<div class="border-bottom d-flex flex-row">
 				<div class="flex-grow-1">
@@ -62,7 +74,16 @@ export function AddPlugin({request}) {
 					</p>
 				</div>
 				<div>
-					<PromiseButton class="btn btn-primary">Install</PromiseButton>
+					{pluginData.installed.includes(o.package.name) && 
+						<button class="btn btn-outline-primary" disabled={true}>
+							Installed
+						</button>
+					}
+					{!pluginData.installed.includes(o.package.name) && 
+						<PromiseButton class="btn btn-primary" onclick={bindArgs(onInstallClick,o.package.name)}>
+							Install
+						</PromiseButton>
+					}
 				</div>
 			</div>
 		</>);

@@ -1,5 +1,8 @@
-import {katnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs} from "katnip";
+import {katnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs, PromiseButton} from "katnip";
 import {useState} from "preact/compat";
+import X_LG from "bootstrap-icons/icons/x-lg.svg";
+
+const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
 
 function DeleteConfirmation({onclose, onconfirm}) {
 	return (
@@ -31,17 +34,23 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export function ItemList({columns, items, href, ondelete}) {
+export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
+	if (refreshOnDelete===undefined)
+		refreshOnDelete=true;
+
 	let [counter,invalidate]=useCounter();
 	let resolvedItems=usePromise(items,[counter]);
 	let [deleteId, setDeleteId]=useState();
+	let [deletingId, setDeletingId]=useState();
 	let [message, setMessage]=useState();
 
-	function onRowClick(e) {
+	async function onRowClick(e) {
+		e.stopPropagation();
+
 		let tr=e.target.closest("tr");
 		let id=tr.dataset.id;
 
-		if (e.target.tagName=="BUTTON") {
+		if (e.target.closest("button")) {
 			setMessage(null);
 			setDeleteId(id);
 		}
@@ -61,6 +70,7 @@ export function ItemList({columns, items, href, ondelete}) {
 	async function onDialogConfirm() {
 		let id=deleteId;
 		setDeleteId(null);
+		setDeletingId(id);
 
 		try {
 			let message=await ondelete(id);
@@ -71,7 +81,10 @@ export function ItemList({columns, items, href, ondelete}) {
 			setMessage(e);
 		}
 
-		invalidate();
+		if (refreshOnDelete)
+			invalidate();
+
+		setDeletingId(null);
 	}
 
 	let tableHeaders=[];
@@ -125,7 +138,18 @@ export function ItemList({columns, items, href, ondelete}) {
 					</td>
 				);
 			}
-			tableItem.push(<td class="text-end"><button class="btn btn-danger btn-sm">X</button></td>);
+			tableItem.push(
+				<td class="text-end">
+					<button class="btn btn-danger btn-sm align-text-bottom text-center" onclick={onRowClick} style="width: 2.1rem">
+						{deletingId==item.id &&
+							<span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem"/>
+						}
+						{deletingId!=item.id && 
+							<img src={X_LG} style={`${whiteFilter}; width: 1rem; height: 1rem; vertical-align: -0.18rem`}/>
+						}
+					</button>
+				</td>
+			);
 
 			tableRows.push(
 				<tr onclick={onTableRowClick} data-id={item.id} style={tableRowStyle}>
