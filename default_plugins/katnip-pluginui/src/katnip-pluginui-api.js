@@ -32,7 +32,6 @@ katnip.addApi("/api/addPlugin",async ({plugin},req)=>{
 	if (!pkg.plugins)
 		pkg.plugins=[];
 	pkg.plugins.push(plugin);
-	console.log(pkg);
 	fs.writeFileSync(getProjectDir()+"/package.json",JSON.stringify(pkg,null,2));
 	await katnip.restart();
 });
