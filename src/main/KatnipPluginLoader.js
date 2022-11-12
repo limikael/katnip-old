@@ -63,6 +63,18 @@ export default class KatnipPluginLoader {
 			for (let plugin of pkg["plugins"])
 				paths.push(this.cwd+"/node_modules/"+plugin);
 
+		let theme="katnip-theme-bootswatch";
+		if (pkg.hasOwnProperty("theme"))
+			theme=pkg.theme;
+
+		if (theme) {
+			if (fs.existsSync(this.cwd+"/node_modules/katnip/default_themes/"+theme))
+				paths.push(this.cwd+"/node_modules/katnip/default_themes/"+theme);
+
+			else
+				paths.push(this.cwd+"/node_modules/"+theme);
+		}
+
 		paths.push(this.cwd+"/.");
 
 		return paths;

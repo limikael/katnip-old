@@ -8,6 +8,14 @@ katnip.addAction("getAdminMenu",(items)=>{
 		priority: 80,
 		icon: PLUGIN
 	});
+
+	items.push({
+		title: "Theme",
+		href: "/admin/theme",
+		priority: 85,
+		icon: PLUGIN
+	});
 });
 
 katnip.addRoute("admin/plugin",lazyComponent("admin","PluginAdmin"));
+katnip.addRoute("admin/theme",lazyComponent("admin","ThemeAdmin"));

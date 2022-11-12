@@ -42,5 +42,6 @@
   },
   "_moduleAliases": {
     "katnip": "."
-  }
+  },
+  "theme": "katnip-theme-bootswatch"
 }

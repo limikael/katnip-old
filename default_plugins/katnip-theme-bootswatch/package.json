@@ -1,6 +1,0 @@
-{
-  "name": "katnip-theme-bootswatch",
-  "type": "module",
-  "main": "./src/katnip-theme-bootswatch-main.js",
-  "browser": "./src/katnip-theme-bootswatch-browser.jsx"
-}

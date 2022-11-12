@@ -1,8 +1,10 @@
 import {katnip, buildUrl, usePromise, useCounter, BsAlert, bindArgs, PromiseButton} from "katnip";
 import {useState} from "preact/compat";
 import X_LG from "bootstrap-icons/icons/x-lg.svg";
+import CHECK_LG from "bootstrap-icons/icons/check-lg.svg";
 
 const whiteFilter="filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);";
+const primaryFilter="filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);";
 
 function DeleteConfirmation({onclose, onconfirm}) {
 	return (
@@ -34,9 +36,12 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
+export function ItemList({columns, items, href, ondelete, refreshOnDelete, actions}) {
 	if (refreshOnDelete===undefined)
 		refreshOnDelete=true;
+
+	if (!actions)
+		actions=[];
 
 	let [counter,invalidate]=useCounter();
 	let resolvedItems=usePromise(items,[counter]);
@@ -51,8 +56,20 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
 		let id=tr.dataset.id;
 
 		if (e.target.closest("button")) {
-			setMessage(null);
-			setDeleteId(id);
+			let action=e.target.closest("button").dataset.action;
+			if (action=="delete") {
+				setMessage(null);
+				setDeleteId(id);
+			}
+
+			else {
+				let actionSpec=actions[action];
+				await actionSpec.fn(id);
+				if (actionSpec.invalidate)
+					invalidate();
+			}
+			return;
+
 		}
 
 		else {
@@ -96,7 +113,7 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
 			</th>
 		);
 	}
-	tableHeaders.push(<th style={{"width":"3rem"}}></th>);
+	tableHeaders.push(<th style={{"width":`${3*(actions.length+1)}rem`}}></th>);
 
 	let tableContent;
 	if (resolvedItems instanceof Error) {
@@ -138,16 +155,45 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
 					</td>
 				);
 			}
-			tableItem.push(
-				<td class="text-end">
-					<button class="btn btn-danger btn-sm align-text-bottom text-center" onclick={onRowClick} style="width: 2.1rem">
-						{deletingId==item.id &&
-							<span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem"/>
-						}
-						{deletingId!=item.id && 
-							<img src={X_LG} style={`${whiteFilter}; width: 1rem; height: 1rem; vertical-align: -0.18rem`}/>
-						}
+
+			let actionButtons=[];
+			for (let i=0; i<actions.length; i++) {
+				let action=actions[i];
+				let active=true;
+				if (action.activeCb)
+					active=action.activeCb(item);
+
+				let cls="btn-outline-primary";
+				if (active)
+					cls="btn-primary";
+
+				actionButtons.push(
+					<button class={`btn ${cls} btn-sm align-text-bottom text-center`}
+							onclick={onRowClick}
+							style="margin-right: 0.5rem"
+							data-action={i}>
+						<img src={CHECK_LG} style="width: 1rem; height: 1rem; vertical-align: -0.18rem" class="btn-image"/>
 					</button>
+				);
+			}
+
+			actionButtons.push(
+				<button class="btn btn-danger btn-sm align-text-bottom text-center"
+						onclick={onRowClick}
+						style="width: 2.1rem"
+						data-action="delete">
+					{deletingId==item.id &&
+						<span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem"/>
+					}
+					{deletingId!=item.id && 
+						<img src={X_LG} style={`${whiteFilter}; width: 1rem; height: 1rem; vertical-align: -0.18rem`}/>
+					}
+				</button>
+			);
+
+			tableItem.push(
+				<td class="text-end text-nowrap">
+					{actionButtons}
 				</td>
 			);
 
@@ -164,6 +210,16 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete}) {
 
 		tableContent=(<>
 			<BsAlert message={message} ondismiss={bindArgs(setMessage,null)}/>
+			<style>{`
+				button.btn-outline-primary .btn-image {
+					filter: invert(30%) sepia(100%) saturate(1483%) hue-rotate(203deg) brightness(96%) contrast(108%);
+				}
+
+				button.btn-primary .btn-image,
+				button.btn-outline-primary:hover .btn-image {
+					filter: invert(100%) sepia(19%) saturate(1%) hue-rotate(216deg) brightness(108%) contrast(102%);
+				}
+			`}</style>
 			<table class={tableClass} style={{"table-layout":"fixed"}}>
 				<thead>
 					<tr class="table-light">
