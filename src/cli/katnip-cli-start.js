@@ -3,6 +3,7 @@ import WebProcessChild from "../../src/webprocess/WebProcessChild.js";
 import chokidar from "chokidar";
 import open from "open";
 import {getKatnipDir} from "../main/katnip-main-util.js";
+import fs from "fs";
 
 export async function start(options) {
 	if (!getKatnipDir()) {
@@ -23,7 +24,16 @@ export async function start(options) {
 		parent.start();
 
 		if (options.watch) {
-			let watcher=chokidar.watch(process.cwd(),{
+			let dirs=[process.cwd()];
+
+			if (fs.lstatSync(process.cwd()+"/node_modules/katnip").isSymbolicLink()) {
+				let d=fs.realpathSync(process.cwd()+"/node_modules/katnip");
+
+				if (!dirs.includes(d))
+					dirs.push(d);
+			}
+
+			let watcher=chokidar.watch(dirs,{
 				ignored: [
 					"**/node_modules/**", "**/.git/**", "**/*.db*",
 					"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock"
@@ -32,7 +42,9 @@ export async function start(options) {
 			});
 
 			watcher.on("ready",(ev, p)=>{
-				console.log("Watching...");
+				for (let dir of dirs)
+					console.log("Watching: "+dir);
+
 				watcher.on("all",(ev, p)=>{
 					parent.start();
 					console.log(ev+" "+p);
