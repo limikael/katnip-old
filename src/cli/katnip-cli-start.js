@@ -36,7 +36,8 @@ export async function start(options) {
 			let watcher=chokidar.watch(dirs,{
 				ignored: [
 					"**/node_modules/**", "**/.git/**", "**/*.db*",
-					"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock"
+					"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock",
+					"**/katnip-cli.js"
 				],
 				persistent: true
 			});

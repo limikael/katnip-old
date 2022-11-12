@@ -36,7 +36,7 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
-export function ItemList({columns, items, href, ondelete, refreshOnDelete, actions}) {
+export function ItemList({columns, items, href, ondelete, refreshOnDelete, actions, deletableCb}) {
 	if (refreshOnDelete===undefined)
 		refreshOnDelete=true;
 
@@ -177,8 +177,12 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete, actio
 				);
 			}
 
+			let cls="btn btn-danger btn-sm align-text-bottom text-center";
+			if (deletableCb && !deletableCb(item))
+				cls+=" disabled"
+
 			actionButtons.push(
-				<button class="btn btn-danger btn-sm align-text-bottom text-center"
+				<button class={cls}
 						onclick={onRowClick}
 						style="width: 2.1rem"
 						data-action="delete">

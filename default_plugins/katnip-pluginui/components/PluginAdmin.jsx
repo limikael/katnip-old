@@ -1,5 +1,6 @@
 import {A, ItemList, apiFetch, usePromise, PromiseButton, delay, bindArgs} from "katnip";
 import dayjs from "dayjs";
+import {PackageList} from "./PackageList.jsx";
 
 export function PluginList({request}) {
 	let columns={
@@ -33,66 +34,25 @@ export function PluginList({request}) {
 	);
 }
 
-function loadable(content, fn) {
-	if (content===undefined)
-		return <div class="spinner-border m-3"/>;
-
-	if (content instanceof Error)
-		return <BsAlert message={content}/>;
-
-	return fn();
-}
-
 export function AddPlugin({request}) {
-	let pluginData=usePromise(async()=>{
-		let request=await fetch("https://registry.npmjs.com/-/v1/search?text=keywords:katnip-plugin");
-		let result=await request.json();
-
+	async function getInstalled() {
 		let installed=await apiFetch("/api/getInstalledPlugins");
-		result.installed=[];
+
+		let result=[];
 		for (let i of installed)
-			result.installed.push(i.name);
+			result.push(i.name);
 
 		return result;
-	});
+	}
 
 	async function onInstallClick(plugin) {
 		await apiFetch("/api/addPlugin",{plugin});
 	}
 
-	let content=loadable(pluginData,()=>{
-		//console.log(pluginData);
-		return pluginData.objects.map((o)=><>
-			<div class="border-bottom d-flex flex-row">
-				<div class="flex-grow-1">
-					<h5>{o.package.name}</h5>
-					<p class="text-muted mb-2">{o.package.description}</p>
-					<p class="text-muted">
-						<b>{o.package.publisher.username}</b>
-						<span class="mx-2">published {o.package.version}</span>
-						&bull;<span class="mx-2">{dayjs(o.package.date).from(dayjs())}</span>
-					</p>
-				</div>
-				<div>
-					{pluginData.installed.includes(o.package.name) && 
-						<button class="btn btn-outline-primary" disabled={true}>
-							Installed
-						</button>
-					}
-					{!pluginData.installed.includes(o.package.name) && 
-						<PromiseButton class="btn btn-primary" onclick={bindArgs(onInstallClick,o.package.name)}>
-							Install
-						</PromiseButton>
-					}
-				</div>
-			</div>
-		</>);
-	});
-
 	return (<>
 		<h1 class="mb-3">Add Plugin</h1>
-		<div class="border-bottom mb-3"></div>
-		{content}
+		<div class="border-bottom"></div>
+		<PackageList installed={getInstalled} oninstall={onInstallClick} keyword="katnip-plugin"/>
 	</>);
 }
 

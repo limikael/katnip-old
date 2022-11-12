@@ -23,6 +23,20 @@ katnip.addApi("/api/getInstalledPlugins",async ({},req)=>{
 	return pluginsRes;
 });
 
+katnip.addApi("/api/addPlugin",async ({plugin},req)=>{
+	req.assertCap("manage-settings");
+
+	await katnip.installPackage(plugin);
+
+	let pkg=JSON.parse(fs.readFileSync(getProjectDir()+"/package.json"));
+	if (!pkg.plugins)
+		pkg.plugins=[];
+	pkg.plugins.push(plugin);
+	console.log(pkg);
+	fs.writeFileSync(getProjectDir()+"/package.json",JSON.stringify(pkg,null,2));
+	await katnip.restart();
+});
+
 katnip.addApi("/api/removePlugin",async ({plugin},req)=>{
 	req.assertCap("manage-settings");
 
@@ -34,26 +48,13 @@ katnip.addApi("/api/removePlugin",async ({plugin},req)=>{
 	await katnip.restart();
 });
 
-katnip.addApi("/api/addPlugin",async ({plugin},req)=>{
-	req.assertCap("manage-settings");
-
-	await katnip.installPackage(plugin);
-
-	let pkg=JSON.parse(fs.readFileSync(getProjectDir()+"/package.json"));
-	if (!pkg.plugins)
-		pkg.plugins=[];
-	pkg.plugins.push(plugin);
-	fs.writeFileSync(getProjectDir()+"/package.json",JSON.stringify(pkg,null,2));
-	await katnip.restart();
-});
-
 function getDirectories(source) {
 	return fs.readdirSync(source, { withFileTypes: true })
 		.filter(dirent => dirent.isDirectory())
 		.map(dirent => dirent.name)
 }
 
-function findThemes(a, parentDir) {
+function findThemes(a, parentDir, deletable) {
 	for (let theme of getDirectories(parentDir)) {
 		let pkgFileName=parentDir+"/"+theme+"/package.json";
 		if (fs.existsSync(pkgFileName)) {
@@ -62,7 +63,8 @@ function findThemes(a, parentDir) {
 				a.push({
 					id: theme,
 					name: theme,
-					description: pkg.description
+					description: pkg.description,
+					deletable: deletable
 				});
 			}
 		}
@@ -84,11 +86,12 @@ katnip.addApi("/api/getInstalledThemes",async ({},req)=>{
 	themesRes.push({
 		id: "null",
 		name: "null",
-		description: "Disable Theme Functionality"
+		description: "Disable Theme Functionality",
+		deletable: false
 	});
 
-	findThemes(themesRes,process.cwd()+"/node_modules/katnip/default_themes");
-	findThemes(themesRes,process.cwd()+"/node_modules/");
+	findThemes(themesRes,process.cwd()+"/node_modules/katnip/default_themes",false);
+	findThemes(themesRes,process.cwd()+"/node_modules/",true);
 
 	for (let t of themesRes)
 		if (t.name==theme)
@@ -107,4 +110,28 @@ katnip.addApi("/api/activateTheme",async ({theme},req)=>{
 	pkg.theme=theme;
 	fs.writeFileSync(getProjectDir()+"/package.json",JSON.stringify(pkg,null,2));
 	await katnip.restart();
+});
+
+katnip.addApi("/api/addTheme",async ({theme},req)=>{
+	req.assertCap("manage-settings");
+
+	await katnip.installPackage(theme);
+});
+
+katnip.addApi("/api/removeTheme",async ({theme},req)=>{
+	req.assertCap("manage-settings");
+
+	let pkg=JSON.parse(fs.readFileSync(getProjectDir()+"/package.json"));
+
+	let needRestart;
+	if (pkg.theme==theme) {
+		delete pkg.theme;
+		needRestart=true;
+	}
+	fs.writeFileSync(getProjectDir()+"/package.json",JSON.stringify(pkg,null,2));
+
+	await katnip.uninstallPackage(theme);
+
+	if (needRestart)
+		await katnip.restart();
 });

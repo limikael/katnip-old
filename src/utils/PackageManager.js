@@ -19,8 +19,10 @@ export default class PackageManager {
 		return new Promise((resolve, reject)=>{
 			let proc=child_process.spawn(cmd,params,{stdio: "inherit"});
 			proc.on("exit",(code)=>{
-				if (code)
-					reject("Command failed with code: "+code);
+				if (code) {
+					reject(new Error("Command failed with code: "+code));
+					return;
+				}
 
 				resolve();
 			});
