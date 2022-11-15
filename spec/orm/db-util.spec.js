@@ -9,20 +9,27 @@ describe("db-util",()=>{
 			b: 6,
 			$limit: 1
 		});
-		//console.log(w);
+		expect(w.query).toEqual(' WHERE  `a`=? and `b`=?  LIMIT ? ');
+		expect(w.vals).toEqual([ 5, 6, 1 ]);
 
 		w=createWhereClause({
 			a: 5,
 			b: 6,
 			$limit: [1,2]
 		});
-		//console.log(w);
+		expect(w.query).toEqual(' WHERE  `a`=? and `b`=?  LIMIT ?,? ');
 
 		w=createWhereClause({
 			a: 5,
 			b: 6,
 			$order: "bla"
 		});
-		//console.log(w);
+		expect(w.query).toEqual(' WHERE  `a`=? and `b`=?  ORDER BY bla');
+
+		w=createWhereClause({
+			"a>": 5,
+			b: 6,
+		});
+		expect(w.query).toEqual(' WHERE  `a`>? and `b`=? ');
 	});
 });

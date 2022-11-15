@@ -7,13 +7,13 @@ function tokenizeSqlDef(s) {
 		}
 	}
 
-	let exprs=[/^\w+/, /^,/, /^\(/, /^\)/, /^\s+/];
+	let exprs=[/^(\w+)/, /^(,)/, /^(\()/, /^(\))/, /^'([^\']*)'/, /^\s+/];
 	let tokens=[];
 
 	while (s.length) {
 		let match=matchExprs(s,exprs);
-		if (match[0].trim().length)
-			tokens.push(match[0]);
+		if (match[1]!==undefined)
+			tokens.push(match[1]);
 
 		s=s.substr(match[0].length);
 	}
@@ -117,6 +117,9 @@ export default class FieldSpec {
 
 		if (FieldSpec.types[this.type].sizeFree)
 			this.size=undefined;
+
+		if (this.default===undefined)
+			this.default=null;
 	}
 
 	equals(that) {
@@ -131,7 +134,8 @@ export default class FieldSpec {
 			(this.size==that.size) &&
 			(this.null==that.null) &&
 			(this.auto_increment==that.auto_increment) &&
-			(this.primary_key==that.primary_key)
+			(this.primary_key==that.primary_key) &&
+			(this.default===that.default)
 		);
 	}
 
@@ -184,6 +188,12 @@ export default class FieldSpec {
 					sqlDef.shift();
 					break;
 
+				case "default":
+					sqlDef.shift();
+					options.default=sqlDef[0];
+					sqlDef.shift();
+					break;
+
 				default:
 					throw new Error("Sql syntax error at "+sqlDef[0]);
 					break;
@@ -221,6 +231,10 @@ export default class FieldSpec {
 		if (row.Key=="PRI")
 			options.primary_key=true;
 
+		options.default=row.Default;
+		if (row.Default=="NULL")
+			options.default=null;
+
 		return new FieldSpec(options);
 	}
 
@@ -252,6 +266,10 @@ export default class FieldSpec {
 
 			else
 				s+=" auto_increment";
+		}
+
+		if (this.default!=null) {
+			s+=" default '"+this.default+"'";
 		}
 
 		return s;

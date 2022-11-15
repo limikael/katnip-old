@@ -89,6 +89,7 @@ export default class Db {
 	}
 
 	async query(qs, params=[]) {
+		//console.log(qs,params);
 		await this.connect();
 		return await this.connection.query(qs,params);
 	}

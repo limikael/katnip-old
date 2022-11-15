@@ -11,7 +11,11 @@ export function createWhereClause(spec, isSubClause) {
 			  qs+=spec.$op;
 
 			first=false;
-			qs+=` \`${k}\`=? `;
+			let op="=";
+			if (k.match(/\W+$/))
+				op=k.match(/\W+$/)[0];
+			let qK=k.match(/^[^\W]*/)[0];
+			qs+=` \`${qK}\`${op}? `;
 			vals.push(spec[k]);
 		}
 	}

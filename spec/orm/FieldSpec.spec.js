@@ -44,4 +44,9 @@ describe("FieldSpec",()=>{
 		expect(s.equals(t)).toEqual(true);
 		expect(t.equals(s)).toEqual(true);
 	});
+
+	it("works with default",()=>{
+		let fieldSpec=FieldSpec.fromSqlDef("   integer   not  null default ''");
+		//console.log(fieldSpec.getSql());
+	});
 });

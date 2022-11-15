@@ -17,21 +17,25 @@ describe("db install",()=>{
 					name: "VARCHAR(64)",
 					test: "VARCHAR(64)",
 					salary: "INTEGER",
-					meta: "json"
+					meta: "json",
+					nim: "VARCHAR(64) default ''",
+					nom: "INTEGER default 5"
 				};
 			}
 
-			if (fs.existsSync("test.sqlite3"))
-				fs.unlinkSync("test.sqlite3");
+			/*if (fs.existsSync("test.sqlite3"))
+				fs.unlinkSync("test.sqlite3");*/
 
 			let db=new Db(dbUrl);
+			//await db.query("DROP TABLE Employee");
+
 			db.addModel(Employee);
 			await db.install();
 
 			// install twice, just to see if it works.
 			await db.install();
 
-			await (new Employee({test: "hello"})).save();
+			/*await (new Employee({test: "hello"})).save();
 			await (new Employee({test: "world", name: "bla", salary: 123})).save();
 
 			class Employee2 extends Model {
@@ -42,14 +46,15 @@ describe("db install",()=>{
 					name2: "VARCHAR(63)",
 					test: "VARCHAR(64)",
 					salary: "INTEGER",
-					meta: "json"
+					meta: "json",
+					nim: "VARCHAR(64)"
 				};
 			}
 			db.addModel(Employee2);
 
 			await Employee2.install();
 
-			expect((await Employee2.findOne({test: "world"})).salary).toEqual(123);
+			expect((await Employee2.findOne({test: "world"})).salary).toEqual(123);*/
 		});
 	});
 });

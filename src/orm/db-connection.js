@@ -33,16 +33,21 @@ class SqliteConnection extends EventDispatcher {
 		let res=[];
 
 		for (let row of rows) {
+			//console.log(row);
 			let describeRow={
 				Field: row.name,
 				Type: row.type,
 				Null: row.notnull?"NO":"YES",
 				Extra: "",
-				Key: row.pk?"PRI":""
+				Key: row.pk?"PRI":"",
+				Default: "NULL"
 			};
 
 			if (isAutoIncrement && row.pk)
 				describeRow.Extra="auto_increment";
+
+			if (row.dflt_value!==null)
+				describeRow.Default=row.dflt_value.replaceAll(/^'/g,"").replaceAll(/'$/g,"");
 
 			res.push(describeRow);
 		}
