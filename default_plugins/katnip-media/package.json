@@ -1,0 +1,6 @@
+{
+  "name": "katnip-media",
+  "type": "module",
+  "main": "./src/katnip-media-main.js",
+  "browser": "./src/katnip-media-browser.jsx"
+}
