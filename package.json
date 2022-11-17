@@ -1,6 +1,9 @@
 {
   "name": "katnip",
-  "version": "0.0.45",
+  "version": "0.0.46",
+  "repository": "github:limikael/katnip",
+  "license": "GPLV3",
+  "homepage": "https://katnip.tech/",
   "bin": {
     "katnip": "src/cli/katnip-cli.js"
   },
