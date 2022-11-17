@@ -65,17 +65,31 @@ export function buildUrl(url, vars={}) {
 }
 
 export async function fetchEx(url, options={}) {
-	let	headers={
-		"Content-Type": "application/json"
-	};
+	let headers={...options.headers};
 
-	headers={...headers,...options.headers};
+	let haveFile=false;
+	if (options.query)
+		for (let k in options.query)
+			if (options.query[k] instanceof File)
+				haveFile=true;
+
+	let body=JSON.stringify(options.query);
+	if (haveFile) {
+		body=new FormData();
+		for (let k in options.query)
+			body.append(k,options.query[k]);
+	}
+
+	else {
+		if (!headers["Content-Type"])
+			headers["Content-Type"]="application/json";
+	}
 
 	let response=await fetch(url,{
 		method: "POST",
 		headers: headers,
 		cache: "no-cache",
-		body: JSON.stringify(options.query)
+		body: body
 	});
 	let text=await response.text();
 	let data;
@@ -107,57 +121,6 @@ export async function fetchEx(url, options={}) {
 
 	return data;
 }
-
-/*export async function apiFetch(url, query={}, options={}) {
-	let defaultOptions={}
-	if (isClient() && window.apiFetchDefaultOptions)
-		options={...window.apiFetchDefaultOptions,...options};
-
-	if (isServer() && global.apiFetchDefaultOptions)
-		options={...global.apiFetchDefaultOptions,...options};
-
-	let	headers={
-		"Content-Type": "application/json"
-	};
-
-	headers={...headers,...options.headers};
-
-	let response=await fetch(url,{
-		method: "POST",
-		headers: headers,
-		cache: "no-cache",
-		body: JSON.stringify(query)
-	});
-	let text=await response.text();
-	let data;
-
-	try {
-		data=JSON.parse(text);
-	}
-
-	catch (e) {
-		throw new Error(text);
-	}
-
-	if (response.status!=200) {
-		if (data && data.message) {
-			let e=new Error(data.message);
-
-			for (let k in data)
-				e[k]=data[k];
-
-			throw e;
-		}
-
-		throw new Error(text);
-	}
-
-	if (options.processResult) {
-		data=options.processResult(data,response);
-	}
-
-	return data;
-}*/
 
 export function quoteAttr(s, preserveCR) {
     preserveCR = preserveCR ? '&#13;' : '\n';
@@ -245,15 +208,30 @@ export function withTargetValue(fn) {
 	}
 }
 
-export function waitEvent(o, success, fail) {
+export function waitEvent(o, success, fail="error") {
 	return new Promise((resolve, reject)=>{
-		o.once(success,()=>{
-			resolve();
-		});
+		if (o.once) {
+			o.once(success,()=>{
+				resolve();
+			});
 
-		o.once("error",(e)=>{
-			reject(e);
-		});
+			o.once("error",(e)=>{
+				reject(e);
+			});
+		}
+
+		else if (o.addEventListener) {
+			function listener() {
+				o.removeEventListener(success,listener);
+				resolve();
+			}
+
+			o.addEventListener(success,listener);
+		}
+
+		else {
+			reject(new Error("Not an event dispatcher"));
+		}
 	});
 }
 

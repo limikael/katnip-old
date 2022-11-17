@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useRef} from "react";
 import {useModal} from "../utils/react-util.jsx";
 
 function Modal({resolve, message}) {
@@ -30,9 +30,16 @@ function Modal({resolve, message}) {
 export function PromiseButton(props) {
 	let [busy, setBusy]=useState(false);
 	let [modal, showModal, resolveModal]=useModal();
+	let fileInputRef=useRef();
 
 	async function onClick(ev) {
 		ev.preventDefault();
+
+		if (props.onfileselect) {
+			fileInputRef.current.value="";
+			fileInputRef.current.click();
+			return;
+		}
 
 		setBusy(true);
 
@@ -55,9 +62,32 @@ export function PromiseButton(props) {
 		setBusy(false);
 	}
 
+	async function onUploadChange(ev) {
+		ev.preventDefault();
+
+		setBusy(true);
+		try {
+			await props.onfileselect(fileInputRef.current.files);
+		}
+
+		catch (e) {
+			if (props.onerror)
+				props.onerror(e);
+
+			else
+				showModal(<Modal resolve={resolveModal} message={e.message}/>);
+		}
+		fileInputRef.current.value="";
+		setBusy(false);
+	}
+
 	let propsCopy={...props};
 	propsCopy.disabled=busy;
 	propsCopy.onclick=null;
+
+	let fileInput;
+	if (props.onfileselect)
+		fileInput=<input type="file" ref={fileInputRef} style="display: none" onchange={onUploadChange} />
 
 	return (<>
 		{modal}
@@ -67,5 +97,6 @@ export function PromiseButton(props) {
 			}
 			{propsCopy.children}
 		</button>
+		{fileInput}
 	</>);
 } 

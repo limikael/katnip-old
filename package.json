@@ -25,6 +25,7 @@
     "dotenv": "^16.0.0",
     "esbuild": "^0.14.34",
     "events": "^3.3.0",
+    "formidable": "^2.0.1",
     "node-fetch": "^3.2.4",
     "open": "^8.4.0",
     "preact": "^10.11.2",

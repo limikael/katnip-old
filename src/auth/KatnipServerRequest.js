@@ -2,6 +2,7 @@ import nodeCrypto from "crypto";
 import User from "./User.js";
 import KatnipRequest from "./KatnipRequest.js";
 import {buildUrl} from "../utils/js-util.js";
+import formidable from "formidable";
 
 export default class KatnipServerRequest extends KatnipRequest {
 	constructor(katnip, nodeReq) {
@@ -34,15 +35,18 @@ export default class KatnipServerRequest extends KatnipRequest {
 	}
 
 	async processNodeRequestBody(nodeReq) {
-		const buffers=[];
-		for await (const chunk of nodeReq)
-			buffers.push(chunk);
+		let form=new formidable.IncomingForm();
+		await new Promise((resolve, reject)=>{
+			form.parse(nodeReq, (err, fields, files)=>{
+				if (err) {
+					reject(err);
+					return;
+				}
 
-		let body=Buffer.concat(buffers);
-		if (body.length) {
-			let bodyQuery=JSON.parse(body);
-			Object.assign(this.query,bodyQuery);
-		}
+				this.query={...fields, ...files};
+				resolve();
+			});
+		});
 	}
 
 	async initUserFromSession() {

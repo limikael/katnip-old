@@ -165,8 +165,7 @@ class MainKatnip {
 	apiFetch=async (url, query={}, options={})=>{
 		let o={
 			...options,
-			query: query,
-			processResult: this.processApiFetchResult
+			query: query
 		};
 
 		return await fetchEx(url,o);
