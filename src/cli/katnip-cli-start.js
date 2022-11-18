@@ -33,12 +33,16 @@ export async function start(options) {
 					dirs.push(d);
 			}
 
+			let ignored=[
+				"**/node_modules/**", "**/.git/**", "**/*.db*",
+				"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock",
+				"**/katnip-cli.js"
+			];
+
+			ignored.push(options.media+"/**");
+
 			let watcher=chokidar.watch(dirs,{
-				ignored: [
-					"**/node_modules/**", "**/.git/**", "**/*.db*",
-					"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock",
-					"**/katnip-cli.js"
-				],
+				ignored: ignored,
 				persistent: true
 			});
 
@@ -97,6 +101,11 @@ start.args={
 	},
 	"api-delay": {
 		desc: "Delay all api calls by millisecs."
+	},
+	"media": {
+		desc: "Directory for uploaded media.",
+		env: "MEDIA",
+		default: process.cwd()+"/.media"
 	},
 	"ssr": {
 		desc: "Do server side rendering.",

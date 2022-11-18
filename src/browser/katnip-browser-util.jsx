@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, apiFetch, setLocation, buildUrl,
 		useForm, useCounter, useValueChanged,
-		BsInput, PromiseButton, BsLoader, usePromise} from "katnip";
+		BsInput, PromiseButton, bsLoader, usePromise} from "katnip";
 import {useState} from "react";
 
 export function createCrudUi(model, options={}) {
@@ -54,7 +54,7 @@ export function createCrudUi(model, options={}) {
 		return (
 			<>
 				<h1 class="mb-3">{headerText}</h1>
-				<BsLoader resource={form.getCurrent()}>
+				{bsLoader(form.getCurrent(),()=><>
 					<form style="max-width: 40rem">
 						<div class="container border rounded p-3 bg-light">
 							{fieldEls}
@@ -63,7 +63,7 @@ export function createCrudUi(model, options={}) {
 							</PromiseButton>
 						</div>
 					</form>
-				</BsLoader>
+				</>)}
 			</>
 		);
 	}

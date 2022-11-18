@@ -4,3 +4,4 @@ yarn.lock
 *.tgz
 .env
 tmp
+.media

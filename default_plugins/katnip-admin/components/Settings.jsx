@@ -1,7 +1,7 @@
 import {apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BsAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch,
-		BsLoader} from "katnip";
+		bsLoader} from "katnip";
 import {useState} from "react";
 
 function SettingsTabs({request, categories}) {
@@ -78,7 +78,7 @@ export function Settings({request}) {
 		<BsAlert message={message} ondismiss={setMessage}/>
 		{categories && <>
 			<SettingsTabs request={request} categories={categories}/>
-			<BsLoader resource={categories && form.getCurrent()}>
+			{bsLoader(categories && form.getCurrent(),()=><>
 				<form style="max-width: 40rem">
 					{categories[categoryId].settings.map(setting=>
 						<SettingsInput setting={setting} field={form.field} values={form.getCurrent()} />
@@ -87,7 +87,7 @@ export function Settings({request}) {
 						Save Settings
 					</PromiseButton>
 				</form>
-			</BsLoader>
+			</>)}
 		</>}
 	</>);
 }

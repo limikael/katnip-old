@@ -1,15 +1,5 @@
-import {A, ItemList, apiFetch, usePromise, PromiseButton, delay, bindArgs} from "katnip";
+import {A, ItemList, apiFetch, usePromise, PromiseButton, delay, bindArgs, bsLoader} from "katnip";
 import dayjs from "dayjs";
-
-function loadable(content, fn) {
-	if (content===undefined)
-		return <div class="spinner-border m-3"/>;
-
-	if (content instanceof Error)
-		return <BsAlert message={content}/>;
-
-	return fn();
-}
 
 export function PackageList({installed, oninstall, keyword}) {
 	let pluginData=usePromise(async()=>{
@@ -20,7 +10,7 @@ export function PackageList({installed, oninstall, keyword}) {
 		return result;
 	});
 
-	return loadable(pluginData,()=>{
+	return bsLoader(pluginData,()=>{
 		//console.log(pluginData);
 		return pluginData.objects.map((o)=><>
 			<div class="border-bottom d-flex flex-row">

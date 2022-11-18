@@ -83,13 +83,12 @@ export function BsGroupInput({title, ...props}) {
 	);
 }
 
-export function BsLoader({resource, children}) {
-	if (resource===undefined)
+export function bsLoader(content, fn) {
+	if (content===undefined)
 		return <div class="spinner-border m-3"/>;
 
-	else if (resource instanceof Error)
-		return <BsAlert message={resource}/>
+	if (content instanceof Error)
+		return <BsAlert message={content}/>;
 
-	else
-		return <>{children}</>
+	return fn();
 }

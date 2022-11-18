@@ -2,7 +2,7 @@
   "name": "katnip",
   "version": "0.0.46",
   "repository": "github:limikael/katnip",
-  "license": "GPLV3",
+  "license": "GPL-3.0",
   "homepage": "https://katnip.tech/",
   "bin": {
     "katnip": "src/cli/katnip-cli.js"
@@ -26,6 +26,7 @@
     "esbuild": "^0.14.34",
     "events": "^3.3.0",
     "formidable": "^2.0.1",
+    "fs-extra": "^10.1.0",
     "node-fetch": "^3.2.4",
     "open": "^8.4.0",
     "preact": "^10.11.2",

@@ -170,6 +170,10 @@ class MainKatnip {
 
 		return await fetchEx(url,o);
 	}
+
+	getOption=(id)=>{
+		return this.options[id];
+	}
 }
 
 const katnip=new MainKatnip();
@@ -195,6 +199,8 @@ export const doActionAsync=katnip.actions.doActionAsync;
 
 export const addChannel=katnip.serverChannels.addChannel;
 export const notifyChannel=katnip.serverChannels.notifyChannel;
+
+export const getOption=katnip.getOption;
 
 export const addSetting=katnip.settingsManager.addSetting;
 export const getSetting=katnip.settingsManager.getSetting;
