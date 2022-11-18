@@ -63,6 +63,11 @@ export default class KatnipRequestHandler {
 		}
 	}
 
+	async initMedia() {
+		this.mediaMiddleware=new ContentMiddleware();
+		this.mediaMiddleware.addPath(this.katnip.getOption("media"));
+		this.mwServer.use(this.mediaMiddleware);
+	}
 
 	async initContent() {
 		this.contentMiddleware=new ContentMiddleware();
@@ -76,17 +81,6 @@ export default class KatnipRequestHandler {
 		}
 
 		this.bundleHash=this.contentMiddleware.hash(hash);
-
-		/*this.bundleHash=this.contentMiddleware.addContent(
-			"/katnip-bundle.mjs",
-			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs")
-		);
-
-		this.contentMiddleware.addContent(
-			"/katnip-bundle.mjs.map",
-			fs.readFileSync(this.katnip.pluginLoader.outDir+"/katnip-bundle.mjs.map")
-		);*/
-
 		this.mwServer.use(this.contentMiddleware);
 
 		this.katnip.serverChannels.addChannel("contentHash",()=>{
@@ -197,6 +191,7 @@ export default class KatnipRequestHandler {
 		this.katnip.serverChannels.attachToServer(this.mwServer.server);
 
 		this.mwServer.use(this.initRequest);
+		await this.initMedia();
 		await this.initContent();
 		await this.initApis();
 		this.mwServer.use(this.handleDefault);

@@ -118,8 +118,6 @@ function PageList({request}) {
 }
 
 export function PageAdmin({request}) {
-	let tc=useTemplateContext();
-
 	if (request.query.id || request.query.new)
 		return <PageEdit request={request}/>
 
