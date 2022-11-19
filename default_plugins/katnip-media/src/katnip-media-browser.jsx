@@ -12,12 +12,6 @@ katnip.addAction("getAdminMenu",(items)=>{
 
 katnip.addRoute("admin/media",lazyComponent("admin","MediaAdmin"));
 
-function MediaImage({outer}) {
-	return (
-		<img />
-	);
-}
-
 function MediaListItem({media, onclick}) {
 	let imgStyle={
 		maxWidth: "100%",
@@ -39,7 +33,7 @@ function MediaListItem({media, onclick}) {
 		<div class="col-6 col-sm-4 col-md-3 col-lg-2">
 			<div class="shadow rounded border p-3 text-center mb-3" style="position: relative">
 				<div class="bg-light" style="width: 100%; aspect-ratio: 1 / 1; position: relative">
-					<img style={imgStyle} src={media.url}/>
+					<img style={imgStyle} src={"/"+media.id}/>
 				</div>
 				<A href="#"
 						class="d-block text-truncate mt-3 small stretched-link text-reset text-decoration-none fw-bold"
@@ -111,6 +105,16 @@ function MediaSelect({value, update}) {
 				</button>
 			</>)}
 		</div>
+	);
+}
+
+function MediaImage({mediaId, outer, ...props}) {
+	let src="";
+	if (mediaId)
+		src="/"+mediaId;
+
+	return (
+		<img {...outer} src={src} class={props.class} style={props.style}/>
 	);
 }
 

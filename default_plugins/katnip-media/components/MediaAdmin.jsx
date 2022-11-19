@@ -50,7 +50,7 @@ function MediaListItem({media}) {
 		<div class="col-6 col-sm-4 col-md-3 col-lg-2">
 			<div class="shadow rounded border p-3 text-center mb-3" style="position: relative">
 				<div class="bg-light" style="width: 100%; aspect-ratio: 1 / 1; position: relative">
-					<img style={imgStyle} src={media.url}/>
+					<img style={imgStyle} src={"/"+media.id}/>
 				</div>
 				<A href={editUrl}
 						class="d-block text-truncate mt-3 small stretched-link text-reset text-decoration-none fw-bold">
@@ -120,7 +120,7 @@ function MediaEdit({request}) {
 			{bsLoader(media,()=><>
 				<div class="flex-grow-1 d-flex flex-row">
 					<div class="flex-grow-1" style="position: relative">
-						<img style={imgStyle} src={media.url}/>
+						<img style={imgStyle} src={"/"+media.id}/>
 					</div>
 					<div style="width: 25%" class="bg-light ms-3 p-3">
 						<div class="mb-3"><b>Media</b></div>

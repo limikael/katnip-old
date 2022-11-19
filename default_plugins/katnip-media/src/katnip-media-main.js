@@ -16,23 +16,6 @@ class Media extends Model {
 		if (!this.meta)
 			this.meta={};
 	}
-
-	getStorageFilename() {
-		let exts={
-			"image/jpeg": ".jpg",
-			"image/png": ".png"
-		}
-
-		let ext="";
-		if (exts[this.mimetype])
-			ext=exts[this.mimetype];
-
-		return this.id+ext;
-	}
-
-	getStorageFilepath() {
-		return katnip.getOption("media")+"/"+this.getStorageFilename();
-	}
 }
 
 katnip.addModel(Media);
@@ -48,7 +31,7 @@ katnip.addApi("/api/uploadMedia",async ({file},req)=>{
 	media.id=nodeCrypto.randomUUID();
 	media.filename=file.originalFilename;
 	media.mimetype=file.mimetype;
-	fs.moveSync(file.filepath,media.getStorageFilepath());
+	fs.moveSync(file.filepath,katnip.getOption("media")+"/"+media.id);
 	await media.save();
 });
 
@@ -56,9 +39,6 @@ katnip.addApi("/api/listMedia",async ({},req)=>{
 	req.assertCap("manage-content");
 
 	let medias=await Media.findMany();
-	for (let media of medias)
-		media.url="/"+media.getStorageFilename();
-
 	return medias;
 });
 
@@ -66,11 +46,6 @@ katnip.addApi("/api/getMedia",async ({id},req)=>{
 	req.assertCap("manage-content");
 
 	let media=await Media.findOne(id);
-	if (!media)
-		return null;
-
-	media.url="/"+media.getStorageFilename();
-
 	return media;
 });
 
@@ -78,7 +53,7 @@ katnip.addApi("/api/deleteMedia",async ({id},req)=>{
 	req.assertCap("manage-content");
 
 	let media=await Media.findOne(id);
-	fs.unlinkSync(media.getStorageFilepath());
+	fs.unlinkSync(katnip.getOption("media")+"/"+media.id);
 	await media.delete();
 });
 
