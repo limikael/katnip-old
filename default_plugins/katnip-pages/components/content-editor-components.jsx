@@ -162,6 +162,30 @@ export function EditorPath({editor}) {
 	return els;
 }
 
+function ComponentControl({node, control, id, onchange, updateNodeProps}) {
+	if (typeof control.type=="function") {
+		let Control=control.type;
+
+		function update(newValue) {
+			updateNodeProps(id,newValue);
+		}
+
+		return (
+			<Control 
+				value={node.props[id]?node.props[id]:""}
+				update={update}/>
+		);
+	}
+
+	return (
+		<BsInput {...control} 
+				value={node.props[id]?node.props[id]:""}
+				onchange={onchange}
+				data-id={id}/>
+	);
+}
+
+
 export function ComponentProperties({editor}) {
 	let path=editor.startPath;
 	let node=editor.getDocNode(path);
@@ -173,11 +197,14 @@ export function ComponentProperties({editor}) {
 	if (!node || !katnip.elements[node.type])
 		return;
 
-	function onPropChange(ev) {
+	function updateNodeProps(prop, value) {
 		let props=editor.getDocNode(path).props;
-		props[ev.target.dataset.id]=ev.target.value;
-
+		props[prop]=value;
 		editor.setDocNodeProps(path,props);
+	}
+
+	function onPropChange(ev) {
+		updateNodeProps(ev.target.dataset.id,ev.target.value);
 	}
 
 	let controls=katnip.elements[node.type].controls;
@@ -186,11 +213,13 @@ export function ComponentProperties({editor}) {
 		<div class="mb-3"><b>{node.type}</b></div>
 		{Object.entries(controls).map(([id,control])=>
 			<div class="form-group mb-3">
-				<label class="form-label mb-1">{control.title}</label>
-				<BsInput {...control} 
-						value={node.props[id]?node.props[id]:""}
+				<label class="d-block form-label mb-1">{control.title}</label>
+				<ComponentControl
+						node={node}
+						control={control}
+						id={id}
 						onchange={onPropChange}
-						data-id={id}/>
+						updateNodeProps={updateNodeProps}/>
 			</div>
 		)}
 	</>;

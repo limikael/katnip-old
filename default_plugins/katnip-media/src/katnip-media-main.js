@@ -66,6 +66,9 @@ katnip.addApi("/api/getMedia",async ({id},req)=>{
 	req.assertCap("manage-content");
 
 	let media=await Media.findOne(id);
+	if (!media)
+		return null;
+
 	media.url="/"+media.getStorageFilename();
 
 	return media;
