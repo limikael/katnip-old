@@ -53,7 +53,9 @@ katnip.addApi("/api/deleteMedia",async ({id},req)=>{
 	req.assertCap("manage-content");
 
 	let media=await Media.findOne(id);
-	fs.unlinkSync(katnip.getOption("media")+"/"+media.id);
+	if (fs.existsSync(katnip.getOption("media")+"/"+media.id))
+		fs.unlinkSync(katnip.getOption("media")+"/"+media.id);
+
 	await media.delete();
 });
 
