@@ -121,7 +121,7 @@ export default class ContentMiddleware {
 		return "application/octet-stream";
 	}
 
-	handleRequest(req, res, next) {
+	handleRequest=async (req, res, next)=>{
 		for (let path of this.paths) {
 			let cand=path+"/"+req.pathname;
 
@@ -135,6 +135,19 @@ export default class ContentMiddleware {
 				if (req.query.contentHash &&
 						req.query.contentHash==this.contentHash)
 					headers["Cache-Control"]="public, max-age=31536000";
+
+				if (this.preserve) {
+					try {
+						await this.preserve(req,headers);
+					}
+
+					catch (e) {
+						console.log(e);
+						res.writeHead(500);
+						res.end(e.message);
+						return;
+					}
+				}
 
 				this.handleContent(req,res,fs.readFileSync(cand),headers);
 				return;

@@ -63,9 +63,18 @@ export default class KatnipRequestHandler {
 		}
 	}
 
+	initMediaHeaders=async (req, headers)=>{
+		let media=await this.katnip.db.Media.findOne(req.pathargs[0]);
+		if (!media)
+			throw new Error("Media not found");
+
+		headers["Content-Type"]=media.mimetype;
+	}
+
 	async initMedia() {
 		this.mediaMiddleware=new ContentMiddleware();
 		this.mediaMiddleware.addPath(this.katnip.getOption("media"));
+		this.mediaMiddleware.preserve=this.initMediaHeaders;
 		this.mwServer.use(this.mediaMiddleware);
 	}
 
