@@ -181,19 +181,21 @@ export function ItemList({columns, items, href, ondelete, refreshOnDelete, actio
 			if (deletableCb && !deletableCb(item))
 				cls+=" disabled"
 
-			actionButtons.push(
-				<button class={cls}
-						onclick={onRowClick}
-						style="width: 2.1rem"
-						data-action="delete">
-					{deletingId==item.id &&
-						<span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem"/>
-					}
-					{deletingId!=item.id && 
-						<img src={X_LG} style={`${whiteFilter}; width: 1rem; height: 1rem; vertical-align: -0.18rem`}/>
-					}
-				</button>
-			);
+			if (ondelete) {
+				actionButtons.push(
+					<button class={cls}
+							onclick={onRowClick}
+							style="width: 2.1rem"
+							data-action="delete">
+						{deletingId==item.id &&
+							<span class="spinner-border spinner-border-sm" style="width: 0.75rem; height: 0.75rem"/>
+						}
+						{deletingId!=item.id && 
+							<img src={X_LG} style={`${whiteFilter}; width: 1rem; height: 1rem; vertical-align: -0.18rem`}/>
+						}
+					</button>
+				);
+			}
 
 			tableItem.push(
 				<td class="text-end text-nowrap">

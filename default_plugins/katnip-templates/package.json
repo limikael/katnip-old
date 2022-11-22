@@ -1,0 +1,6 @@
+{
+  "name": "katnip-templates",
+  "type": "module",
+  "main": "./src/katnip-templates-main.js",
+  "browser": "./src/katnip-templates-browser.jsx"
+}
