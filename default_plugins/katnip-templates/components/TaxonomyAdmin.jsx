@@ -3,15 +3,22 @@ import {katnip, ItemList, TreeView, PromiseButton, docGetNode, BsInput,
 import {useState, useRef} from "react";
 
 function TaxonomyEdit({request}) {
-	let [selectedPath,setSelectedPath]=useState();
-	let selectedPathRef=useRef();
-	selectedPathRef.current=selectedPath;
+	let taxonomies={};
+	katnip.doAction("getTaxonomies",taxonomies);
+	let taxonomy=taxonomies[request.query.id];
 
-	function ItemRenderer({data, path}) {
+	let [data,setData]=useState([
+		{title: "Hello"},
+		{title: "World"}
+	]);
+
+	function ItemRenderer(props) {
+		let itemData=props.data;
+
 		function onClick(ev) {
 			ev.preventDefault();
 			ev.stopPropagation();
-			setSelectedPath(path);
+			// fix...
 		}
 
 		let linkStyle={
@@ -20,7 +27,7 @@ function TaxonomyEdit({request}) {
 		};
 
 		let cls="";
-		if (JSON.stringify(selectedPathRef.current)==JSON.stringify(path))
+		if (itemData.selected)
 			cls="bg-primary text-white";
 
 		return (
@@ -31,56 +38,43 @@ function TaxonomyEdit({request}) {
 							class="text-decoration-none stretched-link text-reset"
 							draggable="false"
 							style={linkStyle}>
-						{data.title}
+						{itemData.title}
 					</a>
 				</div>
 			</div>
 		);
 	}
 
-	let taxonomies={};
-	katnip.doAction("getTaxonomies",taxonomies);
-	let taxonomy=taxonomies[request.query.id];
-
-	let initialData=[
-		{title: "Hello"},
-		{title: "World"}
-	];
-
-	let [data,setData]=useState(initialData);
-
 	function onChange(newData) {
 		setData(newData);
-		setSelectedPath();
 	}
 
 	function onAddClick() {
 		data.push({
-			title: "New "+taxonomy.title
+			title: "New "+taxonomy.title,
+			selected: true
 		});
 		setData([...data]);
-		setSelectedPath([data.length-1]);
 	}
 
 	function onClickOutside() {
-		setSelectedPath();
 	}
 
 	function onNodeChange(ev) {
-		let node=docGetNode(docWrapFragment(data),selectedPath);
+		/*let node=docGetNode(docWrapFragment(data),selectedPath);
 		node.title=ev.target.value;
 
 		let wrapped=docReplaceNode(docWrapFragment(data),selectedPath,node);
-		setData([...wrapped.children]);
+		setData([...wrapped.children]);*/
 	}
 
 	function onDeleteNodeClick() {
-		let wrapped=docRemoveNode(docWrapFragment(data),selectedPath);
+		/*let wrapped=docRemoveNode(docWrapFragment(data),selectedPath);
 		setData([...wrapped.children]);
-		setSelectedPath();
+		setSelectedPath();*/
 	}
 
-	let node=docGetNode(docWrapFragment(data),selectedPath);
+	//let node=docGetNode(docWrapFragment(data),selectedPath);
 
 	return (<>
 		<div class="d-flex flex-column" style="height: 100%">
@@ -108,7 +102,7 @@ function TaxonomyEdit({request}) {
 					</div>
 				</div>
 				<div style="width: 33%" class="ms-3 ">
-					{selectedPath &&
+					{/*{selectedPath &&
 						<div class="bg-light p-3" style="height: 100%">
 							<div class="mb-3"><b>{taxonomy.title}</b></div>
 							<div class="form-group mb-3">
@@ -122,7 +116,7 @@ function TaxonomyEdit({request}) {
 								Delete {taxonomy.title}
 							</button>
 						</div>
-					}
+					}*/}
 				</div>
 			</div>
 		</div>
