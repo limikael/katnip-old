@@ -1,5 +1,6 @@
 import {katnip, ItemList, TreeView, PromiseButton, docGetNode, BsInput,
-		docWrapFragment, docReplaceNode, docRemoveNode} from "katnip";
+		docWrapFragment, docReplaceNode, docRemoveNode, docMap, docFindPath,
+		apiFetch, useApiFetch, useRevertibleState, bsLoader, usePromise} from "katnip";
 import {useState, useRef} from "react";
 
 function TaxonomyEdit({request}) {
@@ -7,18 +8,21 @@ function TaxonomyEdit({request}) {
 	katnip.doAction("getTaxonomies",taxonomies);
 	let taxonomy=taxonomies[request.query.id];
 
-	let [data,setData]=useState([
-		{title: "Hello"},
-		{title: "World"}
-	]);
+	let serverData=useApiFetch("/api/getTermsTree",{taxonomy: request.query.id},[request.query.id]);
+	let [data,setData]=useRevertibleState(serverData,[serverData]);
 
-	function ItemRenderer(props) {
-		let itemData=props.data;
+	let dataRef=useRef();
+	dataRef.current=data;
 
+	function ItemRenderer({data, path}) {
 		function onClick(ev) {
 			ev.preventDefault();
 			ev.stopPropagation();
-			// fix...
+			let wrapped=docMap(docWrapFragment(dataRef.current),(item, p)=>{
+				item.selected=(JSON.stringify(p)==JSON.stringify(path));
+			});
+
+			setData([...wrapped.children]);
 		}
 
 		let linkStyle={
@@ -27,7 +31,7 @@ function TaxonomyEdit({request}) {
 		};
 
 		let cls="";
-		if (itemData.selected)
+		if (data.selected)
 			cls="bg-primary text-white";
 
 		return (
@@ -38,7 +42,7 @@ function TaxonomyEdit({request}) {
 							class="text-decoration-none stretched-link text-reset"
 							draggable="false"
 							style={linkStyle}>
-						{itemData.title}
+						{data.title}
 					</a>
 				</div>
 			</div>
@@ -49,7 +53,15 @@ function TaxonomyEdit({request}) {
 		setData(newData);
 	}
 
+	function unselect() {
+		let wrapped=docMap(docWrapFragment(data),(item)=>{
+			item.selected=false
+		});
+		setData([...wrapped.children]);
+	}
+
 	function onAddClick() {
+		unselect();
 		data.push({
 			title: "New "+taxonomy.title,
 			selected: true
@@ -58,23 +70,34 @@ function TaxonomyEdit({request}) {
 	}
 
 	function onClickOutside() {
+		unselect();
 	}
 
 	function onNodeChange(ev) {
-		/*let node=docGetNode(docWrapFragment(data),selectedPath);
+		let selectedPath=docFindPath(docWrapFragment(data),node=>node.selected)
+		let node=docGetNode(docWrapFragment(data),selectedPath);
 		node.title=ev.target.value;
-
 		let wrapped=docReplaceNode(docWrapFragment(data),selectedPath,node);
-		setData([...wrapped.children]);*/
+		setData([...wrapped.children]);
 	}
 
 	function onDeleteNodeClick() {
-		/*let wrapped=docRemoveNode(docWrapFragment(data),selectedPath);
+		let selectedPath=docFindPath(docWrapFragment(data),node=>node.selected)
+		let wrapped=docRemoveNode(docWrapFragment(data),selectedPath);
 		setData([...wrapped.children]);
-		setSelectedPath();*/
 	}
 
-	//let node=docGetNode(docWrapFragment(data),selectedPath);
+	async function onSaveClick() {
+		let newData=await apiFetch("/api/saveTermsTree",{
+			taxonomy: request.query.id,
+			terms: data
+		});
+
+		setData(newData);
+	}
+
+	let selectedPath=docFindPath(docWrapFragment(data),node=>node.selected)
+	let selectedNode=docGetNode(docWrapFragment(data),selectedPath);
 
 	return (<>
 		<div class="d-flex flex-column" style="height: 100%">
@@ -84,41 +107,44 @@ function TaxonomyEdit({request}) {
 						onclick={onAddClick}>
 					Add {taxonomy.title}
 				</button>
-				<PromiseButton class="btn btn-primary align-text-bottom ms-2 float-end mt-1">
+				<PromiseButton class="btn btn-primary align-text-bottom ms-2 float-end mt-1"
+						onclick={onSaveClick}>
 					Save {taxonomy.pluralTitle}
 				</PromiseButton>
 			</div>
-			<div class="flex-grow-1 d-flex flex-row" style="height: calc(100% - 60px)">
-				<div class="flex-grow-1" style="position: relative; height: 100%">
-					<div class="border p-2 rounded" style="height: 100%; overflow-y: scroll" onclick={onClickOutside}>
-						<TreeView
-							data={data}
-							itemHeight={42}
-							itemSpacing={10}
-							itemIndent={30}
-							itemRenderer={ItemRenderer}
-							itemWidth={300}
-							onchange={onChange} />
+			{bsLoader(data,()=><>
+				<div class="flex-grow-1 d-flex flex-row" style="height: calc(100% - 60px)">
+					<div class="flex-grow-1" style="position: relative; height: 100%">
+						<div class="border p-2 rounded" style="height: 100%; overflow-y: scroll" onclick={onClickOutside}>
+							<TreeView
+								data={data}
+								itemHeight={42}
+								itemSpacing={10}
+								itemIndent={30}
+								itemRenderer={ItemRenderer}
+								itemWidth={300}
+								onchange={onChange} />
+						</div>
+					</div>
+					<div style="width: 33%" class="ms-3 ">
+						{selectedPath && selectedNode &&
+							<div class="bg-light p-3" style="height: 100%">
+								<div class="mb-3"><b>{taxonomy.title}</b></div>
+								<div class="form-group mb-3">
+									<label class="d-block form-label mb-1">Title</label>
+									<BsInput 
+											value={selectedNode.title}
+											onchange={onNodeChange}
+											data-id="title"/>
+								</div>
+								<button class="btn btn-danger" onclick={onDeleteNodeClick}>
+									Delete {taxonomy.title}
+								</button>
+							</div>
+						}
 					</div>
 				</div>
-				<div style="width: 33%" class="ms-3 ">
-					{/*{selectedPath &&
-						<div class="bg-light p-3" style="height: 100%">
-							<div class="mb-3"><b>{taxonomy.title}</b></div>
-							<div class="form-group mb-3">
-								<label class="d-block form-label mb-1">Title</label>
-								<BsInput 
-										value={node.title}
-										onchange={onNodeChange}
-										data-id="title"/>
-							</div>
-							<button class="btn btn-danger" onclick={onDeleteNodeClick}>
-								Delete {taxonomy.title}
-							</button>
-						</div>
-					}*/}
-				</div>
-			</div>
+			</>)}
 		</div>
 	</>);
 }

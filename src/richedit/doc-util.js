@@ -245,3 +245,25 @@ export function docGetStructure(doc) {
 		children: doc.children.map(c=>docGetStructure(c))
 	}
 }
+
+export function docMap(doc, fn, path=[]) {
+	fn(doc,path);
+
+	if (doc.children)
+		for (let i=0; i<doc.children.length; i++)
+			docMap(doc.children[i],fn,[...path,i]);
+
+	return doc;
+}
+
+export function docFindPath(doc, fn, path=[]) {
+	if (fn(doc,path))
+		return path;
+
+	if (doc.children)
+		for (let i=0; i<doc.children.length; i++) {
+			let n=docFindPath(doc.children[i],fn,[...path,i]);
+			if (n)
+				return n;
+		}
+}

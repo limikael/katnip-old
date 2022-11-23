@@ -1,6 +1,7 @@
 yarn-error.log
 yarn.lock
 *.db
+*.sqlite3
 *.tgz
 .env
 tmp
