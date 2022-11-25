@@ -27,6 +27,9 @@ katnip.createCrudApi(Template,{
 	cap: "manage-content",
 	postsave: ()=>{
 		katnip.notifyChannel("templates");
+	},
+	postdelete: ()=>{
+		katnip.notifyChannel("templates");
 	}
 });
 
