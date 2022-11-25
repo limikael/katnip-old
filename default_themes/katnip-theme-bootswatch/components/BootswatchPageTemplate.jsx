@@ -205,6 +205,8 @@ export function BootswatchCleanPage({request, children, renderMode}) {
 export function BootswatchPageTemplate({request, children, renderMode}) {
 	let tc=useTemplateContext();
 
+	let TheContent=katnip.elements.TheContent.component;
+
 	return (
 		<BootswatchCleanPage request={request} renderMode={renderMode}>
 			<div class="container mb-5">
@@ -218,7 +220,7 @@ export function BootswatchPageTemplate({request, children, renderMode}) {
 							{(!tc || !tc.title) &&
 								<div class="mt-3"></div>
 							}
-							{children}
+							<TheContent />
 						</div>
 					</div>
 				</div>

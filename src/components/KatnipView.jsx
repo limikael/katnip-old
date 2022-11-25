@@ -1,10 +1,13 @@
 import {katnip, useChannel, useEventUpdate, useEventListener,
-		ResourceBlocker, clearTemplateContext, useValueChanged} from "katnip";
+		ResourceBlocker, clearTemplateContext, useValueChanged,
+		ContentContext, useTemplateContext} from "katnip";
 import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {useState, useRef} from "react";
 
 export function KatnipRequestView({request, renderMode}) {
 	let homepath=useChannel("homepath");
+	let templates=useChannel("templates");
+	useTemplateContext();
 
 	if (request.pathname=="/")
 		request.processUrl(homepath);
@@ -13,14 +16,9 @@ export function KatnipRequestView({request, renderMode}) {
 	if (changed)
 		katnip.clearTemplateContext();
 
-	let Page=katnip.getPageComponentForRoute(request.pathname);
-	let Layout=katnip.getTemplateForRoute(request.pathname);
-
 	return (
 		<ResourceBlocker>
-			<Layout request={request} renderMode={renderMode}>
-				<Page request={request} renderMode={renderMode}/>
-			</Layout>
+			{katnip.renderRequest(request, renderMode)}
 		</ResourceBlocker>
 	);
 }

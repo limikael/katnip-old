@@ -6,9 +6,11 @@ import {KatnipView, KatnipRequestView} from "../components/KatnipView.jsx";
 import {pathMatch} from "../utils/path-match.js";
 import {parseCookieString, buildUrl, fetchEx, arrayRemove} from "../utils/js-util.js";
 import {useEventUpdate} from "../utils/react-util.jsx";
-import {createElement, Fragment} from "react";
+import {createElement, Fragment, createContext} from "react";
 import ContentRenderer from "../richedit/ContentRenderer.jsx";
 import {render as renderToString} from "preact-render-to-string";
+
+export const ContentContext=createContext();
 
 class BrowserKatnip {
 	constructor() {
@@ -33,9 +35,9 @@ class BrowserKatnip {
 		this.templates[route]=component;
 	}
 
-	getTemplateForRoute=(route)=>{
+/*	getTemplateForRoute=(route)=>{
 		return this.selectComponentForRoute(this.templates,route);
-	}
+	}*/
 
 	getPageComponentForRoute=(route)=>{
 		return this.selectComponentForRoute(this.routes,route);
@@ -123,6 +125,37 @@ class BrowserKatnip {
 
 			this.emitter.on("apiCallsComplete",checkCalls);
 			checkCalls();
+		}
+	}
+
+	renderRequest=(request, renderMode)=>{
+		let templatesByRoute={};
+		for (let t of this.channelManager.getChannelValue("templates"))
+			templatesByRoute[t.routes]=t;
+
+		let Page=this.getPageComponentForRoute(request.pathname);
+		let content=<Page request={request} renderMode={renderMode}/>;
+
+		let allTemplates={...this.templates,...templatesByRoute};
+		let template=this.selectComponentForRoute(allTemplates,request.pathname);
+
+		if (typeof template=="function") {
+			let Layout=template;
+			return (
+				<ContentContext.Provider value={content}>
+					<Layout request={request} renderMode={renderMode}>
+						{content}
+					</Layout>
+				</ContentContext.Provider>
+			);
+		}
+
+		else {
+			return (
+				<ContentContext.Provider value={content}>
+					{katnip.contentRenderer.renderFragment(template.content)}
+				</ContentContext.Provider>
+			);
 		}
 	}
 
@@ -263,14 +296,13 @@ const katnip=new BrowserKatnip();
 export const isSsr=katnip.isSsr;
 export const ssrRender=katnip.ssrRender;
 export const apiFetch=katnip.apiFetch;
+export const renderRequest=katnip.renderRequest;
 
 export const contentRenderer=katnip.contentRenderer;
 export const addElement=katnip.contentRenderer.addElement;
 export const renderNode=katnip.contentRenderer.renderNode;
 export const renderFragment=katnip.contentRenderer.renderFragment;
 export const elements=katnip.contentRenderer.elements;
-
-export const TemplateContext=katnip.TemplateContext;
 
 export const clientMain=katnip.clientMain;
 export const addAction=katnip.actions.addAction;
@@ -281,7 +313,7 @@ export const setTemplateContext=katnip.setTemplateContext;
 export const clearTemplateContext=katnip.clearTemplateContext;
 export const addRoute=katnip.addRoute;
 export const addTemplate=katnip.addTemplate;
-export const getTemplateForRoute=katnip.getTemplateForRoute;
+//export const getTemplateForRoute=katnip.getTemplateForRoute;
 export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 
 export const useCurrentUser=katnip.useCurrentUser;
