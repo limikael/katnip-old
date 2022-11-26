@@ -1,5 +1,13 @@
-import katnip from "katnip";
-import BootswatchPageTemplate from "../components/BootswatchPageTemplate.jsx";
+import {katnip, Stylesheet} from "katnip";
+import {BootswatchPageTemplate, BootswatchWrapper} from "../components/BootswatchPageTemplate.jsx";
+import "../components/bootswatch-components.jsx";
+
+katnip.addAction("getTemplateWrapper",(req)=>{
+	if (req.pathargs[0]=="admin")
+		return;
+
+	return BootswatchWrapper;
+});
 
 katnip.addTemplate("**",BootswatchPageTemplate);
 

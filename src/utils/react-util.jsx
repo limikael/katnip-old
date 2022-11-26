@@ -118,6 +118,32 @@ export function optionsFromObject(o) {
 	return options;
 }
 
+export function useElementDimensions(ref) {
+	let [dimensions, setDimensions]=useState([0,0]);
+
+	function updateDimensions() {
+		setDimensions([
+			ref.current.clientWidth,
+			ref.current.clientHeight
+		]);
+	}
+
+	useEffect(()=>{
+		updateDimensions();
+
+		let resizeObserver=new ResizeObserver(()=>{
+			updateDimensions();
+		});
+
+		resizeObserver.observe(ref.current);
+		return (()=>{
+			resizeObserver.disconnect();
+		});
+	},[ref,ref.current]);
+
+	return dimensions;
+}
+
 export function useResizeObserver(ref, fn) {
 	useEffect(()=>{
 		let resizeObserver=new ResizeObserver(()=>{
@@ -180,7 +206,7 @@ export function useEventListener(target, event, func) {
 				throw new Error("not an event dispatcher: "+target);
 
 			return (()=>{
-				//console.log("removing...");
+				//console.log("removing: "+event);
 				if (target.off)
 					target.off(event,onEvent);
 

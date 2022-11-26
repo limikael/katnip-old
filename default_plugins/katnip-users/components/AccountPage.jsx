@@ -34,8 +34,6 @@ export default function AccountPage({renderMode}) {
 
 	let user=useCurrentUser();
 
-	console.log("account page, renderMode="+renderMode);
-
 	if (!user) {
 		console.log("no user, redirecting");
 		katnip.setLocation("/login");

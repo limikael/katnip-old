@@ -2,6 +2,7 @@ import Actions from "../utils/Actions.js";
 import EventEmitter from "events";
 import ChannelManager from "./ChannelManager.js";
 import ChannelConnector from "./ChannelConnector.js";
+import KatnipClientRequest from "../auth/KatnipClientRequest.js";
 import {KatnipView, KatnipRequestView} from "../components/KatnipView.jsx";
 import {pathMatch} from "../utils/path-match.js";
 import {parseCookieString, buildUrl, fetchEx, arrayRemove} from "../utils/js-util.js";
@@ -34,10 +35,6 @@ class BrowserKatnip {
 	addTemplate=(route, component)=>{
 		this.templates[route]=component;
 	}
-
-/*	getTemplateForRoute=(route)=>{
-		return this.selectComponentForRoute(this.templates,route);
-	}*/
 
 	getPageComponentForRoute=(route)=>{
 		return this.selectComponentForRoute(this.routes,route);
@@ -139,22 +136,30 @@ class BrowserKatnip {
 		let allTemplates={...this.templates,...templatesByRoute};
 		let template=this.selectComponentForRoute(allTemplates,request.pathname);
 
+		let TemplateWrapper=this.actions.doAction("getTemplateWrapper",request);
+		if (!TemplateWrapper)
+			TemplateWrapper=Fragment;
+
 		if (typeof template=="function") {
 			let Layout=template;
 			return (
-				<ContentContext.Provider value={content}>
-					<Layout request={request} renderMode={renderMode}>
-						{content}
-					</Layout>
-				</ContentContext.Provider>
+				<TemplateWrapper>
+					<ContentContext.Provider value={content}>
+						<Layout request={request} renderMode={renderMode}>
+							{content}
+						</Layout>
+					</ContentContext.Provider>
+				</TemplateWrapper>
 			);
 		}
 
 		else {
 			return (
-				<ContentContext.Provider value={content}>
-					{katnip.contentRenderer.renderFragment(template.content)}
-				</ContentContext.Provider>
+				<TemplateWrapper>
+					<ContentContext.Provider value={content}>
+						{katnip.contentRenderer.renderFragment(template.content)}
+					</ContentContext.Provider>
+				</TemplateWrapper>
 			);
 		}
 	}
@@ -168,6 +173,10 @@ class BrowserKatnip {
 		let channelId=buildUrl("user",{sessionId: sessionId});
 
 		return this.useChannel(channelId);
+	}
+
+	getCurrentRequest=()=>{
+		return new KatnipClientRequest();
 	}
 
 	getCurrentUser=()=>{
@@ -313,11 +322,11 @@ export const setTemplateContext=katnip.setTemplateContext;
 export const clearTemplateContext=katnip.clearTemplateContext;
 export const addRoute=katnip.addRoute;
 export const addTemplate=katnip.addTemplate;
-//export const getTemplateForRoute=katnip.getTemplateForRoute;
 export const getPageComponentForRoute=katnip.getPageComponentForRoute;
 
 export const useCurrentUser=katnip.useCurrentUser;
 export const getCurrentUser=katnip.getCurrentUser;
+export const getCurrentRequest=katnip.getCurrentRequest;
 
 export const useChannel=katnip.useChannel;
 export const setChannelPersistence=katnip.channelManager.setChannelPersistence;

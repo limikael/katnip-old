@@ -156,40 +156,17 @@ function Footer({request}) {
 
 export function BootswatchCleanPage({request, children, renderMode}) {
 	let [navSize,setNavSize]=useState(78);
-	let bootswatchTheme=useChannel("bootswatchTheme");
 	let bootswatchNavStyle=useChannel("bootswatchNavStyle");
-	let contentHash=useChannel("contentHash");
-
-	let cssUrl="/bootstrap.min.css";
-	if (bootswatchTheme)
-		cssUrl=`/bootstrap-${bootswatchTheme}.min.css`;
-
-	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
 
 	let containerStyle={};
-
 	if (bootswatchNavStyle=="fixed" && renderMode!="ssr")
 		containerStyle["margin-top"]=navSize+"px";
-
-	let bsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	let topItems=[];
 	katnip.doAction("topItems",topItems,request);
 
 	return (
 		<>
-			<Stylesheet href={cssUrl} />
-			{renderMode!="ssr" &&
-				<script
-					src={bsUrl}
-					async
-				/>
-			}
-			<style>{`
-				html, body, .page, #katnip-root, #katnip-ssr, .resource-blocker {
-					height: 100%;
-				}
-			`}</style>
 			<div class="page d-flex flex-column">
 				<Nav request={request} onsize={setNavSize} renderMode={renderMode}/>
 				<div style={containerStyle} class="flex-grow-1">
@@ -229,4 +206,30 @@ export function BootswatchPageTemplate({request, children, renderMode}) {
 	);
 }
 
-export default BootswatchPageTemplate;
+export function BootswatchWrapper({request, renderMode, children}) {
+	let bootswatchTheme=useChannel("bootswatchTheme");
+	let contentHash=useChannel("contentHash");
+
+	let cssUrl="/bootstrap.min.css";
+	if (bootswatchTheme)
+		cssUrl=`/bootstrap-${bootswatchTheme}.min.css`;
+
+	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
+	let bsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
+
+	return (<>
+		<Stylesheet href={cssUrl} />
+		{renderMode!="ssr" &&
+			<script
+				src={bsUrl}
+				async
+			/>
+		}
+		<style>{`
+			html, body, .page, #katnip-root, #katnip-ssr, .resource-blocker {
+				height: 100%;
+			}
+		`}</style>
+		{children}
+	</>);
+}
