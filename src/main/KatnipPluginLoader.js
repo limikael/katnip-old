@@ -147,7 +147,16 @@ export default class KatnipPluginLoader {
 			process.exit();
 		}
 
-		this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");
+		if (options.ssr) {
+
+			// uuuh this is so ugly, but needed for popper...
+			global.document=global.window={addEventListener: ()=>{}};
+
+			this.clientModule=await import(this.outDir+"/katnip-bundle.mjs");
+
+			delete global.window;
+			delete global.document;
+		}
 
 		console.log("Build done...");
 	}

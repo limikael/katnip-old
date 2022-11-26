@@ -50,6 +50,10 @@ function BsPageNav({outer, inner, children, renderMode}) {
 	function onNavClick(ev) {
 		ev.preventDefault();
 
+		let el=document.querySelector("nav .navbar-collapse");
+		if (el)
+			el.classList.remove("show");
+
 		setLocation(ev.target.href);
 	}
 
@@ -101,7 +105,7 @@ function BsPageContent({outer, inner, children, renderMode}) {
 	let tc=useTemplateContext();
 
 	let containerStyle={};
-	if (bootswatchNavStyle=="fixed" && renderMode!="ssr")
+	if (bootswatchNavStyle=="fixed" && renderMode!="ssr" && renderMode!="editor")
 		containerStyle["margin-top"]=tc.navHeight+"px";
 
 	return (
@@ -125,3 +129,34 @@ function BsPageFooter({outer, inner, children}) {
 BsPageFooter.wrap=null;
 katnip.addElement("BsPageFooter",BsPageFooter);
 
+function BsCenterContent({outer, inner, children}) {
+	return (
+		<div class="container my-5" {...outer}>
+			<div class="row" style="height: 100%">
+				<div class="d-none d-lg-block" style="width: 12.5%"></div>
+				<div class="col-lg-9" {...inner}>
+					{children}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+BsCenterContent.wrap=null;
+katnip.addElement("BsCenterContent",BsCenterContent);
+
+function BsTitle({outer, inner, renderMode}) {
+	let tc=useTemplateContext();
+	let title=tc.title;
+	if (renderMode=="editor")
+		title="<Page Title>";
+
+	let content;
+	if (title)
+		content=<h1 class="pb-2 border-bottom mb-4">{title}</h1>;
+
+	return <div {...outer}>{content}</div>;
+}
+
+BsTitle.wrap=null;
+katnip.addElement("BsTitle",BsTitle);

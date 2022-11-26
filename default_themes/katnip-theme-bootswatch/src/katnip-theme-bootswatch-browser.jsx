@@ -1,6 +1,7 @@
 import {katnip, Stylesheet} from "katnip";
 import {BootswatchPageTemplate, BootswatchWrapper} from "../components/BootswatchPageTemplate.jsx";
 import "../components/bootswatch-components.jsx";
+import "bootstrap/js/dist/collapse";
 
 katnip.addAction("getTemplateWrapper",(req)=>{
 	if (req.pathargs[0]=="admin")

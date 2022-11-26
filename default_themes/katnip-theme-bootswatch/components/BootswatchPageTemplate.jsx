@@ -215,16 +215,9 @@ export function BootswatchWrapper({request, renderMode, children}) {
 		cssUrl=`/bootstrap-${bootswatchTheme}.min.css`;
 
 	cssUrl=buildUrl(cssUrl,{contentHash: contentHash});
-	let bsUrl=buildUrl("/bootstrap.bundle.min.js",{contentHash: contentHash});
 
 	return (<>
 		<Stylesheet href={cssUrl} />
-		{renderMode!="ssr" &&
-			<script
-				src={bsUrl}
-				async
-			/>
-		}
 		<style>{`
 			html, body, .page, #katnip-root, #katnip-ssr, .resource-blocker {
 				height: 100%;

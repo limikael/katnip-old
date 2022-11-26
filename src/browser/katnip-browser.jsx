@@ -176,6 +176,9 @@ class BrowserKatnip {
 	}
 
 	getCurrentRequest=()=>{
+		if (this.ssr)
+			return this.ssr.req;
+
 		return new KatnipClientRequest();
 	}
 

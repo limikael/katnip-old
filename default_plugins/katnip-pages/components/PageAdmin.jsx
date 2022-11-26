@@ -1,4 +1,4 @@
-import {katnip, A, ItemList, setLocation, buildUrl, BsAlert, BsLoader,
+import {katnip, A, ItemList, setLocation, buildUrl, BsAlert,
 		useApiFetch, apiFetch, useCounter, useValueChanged, useChannel,
 		PromiseButton, usePromise, useTemplateContext} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
