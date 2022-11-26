@@ -41,7 +41,8 @@ function BsPageNav({outer, inner, children, renderMode}) {
 		navClass="navbar-light ";
 
 	navClass+=` bg-${navColor}`;
-	if (navStyle=="fixed" && renderMode!="ssr" && renderMode!="editor")
+	if (navStyle=="fixed" && renderMode!="ssr" && renderMode!="editor" &&
+			height!=0)
 		navClass+=" fixed-top";
 
 	if (!menuHeader)

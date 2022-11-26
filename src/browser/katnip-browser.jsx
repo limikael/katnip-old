@@ -157,7 +157,9 @@ class BrowserKatnip {
 			return (
 				<TemplateWrapper>
 					<ContentContext.Provider value={content}>
-						{katnip.contentRenderer.renderFragment(template.content)}
+						{katnip.contentRenderer.renderFragment(template.content,{
+							renderMode: renderMode
+						})}
 					</ContentContext.Provider>
 				</TemplateWrapper>
 			);
