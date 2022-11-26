@@ -50,3 +50,11 @@ katnip.addApi("/api/saveTermsTree",async ({taxonomy, terms}, req)=>{
 
 	return treeFromFlat(await katnip.db.Term.findMany({taxonomy: taxonomy}));
 });
+
+katnip.addApi("/api/getDefaultTemplateContent",async ({}, req)=>{
+	let content=katnip.doAction("getDefaultTemplateContent");
+	if (!content)
+		content=[];
+
+	return content;
+});

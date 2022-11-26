@@ -23,10 +23,17 @@ function TemplateProperties({form}) {
 
 function TemplateEdit({request}) {
 	async function read() {
-		let data={title: "New Template", content: [], routes: ""};
+		let data;
 
 		if (request.query.id)
 			data=await apiFetch("/api/template/get",{id: request.query.id});
+
+		else 
+			data={
+				title: "New Template", 
+				routes: "",
+				content: await apiFetch("/api/getDefaultTemplateContent")
+			}
 
 		if (!data.meta)
 			data.meta={};

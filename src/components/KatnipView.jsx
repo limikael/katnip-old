@@ -12,6 +12,7 @@ export function KatnipRequestView({request, renderMode}) {
 	if (request.pathname=="/")
 		request.processUrl(homepath);
 
+
 	let changed=useValueChanged(request.href);
 	if (changed)
 		katnip.clearTemplateContext();
@@ -61,10 +62,8 @@ export function KatnipView() {
 		return;
 	}
 
-	if (homepath && request.pathname==homepath) {
+	if (homepath && request.pathname==homepath)
 		katnip.setLocation("/");
-		return;
-	}
 
 	return <KatnipRequestView request={request} renderMode="live"/>
 }

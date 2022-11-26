@@ -14,3 +14,20 @@ katnip.addAction("serverMain",async ()=>{
 		await katnip.setSetting("sitename","My Site");
 	}
 });
+
+katnip.addAction("getDefaultTemplateContent",()=>{
+	return ([
+		{"type": "BsPage", "props": {}, "children": [
+			{"type": "BsPageNav", "props": {}, "children": []},
+			{"type": "BsPageContent", "props": {}, "children": [
+				{"type": "BsCenterContent", "props": {}, "children": [
+					{"type": "BsTitle", "props": {}, "children": []},
+					{"type": "TheContent", "props": {}, "children": []}
+				]}
+			]},
+			{"type": "BsPageFooter", "props": {}, "children": [
+				{"type": "div", "props": {"class": "p-3 text-center"}, "children": []}
+			]}
+		]}
+	]);
+});
