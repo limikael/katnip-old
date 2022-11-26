@@ -1,4 +1,3 @@
-import {useTemplateContext} from "../browser/katnip-browser.jsx";
 import {useBlockingResource} from "../utils/blocking-resource.jsx";
 
 export function Stylesheet({href}) {

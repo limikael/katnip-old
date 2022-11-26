@@ -8,6 +8,8 @@ export default class ChannelData extends EventEmitter {
 		this.id=channelId;
 		this.persistent=false;
 		this.ref=0;
+
+		this.setMaxListeners(20);
 	}
 
 	setValue=(value)=>{

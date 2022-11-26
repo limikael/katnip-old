@@ -157,7 +157,6 @@ export function useResizeObserver(ref, fn) {
 	},[ref,ref.current]);
 }
 
-
 export function useImmediateEffect(effect, deps) {
 	const cleanupRef = useRef();
 	const depsRef = useRef();
@@ -179,7 +178,7 @@ export function useImmediateEffect(effect, deps) {
 		cleanupRef.current = effect();
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		return () => {
 			if (cleanupRef.current) {
 				cleanupRef.current();
@@ -189,9 +188,11 @@ export function useImmediateEffect(effect, deps) {
 };
 
 export function useEventListener(target, event, func) {
-	useImmediateEffect(()=>{
+	useEffect(()=>{
 		if (target) {
-			//console.log("adding: "+event);
+			/*if (event=="templateContextChange")
+				console.log("adding: "+event);*/
+
 			function onEvent(...params) {
 				func(...params);
 			}
@@ -206,7 +207,9 @@ export function useEventListener(target, event, func) {
 				throw new Error("not an event dispatcher: "+target);
 
 			return (()=>{
-				//console.log("removing: "+event);
+				/*if (event=="templateContextChange")
+					console.log("removing: "+event);*/
+
 				if (target.off)
 					target.off(event,onEvent);
 

@@ -2,7 +2,7 @@ import {katnip, useChannel, A, useElementDimensions, useTemplateContext, setTemp
 		setLocation, getCurrentRequest} from "katnip";
 import {useRef} from "react";
 
-function BsPage({outer, inner, children}) {
+export function BsPage({outer, inner, children}) {
 	return (
 		<div class="page d-flex flex-column" {...outer} {...inner}>
 			{children}
@@ -13,7 +13,7 @@ function BsPage({outer, inner, children}) {
 BsPage.wrap=null;
 katnip.addElement("BsPage",BsPage);
 
-function BsPageNav({outer, inner, children, renderMode}) {
+export function BsPageNav({outer, inner, children, renderMode}) {
 	let webSocketStatus=katnip.useWebSocketStatus();
 	let navRef=useRef();
 	let navDimensions=useElementDimensions(navRef);
@@ -23,7 +23,6 @@ function BsPageNav({outer, inner, children, renderMode}) {
 	let navColor=useChannel("bootswatchNavColor");
 	let navStyle=useChannel("bootswatchNavStyle");
 	let menuHeader=useChannel("menuHeader");
-	let tc=useTemplateContext();
 	let request=getCurrentRequest();
 
 	let height=navDimensions[1];
@@ -101,7 +100,7 @@ function BsPageNav({outer, inner, children, renderMode}) {
 BsPageNav.wrap=null;
 katnip.addElement("BsPageNav",BsPageNav);
 
-function BsPageContent({outer, inner, children, renderMode}) {
+export function BsPageContent({outer, inner, children, renderMode}) {
 	let bootswatchNavStyle=useChannel("bootswatchNavStyle");
 	let tc=useTemplateContext();
 
@@ -119,9 +118,32 @@ function BsPageContent({outer, inner, children, renderMode}) {
 BsPageContent.wrap=null;
 katnip.addElement("BsPageContent",BsPageContent);
 
-function BsPageFooter({outer, inner, children}) {
+export function BsPageFooter({outer, inner, children}) {
+	let cls, bootswatchFooter=useChannel("bootswatchFooter")
+	switch (bootswatchFooter) {
+		case "light":
+			cls="bg-light text-dark";
+			break;
+
+		case "black":
+			cls="bg-black text-white";
+			break;
+
+		case "none":
+			return;
+			break;
+
+		case "transparent":
+			break;
+
+		case "dark":
+			default:
+			cls="bg-dark text-light";
+			break;
+	}
+
 	return (
-		<footer class="container-fluid bg-black" {...outer} {...inner}>
+		<footer class={`container-fluid ${cls}`} {...outer} {...inner}>
 			{children}
 		</footer>
 	);
@@ -130,7 +152,7 @@ function BsPageFooter({outer, inner, children}) {
 BsPageFooter.wrap=null;
 katnip.addElement("BsPageFooter",BsPageFooter);
 
-function BsCenterContent({outer, inner, children}) {
+export function BsCenterContent({outer, inner, children}) {
 	return (
 		<div class="container my-5" {...outer}>
 			<div class="row" style="height: 100%">
@@ -146,7 +168,7 @@ function BsCenterContent({outer, inner, children}) {
 BsCenterContent.wrap=null;
 katnip.addElement("BsCenterContent",BsCenterContent);
 
-function BsTitle({outer, inner, renderMode}) {
+export function BsTitle({outer, inner, renderMode}) {
 	let tc=useTemplateContext();
 	let title=tc.title;
 	if (renderMode=="editor")

@@ -1,5 +1,5 @@
 import {useContext, createContext, useRef, useEffect, useLayoutEffect} from "react";
-import {useEventUpdate, useImmediateEffect} from "./react-util.jsx";
+import {useEventUpdate} from "./react-util.jsx";
 import {arrayRemove} from "./js-util.js";
 import EventEmitter from "events";
 

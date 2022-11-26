@@ -17,6 +17,7 @@ class BrowserKatnip {
 	constructor() {
 		this.actions=new Actions();
 		this.emitter=new EventEmitter();
+		//this.emitter.setMaxListeners(20);
 
 		this.channelManager=new ChannelManager();
 		this.channelConnector=new ChannelConnector(this.channelManager);
@@ -26,6 +27,10 @@ class BrowserKatnip {
 		this.templates={};
 		this.routes={};
 		this.apiCalls=[];
+
+		/*setInterval(()=>{
+			console.log("listeners: "+this.emitter.listenerCount("templateContextChange"));
+		},1000);*/
 	}
 
 	addRoute=(route, component)=>{
@@ -56,7 +61,7 @@ class BrowserKatnip {
 	}
 
 	useTemplateContext=()=>{
-		useEventUpdate(this.emitter,"templateContextChange")
+		useEventUpdate(this.emitter,"templateContextChange");
 		return this.templateContext;
 	}
 

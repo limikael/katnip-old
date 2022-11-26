@@ -11,6 +11,8 @@ export default class ChannelConnector extends EventEmitter {
 		this.channelManager.on("newChannel",this.onNewChannel);
 		this.channelManager.on("deleteChannel",this.onDeleteChannel);
 
+		//this.setMaxListeners(20);
+
 		//this.initWebSocket();
 	}
 

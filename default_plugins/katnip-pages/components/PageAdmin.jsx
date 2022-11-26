@@ -1,6 +1,6 @@
 import {katnip, A, ItemList, setLocation, buildUrl, BsAlert,
 		useApiFetch, apiFetch, useCounter, useValueChanged, useChannel,
-		PromiseButton, usePromise, useTemplateContext} from "katnip";
+		PromiseButton, usePromise} from "katnip";
 import {useForm} from "../../../src/utils/use-form.jsx";
 import {BsInput} from "katnip";
 import {useState, useContext} from "preact/compat";
