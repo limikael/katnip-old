@@ -75,7 +75,7 @@ export function docToXml(doc, indent=0) {
 			rep("\t",indent)+"</"+doc.type+">\n";
 
 	else	
-		s=rep("\t",indent)+"<"+doc.type+attr+"/>";
+		s=rep("\t",indent)+"<"+doc.type+attr+"/>\n";
 
 	return s;
 }
