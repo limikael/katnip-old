@@ -6,6 +6,10 @@ import FILE_EARMARK_TEXT from "bootstrap-icons/icons/file-earmark-text.svg";
 //import "../components/PageCounter.jsx";
 //import "../components/Box.jsx";
 
+katnip.addAction("getTaxonomies",(taxonomies)=>{
+	taxonomies.category={title: "Page Category", pluralTitle: "Page Categories", hierarchial: true};
+});
+
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Pages",

@@ -1,18 +1,23 @@
 import {katnip, ItemList, TreeView, PromiseButton, docGetNode, BsInput,
 		docWrapFragment, docReplaceNode, docRemoveNode, docMap, docFindPath,
-		apiFetch, useApiFetch, useRevertibleState, bsLoader, usePromise} from "katnip";
+		apiFetch, useApiFetch, useRevertibleState, bsLoader, usePromise, BsAlert} from "katnip";
 import {useState, useRef} from "react";
 
 function TaxonomyEdit({request}) {
+	let taxonomyId=request.pathargs[2];
+
 	let taxonomies={};
 	katnip.doAction("getTaxonomies",taxonomies);
-	let taxonomy=taxonomies[request.query.id];
+	let taxonomy=taxonomies[taxonomyId];
 
-	let serverData=useApiFetch("/api/getTermsTree",{taxonomy: request.query.id},[request.query.id]);
+	let serverData=useApiFetch("/api/getTermsTree",{taxonomy: taxonomyId},[taxonomyId]);
 	let [data,setData]=useRevertibleState(serverData,[serverData]);
 
 	let dataRef=useRef();
 	dataRef.current=data;
+
+	if (!taxonomy)
+		return <BsAlert message={new Error("Undefined taxonomy")}/>
 
 	function ItemRenderer({data, path}) {
 		function onClick(ev) {
@@ -89,7 +94,7 @@ function TaxonomyEdit({request}) {
 
 	async function onSaveClick() {
 		let newData=await apiFetch("/api/saveTermsTree",{
-			taxonomy: request.query.id,
+			taxonomy: taxonomyId,
 			terms: data
 		});
 
@@ -176,8 +181,8 @@ function TaxonomyList({request}) {
 }
 
 export function TaxonomyAdmin({request}) {
-	if (request.query.id)
+//	if (request.query.id)
 		return <TaxonomyEdit request={request} />
 
-	return <TaxonomyList request={request} />
+//	return <TaxonomyList request={request} />
 }

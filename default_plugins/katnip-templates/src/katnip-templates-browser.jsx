@@ -3,11 +3,6 @@ import {useContext} from "react";
 import LIST_NESTED from "bootstrap-icons/icons/list-nested.svg";
 import FILE_EARMARK from "bootstrap-icons/icons/file-earmark.svg";
 
-katnip.addAction("getTaxonomies",(taxonomies)=>{
-	taxonomies.category={title: "Category", pluralTitle: "Categories", hierarchial: true};
-	taxonomies.tags={title: "Tag", pluralTitle: "Tags"};
-});
-
 katnip.addAction("getAdminMenu",(items)=>{
 	items.push({
 		title: "Templates",
@@ -16,15 +11,15 @@ katnip.addAction("getAdminMenu",(items)=>{
 		icon: FILE_EARMARK
 	});
 
-	items.push({
+	/*items.push({
 		title: "Taxonomies",
 		href: "/admin/taxonomy",
 		priority: 60,
 		icon: LIST_NESTED
-	});
+	});*/
 });
 
-katnip.addRoute("admin/taxonomy",lazyComponent("admin","TaxonomyAdmin"));
+katnip.addRoute("admin/taxonomy/*",lazyComponent("admin","TaxonomyAdmin"));
 katnip.addRoute("admin/template",lazyComponent("admin","TemplateAdmin"));
 
 katnip.addElement("TheContent",({renderMode})=>{

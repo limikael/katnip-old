@@ -115,6 +115,10 @@ function PageList({request}) {
 						href="/admin/page?new=1">
 					Add Page
 				</A>
+				<A class="btn btn-outline-primary align-text-bottom ms-2 float-end mt-1"
+						href="/admin/taxonomy/category">
+					Page Categories
+				</A>
 			</div>
 			<ItemList
 					items={getPages} 
