@@ -10,7 +10,7 @@ katnip.addAction("getAdminMenu",(items)=>{
 	});
 
 	items.push({
-		title: "Theme",
+		title: "Themes",
 		href: "/admin/theme",
 		priority: 85,
 		icon: PLUGIN
