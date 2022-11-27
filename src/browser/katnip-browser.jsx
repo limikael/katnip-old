@@ -131,15 +131,19 @@ class BrowserKatnip {
 	}
 
 	renderRequest=(request, renderMode)=>{
+		let Page=this.getPageComponentForRoute(request.pathname);
+		let content=<Page request={request} renderMode={renderMode}/>;
+
 		let templatesByRoute={};
 		for (let t of this.channelManager.getChannelValue("templates"))
 			templatesByRoute[t.routes]=t;
 
-		let Page=this.getPageComponentForRoute(request.pathname);
-		let content=<Page request={request} renderMode={renderMode}/>;
-
 		let allTemplates={...this.templates,...templatesByRoute};
 		let template=this.selectComponentForRoute(allTemplates,request.pathname);
+
+		for (let t of this.channelManager.getChannelValue("templates"))
+			if (t.terms.includes(Number(this.templateContext.term)))
+				template=t;
 
 		let TemplateWrapper=this.actions.doAction("getTemplateWrapper",request);
 		if (!TemplateWrapper)

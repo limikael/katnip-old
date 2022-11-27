@@ -19,6 +19,7 @@ class Template extends katnip.Model {
 		content: "JSON NOT NULL",
 		routes: "TEXT NOT NULL",
 		meta: "JSON",
+		terms: "JSON",
 	};
 }
 

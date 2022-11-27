@@ -11,6 +11,7 @@ import ContentEditor from "./ContentEditor.jsx";
 dayjs.extend(relativeTime);
 
 function PageProperties({form}) {
+	let termOptions=useApiFetch("/api/getTaxonomyOptions",{taxonomy: "category"});
 	let page=form.getCurrent();
 
 	let url;
@@ -46,6 +47,13 @@ function PageProperties({form}) {
 			<BsInput type="select"
 					{...form.field("meta.hideTitle")} 
 					options={{"":"Show Page Title","true":"Hide Page Title"}}/>
+		</div>
+		<div class="form-group mb-3">
+			<label class="form-label mb-1">Category</label>
+			<BsInput type="select" {...form.field("meta.category")}
+					options={termOptions}>
+				<option />
+			</BsInput>
 		</div>
 		{extraFields}
 	</>;

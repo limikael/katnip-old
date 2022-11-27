@@ -14,5 +14,7 @@ export default function PageView({request, renderMode}) {
 	if (!page.meta.hideTitle)
 		setTemplateContext("title",page.title);
 
+	setTemplateContext("term",page.meta.category);
+
 	return renderFragment(page.content,{renderMode: renderMode});
 }

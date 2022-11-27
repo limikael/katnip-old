@@ -54,8 +54,8 @@ export function BsInput({...props}) {
 
 		return (
 			<select class="form-select" {...props}>
-				{optionElements}
 				{props.children}
+				{optionElements}
 			</select>
 		);
 	}

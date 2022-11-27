@@ -52,9 +52,28 @@ katnip.addApi("/api/saveTermsTree",async ({taxonomy, terms}, req)=>{
 });
 
 katnip.addApi("/api/getDefaultTemplateContent",async ({}, req)=>{
+	req.assertCap("manage-settings");
+
 	let content=katnip.doAction("getDefaultTemplateContent");
 	if (!content)
 		content=[];
 
 	return content;
+});
+
+katnip.addApi("/api/getTaxonomyOptions",async ({taxonomy}, req)=>{
+	req.assertCap("manage-settings");
+
+	let terms=await katnip.db.Term.findMany({taxonomy: taxonomy});
+	let termOptions={};
+	for (let term of terms)
+		termOptions[String(term.id)]=term.title;
+
+	return termOptions;
+});
+
+katnip.addApi("/api/listTerms",async ({},req)=>{
+	req.assertCap("manage-settings");
+
+	return await katnip.db.Term.findMany();
 });
