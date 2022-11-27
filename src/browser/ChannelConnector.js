@@ -85,7 +85,10 @@ export default class ChannelConnector extends EventEmitter {
 				if (messageData.error)
 					v=new Error(messageData.error);
 
-				this.channelManager.setChannelValue(messageData.channel,v);
+				//setTimeout(()=>{
+					//console.log("channel update: "+messageData.channel);
+					this.channelManager.setChannelValue(messageData.channel,v);
+				//},100);
 				break;
 
 			default:

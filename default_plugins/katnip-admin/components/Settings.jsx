@@ -1,7 +1,7 @@
 import {apiFetch, useChannel, useForm, BsGroupInput, 
 		PromiseButton, BsAlert, A, setLocation,
 		useRevertibleState, buildUrl, useApiFetch,
-		bsLoader} from "katnip";
+		bsLoader, katnip} from "katnip";
 import {useState} from "react";
 
 function SettingsTabs({request, categories}) {
@@ -60,11 +60,6 @@ export function Settings({request}) {
 	async function write() {
 		setMessage();
 		await apiFetch("/api/saveSettings",form.getCurrent());
-
-		for (let setting of categories[categoryId].settings)
-			if (setting.session)
-				katnip.setChannelValue(setting.id,form.getCurrent()[setting.id]);
-
 		setMessage("Settings saved...");
 	}
 

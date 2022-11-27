@@ -27,8 +27,8 @@ katnip.addApi("/api/getSettings",async ({category},sreq)=>{
 	return res;
 });
 
-katnip.addApi("/api/saveSettings",async (settings, sreq)=>{
-	sreq.assertCap("manage-settings");
+katnip.addApi("/api/saveSettings",async (settings, req)=>{
+	req.assertCap("manage-settings");
 
 	for (let k in settings)
 		await katnip.setSetting(k,settings[k]);
@@ -39,6 +39,9 @@ katnip.addApi("/api/saveSettings",async (settings, sreq)=>{
 			if (setting.category &&
 					!affectedCategories.includes(setting.category))
 				affectedCategories.push(setting.category);
+
+			if (setting.session)
+				req.piggybackChannel(setting.id);
 		}
 	}
 
