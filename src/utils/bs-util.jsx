@@ -34,6 +34,11 @@ export function BsInput({...props}) {
 	if (!props.class)
 		props.class="";
 
+	if (typeof props.type=="function") {
+		let Control=props.type;
+		return (<Control {...props}/>);
+	}
+
 	if (props.type=="textarea") {
 		props.class+=" form-control";
 		return (

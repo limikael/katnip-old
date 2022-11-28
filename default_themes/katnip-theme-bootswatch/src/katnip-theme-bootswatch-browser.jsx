@@ -2,6 +2,7 @@ import {katnip, Stylesheet} from "katnip";
 import {BootswatchPageTemplate, BootswatchWrapper} from "../components/BootswatchPageTemplate.jsx";
 import "../components/bootswatch-components.jsx";
 import "bootstrap/js/dist/collapse";
+import {MediaSelect} from "../../../default_plugins/katnip-media/components/MediaSelect.jsx";
 
 katnip.addAction("getTemplateWrapper",(req)=>{
 	if (req.pathargs[0]=="admin")
@@ -77,5 +78,11 @@ katnip.addAction("getCustomizerOptions",(items)=>{
 			transparent: "Transparent",
 			none: "None"
 		}
+	});
+
+	items.push({
+		title: "Favicon Media",
+		setting: "bootswatchFavicon",
+		type: MediaSelect,
 	});
 });

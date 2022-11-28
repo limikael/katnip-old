@@ -162,26 +162,18 @@ export function EditorPath({editor}) {
 	return els;
 }
 
-function ComponentControl({node, control, id, onchange, updateNodeProps}) {
-	if (typeof control.type=="function") {
-		let Control=control.type;
+function ComponentControl({node, control, id, updateNodeProps}) {
+	function update(newValue) {
+		if (newValue instanceof Event)
+			newValue=newValue.target.value;
 
-		function update(newValue) {
-			updateNodeProps(id,newValue);
-		}
-
-		return (
-			<Control 
-				value={node.props[id]?node.props[id]:""}
-				update={update}/>
-		);
+		updateNodeProps(id,newValue);
 	}
 
 	return (
 		<BsInput {...control} 
 				value={node.props[id]?node.props[id]:""}
-				onchange={onchange}
-				data-id={id}/>
+				onchange={update}/>
 	);
 }
 
@@ -203,10 +195,6 @@ export function ComponentProperties({editor}) {
 		editor.setDocNodeProps(path,props);
 	}
 
-	function onPropChange(ev) {
-		updateNodeProps(ev.target.dataset.id,ev.target.value);
-	}
-
 	let controls=katnip.elements[node.type].controls;
 
 	return <>
@@ -218,7 +206,6 @@ export function ComponentProperties({editor}) {
 						node={node}
 						control={control}
 						id={id}
-						onchange={onPropChange}
 						updateNodeProps={updateNodeProps}/>
 			</div>
 		)}

@@ -69,9 +69,9 @@ export function CustomizerSidebar({request, iframeRef}) {
 		customizerControls.push(
 			<div class="form-group mb-3">
 				<label class="form-label mb-1">{customizerOption.title}</label>
-				<BsInput class="bg-light" type="select"
-						{...form.field(customizerOption.setting)}
-						options={customizerOption.options}/>
+				<BsInput class="bg-light" 
+						{...customizerOption}
+						{...form.field(customizerOption.setting)}/>
 			</div>
 		);
 	}
@@ -87,9 +87,11 @@ export function CustomizerSidebar({request, iframeRef}) {
 			<hr/>
 			<div class="mb-auto">
 				{customizerControls}
-				<PromiseButton class="btn btn-primary mt-3" onclick={write}>
-					Save
-				</PromiseButton>
+				<div class="text-black">
+					<PromiseButton class="btn btn-primary mt-3" onclick={write}>
+						Save
+					</PromiseButton>
+				</div>
 			</div>
 			<hr/>
 		</div>

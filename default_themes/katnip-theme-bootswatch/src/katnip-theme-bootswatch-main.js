@@ -7,6 +7,7 @@ katnip.addSetting("bootswatchTheme",{session: true});
 katnip.addSetting("bootswatchNavColor",{session: true});
 katnip.addSetting("bootswatchNavStyle",{session: true});
 katnip.addSetting("bootswatchFooter",{session: true});
+katnip.addSetting("bootswatchFavicon",{session: true});
 
 katnip.addAction("serverMain",async ()=>{
 	if (!katnip.getSetting("sitename")) {
@@ -30,4 +31,9 @@ katnip.addAction("getDefaultTemplateContent",()=>{
 			]}
 		]}
 	]);
+});
+
+katnip.addAction("processFaviconRequest",(req)=>{
+	if (katnip.getSetting("bootswatchFavicon"))
+		req.processUrl(katnip.getSetting("bootswatchFavicon"));
 });

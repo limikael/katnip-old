@@ -47,22 +47,6 @@ export default class KatnipRequestHandler {
 		return req.getUser();
 	}
 
-	initRequest=async (nodeReq, res, next)=>{
-		try {
-			let req=new KatnipServerRequest(this.katnip,nodeReq);
-			await req.initUserFromSession();
-			await req.processNodeRequestBody(nodeReq);
-			next(req);
-		}
-
-		catch (e) {
-			console.log("init request error...");
-			console.log(e);
-			res.writeHead(500);
-			res.end(e.message);
-		}
-	}
-
 	initMediaHeaders=async (req, headers)=>{
 		let media=await this.katnip.db.Media.findOne(req.pathargs[0]);
 		if (!media)
@@ -195,13 +179,52 @@ export default class KatnipRequestHandler {
 		this.mwServer.close();
 	}
 
+	initRequest=async (nodeReq, res, next)=>{
+		try {
+			let req=new KatnipServerRequest(this.katnip,nodeReq);
+			await req.processNodeRequestBody(nodeReq);
+			next(req);
+		}
+
+		catch (e) {
+			console.log("init request error...");
+			console.log(e);
+			res.writeHead(500);
+			res.end(e.message);
+		}
+	}
+
+	initRequestUser=async (req, res, next)=>{
+		try {
+			//console.log("init request user for: "+req.pathname);
+			await req.initUserFromSession();
+			next();
+		}		
+
+		catch (e) {
+			console.log("init request user error...");
+			console.log(e);
+			res.writeHead(500);
+			res.end(e.message);
+		}
+	}
+
+	serveFavicon=(req, res, next)=>{
+		if (req.pathname=="/favicon.ico")
+			this.katnip.actions.doAction("processFaviconRequest",req);
+
+		next();
+	}
+
 	async listen(...args) {
 		this.mwServer=new MiddlewareServer();
 		this.katnip.serverChannels.attachToServer(this.mwServer.server);
 
 		this.mwServer.use(this.initRequest);
+		this.mwServer.use(this.serveFavicon);
 		await this.initMedia();
 		await this.initContent();
+		this.mwServer.use(this.initRequestUser);
 		await this.initApis();
 		this.mwServer.use(this.handleDefault);
 

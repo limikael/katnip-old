@@ -25,22 +25,6 @@ class Form extends EventEmitter {
 		return this.current;
 	}
 
-	onFieldChange=(ev)=>{
-		if (this.error && this.error.field==ev.target.dataset.field)
-			this.setError(null);
-
-		let fieldPath=ev.target.dataset.field.split(/[\/\.]/);
-		let o=this.current;
-
-		while (fieldPath.length>1) {
-			o=o[fieldPath[0]];
-			fieldPath.splice(0,1);
-		}
-
-		o[fieldPath[0]]=ev.target.value;
-		this.emit("change");
-	}
-
 	getCurrentFieldValue(name) {
 		let fieldPath=name.split(/[\/\.]/);
 		let o=this.current;
@@ -66,10 +50,28 @@ class Form extends EventEmitter {
 		if (!v)
 			v="";
 
+		let onFieldChange=(newValue)=>{
+			if (newValue instanceof Event)
+				newValue=newValue.target.value;
+
+			if (this.error && this.error.field==name)
+				this.setError(null);
+
+			let fieldPath=name.split(/[\/\.]/);
+			let current=this.current;
+
+			while (fieldPath.length>1) {
+				current=current[fieldPath[0]];
+				fieldPath.splice(0,1);
+			}
+
+			current[fieldPath[0]]=newValue;
+			this.emit("change");
+		}
+
 		let o={
 			value: v,
-			onchange: this.onFieldChange,
-			"data-field": name
+			onchange: onFieldChange
 		}
 
 		if (this.class)
