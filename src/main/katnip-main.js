@@ -53,6 +53,13 @@ class MainKatnip {
 		await this.restart();
 	}
 
+	isDbInstalled=()=>{
+		if (this.options.dsn)
+			return true;
+
+		return false;
+	}
+
 	checkAdmin=async ()=>{
 		if (await User.findOne({role: "admin"})) {
 			this.haveAdmin=true;
@@ -186,6 +193,7 @@ export const runCommand=katnip.runCommand;
 export const addCommand=katnip.addCommand;
 export const installDb=katnip.installDb;
 export const checkAdmin=katnip.checkAdmin;
+export const isDbInstalled=katnip.isDbInstalled;
 
 export const db=katnip.db;
 

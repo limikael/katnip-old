@@ -40,6 +40,9 @@ katnip.addAction("getPluginBundles",(bundles)=>{
 });
 
 katnip.addChannel("templates",async ()=>{
+	if (!katnip.isDbInstalled())
+		return [];
+
 	return await Template.findMany();
 });
 
