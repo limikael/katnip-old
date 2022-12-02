@@ -38,6 +38,13 @@ export function decodeQueryString(qs) {
 	return o;
 }
 
+/**
+ * Append query variables to url.
+ *
+ * @function buildUrl
+ * @param url:String The url.
+ * @param vars:Object Variables to append to the url.
+ */
 export function buildUrl(url, vars={}) {
 	if (!url)
 		url="";
@@ -64,6 +71,13 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
+/**
+ * Wrapper for the standard fetch call.
+ *
+ * @function fetchEx
+ * @param url:String The url to fetch.
+ * @param options:Object Options.
+ */
 export async function fetchEx(url, options={}) {
 	let headers={...options.headers};
 

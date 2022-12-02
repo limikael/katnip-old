@@ -1,13 +1,14 @@
-import {useInstance, useEventUpdate, useValueChanged} from "./react-util.jsx";
+import {useInstance, useEventUpdate, useValueChanged, useFirstEntry} from "./react-util.jsx";
 import EventEmitter from "events";
 
 class Form extends EventEmitter {
 	constructor(conf) {
 		super();
 
-		this.updateConf(conf);
 		this.current=undefined;
 		this.error=null;
+
+		this.updateConf(conf);
 		this.load();
 	}
 
@@ -98,6 +99,8 @@ class Form extends EventEmitter {
 			v
 				.then((values)=>{
 					this.current=values;
+					//console.log("emitting change...");
+					//console.log(this.current);
 					this.emit("change");
 				})
 				.catch((e)=>{
@@ -119,6 +122,7 @@ export function useForm(conf) {
 
 	let form=useInstance(Form,conf);
 	form.updateConf(conf);
+
 	useEventUpdate(form,"change");
 	let changed=useValueChanged(form.deps);
 	if (changed)

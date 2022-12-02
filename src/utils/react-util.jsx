@@ -188,7 +188,7 @@ export function useImmediateEffect(effect, deps) {
 };
 
 export function useEventListener(target, event, func) {
-	useEffect(()=>{
+	useImmediateEffect(()=>{
 		if (target) {
 			/*if (event=="templateContextChange")
 				console.log("adding: "+event);*/

@@ -73,7 +73,7 @@ function Sidebar({request}) {
 
 		menuItems.push(
 			<li class="nav-item">
-				<A href={item.href} class={cls}	>
+				<A href={item.href} class={cls}	style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
 					<img src={icon} class="me-2 align-middle" style={`height: 1em; ${whiteFilter}`}/>
 					<span class="align-middle">{item.title}</span>
 				</A>
