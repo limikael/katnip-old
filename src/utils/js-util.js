@@ -1,3 +1,7 @@
+/**
+ * Various JavaScript functions.
+ * @section JavaScript Functions
+ */
 export function parseCookieString(str) {
 	const list = {};
 
@@ -41,7 +45,11 @@ export function decodeQueryString(qs) {
 /**
  * Append query variables to url.
  *
- * @function buildUrl
+ * The buildUrl function adds all query variables in the vars array to the url.
+ * If a specified variable already exists as a query variable, it will be
+ * overwritten. The query variables will be url encoded.
+ *
+ * @function JavaScript Functions.buildUrl
  * @param url:String The url.
  * @param vars:Object Variables to append to the url.
  */
@@ -74,7 +82,7 @@ export function buildUrl(url, vars={}) {
 /**
  * Wrapper for the standard fetch call.
  *
- * @function fetchEx
+ * @function JavaScript Functions.fetchEx
  * @param url:String The url to fetch.
  * @param options:Object Options.
  */
@@ -179,6 +187,19 @@ export function bindArgs(fn, ...args) {
 	return fn.bind(null,...args);
 }
 
+/**
+ * Set current browser location.
+ *
+ * This function sets the current location as specified in the url parameter.
+ * You can think of this function as loading a new page in the browser, with
+ * the exception that the page will not actually be reloaded. Instead, the
+ * page will be re-rendered with the appropriate route handler. The history
+ * state in the browser will be updated so that the back and forward buttons
+ * will work as expected. This function is only available on the client.
+ *
+ * @function Client Functions.setLocation
+ * @param url:String The new browser location.
+ */
 export function setLocation(url, options={}) {
 	if (typeof window=="undefined")
 		return;

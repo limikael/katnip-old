@@ -13,6 +13,10 @@ import {render as renderToString} from "preact-render-to-string";
 
 export const ContentContext=createContext();
 
+/**
+ * Katnip client functions.
+ * @section Client Functions
+ */
 class BrowserKatnip {
 	constructor() {
 		this.actions=new Actions();

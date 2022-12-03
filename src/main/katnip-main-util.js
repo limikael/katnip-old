@@ -64,12 +64,12 @@ export function createCrudApi(model, options={}) {
 				item[k]=query[k];
 
 		if (options.onsave)
-			options.onsave(item);
+			await options.onsave(item);
 
 		await item.save();
 
 		if (options.postsave)
-			options.postsave(item);
+			await options.postsave(item);
 
 		return item;
 	});
