@@ -1,4 +1,4 @@
-import {A, katnip, useChannel, useTemplateContext, buildUrl, Stylesheet, TheContent} from "katnip";
+import {A, katnip, useChannel, useTemplateContext, buildUrl, Stylesheet} from "katnip";
 import {BsPage, BsPageContent, BsPageNav, BsPageFooter, 
 		BsCenterContent, BsTitle} from "./bootswatch-components.jsx";
 import {useRef, useEffect, useState} from "preact/compat";
