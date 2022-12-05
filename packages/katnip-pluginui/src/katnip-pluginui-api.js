@@ -89,7 +89,7 @@ katnip.addApi("/api/getInstalledThemes",async ({},req)=>{
 		deletable: false
 	});
 
-	findThemes(themesRes,process.cwd()+"/node_modules/katnip/default_themes",false);
+	findThemes(themesRes,process.cwd()+"/node_modules/katnip/packages",false);
 	findThemes(themesRes,process.cwd()+"/node_modules/",true);
 
 	for (let t of themesRes)

@@ -2,5 +2,6 @@
   "name": "katnip-menus",
   "type": "module",
   "main": "./src/katnip-menus-main.js",
-  "browser": "./src/katnip-menus-browser.jsx"
+  "browser": "./src/katnip-menus-browser.jsx",
+  "keywords": ["katnip-plugin"]
 }

@@ -55,8 +55,12 @@ export default class KatnipPluginLoader {
 
 		paths.push(this.cwd+"/node_modules/katnip");
 
-		for (let subdir of this.getDirectories(this.cwd+"/node_modules/katnip/default_plugins"))
-			paths.push(this.cwd+"/node_modules/katnip/default_plugins/"+subdir);
+		for (let subdir of this.getDirectories(this.cwd+"/node_modules/katnip/packages")) {
+			let pkg=JSON.parse(fs.readFileSync(this.cwd+"/node_modules/katnip/packages/"+subdir+"/package.json"));
+
+			if (pkg.keywords.includes("katnip-plugin"))
+				paths.push(this.cwd+"/node_modules/katnip/packages/"+subdir);
+		}
 
 		let pkg=JSON.parse(fs.readFileSync(this.cwd+"/package.json"));
 		if (pkg["plugins"])
@@ -68,8 +72,8 @@ export default class KatnipPluginLoader {
 			theme=pkg.theme;
 
 		if (theme) {
-			if (fs.existsSync(this.cwd+"/node_modules/katnip/default_themes/"+theme))
-				paths.push(this.cwd+"/node_modules/katnip/default_themes/"+theme);
+			if (fs.existsSync(this.cwd+"/node_modules/katnip/packages/"+theme))
+				paths.push(this.cwd+"/node_modules/katnip/packages/"+theme);
 
 			else
 				paths.push(this.cwd+"/node_modules/"+theme);
@@ -84,8 +88,8 @@ export default class KatnipPluginLoader {
 		if (fs.existsSync(this.cwd+"/node_modules/"+fn))
 			return this.cwd+"/node_modules/"+fn;
 
-		if (fs.existsSync(this.cwd+"/node_modules/katnip/default_plugins/"+fn))
-			return this.cwd+"/node_modules/katnip/default_plugins/"+fn
+		if (fs.existsSync(this.cwd+"/node_modules/katnip/packages/"+fn))
+			return this.cwd+"/node_modules/katnip/packages/"+fn
 
 		throw new Error("Unable to resolve bundle file: "+fn);
 	}

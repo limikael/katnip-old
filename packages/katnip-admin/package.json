@@ -2,5 +2,6 @@
   "name": "katnip-admin",
   "type": "module",
   "main": "./src/katnip-admin-main.js",
-  "browser": "./src/katnip-admin-browser.jsx"
+  "browser": "./src/katnip-admin-browser.jsx",
+  "keywords": ["katnip-plugin"]
 }

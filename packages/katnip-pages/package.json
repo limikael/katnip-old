@@ -2,5 +2,6 @@
   "name": "katnip-pages",
   "type": "module",
   "main": "./src/katnip-pages-main.js",
-  "browser": "./src/katnip-pages-browser.jsx"
+  "browser": "./src/katnip-pages-browser.jsx",
+  "keywords": ["katnip-plugin"]
 }

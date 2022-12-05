@@ -2,7 +2,7 @@ import {katnip, Stylesheet} from "katnip";
 import {BootswatchPageTemplate, BootswatchWrapper} from "../components/BootswatchPageTemplate.jsx";
 import "../components/bootswatch-components.jsx";
 import "bootstrap/js/dist/collapse";
-import {MediaSelect} from "../../../default_plugins/katnip-media/components/MediaSelect.jsx";
+import {MediaSelect} from "../../katnip-media/components/MediaSelect.jsx";
 
 katnip.addAction("getTemplateWrapper",(req)=>{
 	if (req.pathargs[0]=="admin")
