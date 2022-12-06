@@ -27,6 +27,22 @@ function Modal({resolve, message}) {
 	);
 }
 
+/**
+ * A button with an async onclick handler.
+ *
+ * The Button component works like the standard HTML button tag.
+ * The difference is that it can have a busy state, in which case a spinner
+ * will be shown inside the button. The busy state applies while the Promise
+ * returned from the onclick handler is unresolved. If the Promise rejects,
+ * the function specified in the onerror prop will be called. If no such
+ * function is registered, a modal will be shown with the message
+ * from the Error produced by the Promise.
+ *
+ * @component React Components.PromiseButton
+ * @param onclick:Function The function to call when the button is clicked.
+ *                         This function can be a async.
+ * @param onerror:Function The function to call if the Promise rejects.
+ */
 export function PromiseButton(props) {
 	let [busy, setBusy]=useState(false);
 	let [modal, showModal, resolveModal]=useModal();

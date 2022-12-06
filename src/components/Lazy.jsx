@@ -1,5 +1,18 @@
 import {isSsr, usePromise, BsAlert, useChannel} from "katnip";
 
+/**
+ * Lazy load a component.
+ *
+ * The Lazy component will lazily load the required module and render
+ * the component after it is loaded. The component to be lazily loaded
+ * should have been previously registered by hooking into
+ * the getPluginBundles action. All props will be passed on to the loaded
+ * component once it is loaded.
+ *
+ * @component React Components.Lazy
+ * @param module:String The module id containing the component, e.g. admin.
+ * @param symbol:String The symbol referenced symbol.
+ */
 export function Lazy(props) {
 	if (isSsr())
 		return (<div class="spinner-border m-3"/>);

@@ -36,6 +36,13 @@ function DeleteConfirmation({onclose, onconfirm}) {
 	);
 }
 
+/**
+ * Render item list in the admin interface.
+ *
+ * @component React Components.ItemList
+ * @param columns:Object Column specification.
+ * @param items:Array The items to render.
+ */
 export function ItemList({columns, items, href, ondelete, refreshOnDelete, actions, deletableCb}) {
 	if (refreshOnDelete===undefined)
 		refreshOnDelete=true;

@@ -1,7 +1,24 @@
 import {createWhereClause} from "./db-util.js";
 import FieldSpec from "./FieldSpec.js";
 
+/**
+ * Base class for database models.
+ * 
+ * @class Model
+ * @param fields:Object A static field that should exist in subclasses.
+ *                      It should be an object with the field name as key,
+ *                      and the SQL definition of the field as value.
+ */
 export default class Model {
+	/**
+	 * Constructor.
+	 *
+	 * Construct a Model based on data.
+	 *
+	 * @function Model.constructor
+	 * @param data:Object Object containing field and value pairs.
+	 */
+
 	constructor(data={}) {
 		let cls=this.constructor;
 
@@ -9,6 +26,14 @@ export default class Model {
 			this[k]=data[k];
 	}
 
+	/**
+	 * Refresh this item with current data from the database.
+	 *
+	 * This function reloads the data from the database. The 
+	 * record must have a primary key value or the function fails.
+	 *
+	 * @function async Model.refresh
+	 */
 	async refresh() {
 		let cls=this.constructor;
 
@@ -32,6 +57,15 @@ export default class Model {
 		}
 	}
 
+	/**
+	 * Run query and return all results.
+	 *
+	 * Run a query on the underlying database table, and return
+	 * an array with all results of the query.
+	 *
+	 * @function static async Model.findMany
+	 * @param params:Object The query parameters.
+	 */
 	static async findMany(params={}) {
 		let cls=this;
 		let q;
@@ -61,6 +95,16 @@ export default class Model {
 		return res;
 	}
 
+	/**
+	 * Run aggregate query.
+	 *
+	 * Run aggregate query on the underlying table, as specified in the
+	 * sql parameter.
+	 *
+	 * @function static async Model.getAggregate
+	 * @param sql:String The SQL for the aggregate query.
+	 * @param params:Object The query parameters.
+	 */
 	static async getAggregate(sql, whereParams={}) {
 		let cls=this;
 		let q=createWhereClause(whereParams);
@@ -71,10 +115,27 @@ export default class Model {
 		return dbRows[0][firstKey];
 	}
 
+	/**
+	 * Get item count.
+	 *
+	 * The the number of items that matches the query.
+	 *
+	 * @function static async Model.getCount
+	 * @param params:Object The query parameters.
+	 */
 	static async getCount(params={}) {
 		return this.getAggregate("COUNT(*)",params);
 	}
 
+	/**
+	 * Run query and return first result.
+	 *
+	 * Run a query on the underlying database table, and return
+	 * the first result of the query.
+	 *
+	 * @function static async Model.findOne
+	 * @param params:Object The query parameters.
+	 */
 	static async findOne(params) {
 		let res=await this.findMany(params);
 
@@ -132,6 +193,15 @@ export default class Model {
 			await this.insert();
 	}
 
+	/**
+	 * Save record.
+	 *
+	 * Save this record to the database. If hte record has a value for the
+	 * primary key field, it will be updated. If the value is falsey, the
+	 * record will be inserted.
+	 *
+	 * @function async Model.save
+	 */
 	async save() {
 		if (this.getPrimaryKeyValue())
 			await this.update();
@@ -140,6 +210,14 @@ export default class Model {
 			await this.insert();
 	}
 
+	/**
+	 * Delete record.
+	 *
+	 * Delete this record from the database. The record must have a value for the primary key field,
+	 * or an Error will be thrown.
+	 *
+	 * @function async Model.delete
+	 */
 	async delete() {
 		let id=this.getPrimaryKeyValue();
 		if (!id)
