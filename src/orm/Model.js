@@ -3,6 +3,20 @@ import FieldSpec from "./FieldSpec.js";
 
 /**
  * Base class for database models.
+ *
+ * The way to use this class is from the main file of a plugin or
+ * project. For example:
+ * ```
+ * class MyModel extends Model {
+ *   static fields={
+ *     id: "integer not null auto_increment primary key",
+ *     s: "string"
+ *   }
+ * }
+ * ```
+ * Several functions take a `queryParams` argument. This argument is an object
+ * with the fields to be matched. For more info, see this
+ * [blog post](https://katnip.tech/blog/on-object-relational-mapping).
  * 
  * @class Model
  * @param fields:Object A static field that should exist in subclasses.
@@ -64,7 +78,7 @@ export default class Model {
 	 * an array with all results of the query.
 	 *
 	 * @function static async Model.findMany
-	 * @param params:Object The query parameters.
+	 * @param queryParams:Object The query parameters.
 	 */
 	static async findMany(params={}) {
 		let cls=this;
@@ -103,7 +117,7 @@ export default class Model {
 	 *
 	 * @function static async Model.getAggregate
 	 * @param sql:String The SQL for the aggregate query.
-	 * @param params:Object The query parameters.
+	 * @param queryParams:Object The query parameters.
 	 */
 	static async getAggregate(sql, whereParams={}) {
 		let cls=this;
@@ -121,7 +135,7 @@ export default class Model {
 	 * The the number of items that matches the query.
 	 *
 	 * @function static async Model.getCount
-	 * @param params:Object The query parameters.
+	 * @param queryParams:Object The query parameters.
 	 */
 	static async getCount(params={}) {
 		return this.getAggregate("COUNT(*)",params);
@@ -134,7 +148,7 @@ export default class Model {
 	 * the first result of the query.
 	 *
 	 * @function static async Model.findOne
-	 * @param params:Object The query parameters.
+	 * @param queryParams:Object The query parameters.
 	 */
 	static async findOne(params) {
 		let res=await this.findMany(params);
