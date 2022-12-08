@@ -3,6 +3,14 @@ export default class Actions {
 		this.actions={};
 	}
 
+	/**
+	 * Add a listener for an action.
+	 *
+	 * @function Common Functions.addAction
+	 * @param action:String The action to listen to.
+	 * @param fn:Function The function to be called when the action
+	 *                    triggers.
+	 */
 	addAction=(action, fn)=>{
 		if (!this.actions[action])
 			this.actions[action]=[];
@@ -10,6 +18,16 @@ export default class Actions {
 		this.actions[action].push(fn);
 	}
 
+	/**
+	 * Call action callbacks.
+	 *
+	 * This function calls the registered handlers for the specified
+	 * action.
+	 *
+	 * @function Common Functions.doAction
+	 * @param action:String The action to trigger.
+	 * @param ...params Parameters to be passed to the action handler.
+	 */
 	doAction=(action, ...params)=>{
 		if (!this.actions[action])
 			return;
@@ -24,6 +42,17 @@ export default class Actions {
 		return ret;
 	}
 
+	/**
+	 * Call action callbacks.
+	 *
+	 * This function calls the registered handlers for the specified
+	 * action. The action handlers are expected to return a Promise
+	 * and this function will wait for all action handlers to complete.
+	 *
+	 * @function async Common Functions.doActionAsync
+	 * @param action:String The action to trigger.
+	 * @param ...params Parameters to be passed to the action handler.
+	 */
 	doActionAsync=async (action, ...params)=>{
 		if (!this.actions[action])
 			return;

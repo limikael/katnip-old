@@ -151,6 +151,30 @@ class MainKatnip {
 		return await commandRunner.run();
 	}
 
+	/**
+	 * Add a CLI command.
+	 *
+	 * This function adds a command to be made available by the katnip CLI command.
+	 * The options argument is an object with the following fields:
+	 *
+	 * * **desc** - Short description of the command. Will be shown when a user types
+	 *              `katnip --help`.
+	 * * **args** - Object containing arguments. The name of the argument should go
+	 *              in the key, and the specification in the value.
+	 *
+	 * Each entry in the args object accepts the following fields:
+	 *
+	 * * **desc** - Short description of the argument. Will be shown when a user types
+	 *              `katnip --help`.
+	 * * **env** - Define an environment variable that can also hold the value for this option.
+	 * * **type** - Type of the argument.
+	 * * **default** - Default value.
+	 *
+	 * @function Server Functions.addCommand
+	 * @param name:String The name of the command.
+	 * @param fn:Function The function to handle the command.
+	 * @param options:Object Options for the command.
+	 */
 	addCommand(name, fn, command={}) {
 		if (this.commandRunner)
 			this.commandRunner.addCommand(name, fn, command={});

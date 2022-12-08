@@ -22,6 +22,17 @@ export default class KatnipServerRequest extends KatnipRequest {
 		this.piggybackedChannels=[];
 	}
 
+	/**
+	 * Piggyback channel value on the request.
+	 *
+	 * This function will piggyback the value for channel on the request.
+	 * This means that if a request handler on the server modifies the value
+	 * of a channel, the client can rely on the value of the channel to have
+	 * been updated when the apiFetch returns.
+	 *
+	 * @function Request.piggybackChannel
+	 * @param channelId:String The channel to piggyback.
+	 */
 	piggybackChannel(channelId) {
 		this.piggybackedChannels.push(channelId);
 	}
@@ -60,6 +71,15 @@ export default class KatnipServerRequest extends KatnipRequest {
 		}
 	}
 
+	/**
+	 * Set user for the session related to the request.
+	 *
+	 * Use this function to log in or out a user.
+	 * This function is only available on the server.
+	 *
+	 * @function async Request.setUser
+	 * @param user:User The user to set.
+	 */
 	async setUser(user) {
 		if (user && !user.id)
 			throw new Error("Can't set user without id");
