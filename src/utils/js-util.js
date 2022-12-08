@@ -1,7 +1,3 @@
-/**
- * Various JavaScript functions.
- * @section JavaScript Functions
- */
 export function parseCookieString(str) {
 	const list = {};
 
@@ -49,7 +45,7 @@ export function decodeQueryString(qs) {
  * If a specified variable already exists as a query variable, it will be
  * overwritten. The query variables will be url encoded.
  *
- * @function JavaScript Functions.buildUrl
+ * @function Common Functions.buildUrl
  * @param url:String The url.
  * @param vars:Object Variables to append to the url.
  */
@@ -79,13 +75,6 @@ export function buildUrl(url, vars={}) {
 	return base;
 }
 
-/**
- * Wrapper for the standard fetch call.
- *
- * @function JavaScript Functions.fetchEx
- * @param url:String The url to fetch.
- * @param options:Object Options.
- */
 export async function fetchEx(url, options={}) {
 	let headers={...options.headers};
 
