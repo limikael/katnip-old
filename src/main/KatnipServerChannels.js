@@ -15,11 +15,40 @@ export default class KatnipServerChannels {
 		this.wss.on("connection",this.onConnection)
 	}
 
+	/**
+	 * Add a realtime channel.
+	 *
+	 * This function adds a realtime channel. The channel handler function
+	 * should return the current value of the channel. The value of the
+	 * channel will be returned on the client side for corresponding
+	 * calls to useChannel.
+	 *
+	 * The channel handler function will be called with the following
+	 * arguments:
+	 * * **query** - The channel query passed to the useChannel function.
+	 * * **req**   - A Request object detailing the client trying to access
+	 *               the channel.
+	 *
+	 * @function Server Functions.addChannel
+	 * @param channelId:String The name of the channel.
+	 * @param func:Function The function to return data for the channel.
+	 */
 	addChannel=(channelId, func)=>{
 		this.katnip.assertFreeName(channelId);
 		this.channels[channelId]=func;
 	}
 
+	/**
+	 * Notify the system that the value of a realtime channel has been changed.
+	 *
+	 * All subscribers listening to the specified channel will receive new
+	 * data. The data will be obtained by calling the channel handler function
+	 * specified with the addChannel call.
+	 *
+	 * @function Server Functions.notifyChannel
+	 * @param channelId:String The name of the channel.
+	 * @param params:Object Filter out listeners by channel parameters.
+	 */
 	notifyChannel=(channelId, params={})=>{
 		let channelUrl=buildUrl(channelId,params);
 

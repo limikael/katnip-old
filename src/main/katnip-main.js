@@ -15,6 +15,19 @@ import fs from "fs";
 if (!global.fetch)
 	global.fetch=nodeFetch;
 
+/**
+ * Katnip server functions.
+ *
+ * Functions accessible on the server side. These are accessed by importing
+ * the `katnip` module, e.g.
+ * ```
+ * import katnip from "katnip";
+ *
+ * katnip.addModel(...);
+ * ```
+ *
+ * @section Server Functions
+ */
 class MainKatnip {
 	constructor() {
 		this.actions=new Actions();
@@ -67,10 +80,36 @@ class MainKatnip {
 		}
 	}
 
+	/**
+	 * Add a model to the database.
+	 *
+	 * This function adds a model (i.e. database table) to the database.
+	 * The `model` argument should be a class extending
+	 * [Model](/documentation/katnip/model).
+	 * @function Server Functions.addModel
+	 * @param model:Model The model to add.
+	 */
 	addModel=(model)=>{
 		this.db.addModel(model);
 	}
 
+	/**
+	 * Add an api function.
+	 *
+	 * This function adds an api endpoint at the specified path.
+	 * The function passed as the second argument is the function to
+	 * handle the api call. This function can be asyncronous and should
+	 * return a plain JavaScript object, which will be serialized and
+	 * returned in the body of the request. The handler function will be
+	 * called with the following arguments:
+	 * * **query** - This is an object containing the query variables passed
+	 *               in the HTTP request.
+	 * * **req** - This is a [Request](/documentation/katnip/Request) object
+	 *             containing details about the request.
+	 * @function Server Functions.addApi
+	 * @param path:String The path for the endpoint.
+	 * @param fn:function The function to handle incoming requests.
+	 */
 	addApi=(path, fn)=>{
 		this.apis[path]=fn;
 	}
@@ -117,6 +156,15 @@ class MainKatnip {
 			this.commandRunner.addCommand(name, fn, command={});
 	}
 
+	/**
+	 * Restart the katnip server.
+	 *
+	 * This function restarts the server. It returns a Promise
+	 * that never resolves. For this function to work, the server
+	 * needs to run in spawned mode.
+	 *
+	 * @function async Server Functions.restart
+	 */
 	restart=async ()=>{
 		if (!this.options.webProcessChild)
 			throw new Error("Not running in spawned mode.");
