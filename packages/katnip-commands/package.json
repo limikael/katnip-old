@@ -1,0 +1,6 @@
+{
+  "name": "katnip-commands",
+  "type": "module",
+  "main": "src/katnip-commands-main.js",
+  "keywords": ["katnip-plugin"]
+}

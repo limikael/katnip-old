@@ -6,7 +6,6 @@ import Db from "../orm/Db.js";
 import {quoteAttr, delay, buildUrl, fetchEx} from "../utils/js-util.js";
 import nodeFetch from "node-fetch";
 import KatnipPluginLoader from "./KatnipPluginLoader.js";
-import KatnipCommands from "./KatnipCommands.js";
 import PackageManager from "../utils/PackageManager.js";
 import KatnipRequestHandler from "../auth/KatnipRequestHandler.js";
 import User from "../auth/User.js";
@@ -135,9 +134,6 @@ class MainKatnip {
 		this.options=commandRunner.getCommand().getNamedArguments();
 		this.commandRunner=commandRunner;
 
-		let katnipCommands=new KatnipCommands(this);
-		katnipCommands.initCommandRunner();
-
 		await this.initPlugins(false);
 
 		if (commandRunner.getCommand().level=="postdb") {
@@ -175,9 +171,9 @@ class MainKatnip {
 	 * @param fn:Function The function to handle the command.
 	 * @param options:Object Options for the command.
 	 */
-	addCommand(name, fn, command={}) {
+	addCommand=(name, fn, command={})=>{
 		if (this.commandRunner)
-			this.commandRunner.addCommand(name, fn, command={});
+			this.commandRunner.addCommand(name, fn, command);
 	}
 
 	/**

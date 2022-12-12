@@ -89,6 +89,9 @@ class Command {
 		if (typeof callable=="function")
 			this.callable=callable;
 
+		if (!this.desc)
+			this.desc="";
+
 		if (!this.path)
 			this.path=this.name.split(/\s+/);
 
