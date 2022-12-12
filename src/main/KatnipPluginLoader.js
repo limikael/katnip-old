@@ -101,7 +101,12 @@ export default class KatnipPluginLoader {
 			for (let i=0; i<pluginBundles[k].length; i++)
 				pluginBundles[k][i]=this.resolveBundleFile(pluginBundles[k][i]);
 
-		pluginBundles["katnip-bundle"]=this.getPluginPaths();
+		pluginBundles["katnip-bundle"]=[];
+		for (let pluginPath of this.getPluginPaths()) {
+			let pkg=JSON.parse(fs.readFileSync(pluginPath+"/package.json"));
+			if (pkg.browser)
+				pluginBundles["katnip-bundle"].push(pluginPath);
+		}
 
 		this.outDir=await this.createOutDir();
 		console.log("Building in: "+this.outDir+" minify: "+options.minify);
