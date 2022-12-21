@@ -87,7 +87,8 @@ export function MediaSelect({value, onchange}) {
 		<div class="d-grid">
 			{modal}
 			{bsLoader(media,()=><>
-				<button class="btn btn-outline-primary"
+				<button type="button"
+						class="btn btn-outline-primary"
 						onclick={onSelectMediaClick}>
 					{media?media.filename:"(select)"}
 				</button>
